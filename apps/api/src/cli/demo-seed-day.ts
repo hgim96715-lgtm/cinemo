@@ -28,9 +28,15 @@ import {
 type Personas = {
   nicknames: string[];
   reviews: { body: string; rating: number }[];
+  profiles: {
+    bio: string | null;
+    tags: string[];
+    profilePublic: boolean;
+  }[];
 };
 
 type ReviewTemplate = { body: string; rating: number };
+type ProfileTemplate = Personas['profiles'][number];
 
 function loadPersonas(): Personas {
   const path = join(disposableDemoSeedDir(), 'personas.json');
@@ -61,6 +67,30 @@ function pickMachine(): GachaMachineId {
 
 function pickReview(personas: Personas): ReviewTemplate {
   return personas.reviews[Math.floor(Math.random() * personas.reviews.length)]!;
+}
+
+function pickProfile(personas: Personas): ProfileTemplate {
+  return personas.profiles[
+    Math.floor(Math.random() * personas.profiles.length)
+  ]!;
+}
+
+async function seedProfile(
+  auth: AuthService,
+  userId: string,
+  personas: Personas,
+) {
+  const profile = pickProfile(personas);
+  await auth.updateProfile(userId, {
+    bio: profile.bio,
+    tags: profile.tags,
+    profilePublic: profile.profilePublic,
+  });
+  const tagPreview =
+    profile.tags.length > 0 ? profile.tags.map((t) => `#${t}`).join(' ') : '—';
+  console.log(
+    `[demo-seed] profile ${profile.profilePublic ? '공개' : '비공개'} · ${tagPreview}`,
+  );
 }
 
 function pickNickname(
@@ -216,6 +246,7 @@ async function main() {
       const reg = await auth.register({ email, password, nickname });
       const userId = reg.user.id;
       console.log(`[demo-seed] register ${nickname} (${email})`);
+      await seedProfile(auth, userId, personas);
 
       const r = await runUserActivity(userId, nickname, personas, deps);
       results.push(r);
@@ -232,6 +263,15 @@ async function main() {
     for (const user of returning) {
       await auth.login({ email: user.email, password });
       console.log(`[demo-seed] login ${user.nickname}`);
+
+      const row = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { tags: true },
+      });
+      if (!row?.tags.length) {
+        await seedProfile(auth, user.id, personas);
+      }
+
       const r = await runUserActivity(user.id, user.nickname, personas, deps);
       results.push(r);
       await sleep(DEMO_SEED.staggerMs);

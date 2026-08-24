@@ -61,21 +61,118 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 7.5rem;
-  justify-content: flex-end;
+  gap: 0.5rem;
+  min-height: 14rem;
+  padding-top: 0.2rem;
 }
 
-.room-me .lobby-guest-figure {
+.room-me-speech {
+  position: relative;
+  z-index: 2;
+  max-width: 13.5rem;
+  margin: 0;
+  padding: 0.55rem 0.9rem 0.58rem;
+  border: 1px solid rgb(212 181 106 / 0.4);
+  border-radius: 1.1rem;
+  background: linear-gradient(180deg, #fffaf0 0%, #f3ead8 100%);
+  color: #3a342c;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  overflow: visible;
+  box-shadow:
+    0 6px 16px rgb(0 0 0 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.65);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.room-me-speech-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.room-me-speech:hover {
+  border-color: rgb(184 145 76 / 0.75);
+  transform: translateY(-1px);
+}
+
+.room-me-speech::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -0.42rem;
+  z-index: 1;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-right: 1px solid rgb(212 181 106 / 0.4);
+  border-bottom: 1px solid rgb(212 181 106 / 0.4);
+  background: #f3ead8;
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.room-me-speech--hint {
+  border-style: dashed;
+  color: rgb(58 52 44 / 0.55);
+  font-weight: 450;
+  background: linear-gradient(180deg, #f7f1e6 0%, #ebe1d0 100%);
+}
+
+.room-me-speech--hint::after {
+  background: #ebe1d0;
+}
+
+/* scale은 레이아웃을 안 키움 → 래퍼에 시각 높이 확보 */
+.room-me-avatar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 6.4rem;
+  margin-top: 0.55rem;
+}
+
+.room-me .lobby-guest-figure,
+.room-me .avatar-figure {
   transform: scale(1.35);
   transform-origin: center bottom;
 }
 
 .room-me-name {
-  margin: 0;
+  margin: 0.1rem 0 0;
   font-size: 0.84rem;
   letter-spacing: 0.06em;
   color: rgb(243 239 230 / 0.88);
+}
+
+.room-me-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 14rem;
+}
+
+.room-me-tag {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgb(212 181 106 / 0.35);
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgb(243 239 230 / 0.78);
+  background: rgb(212 181 106 / 0.1);
 }
 
 .room-doors {
@@ -426,7 +523,7 @@
 
 .room-zones {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.45rem;
   width: 100%;
 }
@@ -450,12 +547,6 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
-}
-
-/* avatar-figure 스케일 (room-me) */
-.room-me .avatar-figure {
-  transform: scale(1.35);
-  transform-origin: center bottom;
 }
 
 .lobby-guest-identity .avatar-figure {

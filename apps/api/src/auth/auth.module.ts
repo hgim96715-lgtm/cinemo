@@ -37,6 +37,6 @@ import { AdminModule } from '../admin/admin.module';
     JwtStrategy,
     AuthService,
   ],
-  exports: [JwtModule],
+  exports: [JwtModule, AuthService],
 })
 export class AuthModule {}

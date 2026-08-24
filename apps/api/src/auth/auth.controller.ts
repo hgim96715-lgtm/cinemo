@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { Public } from './decorators/public.decorator';
 import { UserId } from './decorators/user-id.decorator';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -46,5 +47,10 @@ export class AuthController {
   @Patch('avatar')
   updateAvatar(@UserId() userId: string, @Body() dto: UpdateAvatarDto) {
     return this.authService.updateAvatar(userId, dto);
+  }
+  @ApiBearerAuth()
+  @Patch('profile')
+  updateProfile(@UserId() userId: string, @Body() dto: UpdateProfileDto) {
+    return this.authService.updateProfile(userId, dto);
   }
 }

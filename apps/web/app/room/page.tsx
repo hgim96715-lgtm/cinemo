@@ -8,14 +8,16 @@ import {
   type AvatarConfig,
   type UserMovieCounts,
 } from '@cinemo/shared';
-import { useAuthStore } from '@/lib/auth-store';
-import { updateAvatarRequest } from '@/lib/auth-api';
+import { useAuthStore, type UpdateProfileInput } from '@/lib/auth-store';
+import { updateAvatarRequest, updateProfileRequest } from '@/lib/auth-api';
 import { AvatarFigure } from '@/components/room/AvatarFigure';
 import { WardrobeModal } from '@/components/room/WardrobeModal';
+import { ProfileModal } from '@/components/room/ProfileModal';
 import { getUserMovieCountsRequest } from '@/lib/user-movie-api';
 import '../styles/room.css';
 import '../styles/lobby.css';
 import '../styles/avatar.css';
+import '../styles/profile.css';
 
 export default function MyRoomPage() {
   const router = useRouter();
@@ -26,6 +28,7 @@ export default function MyRoomPage() {
   const hydrated = useAuthStore((s) => s.hydrated);
   const [counts, setCounts] = useState<UserMovieCounts | null>(null);
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +71,23 @@ export default function MyRoomPage() {
     }
   }
 
+  async function handleSaveProfile(
+    profile: UpdateProfileInput & { nickname?: string },
+  ) {
+    if (!accessToken || !user) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await updateProfileRequest(accessToken, profile);
+      setUser(updated);
+      setProfileOpen(false);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (!user) {
     return (
       <main className="room">
@@ -98,8 +118,30 @@ export default function MyRoomPage() {
 
       <div className="room-stage">
         <div className="room-me">
-          <AvatarFigure config={avatarConfig} />
+          <button
+            type="button"
+            className={`room-me-speech${user.bio?.trim() ? '' : ' room-me-speech--hint'}`}
+            onClick={() => setProfileOpen(true)}
+          >
+            <span className="room-me-speech-text">
+              {user.bio?.trim()
+                ? user.bio.trim()
+                : '프로필 작성하려면 클릭하세요'}
+            </span>
+          </button>
+          <div className="room-me-avatar">
+            <AvatarFigure config={avatarConfig} />
+          </div>
           <p className="room-me-name">{user.nickname}</p>
+          {user.tags.length > 0 ? (
+            <ul className="room-me-tags" aria-label="내 태그">
+              {user.tags.slice(0, 3).map((tag) => (
+                <li key={tag} className="room-me-tag">
+                  #{tag}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
         <nav className="room-doors" aria-label="영화 선반">
@@ -114,9 +156,6 @@ export default function MyRoomPage() {
         </nav>
 
         <nav className="room-zones" aria-label="내 방 구역">
-          <button type="button" className="room-zone" disabled title="준비 중">
-            프로필
-          </button>
           <button
             type="button"
             className="room-zone"
@@ -147,6 +186,19 @@ export default function MyRoomPage() {
           initial={avatarConfig}
           onSave={(config) => void handleSaveAvatar(config)}
           onClose={() => setWardrobeOpen(false)}
+        />
+      ) : null}
+
+      {profileOpen ? (
+        <ProfileModal
+          initial={{
+            nickname: user.nickname,
+            bio: user.bio ?? '',
+            profilePublic: user.profilePublic,
+            tags: user.tags,
+          }}
+          onSave={(profile) => void handleSaveProfile(profile)}
+          onClose={() => setProfileOpen(false)}
         />
       ) : null}
     </main>

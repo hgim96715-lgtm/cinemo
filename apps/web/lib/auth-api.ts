@@ -1,6 +1,6 @@
-import type { AvatarConfig } from '@cinemo/shared';
+import { PublicProfile, type AvatarConfig } from '@cinemo/shared';
 import { apiFetch } from './api';
-import type { AuthUser } from './auth-store';
+import type { AuthUser, UpdateProfileInput } from './auth-store';
 
 export type AuthResponse = {
   accessToken: string;
@@ -36,6 +36,21 @@ export function updateAvatarRequest(token: string, avatar: AvatarConfig) {
     token,
     body: JSON.stringify(avatar),
   });
+}
+
+export function updateProfileRequest(
+  token: string,
+  profile: UpdateProfileInput,
+) {
+  return apiFetch<AuthUser>('/auth/profile', {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify(profile),
+  });
+}
+
+export function getPublicProfileRequest(nickname: string) {
+  return apiFetch<PublicProfile>(`/profiles/${encodeURIComponent(nickname)}`);
 }
 
 export function checkEmailRequest(email: string) {

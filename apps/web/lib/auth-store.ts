@@ -1,6 +1,6 @@
 'use client';
 
-import type { AvatarConfig } from '@cinemo/shared';
+import type { AvatarConfig, ProfileConfig } from '@cinemo/shared';
 import { create } from 'zustand';
 
 export type AuthUser = {
@@ -9,7 +9,11 @@ export type AuthUser = {
   nickname: string;
   role: 'user' | 'admin';
   avatarConfig: AvatarConfig;
+  bio: string | null;
+  profilePublic: boolean;
+  tags: string[];
 };
+export type UpdateProfileInput = Partial<ProfileConfig> & { nickname?: string };
 
 type AuthState = {
   accessToken: string | null;
