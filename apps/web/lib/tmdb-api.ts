@@ -124,3 +124,10 @@ export type LatestSeedRunResponse = {
 export function getLatestSeedRunRequest(token: string | null) {
   return apiFetch<LatestSeedRunResponse>('/tmdb/seed-pool/latest', { token });
 }
+
+export function cancelSeedPoolRequest(token: string | null) {
+  return apiFetch<{ cancelled: boolean }>('/tmdb/seed-pool/cancel', {
+    method: 'POST',
+    token,
+  });
+}

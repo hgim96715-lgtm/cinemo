@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, X, AlertCircle } from 'lucide-react';
 import { GACHA_MACHINES } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
 import {
+  cancelSeedPoolRequest,
   getSeedPoolProgressRequest,
   seedPoolAllRequest,
   seedPoolRequest,
@@ -32,6 +33,8 @@ export default function AdminOpsPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [result, setResult] = useState<ResultState>(null);
   const [progress, setProgress] = useState<SeedProgress | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const recoveredProgressRef = useRef(false);
 
   async function seedAll() {
     setProgress(null);
@@ -60,22 +63,33 @@ export default function AdminOpsPage() {
   }
 
   useEffect(() => {
-    if (loading !== 'all') {
-      setProgress(null);
-      return;
-    }
+    let cancelled = false;
     async function poll() {
       try {
-        const progress = await getSeedPoolProgressRequest(token);
-        if (progress) setProgress(progress);
+        const current = await getSeedPoolProgressRequest(token);
+        if (cancelled) return;
+        if (current) {
+          recoveredProgressRef.current = true;
+          setProgress(current);
+          setLoading((value) => value ?? 'all');
+          return;
+        }
+        if (recoveredProgressRef.current) {
+          recoveredProgressRef.current = false;
+          setLoading(null);
+          setProgress(null);
+        }
       } catch {
-        /* ignore */
+        //진행률 조회 실패는 다음 폴링에서 재시도
       }
     }
     void poll();
     const interval = window.setInterval(poll, 1000);
-    return () => window.clearInterval(interval);
-  }, [loading, token]);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [token]);
 
   async function seedOne(machineId: string) {
     setLoading(machineId);
@@ -104,6 +118,26 @@ export default function AdminOpsPage() {
       setLoading(null);
     }
   }
+  async function cancelAll() {
+    if (loading !== 'all' || cancelling) return;
+    setCancelling(true);
+    try {
+      const response = await cancelSeedPoolRequest(token);
+      setResult({
+        kind: 'error',
+        message: response.cancelled
+          ? '중단 요청을 보냈습니다.'
+          : '실행 중인 시드가 없습니다.',
+      });
+    } catch (error) {
+      setResult({
+        kind: 'error',
+        message: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   return (
     <main className="admin-main">
@@ -114,7 +148,7 @@ export default function AdminOpsPage() {
         <section className="admin-ops-card">
           <h3 className="admin-ops-heading">MoviePool 시드</h3>
           <p className="admin-ops-desc">
-            TMDB에서 영화를 가져와 풀을 채웁니다. cron은 매일 KST 02:00 자동
+            TMDB에서 영화를 가져와 풀을 채웁니다. cron은 매일 KST 02:05 자동
             실행.
           </p>
 
@@ -128,7 +162,12 @@ export default function AdminOpsPage() {
                   min={1}
                   max={20}
                   value={pages}
-                  onChange={(e) => setPages(Number(e.target.value))}
+                  onChange={(e) => {
+                    const input = e.currentTarget;
+                    const normalized = input.value.replace(/^0+(?=\d)/, '');
+                    input.value = normalized;
+                    setPages(normalized === '' ? 0 : Number(normalized));
+                  }}
                 />
                 <em>= {pages * 20}편</em>
               </span>
@@ -140,6 +179,15 @@ export default function AdminOpsPage() {
             >
               {loading === 'all' ? '실행 중…' : '전체 머신 시드'}
             </button>
+            {loading === 'all' ? (
+              <button
+                className="admin-ops-btn admin-ops-btn--danger"
+                onClick={() => void cancelAll()}
+                disabled={cancelling}
+              >
+                {cancelling ? '중단 요청 중…' : '중단'}
+              </button>
+            ) : null}
           </div>
           {loading === 'all' && (
             <div className="admin-ops-progress">

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -86,6 +87,15 @@ export class TmdbService {
     total: number;
     machineId: string;
   } | null = null;
+
+  private seedAllRuning = false;
+  private seedCancelRequested = false;
+
+  requestSeedCancel(): boolean {
+    if (!this.seedAllRuning) return false;
+    this.seedCancelRequested = true;
+    return true;
+  }
 
   /** TMDB providers + admin override merge */
   private mergeProviders(
@@ -318,6 +328,7 @@ export class TmdbService {
           failedCount: number;
         },
       ) => void | Promise<void>;
+      shouldCancel?: () => boolean;
     },
   ): Promise<{
     ok: boolean;
@@ -335,7 +346,9 @@ export class TmdbService {
     for (let page = 1; page <= pages; page++) {
       const { results } = await this.discoverMovies(filters, page);
       fetchedCount += results.length;
+      if (opts?.shouldCancel?.()) break;
       for (const movie of results) {
+        if (opts?.shouldCancel?.()) break;
         if (!movie.poster_path) {
           skippedCount += 1;
           continue;
@@ -352,6 +365,7 @@ export class TmdbService {
           );
         }
       }
+      if (opts?.shouldCancel?.()) break;
       processedPages += 1;
       await opts?.onPageDone?.(page, {
         processedPages,
@@ -385,6 +399,12 @@ export class TmdbService {
       }
     >
   > {
+    if (this.seedAllRuning) {
+      this.logger.warn('MoviePool 시드 중복 실행 차단');
+      throw new ConflictException('MoviePool 시드가 이미 실행 중입니다.');
+    }
+    this.seedAllRuning = true;
+    this.seedCancelRequested = false;
     const results: Record<
       string,
       {
@@ -414,6 +434,7 @@ export class TmdbService {
                 machineId: machine.id,
               };
             },
+            shouldCancel: () => this.seedCancelRequested,
           },
         );
         results[machine.id] = result;
@@ -421,6 +442,8 @@ export class TmdbService {
       return results;
     } finally {
       this.seedProgress = null;
+      this.seedAllRuning = false;
+      this.seedCancelRequested = false;
     }
   }
 

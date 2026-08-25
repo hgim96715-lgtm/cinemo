@@ -288,6 +288,7 @@ enum MoviePoolSeedRunStatus {
     succeeded
     partial
     failed
+    cancelled
 }
 
 enum MoviePoolSeedTrigger {

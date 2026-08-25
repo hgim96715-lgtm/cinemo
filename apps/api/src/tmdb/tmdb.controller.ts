@@ -137,6 +137,14 @@ export class TmdbController {
   }
 
   @Roles('admin')
+  @Post('seed-pool/cancel')
+  cancelSeedPool() {
+    return {
+      cancelled: this.tmdbService.requestSeedCancel(),
+    };
+  }
+
+  @Roles('admin')
   @Get('provider-overrides')
   listProviderOverrides(@Query('tmdbId', ParseIntPipe) tmdbId: number) {
     return this.tmdbService.listProviderOverrides(tmdbId);
