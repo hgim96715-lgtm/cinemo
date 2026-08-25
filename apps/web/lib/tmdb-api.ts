@@ -1,4 +1,4 @@
-import type { GachaMovie } from '@cinemo/shared';
+import type { GachaMovie, MoviePoolSeedRun } from '@cinemo/shared';
 import { apiFetch } from './api';
 import { normalizeSearchQuery } from './search-query';
 
@@ -8,7 +8,26 @@ export type TmdbSearchResponse = {
   results: GachaMovie[];
 };
 
-export type SeedResult = Record<string, { ok: boolean }>;
+export type SeedResult = Record<
+  string,
+  {
+    ok: boolean;
+    processedPages: number;
+    fetchedCount: number;
+    savedCount: number;
+    skippedCount: number;
+    failedCount: number;
+  }
+>;
+
+export type SeedSingleResult = {
+  ok: boolean;
+  processedPages: number;
+  fetchedCount: number;
+  savedCount: number;
+  skippedCount: number;
+  failedCount: number;
+};
 
 export function seedPoolAllRequest(token: string | null, pages = 5) {
   return apiFetch<SeedResult>(`/tmdb/seed-pool/all?pages=${pages}`, {
@@ -29,7 +48,7 @@ export function seedPoolRequest(
   machineId: string,
   pages = 5,
 ) {
-  return apiFetch<void>(
+  return apiFetch<SeedSingleResult>(
     `/tmdb/seed-pool?machineId=${machineId}&pages=${pages}`,
     {
       method: 'POST',
@@ -44,8 +63,17 @@ export type SeedProgress = {
   machineId: string;
 };
 
-export function getSeedPoolProgressRequest(token: string | null) {
-  return apiFetch<SeedProgress | null>('/tmdb/seed-pool/progress', { token });
+export type SeedProgressResponse = {
+  progress: SeedProgress | null;
+};
+
+export async function getSeedPoolProgressRequest(token: string | null) {
+  const response = await apiFetch<SeedProgressResponse>(
+    '/tmdb/seed-pool/progress',
+    { token },
+  );
+
+  return response.progress;
 }
 
 export type ProviderOverride = {
@@ -88,4 +116,11 @@ export function upsertProviderOverrideRequest(
     token,
     body: JSON.stringify(body),
   });
+}
+export type LatestSeedRunResponse = {
+  run: MoviePoolSeedRun | null;
+};
+
+export function getLatestSeedRunRequest(token: string | null) {
+  return apiFetch<LatestSeedRunResponse>('/tmdb/seed-pool/latest', { token });
 }
