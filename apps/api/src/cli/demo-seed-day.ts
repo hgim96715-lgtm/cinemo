@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { NestFactory } from '@nestjs/core';
 import { GACHA_MACHINES, type GachaMachineId } from '@cinemo/shared';
 import { AppModule } from '../app.module';
+import { AdminService } from '../admin/admin.service';
 import { AuthService } from '../auth/auth.service';
 import { TicketService } from '../ticket/ticket.service';
 import { ReviewPostService } from '../review-post/review-post.service';
@@ -228,6 +229,7 @@ async function main() {
   });
 
   const auth = app.get(AuthService);
+  const admin = app.get(AdminService);
   const ticket = app.get(TicketService);
   const review = app.get(ReviewPostService);
   const lobby = app.get(LobbyBoardService);
@@ -261,7 +263,7 @@ async function main() {
     }
 
     for (const user of returning) {
-      await auth.login({ email: user.email, password });
+      await admin.recordGuestLogin(user.id);
       console.log(`[demo-seed] login ${user.nickname}`);
 
       const row = await prisma.user.findUnique({

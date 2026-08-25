@@ -10,7 +10,7 @@ import {
   updateReviewPostRequest,
 } from '@/lib/review-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
-import { Heart, Star, X } from 'lucide-react';
+import { ArrowLeft, Heart, Star, X } from 'lucide-react';
 import '../styles/review.css';
 import { useAuthStore } from '@/lib/auth-store';
 import { recordAnonReviewVisitRequest } from '@/lib/anon-api';
@@ -244,9 +244,23 @@ export default function ReviewPage() {
   return (
     <main className="review">
       <header className="review-top">
-        <Link href="/" className="review-back">
-          ← 로비
-        </Link>
+        {user?.role === 'admin' ? (
+          <>
+            <Link href="/admin" className="review-back">
+              <ArrowLeft size={16} aria-hidden />
+              관리자 화면
+            </Link>
+            <Link href="/?lobby=1" className="review-back">
+              <ArrowLeft size={16} aria-hidden />
+              로비
+            </Link>
+          </>
+        ) : (
+          <Link href="/" className="review-back">
+            <ArrowLeft size={16} aria-hidden />
+            로비
+          </Link>
+        )}
       </header>
       {error ? <p className="review-error">{error}</p> : null}
 

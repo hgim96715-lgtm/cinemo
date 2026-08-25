@@ -37,18 +37,21 @@
 }
 
 .gacha-header-link {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--lobby-muted);
-  font: inherit;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 160ms ease;
-}
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--lobby-muted);
+    font: inherit;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 160ms ease;
+  }
 
 .gacha-header-link:hover {
   color: var(--lobby-fg);
@@ -718,16 +721,19 @@
 }
 
 .gacha-nav-link {
-  padding: 0.2rem 0;
-  border: none;
-  background: transparent;
-  color: var(--lobby-muted);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 200ms ease;
+    flex-shrink: 0;
+    padding: 0.2rem 0;
+    border: none;
+    background: transparent;
+    color: var(--lobby-muted);
+    font-size: 0.66rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 200ms ease;
 }
 
 .gacha-nav-link:hover {

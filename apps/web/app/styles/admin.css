@@ -881,7 +881,7 @@ select.admin-ops-input {
     border-color: rgb(224 112 112 / 0.45);
     background: rgb(224 112 112 / 0.1);
   }
-  
+
   .admin-ops-btn--danger:hover:not(:disabled) {
     color: #ffd0d0;
     border-color: #e57373;
@@ -980,3 +980,23 @@ select.admin-ops-input {
     width: 100%;
   }
 }
+
+
+.admin-nav button.admin-link--out {
+    width: 100%;
+    margin-top: 0.2rem;
+    padding: 0.38rem 0.5rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: var(--admin-muted);
+    font: inherit;
+    font-size: 0.75rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .admin-nav button.admin-link--out:hover {
+    color: var(--admin-fg);
+    background: rgb(243 239 230 / 0.06);
+  }

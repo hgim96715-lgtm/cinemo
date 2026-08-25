@@ -25,3 +25,17 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   mouthStyle: "smile",
   outfit: { type: "solid", color: "#c8a96e" },
 };
+
+export const ADMIN_AVATAR: AvatarConfig = {
+  hat: "crown",
+  hatColor: "#d4b56a",
+  skinColor: "#f5f0e8",
+  eyeStyle: "crescent",
+  blushColor: null,
+  mouthStyle: "smile",
+  outfit: {
+    type: "stripe",
+    color1: "#2b2520",
+    color2: "#d4b56a",
+  },
+};

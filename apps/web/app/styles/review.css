@@ -26,22 +26,28 @@
 }
 
 .review-back {
-  z-index: 1;
-  margin: 0;
-  padding: 0.32rem 0.55rem;
-  border: 1px solid rgb(243 239 230 / 0.14);
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.28);
-  color: var(--lobby-muted);
-  font: inherit;
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  text-decoration: none;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.32rem 0.55rem;
+    border: 1px solid rgb(243 239 230 / 0.14);
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.28);
+    color: var(--lobby-muted);
+    font: inherit;
+    font-size: 0.7rem;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease;
+  }
 
 .review-back:hover {
   border-color: rgb(224 192 120 / 0.4);

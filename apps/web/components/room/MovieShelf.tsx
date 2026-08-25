@@ -183,17 +183,14 @@ export function MovieShelf({ kind, title }: Props) {
     const movingWishToWatched =
       kind === 'wish' && markKind === 'watched' && turningOn;
 
-    let nextWish =
-      markKind === 'wish' ? turningOn : prevMarks.wish;
-    let nextWatched =
-      markKind === 'watched' ? turningOn : prevMarks.watched;
+    let nextWish = markKind === 'wish' ? turningOn : prevMarks.wish;
+    let nextWatched = markKind === 'watched' ? turningOn : prevMarks.watched;
     if (movingWishToWatched) {
       nextWish = false;
       nextWatched = true;
     }
 
-    const leaveShelf =
-      movingWishToWatched || (markKind === kind && !turningOn);
+    const leaveShelf = movingWishToWatched || (markKind === kind && !turningOn);
 
     setMarksByTmdbId((prev) => ({
       ...prev,
@@ -378,9 +375,6 @@ export function MovieShelf({ kind, title }: Props) {
       </div>
 
       <div className="room-actions room-actions--shelf">
-        <Link href="/room" className="lobby-btn lobby-btn--primary">
-          내 방으로
-        </Link>
         <Link href="/" className="lobby-btn">
           로비로
         </Link>

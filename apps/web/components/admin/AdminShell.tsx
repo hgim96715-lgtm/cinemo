@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 
 const LINKS = [
@@ -16,6 +16,13 @@ const LINKS = [
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
+  const clearSession = useAuthStore((s) => s.clearSession);
+
+  function handleLogout() {
+    clearSession();
+    router.replace('/');
+  }
 
   return (
     <div className="admin-shell">
@@ -36,6 +43,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <Link href="/?lobby=1" className="admin-link--out">
             로비로
           </Link>
+          <button
+            type="button"
+            className="admin-link--out"
+            onClick={handleLogout}
+          >
+            로그아웃
+          </button>
         </nav>
       </aside>
       {children}

@@ -48,7 +48,7 @@ export function TicketBooth({ onStatusChange }: Props) {
   }, [showTicket]);
 
   useEffect(() => {
-    if (!accessToken || !user) {
+    if (!accessToken || !user || user.role === 'admin') {
       setStatus(null);
       onStatusChange(null);
       return;
@@ -98,7 +98,10 @@ export function TicketBooth({ onStatusChange }: Props) {
     }
   }
 
-  const canIssue = Boolean(user) && (status === 'none' || status === null);
+  const canIssue =
+    user?.role !== 'admin' &&
+    Boolean(user) &&
+    (status === 'none' || status === null);
 
   function onStaffPersonClick() {
     if (!user) {
@@ -148,7 +151,7 @@ export function TicketBooth({ onStatusChange }: Props) {
   return (
     <>
       <Staff
-        speech={staffSpeech(user?.nickname, status)}
+        speech={staffSpeech(user?.nickname, status, user?.role)}
         onPersonClick={!user || canIssue ? onStaffPersonClick : undefined}
         personLabel={staffPersonLabel}
       />
@@ -169,7 +172,9 @@ export function TicketBooth({ onStatusChange }: Props) {
         </div>
         {error ? <p className="lobby-desk-copy">{error}</p> : null}
         <div className="lobby-desk-actions">
-          {!user ? (
+          {user?.role === 'admin' ? (
+            <span className="lobby-desk-hint">운영자 모드</span>
+          ) : !user ? (
             <>
               <Link href="/login" className="lobby-btn lobby-btn--primary">
                 입장하기
@@ -189,7 +194,9 @@ export function TicketBooth({ onStatusChange }: Props) {
               <span className="lobby-desk-status-value">사용 완료</span>
             </p>
           ) : (
-            <span className="lobby-desk-hint">직원을 눌러 티켓을 받아보세요</span>
+            <span className="lobby-desk-hint">
+              직원을 눌러 티켓을 받아보세요
+            </span>
           )}
         </div>
         <div className="lobby-desk-rail" aria-hidden />

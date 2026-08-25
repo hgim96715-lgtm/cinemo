@@ -68,6 +68,19 @@
   cursor: pointer;
 }
 
+.cafe-back-links {
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 0.45rem;
+    width: 100%;
+    margin: 0.15rem 0 0.3rem;
+  }
+
+  .cafe-back-links .review-back {
+    align-self: auto;
+  }
+
 .cafe-back-icon {
   width: 0.78rem;
   height: 0.78rem;

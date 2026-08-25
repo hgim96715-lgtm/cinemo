@@ -21,6 +21,7 @@ export default function CafePage() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const hydrated = useAuthStore((s) => s.hydrated);
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -94,10 +95,23 @@ export default function CafePage() {
   return (
     <main className={`cafe${cafeJustClosed ? ' cafe--closed' : ''}`}>
       <div className="cafe-stage">
-        <Link href="/" className="review-back">
-          <ArrowLeft className="cafe-back-icon" aria-hidden />
-          로비
-        </Link>
+        {user?.role === 'admin' ? (
+          <nav className="cafe-back-links" aria-label="관리자 및 로비 이동">
+            <Link href="/admin" className="review-back">
+              <ArrowLeft className="cafe-back-icon" aria-hidden />
+              관리자 화면
+            </Link>
+            <Link href="/?lobby=1" className="review-back">
+              <ArrowLeft className="cafe-back-icon" aria-hidden />
+              로비
+            </Link>
+          </nav>
+        ) : (
+          <Link href="/" className="review-back">
+            <ArrowLeft className="cafe-back-icon" aria-hidden />
+            로비
+          </Link>
+        )}
 
         {cafeJustClosed ? (
           <p className="cafe-closed">오늘 카페는 닫혔어요</p>

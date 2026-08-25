@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import type { TicketStatus } from '@cinemo/shared';
+import { ADMIN_AVATAR, type TicketStatus } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
 import { TicketBooth } from '@/components/lobby/TicketBooth';
 import { guestTicketLabel } from '@/lib/lobby-speech';
@@ -88,21 +88,39 @@ function HomeContent() {
         <div className="lobby-guest" aria-label={user ? user.nickname : '손님'}>
           <div className="lobby-guest-bar">
             <div className="lobby-guest-identity">
-              <AvatarFigure config={user?.avatarConfig} />
+              <AvatarFigure
+                config={
+                  user?.role === 'admin' ? ADMIN_AVATAR : user?.avatarConfig
+                }
+              />
               <p className="lobby-guest-name">
                 {user ? user.nickname : '손님'}
               </p>
             </div>
             <p className="lobby-guest-ticket">
               <span className="lobby-ticket-stub">TICKET</span>
-              {user ? guestTicketLabel(ticketStatus) : '입장 전 · 티켓 없음'}
+              {user?.role === 'admin'
+                ? '운영 모드'
+                : user
+                  ? guestTicketLabel(ticketStatus)
+                  : '입장 전 · 티켓 없음'}
             </p>
             <Link
-              href={user ? '/room' : '/login'}
+              href={
+                user?.role === 'admin' ? '/admin' : user ? '/room' : '/login'
+              }
               className="lobby-mat"
-              aria-label={user ? '내 방' : '입장 후 내 방'}
+              aria-label={
+                user?.role === 'admin'
+                  ? '관리자 화면'
+                  : user
+                    ? '내 방'
+                    : '입장 후 내 방'
+              }
             >
-              <span className="lobby-mat-label">MY ROOM</span>
+              <span className="lobby-mat-label">
+                {user?.role === 'admin' ? 'CINEMO OFFICE' : 'MY ROOM'}
+              </span>
             </Link>
           </div>
         </div>

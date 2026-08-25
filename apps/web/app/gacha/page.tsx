@@ -159,8 +159,11 @@ export default function GachaPage() {
       <main className="gacha">
         <header className="gacha-header">
           <div className="gacha-header-nav">
-            <Link href="/" className="gacha-header-link">
-              로비로
+            <Link
+              href={user?.role === 'admin' ? '/admin' : '/'}
+              className="gacha-header-link"
+            >
+              {user?.role === 'admin' ? '관리자 화면으로' : '로비로'}
             </Link>
           </div>
           <p className="gacha-kicker">GACHA</p>
@@ -260,9 +263,21 @@ export default function GachaPage() {
     <main className={`gacha${showSpinDock ? ' has-spin-dock' : ''}`}>
       <header className="gacha-header">
         <div className="gacha-header-nav">
-          <Link href="/" className="gacha-header-link">
-            로비로
-          </Link>
+          {user?.role === 'admin' ? (
+            <>
+              <Link href="/admin" className="gacha-header-link">
+                관리자 화면으로
+              </Link>
+              <Link href="/?lobby=1" className="gacha-header-link">
+                로비로
+              </Link>
+            </>
+          ) : (
+            <Link href="/" className="gacha-header-link">
+              로비로
+            </Link>
+          )}
+
           {isTestUser ? (
             <button
               type="button"
@@ -271,9 +286,7 @@ export default function GachaPage() {
             >
               오늘 티켓 리셋
             </button>
-          ) : (
-            <span className="gacha-header-link gacha-header-link--spacer" />
-          )}
+          ) : null}
         </div>
         <p className="gacha-kicker">GACHA</p>
         <h1 className="gacha-title">뽑기방</h1>
@@ -486,9 +499,21 @@ export default function GachaPage() {
                 </div>
               ) : null}
               <div className="gacha-modal-nav">
-                <Link href="/" className="gacha-nav-link">
-                  로비로
-                </Link>
+                {user?.role === 'admin' ? (
+                  <>
+                    <Link href="/admin" className="gacha-nav-link">
+                      관리자 화면으로
+                    </Link>
+                    <Link href="/?lobby=1" className="gacha-nav-link">
+                      로비로
+                    </Link>
+                  </>
+                ) : (
+                  <Link href="/" className="gacha-nav-link">
+                    로비로
+                  </Link>
+                )}
+
                 {isTestUser ? (
                   <button
                     type="button"
