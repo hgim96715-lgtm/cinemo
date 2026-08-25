@@ -1,0 +1,31 @@
+name: Demo Activity Seed
+
+on:
+  schedule:
+    # KST 02:30 = UTC 17:30. 카페 purge·MoviePool seed 뒤 실행.
+    - cron: "30 17 * * *"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "채울 KST 날짜 수 (최대 7)"
+        required: true
+        default: "1"
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Create demo activity
+        env:
+          API_URL: ${{ secrets.CINEMO_API_URL }}
+          DEMO_SEED_SECRET: ${{ secrets.CINEMO_DEMO_SEED_SECRET }}
+          DAYS: ${{ inputs.days || '1' }}
+        run: |
+          set -euo pipefail
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${API_URL}/v1/admin/demo-seed?days=${DAYS}" \
+            --header "x-demo-seed-secret: ${DEMO_SEED_SECRET}"

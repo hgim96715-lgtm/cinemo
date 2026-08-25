@@ -15,4 +15,7 @@ export const envValidationSchema = Joi.object({
     .uri()
     .default('https://api.themoviedb.org/3'),
   [EnvKeys.CRON_SECRET]: Joi.string().min(32).required(),
+  [EnvKeys.DEMO_SEED_ENABLED]: Joi.string().valid('1').optional(),
+  [EnvKeys.DEMO_SEED_SECRET]: Joi.string().min(32).optional(),
+  [EnvKeys.DEMO_SEED_PASSWORD]: Joi.string().min(8).optional(),
 });
