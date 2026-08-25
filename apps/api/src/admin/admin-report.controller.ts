@@ -12,20 +12,22 @@ import { AdminDailyExcelService } from './admin-daily-excel.service';
 import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('admin-reports')
-@ApiBearerAuth()
-@Roles('admin')
 @Controller('admin/reports')
 export class AdminReportController {
   constructor(
     private readonly adminDailyExcelService: AdminDailyExcelService,
   ) {}
 
+  @Roles('admin')
+  @ApiBearerAuth()
   @Get('daily-excel')
   async downloadYesterdayExcel(): Promise<StreamableFile> {
     const report = await this.adminDailyExcelService.createYesterdayWorkbook();
     return this.toDownload(report);
   }
 
+  @Roles('admin')
+  @ApiBearerAuth()
   @Get('daily-excel/status')
   async getYesterdayExcelStatus() {
     const report = await this.adminDailyExcelService.getYesterdayReport();
