@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { TicketStatus } from '@cinemo/shared';
@@ -14,7 +14,7 @@ import { WeeklyRevealModal } from '@/components/lobby/WeeklyRevealModal';
 import { useWeeklyReveal } from '@/hooks/useWeeklyReveal';
 import { AvatarFigure } from '@/components/room/AvatarFigure';
 
-export default function HomePage() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
@@ -92,5 +92,13 @@ export default function HomePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
