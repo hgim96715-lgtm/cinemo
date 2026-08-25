@@ -17,6 +17,7 @@ import { AnonModule } from './anon/anon.module';
 import { AiController } from './ai/ai.controller';
 import { AiModule } from './ai/ai.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { GuideModule } from './guide/guide.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ProfilesModule } from './profiles/profiles.module';
     AnonModule,
     AiModule,
     ProfilesModule,
+    GuideModule,
   ],
   controllers: [AppController, AiController],
   providers: [AppService],

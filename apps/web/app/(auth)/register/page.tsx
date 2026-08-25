@@ -11,6 +11,7 @@ import {
   registerRequest,
 } from '@/lib/auth-api';
 import { useAvailabilityCheck } from '@/hooks/useAvailabilityCheck';
+import { useGuideStore } from '@/lib/guide-store';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -47,6 +48,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const requestGuide = useGuideStore((s) => s.requestGuide);
 
   const rules = passwordRules(password);
 
@@ -77,6 +79,7 @@ export default function RegisterPage() {
     try {
       const data = await registerRequest(email, password, nickname);
       setSession(data.accessToken, data.user);
+      requestGuide();
       router.push('/');
     } catch (error) {
       setError(

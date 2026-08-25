@@ -9,30 +9,46 @@ import { TicketBooth } from '@/components/lobby/TicketBooth';
 import { guestTicketLabel } from '@/lib/lobby-speech';
 import './styles/lobby.css';
 import './styles/avatar.css';
+import './styles/guide.css';
 import { LobbyBoard } from '@/components/lobby/LobbyBoard';
 import { WeeklyRevealModal } from '@/components/lobby/WeeklyRevealModal';
 import { useWeeklyReveal } from '@/hooks/useWeeklyReveal';
 import { AvatarFigure } from '@/components/room/AvatarFigure';
+import { useGuideStore } from '@/lib/guide-store';
+import { LobbyGuideModal } from '@/components/lobby/LobbyGuideModal';
 
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
+  const guidePending = useGuideStore((s) => s.pending);
   const lit = Boolean(user);
   const [ticketStatus, setTicketStatus] = useState<TicketStatus | null>(null);
   const stayLobby = searchParams.get('lobby') === '1';
   const { winner, dismiss } = useWeeklyReveal(user?.id);
 
+  const hydrated = useAuthStore((s) => s.hydrated);
+
+  const isAdminEntry = hydrated && user?.role === 'admin' && !stayLobby;
+  const shouldWaitForAuth =
+    !hydrated || (Boolean(accessToken) && !user && !stayLobby);
+
   useEffect(() => {
-    if (user?.role === 'admin' && !stayLobby) {
+    if (isAdminEntry) {
       router.replace('/admin');
     }
-  }, [user, stayLobby, router]);
+  }, [isAdminEntry, router]);
+
+  if (shouldWaitForAuth || isAdminEntry) {
+    return null;
+  }
 
   return (
     <main className={`lobby ${lit ? 'lobby--lit' : 'lobby--dim'}`}>
       <div className="lobby-atmosphere" aria-hidden />
+
+      {guidePending ? <LobbyGuideModal onClose={() => undefined} /> : null}
 
       {winner ? (
         <WeeklyRevealModal
