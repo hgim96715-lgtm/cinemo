@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "rm -f tsconfig.build.tsbuildinfo && nest build",
+    "build": "prisma generate --schema prisma/schema.prisma && rm -f tsconfig.build.tsbuildinfo && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "rm -f tsconfig.build.tsbuildinfo && nest start --watch",
