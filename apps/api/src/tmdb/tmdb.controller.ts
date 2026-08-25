@@ -17,6 +17,7 @@ import {
 } from '@cinemo/shared';
 import { TmdbService } from './tmdb.service';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { UserId } from '../auth/decorators/user-id.decorator';
 import { UpsertProviderOverrideDto } from './dto/upsert-provider-override.dto';
 import { SeedRunService } from './seed-run.service';
@@ -116,6 +117,7 @@ export class TmdbController {
     );
   }
 
+  @Public()
   @Post('seed-pool/cron')
   @ApiQuery({ name: 'pages', required: false, example: 3 })
   seedPoolCron(
