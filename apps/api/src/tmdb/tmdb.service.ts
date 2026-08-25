@@ -307,41 +307,121 @@ export class TmdbService {
   async seedPool(
     filters: Record<string, string> = {},
     pages = 5,
-    opts?: { onPageDone?: (page: number) => void },
-  ): Promise<{ ok: boolean }> {
+    opts?: {
+      onPageDone?: (
+        page: number,
+        stats: {
+          processedPages: number;
+          fetchedCount: number;
+          savedCount: number;
+          skippedCount: number;
+          failedCount: number;
+        },
+      ) => void | Promise<void>;
+    },
+  ): Promise<{
+    ok: boolean;
+    processedPages: number;
+    fetchedCount: number;
+    savedCount: number;
+    skippedCount: number;
+    failedCount: number;
+  }> {
+    let processedPages = 0;
+    let fetchedCount = 0;
+    let savedCount = 0;
+    let skippedCount = 0;
+    let failedCount = 0;
     for (let page = 1; page <= pages; page++) {
       const { results } = await this.discoverMovies(filters, page);
+      fetchedCount += results.length;
       for (const movie of results) {
-        if (!movie.poster_path) continue;
-        await this.getMovieCached(movie.id, { force: true });
+        if (!movie.poster_path) {
+          skippedCount += 1;
+          continue;
+        }
+        try {
+          await this.getMovieCached(movie.id, { force: true });
+          savedCount += 1;
+        } catch (error) {
+          failedCount += 1;
+          this.logger.warn(
+            `MoviePool 저장 실패 (${movie.id}): ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          );
+        }
       }
-      opts?.onPageDone?.(page);
+      processedPages += 1;
+      await opts?.onPageDone?.(page, {
+        processedPages,
+        fetchedCount,
+        savedCount,
+        skippedCount,
+        failedCount,
+      });
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
-    return { ok: true };
+    return {
+      ok: failedCount === 0,
+      processedPages,
+      fetchedCount,
+      savedCount,
+      skippedCount,
+      failedCount,
+    };
   }
 
-  async seedPoolAll(pages = 10): Promise<Record<string, { ok: boolean }>> {
-    const results: Record<string, { ok: boolean }> = {};
+  async seedPoolAll(pages = 10): Promise<
+    Record<
+      string,
+      {
+        ok: boolean;
+        processedPages: number;
+        fetchedCount: number;
+        savedCount: number;
+        skippedCount: number;
+        failedCount: number;
+      }
+    >
+  > {
+    const results: Record<
+      string,
+      {
+        ok: boolean;
+        processedPages: number;
+        fetchedCount: number;
+        savedCount: number;
+        skippedCount: number;
+        failedCount: number;
+      }
+    > = {};
     const total = GACHA_MACHINES.length * pages;
     let done = 0;
     this.seedProgress = { done: 0, total, machineId: '' };
 
-    for (const machine of GACHA_MACHINES) {
-      results[machine.id] = await this.seedPool(
-        GACHA_TMDB_FILTERS[machine.id],
-        pages,
-        {
-          onPageDone: () => {
-            done += 1;
-            this.seedProgress = { done, total, machineId: machine.id };
+    try {
+      for (const machine of GACHA_MACHINES) {
+        const result = await this.seedPool(
+          GACHA_TMDB_FILTERS[machine.id],
+          pages,
+          {
+            onPageDone: () => {
+              done += 1;
+              this.seedProgress = {
+                done,
+                total,
+                machineId: machine.id,
+              };
+            },
           },
-        },
-      );
+        );
+        results[machine.id] = result;
+      }
+      return results;
+    } finally {
+      this.seedProgress = null;
     }
-
-    this.seedProgress = null;
-    return results;
   }
 
   getSeedProgress() {

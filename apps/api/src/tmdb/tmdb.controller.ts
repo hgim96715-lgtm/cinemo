@@ -6,19 +6,29 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { GACHA_TMDB_FILTERS, isGachaMachineId } from '@cinemo/shared';
+import {
+  GACHA_MACHINES,
+  GACHA_TMDB_FILTERS,
+  isGachaMachineId,
+} from '@cinemo/shared';
 import { TmdbService } from './tmdb.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserId } from '../auth/decorators/user-id.decorator';
 import { UpsertProviderOverrideDto } from './dto/upsert-provider-override.dto';
+import { SeedRunService } from './seed-run.service';
 
 @ApiTags('tmdb')
 @ApiBearerAuth()
 @Controller('tmdb')
 export class TmdbController {
-  constructor(private readonly tmdbService: TmdbService) {}
+  constructor(
+    private readonly tmdbService: TmdbService,
+    private readonly seedRunService: SeedRunService,
+  ) {}
 
   private getFilters(machineId?: string) {
     return machineId && isGachaMachineId(machineId)
@@ -59,9 +69,18 @@ export class TmdbController {
   }
 
   @Roles('admin')
+  @Get('seed-pool/latest')
+  async getLatestSeedPool() {
+    const latest = await this.seedRunService.getLatest();
+    return { run: latest };
+  }
+
+  @Roles('admin')
   @Get('seed-pool/progress')
   getSeedPoolProgress() {
-    return this.tmdbService.getSeedProgress();
+    return {
+      progress: this.tmdbService.getSeedProgress(),
+    };
   }
 
   @Roles('admin')
@@ -78,7 +97,9 @@ export class TmdbController {
     @Query('machineId') machineId: string | undefined,
     @Query('pages', new DefaultValuePipe(5), ParseIntPipe) pages: number,
   ) {
-    return this.tmdbService.seedPool(this.getFilters(machineId), pages);
+    return this.seedRunService.executeSingle('manual', pages, 1, () =>
+      this.tmdbService.seedPool(this.getFilters(machineId), pages),
+    );
   }
 
   @Roles('admin')
@@ -87,7 +108,30 @@ export class TmdbController {
   seedPoolAll(
     @Query('pages', new DefaultValuePipe(10), ParseIntPipe) pages: number,
   ) {
-    return this.tmdbService.seedPoolAll(pages);
+    return this.seedRunService.execute(
+      'manual',
+      pages,
+      Object.keys(GACHA_TMDB_FILTERS).length,
+      () => this.tmdbService.seedPoolAll(pages),
+    );
+  }
+
+  @Post('seed-pool/cron')
+  @ApiQuery({ name: 'pages', required: false, example: 3 })
+  seedPoolCron(
+    @Headers('x-cron-secret') secret: string | undefined,
+    @Query('pages', new DefaultValuePipe(3), ParseIntPipe) pages: number,
+  ) {
+    if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
+      throw new UnauthorizedException('잘못된 cron secret입니다.');
+    }
+
+    return this.seedRunService.execute(
+      'cron',
+      pages,
+      GACHA_MACHINES.length,
+      () => this.tmdbService.seedPoolAll(pages),
+    );
   }
 
   @Roles('admin')

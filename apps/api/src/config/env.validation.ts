@@ -14,4 +14,5 @@ export const envValidationSchema = Joi.object({
   [EnvKeys.TMDB_BASE_URL]: Joi.string()
     .uri()
     .default('https://api.themoviedb.org/3'),
+  [EnvKeys.CRON_SECRET]: Joi.string().min(32).required(),
 });

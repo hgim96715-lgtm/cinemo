@@ -1,0 +1,23 @@
+name: MoviePool Seed
+
+on:
+  schedule:
+    # KST 02:05 = UTC 17:05
+    - cron: "5 17 * * *"
+  workflow_dispatch:
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Trigger MoviePool seed Cron
+        env:
+          API_URL: ${{ secrets.CINEMO_API_URL }}
+          CRON_SECRET: ${{ secrets.CINEMO_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${API_URL}/v1/tmdb/seed-pool/cron?pages=3" \
+            --header "x-cron-secret: ${CRON_SECRET}"

@@ -272,3 +272,34 @@ model CafeNotice {
 
     @@map("cafe_notices")
 }
+
+enum MoviePoolSeedRunStatus {
+    running
+    succeeded
+    partial
+    failed
+}
+
+enum MoviePoolSeedTrigger {
+    cron
+    manual
+}
+
+model MoviePoolSeedRun {
+    id             String                 @id @default(uuid(7)) @db.Uuid
+    trigger        MoviePoolSeedTrigger
+    status         MoviePoolSeedRunStatus @default(running)
+    pages          Int
+    machineCount   Int                    @map("machine_count")
+    processedPages Int                    @default(0) @map("processed_pages")
+    fetchedCount   Int                    @default(0) @map("fetched_count")
+    savedCount     Int                    @default(0) @map("saved_count")
+    skippedCount   Int                    @default(0) @map("skipped_count")
+    failedCount    Int                    @default(0) @map("failed_count")
+    errorMessage   String?                @map("error_message") @db.Text
+    startedAt      DateTime               @default(now()) @map("started_at") @db.Timestamptz(3)
+    finishedAt     DateTime?              @map("finished_at") @db.Timestamptz(3)
+
+    @@index([startedAt])
+    @@map("movie_pool_seed_runs")
+}
