@@ -97,3 +97,11 @@ export function kstPreviousWeekRange(now = new Date()): {
     end: start,
   };
 }
+
+export function formatKst(value: Date): string {
+  return new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    dateStyle: 'short',
+    timeStyle: 'medium',
+  }).format(value);
+}

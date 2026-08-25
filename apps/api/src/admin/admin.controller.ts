@@ -18,7 +18,9 @@ export class AdminController {
   @Get('people/feed')
   getPeopleFeed(@Query('skip') skip?: string) {
     const parsed = Number(skip ?? 0);
-    return this.adminService.getPeopleFeed(Number.isFinite(parsed) ? parsed : 0);
+    return this.adminService.getPeopleFeed(
+      Number.isFinite(parsed) ? parsed : 0,
+    );
   }
 
   @Get('people')

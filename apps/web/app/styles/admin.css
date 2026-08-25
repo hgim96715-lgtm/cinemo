@@ -76,7 +76,7 @@
 
 .admin-title {
   margin: 0;
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-noto-serif-kr), serif;
   font-size: 1.45rem;
   font-weight: 600;
 }
@@ -887,3 +887,96 @@ select.admin-ops-input {
     border-color: #e57373;
     background: rgb(224 112 112 / 0.2);
   }
+
+.admin-report-card {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1.35rem 0 2rem;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 0.65rem;
+  background: var(--admin-panel);
+}
+
+.admin-report-kicker {
+  margin: 0;
+  color: var(--admin-gold);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+}
+
+.admin-report-title {
+  margin: 0.2rem 0 0;
+  color: var(--admin-fg);
+  font-family: var(--font-noto-serif-kr), serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.admin-report-status {
+  width: fit-content;
+  margin: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  color: #9ee2b0;
+  background: rgb(76 175 80 / 0.14);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.admin-report-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.admin-report-counts div {
+  padding: 0.7rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 0.45rem;
+  background: rgb(0 0 0 / 0.12);
+}
+
+.admin-report-counts dt {
+  color: var(--admin-muted);
+  font-size: 0.7rem;
+}
+
+.admin-report-counts dd {
+  margin: 0.25rem 0 0;
+  color: var(--admin-fg);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-report-download {
+  width: fit-content;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgb(196 168 106 / 0.55);
+  border-radius: 0.4rem;
+  color: #17130d;
+  background: var(--admin-gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-report-download:hover:not(:disabled) {
+  background: #d4ba7c;
+}
+
+.admin-report-download:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 40rem) {
+  .admin-report-counts {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-report-download {
+    width: 100%;
+  }
+}

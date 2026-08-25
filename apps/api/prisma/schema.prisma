@@ -314,3 +314,28 @@ model MoviePoolSeedRun {
     @@index([startedAt])
     @@map("movie_pool_seed_runs")
 }
+
+enum AdminDailyReportStatus {
+    running
+    succeeded
+    failed
+}
+
+model AdminDailyReport {
+    id             String                 @id @default(uuid(7)) @db.Uuid
+    reportDate     DateTime               @unique @map("report_date") @db.Date
+    status         AdminDailyReportStatus @default(running)
+    filename       String?
+    dailyRowCount  Int                    @default(0) @map("daily_row_count")
+    hourlyRowCount Int                    @default(0) @map("hourly_row_count")
+    visitRowCount  Int                    @default(0) @map("visit_row_count")
+    loginRowCount  Int                    @default(0) @map("login_row_count")
+    errorMessage   String?                @map("error_message") @db.Text
+    startedAt      DateTime               @default(now()) @map("started_at")
+    finishedAt     DateTime?              @map("finished_at")
+    createdAt      DateTime               @default(now()) @map("created_at")
+    updatedAt      DateTime               @updatedAt @map("updated_at")
+
+    @@index([startedAt(sort: Desc)])
+    @@map("admin_daily_reports")
+}

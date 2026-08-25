@@ -11,6 +11,8 @@ import { getAdminOverviewRequest } from '@/lib/admin-api';
 import { useAuthStore } from '@/lib/auth-store';
 import { getLatestSeedRunRequest } from '@/lib/tmdb-api';
 import { AdminSeedRunModal } from '@/components/admin/AdminSeedRunModal';
+import { AdminDailyExcelCard } from '@/components/admin/AdminDailyExcelCard';
+import { formatKstDateKey, kstDateKey } from '@/lib/date-kst';
 
 function seedSeenKey(userId: string) {
   return `cinemo_admin_seed_seen:${userId}`;
@@ -111,13 +113,15 @@ export default function AdminPage() {
 
   return (
     <main className="admin-main">
-      <h1 className="admin-title">오늘</h1>
+      <h1 className="admin-title">{formatKstDateKey(kstDateKey())}</h1>
 
       <p className="admin-sub">
         로비 = 로그인 손님 입장 하루 1회 · 구경 = 비로그인 후기방
       </p>
 
       {error ? <p className="admin-error">{error}</p> : null}
+
+      {accessToken ? <AdminDailyExcelCard token={accessToken} /> : null}
 
       {!overview && !error ? (
         <p className="admin-status">불러오는 중…</p>
