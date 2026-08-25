@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { loginRequest } from '@/lib/auth-api';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
@@ -98,5 +98,13 @@ export default function LoginPage() {
         <Link href="/">홈으로</Link>
       </p>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p className="auth-status">불러오는 중…</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }
