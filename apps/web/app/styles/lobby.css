@@ -65,6 +65,20 @@
   justify-content: center;
 }
 
+.lobby-board-loading {
+  min-height: 8.65rem;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: rgb(243 239 230 / 0.62);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.lobby--lit .lobby-board-loading {
+  color: rgb(212 181 106 / 0.78);
+}
+
 .lobby-lamp {
   display: flex;
   flex-direction: column;

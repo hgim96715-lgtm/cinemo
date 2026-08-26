@@ -44,12 +44,27 @@ export class LobbyBoardService {
       take: 3,
     });
 
+    const cachedMovies = await this.prisma.moviePool.findMany({
+      where: { tmdbId: { in: rows.map((row) => row.tmdbId) } },
+      select: { tmdbId: true, title: true },
+    });
+
+    const titleMap = new Map(
+      cachedMovies.map((movie) => [movie.tmdbId, movie.title]),
+    );
+
     return Promise.all(
       rows.map(async (row) => {
-        const movie = await this.tmdbService.getMovieCached(row.tmdbId);
+        const cachedTitle = titleMap.get(row.tmdbId);
+
+        const title =
+          cachedTitle && !cachedTitle.includes('정보를 찾을 수 없습니다.')
+            ? cachedTitle
+            : (await this.tmdbService.getMovieCached(row.tmdbId)).title;
+
         return {
           tmdbId: row.tmdbId,
-          title: movie.title,
+          title,
           count: row._count.tmdbId,
         };
       }),

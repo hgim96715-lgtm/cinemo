@@ -33,6 +33,18 @@ export class ReviewPostService {
           : false,
       },
     });
+    const movieCache = new Map<
+      number,
+      ReturnType<TmdbService['getMovieCached']>
+    >();
+    const getMovie = (tmdbId: number) => {
+      const cached = movieCache.get(tmdbId);
+      if (cached) return cached;
+      const request = this.tmdbService.getMovieCached(tmdbId);
+      movieCache.set(tmdbId, request);
+      return request;
+    };
+
     return Promise.all(
       rows.map(async (post) => ({
         id: post.id,
@@ -41,7 +53,7 @@ export class ReviewPostService {
         rating: post.rating,
         createdAt: post.createdAt.toISOString(),
         nickname: post.user.nickname,
-        movie: await this.tmdbService.getMovieCached(post.tmdbId),
+        movie: await getMovie(post.tmdbId),
         likeCount: post._count.reviewPostLikes,
         likedByMe: userId ? post.reviewPostLikes.length > 0 : false,
       })),

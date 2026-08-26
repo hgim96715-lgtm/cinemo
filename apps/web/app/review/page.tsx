@@ -29,6 +29,7 @@ export default function ReviewPage() {
   const [openPost, setOpenPost] = useState<ReviewPostItem | null>(null);
 
   const accessToken = useAuthStore((s) => s.accessToken);
+  const hydrated = useAuthStore((s) => s.hydrated);
   const [ready, setReady] = useState(false);
   const [pickMovies, setPickMovies] = useState<GachaMovie[]>([]);
   const [searching, setSearching] = useState(false);
@@ -47,6 +48,8 @@ export default function ReviewPage() {
 
   const [likeAuthOpen, setLikeAuthOpen] = useState(false);
 
+  const [loadingPosts, setLoadingPosts] = useState(true);
+
   useEffect(() => {
     setReady(true);
   }, []);
@@ -57,25 +60,35 @@ export default function ReviewPage() {
   }, [ready, accessToken]);
 
   useEffect(() => {
+    if (!hydrated) return;
+
     let cancelled = false;
+
     async function loadPosts() {
+      setLoadingPosts(true);
+
       try {
-        const response = await listReviewPostsRequest(120, accessToken);
+        const response = await listReviewPostsRequest(40, accessToken);
         if (!cancelled) setPosts(response);
       } catch (error) {
-        if (!cancelled)
+        if (!cancelled) {
           setError(
             error instanceof Error
               ? error.message
               : '데이터를 불러오는데 실패했습니다.',
           );
+        }
+      } finally {
+        if (!cancelled) setLoadingPosts(false);
       }
     }
+
     void loadPosts();
+
     return () => {
       cancelled = true;
     };
-  }, [accessToken]);
+  }, [accessToken, hydrated]);
 
   useEffect(() => {
     if (!writingOpen || !accessToken || editingId) return;
@@ -271,7 +284,9 @@ export default function ReviewPage() {
               <span className="review-cabinet-brand">REVIEW BALL</span>
               <h1 className="review-cabinet-title">후기방</h1>
             </div>
-            <span className="review-cabinet-count">{posts.length}</span>
+            <span className="review-cabinet-count">
+              {loadingPosts ? '…' : posts.length}
+            </span>
           </div>
           <div className="review-cabinet-glass">
             <div
@@ -279,7 +294,9 @@ export default function ReviewPage() {
               role="list"
               style={{ minHeight: `${chamberMinRem}rem` }}
             >
-              {posts.length === 0 ? (
+              {loadingPosts ? (
+                <p className="review-machine-empty">후기를 불러오는 중…</p>
+              ) : posts.length === 0 ? (
                 <p className="review-machine-empty">아직 볼이 없어요</p>
               ) : (
                 posts.map((post, index) => {

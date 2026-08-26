@@ -120,38 +120,56 @@ function ChartShell({
 
 export function LobbyBoard() {
   const accessToken = useAuthStore((s) => s.accessToken);
+  const hydrated = useAuthStore((s) => s.hydrated);
   const [board, setBoard] = useState<LobbyBoardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dateLabel, setDateLabel] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setDateLabel(kstLobbyDateLabel());
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
+
     let cancelled = false;
+
     async function load() {
+      setLoading(true);
       setError(null);
+
       try {
-        if (accessToken) {
-          await recordLobbyVisitRequest(accessToken);
-        }
         const next = await getLobbyBoardRequest();
-        if (!cancelled) setBoard(next);
+
+        if (!cancelled) {
+          setBoard(next);
+        }
+
+        if (accessToken) {
+          void recordLobbyVisitRequest(accessToken).catch(() => undefined);
+        }
       } catch (error) {
-        if (!cancelled)
+        if (!cancelled) {
           setError(
             error instanceof Error
               ? error.message
               : '데이터를 불러오는데 실패했습니다.',
           );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
+
     void load();
+
     return () => {
       cancelled = true;
     };
-  }, [accessToken]);
+  }, [accessToken, hydrated]);
 
   const weekMovies = board?.weekTopMovies ?? [];
   const todayCount = board?.todayReviewCount ?? 0;
@@ -176,41 +194,47 @@ export function LobbyBoard() {
       </p>
       {error ? <p className="lobby-board-date">{error}</p> : null}
       <div className="lobby-board" aria-label="전광판">
-        <div className="lobby-board-slots">
-          <ChartShell label="오늘 입장">
-            <StatViz
-              primary={
-                board?.todayVisits != null ? `${board.todayVisits}` : '—'
-              }
-              secondary={
-                board?.todayVisits != null ? '명 방문 (KST)' : '로그인 후 집계'
-              }
-              series={board?.todayVisitSeries ?? null}
-              labels={TODAY_HOUR_LABELS}
-            />
-          </ChartShell>
-
-          <ChartShell label="오늘의 후기">
-            <StatViz
-              primary={todayCount > 0 ? `${todayCount}` : '—'}
-              secondary={todayCount > 0 ? '건 (KST)' : '아직 없음'}
-              series={board?.todayReviewSeries ?? null}
-              labels={TODAY_HOUR_LABELS}
-            />
-          </ChartShell>
-
-          <ChartShell label="주간 TOP 3">
-            {weekCount > 0 ? (
-              <WeekListViz movies={weekMovies} />
-            ) : (
+        {loading ? (
+          <p className="lobby-board-loading">통계를 불러오는 중…</p>
+        ) : (
+          <div className="lobby-board-slots">
+            <ChartShell label="오늘 입장">
               <StatViz
-                primary="—"
-                secondary="이번 주 후기 없음"
-                series={null}
+                primary={
+                  board?.todayVisits != null ? `${board.todayVisits}` : '—'
+                }
+                secondary={
+                  board?.todayVisits != null
+                    ? '명 방문 (KST)'
+                    : '로그인 후 집계'
+                }
+                series={board?.todayVisitSeries ?? null}
+                labels={TODAY_HOUR_LABELS}
               />
-            )}
-          </ChartShell>
-        </div>
+            </ChartShell>
+
+            <ChartShell label="오늘의 후기">
+              <StatViz
+                primary={todayCount > 0 ? `${todayCount}` : '—'}
+                secondary={todayCount > 0 ? '건 (KST)' : '아직 없음'}
+                series={board?.todayReviewSeries ?? null}
+                labels={TODAY_HOUR_LABELS}
+              />
+            </ChartShell>
+
+            <ChartShell label="주간 TOP 3">
+              {weekCount > 0 ? (
+                <WeekListViz movies={weekMovies} />
+              ) : (
+                <StatViz
+                  primary="—"
+                  secondary="이번 주 후기 없음"
+                  series={null}
+                />
+              )}
+            </ChartShell>
+          </div>
+        )}
       </div>
     </section>
   );
