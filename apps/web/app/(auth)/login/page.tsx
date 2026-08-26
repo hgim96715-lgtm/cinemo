@@ -31,10 +31,10 @@ function LoginForm() {
       const data = await loginRequest(email, password);
       setSession(data.accessToken, data.user);
       const dest =
-        next && next.startsWith('/')
-          ? next
-          : data.user.role === 'admin'
-            ? '/admin'
+        data.user.role === 'admin'
+          ? '/admin'
+          : next && next.startsWith('/') && !next.startsWith('//')
+            ? next
             : '/';
       router.push(dest);
     } catch (error) {

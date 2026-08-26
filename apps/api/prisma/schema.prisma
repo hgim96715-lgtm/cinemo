@@ -28,6 +28,7 @@ model User {
     bio                    String?                 @db.VarChar(200)
     profilePublic          Boolean                 @default(false) @map("profile_public")
     tags                   String[]                @default([])
+    isTestAccount          Boolean                 @default(false) @map("is_test_account")
     createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
     updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
     tickets                Ticket[]

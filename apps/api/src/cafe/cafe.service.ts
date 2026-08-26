@@ -431,7 +431,7 @@ export class CafeService {
     });
     const message = this.toMessageItem(row);
     this.cafeGateway.emitMessage(tableId, message);
-    void this.adminService.countIncrement('cafeMessages');
+    void this.adminService.countIncrement('cafeMessages', new Date(), userId);
     return message;
   }
 

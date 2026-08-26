@@ -77,7 +77,7 @@ export class ReviewPostService {
       },
     });
     const movie = await this.tmdbService.getMovieCached(post.tmdbId);
-    void this.adminService.countIncrement('reviews');
+    void this.adminService.countIncrement('reviews', new Date(), userId);
     return {
       id: post.id,
       tmdbId: post.tmdbId,

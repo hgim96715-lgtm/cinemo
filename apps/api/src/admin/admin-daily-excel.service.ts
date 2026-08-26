@@ -49,7 +49,7 @@ export class AdminDailyExcelService {
         this.prisma.lobbyVisit.findMany({
           where: {
             visitDate: date,
-            user: { role: 'user' },
+            user: { role: 'user', isTestAccount: false },
           },
           orderBy: { visitedAt: 'asc' },
           include: {
@@ -61,7 +61,7 @@ export class AdminDailyExcelService {
         this.prisma.adminLoginLog.findMany({
           where: {
             loggedAt: { gte: range.start, lt: range.end },
-            user: { role: 'user' },
+            user: { role: 'user', isTestAccount: false },
           },
           orderBy: { loggedAt: 'asc' },
           include: { user: { select: { nickname: true } } },

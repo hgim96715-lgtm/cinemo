@@ -180,7 +180,7 @@ export default function GachaPage() {
   }
 
   const canSpin = status === 'issued' && !usedMachine && !spinning;
-  const isTestUser = user.nickname === 'test' || user.nickname === 'testuser';
+  const isTestUser = user.isTestAccount;
   const roomMachines = selectedRoom
     ? MACHINES.filter((m) => m.room === selectedRoom)
     : [];

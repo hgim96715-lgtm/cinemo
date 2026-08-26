@@ -69,7 +69,7 @@ export class LobbyBoardService {
       skipDuplicates: true,
     });
     if (created.count > 0) {
-      await this.adminService.countIncrement('visits');
+      await this.adminService.countIncrement('visits', new Date(), userId);
     }
     return { ok: true as const };
   }

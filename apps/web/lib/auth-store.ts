@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string;
   nickname: string;
   role: 'user' | 'admin';
+  isTestAccount: boolean;
   avatarConfig: AvatarConfig;
   bio: string | null;
   profilePublic: boolean;

@@ -25,6 +25,7 @@ import {
   disposableDemoSeedDir,
   isDemoEmail,
 } from './demo-seed-config';
+import { seedDemoReviewLikes } from '../lib/demo-review-likes';
 
 type Personas = {
   nicknames: string[];
@@ -237,6 +238,7 @@ async function main() {
   const deps = { ticket, review, lobby, prisma };
 
   const results: SeedResult[] = [];
+  const demoUserIds: string[] = [];
 
   try {
     let seq = await nextRegisterSeq(prisma, dateKey);
@@ -247,6 +249,7 @@ async function main() {
 
       const reg = await auth.register({ email, password, nickname });
       const userId = reg.user.id;
+      demoUserIds.push(userId);
       console.log(`[demo-seed] register ${nickname} (${email})`);
       await seedProfile(auth, userId, personas);
 
@@ -263,6 +266,7 @@ async function main() {
     }
 
     for (const user of returning) {
+      demoUserIds.push(user.id);
       await admin.recordGuestLogin(user.id);
       console.log(`[demo-seed] login ${user.nickname}`);
 
@@ -281,6 +285,11 @@ async function main() {
 
     const ok = results.filter((r) => r.ok);
     const fail = results.filter((r) => !r.ok);
+    const reviewLikes = await seedDemoReviewLikes(
+      prisma,
+      dateKey,
+      demoUserIds,
+    );
 
     console.log('\n[demo-seed] 완료');
     for (const r of ok) {
@@ -292,6 +301,7 @@ async function main() {
       console.log(`  − ${r.nickname} · ${r.reason}`);
     }
     console.log(`  후기 ${ok.length}건 / 스킵 ${fail.length}건`);
+    console.log(`  좋아요 ${reviewLikes}건`);
   } finally {
     await app.close();
   }

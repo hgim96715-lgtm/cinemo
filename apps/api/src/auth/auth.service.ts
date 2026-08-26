@@ -29,6 +29,7 @@ const AUTH_USER_SELECT = {
   email: true,
   nickname: true,
   role: true,
+  isTestAccount: true,
   avatarConfig: true,
   bio: true,
   profilePublic: true,
@@ -40,6 +41,7 @@ type AuthUserRow = {
   email: string;
   nickname: string;
   role: 'user' | 'admin';
+  isTestAccount: boolean;
   avatarConfig?: unknown;
   bio?: string | null;
   profilePublic: boolean;
@@ -57,6 +59,7 @@ function toAuthUser(user: AuthUserRow) {
     email: user.email,
     nickname: user.nickname,
     role: user.role,
+    isTestAccount: user.isTestAccount,
     avatarConfig: toAvatarConfig(user.avatarConfig),
     bio: user.bio ?? DEFAULT_PROFILE.bio,
     profilePublic: user.profilePublic ?? DEFAULT_PROFILE.profilePublic,

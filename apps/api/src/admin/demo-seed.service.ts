@@ -11,6 +11,7 @@ import {
   kstDayRange,
   toKstDate,
 } from '../lib/date-kst';
+import { seedDemoReviewLikes } from '../lib/demo-review-likes';
 
 type DemoPersonas = {
   nicknames: string[];
@@ -30,6 +31,7 @@ type DemoSeedSummary = {
   activities: number;
   createdUsers: number;
   cafeMessages: number;
+  reviewLikes: number;
 };
 
 const DAY_MS = 86_400_000;
@@ -309,8 +311,19 @@ export class DemoSeedService {
 
     const cafeMessages =
       dateKey === kstDateKey(now) ? await this.seedCafe(users, now) : 0;
+    const reviewLikes = await seedDemoReviewLikes(
+      this.prisma,
+      dateKey,
+      users.map((user) => user.id),
+    );
 
-    return { date: dateKey, activities, createdUsers, cafeMessages };
+    return {
+      date: dateKey,
+      activities,
+      createdUsers,
+      cafeMessages,
+      reviewLikes,
+    };
   }
 
   private async seedCafe(users: DemoUser[], now: Date): Promise<number> {

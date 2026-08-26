@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "demo:seed-day": "nest build && node -r dotenv/config dist/cli/demo-seed-day.js",
-    "demo:purge": "nest build && node -r dotenv/config dist/cli/demo-purge.js"
+    "demo:purge": "nest build && node -r dotenv/config dist/cli/demo-purge.js",
+    "test:user": "nest build && node -r dotenv/config dist/cli/test-user.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

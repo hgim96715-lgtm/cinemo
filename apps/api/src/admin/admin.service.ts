@@ -32,7 +32,19 @@ type CountField =
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async countIncrement(field: CountField, now = new Date()): Promise<void> {
+  async countIncrement(
+    field: CountField,
+    now = new Date(),
+    userId?: string,
+  ): Promise<void> {
+    if (userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { isTestAccount: true },
+      });
+      if (user?.isTestAccount) return;
+    }
+
     const date = toKstDate(now);
     const hour = kstHour(now);
 
@@ -56,8 +68,14 @@ export class AdminService {
   }
 
   async recordGuestLogin(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { isTestAccount: true },
+    });
+    if (user?.isTestAccount) return;
+
     await this.prisma.adminLoginLog.create({ data: { userId } });
-    await this.countIncrement('logins');
+    await this.countIncrement('logins', new Date(), userId);
   }
 
   private isKstDayKey(value: string): boolean {
@@ -84,10 +102,10 @@ export class AdminService {
       cafeSeatedCount,
       rows,
     ] = await Promise.all([
-      this.prisma.user.count({ where: { role: 'user' } }),
+      this.prisma.user.count({ where: this.guestWhere() }),
       this.prisma.user.count({
         where: {
-          role: 'user',
+          ...this.guestWhere(),
           createdAt: { gte: today.start, lt: today.end },
         },
       }),
@@ -96,14 +114,14 @@ export class AdminService {
         select: { logins: true },
       }),
       this.prisma.lobbyVisit.count({
-        where: { visitDate, user: { role: 'user' } },
+        where: { visitDate, user: this.guestWhere() },
       }),
       this.prisma.anonVisit.count({
         where: { visitDate, place: 'review' },
       }),
       this.prisma.user.count({
         where: {
-          role: 'user',
+          ...this.guestWhere(),
           createdAt: { gte: week.start, lt: week.end },
         },
       }),
@@ -118,7 +136,7 @@ export class AdminService {
       }),
       this.prisma.lobbyVisit.count({
         where: {
-          user: { role: 'user' },
+          user: this.guestWhere(),
           visitDate: {
             gte: toKstDate(week.start),
             lt: toKstDate(week.end),
@@ -135,10 +153,17 @@ export class AdminService {
         },
       }),
       this.prisma.reviewPost.count({
-        where: { createdAt: { gte: today.start, lt: today.end } },
+        where: {
+          createdAt: { gte: today.start, lt: today.end },
+          user: this.guestWhere(),
+        },
       }),
-      this.prisma.ticket.count({ where: { ticketDate: visitDate } }),
-      this.prisma.cafeTableSeat.count(),
+      this.prisma.ticket.count({
+        where: { ticketDate: visitDate, user: this.guestWhere() },
+      }),
+      this.prisma.cafeTableSeat.count({
+        where: { user: this.guestWhere() },
+      }),
       this.prisma.cafeTableSession.findMany({
         include: { _count: { select: { seats: true } } },
         orderBy: { tableId: 'asc' },
@@ -193,7 +218,7 @@ export class AdminService {
       }),
       this.prisma.user.findMany({
         where: {
-          role: 'user',
+          ...this.guestWhere(),
           createdAt: {
             gte: kstDayRange(start).start,
             lt: kstDayRange(end).end,
@@ -238,7 +263,7 @@ export class AdminService {
   }
 
   private guestWhere() {
-    return { role: 'user' as const };
+    return { role: 'user' as const, isTestAccount: false };
   }
 
   async getPeopleFeed(skip = 0, take = 20): Promise<AdminPeopleFeed> {

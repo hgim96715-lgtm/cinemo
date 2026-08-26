@@ -260,14 +260,28 @@ export class TmdbService {
       where: { tmdbId: movieId },
     });
 
+    const hasInvalidTitle =
+      !cached?.title?.trim() ||
+      cached.title.includes('정보를 찾을 수 없습니다.');
+
     if (
       !opts?.force &&
       cached &&
+      !hasInvalidTitle &&
       (cached.genreIds.length > 0 || cached.originCountries.length > 0)
     ) {
       return await this.fromPool(cached);
     }
     const movie = await this.getMovie(movieId);
+
+    if (
+      !movie.title.trim() ||
+      movie.title.includes('정보를 찾을 수 없습니다.')
+    ) {
+      throw new ServiceUnavailableException(
+        '영화 정보를 저장할 수 없는 상태입니다.',
+      );
+    }
     const { genre_ids, origin_countries, providers, ...card } = movie;
 
     await this.prismaService.moviePool.upsert({
@@ -489,8 +503,9 @@ export class TmdbService {
   ): Promise<GachaMovie> {
     const exclude = new Set(excludeIds);
 
-    // 풀 우선: watched 제외 + 장르/국적 태그 + 포스터 있는 것만
+    // 풀 우선: watched 제외 + 장르/국적 태그 + 포스터 있는 것만 + title에 이 영화에 대한 정보를 찾을 수 없습니다. 같은 것 제외
     const where = {
+      title: { not: { contains: '정보를 찾을 수 없습니다.' } },
       posterPath: { not: null },
       ...(excludeIds.length > 0 ? { tmdbId: { notIn: excludeIds } } : {}),
       ...(filters.with_genres

@@ -57,7 +57,7 @@ export class TicketService {
     const ticket = await this.prisma.ticket.create({
       data: { userId, ticketDate, status: 'issued', issuedAt: new Date() },
     });
-    void this.adminService.countIncrement('ticketsIssued');
+    void this.adminService.countIncrement('ticketsIssued', new Date(), userId);
     return { id: ticket.id };
   }
 
@@ -128,7 +128,7 @@ export class TicketService {
       where: { id: ticket.id },
       data: { status: 'used', usedAt: new Date(), machineId, tmdbId: movie.id },
     });
-    void this.adminService.countIncrement('ticketsUsed');
+    void this.adminService.countIncrement('ticketsUsed', new Date(), userId);
     return {
       status: 'used',
       machineId,
@@ -136,13 +136,13 @@ export class TicketService {
     };
   }
 
-  /** 로컬 테스트용: nickname이 test / testuser 일 때만 오늘 티켓 삭제 */
+  /** 테스트 계정만 오늘 티켓을 리셋할 수 있음 */
   async resetTodayForTestUser(userId: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { nickname: true },
+      select: { isTestAccount: true },
     });
-    if (user.nickname !== 'test' && user.nickname !== 'testuser') {
+    if (!user.isTestAccount) {
       throw new ForbiddenException('테스트 계정만 리셋할 수 있습니다.');
     }
     await this.prisma.ticket.deleteMany({

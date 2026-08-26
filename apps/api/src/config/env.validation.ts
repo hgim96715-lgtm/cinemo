@@ -18,4 +18,8 @@ export const envValidationSchema = Joi.object({
   [EnvKeys.DEMO_SEED_ENABLED]: Joi.string().valid('1').optional(),
   [EnvKeys.DEMO_SEED_SECRET]: Joi.string().min(32).optional(),
   [EnvKeys.DEMO_SEED_PASSWORD]: Joi.string().min(8).optional(),
+  [EnvKeys.TEST_USER_EMAIL]: Joi.string()
+    .email({ tlds: { allow: false } })
+    .optional(),
+  [EnvKeys.TEST_USER_PASSWORD]: Joi.string().min(8).optional(),
 });
