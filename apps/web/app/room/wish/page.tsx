@@ -5,5 +5,5 @@ import '../../styles/room.css';
 import '../../styles/lobby.css';
 
 export default function WishShelfPage() {
-  return <MovieShelf kind="wish" title="찜 선반" />;
+  return <MovieShelf kind="wish" title="보고 싶은 영화" />;
 }

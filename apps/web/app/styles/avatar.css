@@ -44,9 +44,9 @@
 }
 
 .avatar-hat--beanie {
-  top: 0.08rem;
-  width: 1.95rem;
-  height: 0.85rem;
+  top: 0rem;
+  width: 1.80rem;
+  height: .85rem;
   border-radius: 999px 999px 0.15rem 0.15rem;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
@@ -65,7 +65,7 @@
 
 .avatar-hat--crown {
   top: 0;
-  width: 2rem;
+  width: 1.80rem;
   height: 0.85rem;
   clip-path: polygon(
     0% 100%,
@@ -78,6 +78,64 @@
     100% 55%,
     100% 100%
   );
+}
+
+.avatar-hat--beret {
+  top: 0.16rem;
+  width: 1.92rem;
+  height: 0.68rem;
+  border-radius: 1.2rem 1.2rem 0.3rem 0.3rem;
+  transform: translateX(-50%) rotate(-8deg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2);
+}
+
+.avatar-hat--director {
+  top: 0.1rem;
+  width: 1.9rem;
+  height: 0.62rem;
+  border-radius: 0.18rem 0.18rem 0.08rem 0.08rem;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.24),
+    0 0.12rem 0 rgb(0 0 0 / 0.18);
+}
+
+.avatar-hat--director::after {
+  content: '';
+  position: absolute;
+  right: -0.14rem;
+  bottom: -0.08rem;
+  left: -0.14rem;
+  height: 0.12rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hat-color) 72%, #241b16);
+}
+
+.avatar-hat--popcorn {
+  top: 0rem;
+  width: 1.82rem;
+  height: 0.82rem;
+  border-radius: 0.22rem 0.22rem 0.5rem 0.5rem;
+  background: repeating-linear-gradient(
+    90deg,
+    #f5f0e8 0 0.3rem,
+    var(--hat-color) 0.3rem 0.6rem
+  );
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3);
+}
+
+.avatar-hat--popcorn::after {
+  content: '';
+  position: absolute;
+  top: -0.2rem;
+  left: 50%;
+  width: 0.72rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: #f5f0e8;
+  box-shadow:
+    -0.35rem 0.08rem 0 #f5f0e8,
+    0.35rem 0.08rem 0 #f5f0e8;
+  transform: translateX(-50%);
 }
 
 .avatar-head {
@@ -110,7 +168,7 @@
 .avatar-eyes {
   display: flex;
   align-items: center;
-  gap: 0.34rem;
+  gap: 0.54rem;
 }
 
 .avatar-eye--normal {
@@ -165,31 +223,6 @@
   height: 0.28rem;
   border-radius: 50%;
   background: #5a4634;
-}
-
-.avatar-mouth--cat {
-  position: relative;
-  width: 0.58rem;
-  height: 0.2rem;
-}
-
-.avatar-mouth--cat::before,
-.avatar-mouth--cat::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 0.26rem;
-  height: 0.18rem;
-  border-bottom: 1.5px solid #5a4634;
-  border-radius: 0 0 50% 50%;
-}
-
-.avatar-mouth--cat::before {
-  left: 0;
-}
-
-.avatar-mouth--cat::after {
-  right: 0;
 }
 
 .avatar-body {
@@ -418,4 +451,511 @@
 
 .wardrobe-actions .lobby-btn {
   flex: 1;
+}
+
+
+/* ── Avatar Custom Parts ── */
+
+.avatar-face {
+    z-index: 1;
+  }
+  
+  .avatar-eyebrows {
+    position: absolute;
+    top: 18%;
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    gap: 0.38rem;
+    transform: translateX(-50%);
+  }
+  
+  .avatar-eyebrow {
+    display: block;
+    width: 0.25rem;
+    height: 0.06rem;
+    border-radius: 999px;
+    background: #5a4634;
+  }
+  
+  .avatar-eyebrows--raised .avatar-eyebrow:first-child {
+    transform: rotate(-15deg);
+  }
+  
+  .avatar-eyebrows--raised .avatar-eyebrow:last-child {
+    transform: rotate(15deg);
+  }
+  
+  .avatar-eyebrows--soft .avatar-eyebrow {
+    opacity: 0.55;
+    transform: scaleX(0.8);
+  }
+  
+  .avatar-glasses {
+    position: absolute;
+    top: 34%;
+    left: 50%;
+    z-index: 3;
+    width: 1.28rem;
+    height: 0.42rem;
+    border: 1px solid rgb(90 70 52 / 0.85);
+    border-radius: 0.2rem;
+    transform: translateX(-50%);
+  }
+  
+  .avatar-glasses::before,
+  .avatar-glasses::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    width: 0.48rem;
+    height: 0.38rem;
+    border: 1px solid rgb(90 70 52 / 0.85);
+    border-radius: 50%;
+  }
+  
+  .avatar-glasses::before {
+    left: -0.06rem;
+  }
+  
+  .avatar-glasses::after {
+    right: -0.06rem;
+  }
+  
+  .avatar-glasses--square,
+  .avatar-glasses--square::before,
+  .avatar-glasses--square::after {
+    border-radius: 0.08rem;
+  }
+  
+  .avatar-hair {
+    position: absolute;
+    top: -0.08rem;
+    left: 50%;
+    z-index: 2;
+    display: block;
+    pointer-events: none;
+    background: #3c2b24;
+    transform: translateX(-50%);
+  }
+  
+  .avatar-hair--short {
+    width: 1.72rem;
+    height: 0.58rem;
+    border-radius: 1rem 1rem 0.3rem 0.3rem;
+  }
+  
+  .avatar-hair--bob {
+    width: 2.12rem;
+    height: 1.3rem;
+    border-radius: 1rem 1rem 0.45rem 0.45rem;
+  }
+  
+  .avatar-hair--wave {
+    width: 2.18rem;
+    height: 1.12rem;
+    border-radius: 1rem 1rem 0.7rem 0.7rem;
+    background:
+      radial-gradient(circle at 20% 80%, #3c2b24 0 0.28rem, transparent 0.3rem),
+      radial-gradient(circle at 80% 80%, #3c2b24 0 0.28rem, transparent 0.3rem),
+      #3c2b24;
+  }
+  
+  .avatar-mouth--neutral {
+    width: 0.42rem;
+    height: 0.08rem;
+    border-radius: 999px;
+    background: #5a4634;
+  }
+  
+  .avatar-mouth--surprised {
+    width: 0.26rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    background: #5a4634;
+  }
+  
+  .avatar-mouth--pout {
+    width: 0.32rem;
+    height: 0.18rem;
+    border: 1.5px solid #5a4634;
+    border-top: 0;
+    border-radius: 0 0 50% 50%;
+    transform: scaleX(1.15);
+  }
+  
+  .avatar-face--happy {
+    transform: translateY(-0.02rem);
+  }
+  
+  .avatar-face--surprised .avatar-eyes {
+    transform: scale(1.15);
+  }
+  
+  .avatar-face--sleepy {
+    opacity: 0.78;
+  }
+  
+  .avatar-body--staff {
+    border-color: rgb(212 181 106 / 0.8);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      0 0 0 1px rgb(212 181 106 / 0.12);
+  }
+  
+  .avatar-body--velvet {
+    border-color: #a86f58;
+    box-shadow: inset 0 1px 0 rgb(255 220 190 / 0.16);
+  }
+  
+  .avatar-body--tuxedo {
+    border-color: #d4b56a;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+  }
+  
+  .avatar-body--hoodie {
+    border-radius: 1.05rem 1.05rem 0.65rem 0.65rem;
+  }
+  
+  .avatar-body--knit {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.18),
+      inset 0 -0.25rem 0 rgb(255 255 255 / 0.06);
+  }
+
+/* ── Wardrobe Modal Layout ── */
+.wardrobe-panel {
+  width: min(100%, 34rem);
+  max-height: min(calc(100dvh - 1.5rem), 50rem);
+  overflow: hidden;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.wardrobe-preview,
+.wardrobe-tabs,
+.wardrobe-actions {
+  flex: 0 0 auto;
+}
+
+.wardrobe-preview {
+  height: 8rem;
+}
+
+.wardrobe-section {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.2rem 0.35rem 0.8rem 0;
+  scrollbar-color: rgb(212 181 106 / 0.45) transparent;
+  scrollbar-width: thin;
+}
+
+.wardrobe-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin: 0 -1.25rem;
+  padding: 0.8rem 1.25rem 1.25rem;
+  border-top: 1px solid rgb(212 181 106 / 0.16);
+  background: linear-gradient(
+    180deg,
+    rgb(18 20 26 / 0.82) 0%,
+    #12141a 38%
+  );
+}
+
+@media (max-width: 36rem) {
+  .wardrobe-overlay {
+    padding: 0.75rem;
+  }
+
+  .wardrobe-panel {
+    max-height: calc(100dvh - 1.5rem);
+    padding-inline: 1rem;
+  }
+
+  .wardrobe-actions {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+  }
+}
+
+/* ── Avatar Parts Refinement ── */
+.avatar-head {
+  overflow: visible;
+}
+
+.avatar-face {
+  z-index: 1;
+}
+
+.avatar-hair {
+  top: -0.16rem;
+  z-index: 0;
+  width: 2.05rem;
+  background: #3a2925;
+  box-shadow: 0 0.08rem 0 rgb(0 0 0 / 0.12);
+}
+
+.avatar-hair--short {
+  height: 0.68rem;
+  border-radius: 1.05rem 1.05rem 0.22rem 0.22rem;
+  
+  
+}
+
+.avatar-hair--bob {
+  top: -0.12rem;
+  width: 2.18rem;
+  height: 0.94rem;
+  border-radius: 1.05rem 1.05rem 0.28rem 0.28rem;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    84% 100%,
+    84% 55%,
+    16% 55%,
+    16% 100%,
+    0 100%
+  );
+}
+
+.avatar-hair--bob::before,
+.avatar-hair--bob::after {
+  content: '';
+  position: absolute;
+  bottom: -0.18rem;
+  width: 0.32rem;
+  height: 0.58rem;
+  border-radius: 0 0 0.28rem 0.28rem;
+  background: #3a2925;
+}
+
+.avatar-hair--bob::before {
+  left: 0.08rem;
+}
+
+.avatar-hair--bob::after {
+  right: 0.08rem;
+}
+
+.avatar-hair--wave {
+  top: -0.12rem;
+  width: 2.04rem;
+  height: 0.9rem;
+  border-radius: 1.1rem 1.1rem 0.32rem 0.32rem;
+  background: #3a2925;
+}
+
+.avatar-hair--wave::before,
+.avatar-hair--wave::after {
+  content: '';
+  position: absolute;
+  bottom: -0.28rem;
+  width: 0.4rem;
+  height: 0.68rem;
+  border-radius: 0 0 0.42rem 0.42rem;
+  background: #3a2925;
+}
+
+.avatar-hair--wave::before {
+  left: 0.02rem;
+  transform: rotate(4deg);
+}
+
+.avatar-hair--wave::after {
+  right: 0.02rem;
+  transform: rotate(-4deg);
+}
+
+.avatar-glasses {
+  top: 34%;
+  width: 1.42rem;
+  height: 0.44rem;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(
+    #5a4634,
+    #5a4634
+  ) center 42% / 0.26rem 1.5px no-repeat;
+}
+
+.avatar-glasses::before,
+.avatar-glasses::after {
+  top: 0;
+  width: 0.55rem;
+  height: 0.42rem;
+  border: 1.5px solid #5a4634;
+  background: rgb(255 255 255 / 0.08);
+}
+
+.avatar-glasses::before {
+  left: 0;
+}
+
+.avatar-glasses::after {
+  right: 0;
+}
+
+.avatar-glasses--square::before,
+.avatar-glasses--square::after {
+  border-radius: 0.1rem;
+}
+
+.avatar-face--happy .avatar-eyes {
+  transform: translateY(0.02rem) scaleY(0.7);
+}
+
+.avatar-face--happy .avatar-mouth {
+  transform: scale(1.08);
+}
+
+.avatar-face--surprised .avatar-eyes {
+  transform: scale(1.18);
+}
+
+.avatar-face--surprised .avatar-mouth {
+  transform: translateY(0.03rem) scale(1.12);
+}
+
+.avatar-face--sleepy .avatar-eyes {
+  transform: scaleY(0.42);
+  transform-origin: center;
+}
+
+.avatar-face--sleepy .avatar-mouth {
+  transform: translateY(0.03rem) scaleX(0.8);
+}
+
+/* 얼굴 요소를 살짝 아래로 모아 눈썹·눈·입의 중심을 맞춤 */
+.avatar-face {
+  transform: translateY(0.08rem);
+}
+
+.avatar-face--happy {
+  transform: translateY(0.06rem);
+}
+
+.avatar-face--surprised,
+.avatar-face--sleepy {
+  transform: translateY(0.08rem);
+}
+
+/* 얼굴 기준선을 맞춰 눈·볼·입이 위로 몰리지 않게 조정 */
+.avatar-eyebrows {
+  top: 21%;
+}
+
+.avatar-eyes,
+.avatar-mouth {
+  position: relative;
+  top: 0.16rem;
+}
+
+.avatar-eyes>.avatar-eye.avatar-eye--dot,.avatar-mouth{
+    top: 0.11rem;
+}
+
+.avatar-blush {
+    top: 68%;
+}
+
+/* ── Outfit Presets ── */
+.avatar-body {
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-body::before,
+.avatar-body::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.avatar-body--velvet::before {
+  inset: 0;
+  background:
+    linear-gradient(
+      115deg,
+      rgb(255 255 255 / 0.2),
+      transparent 22%,
+      rgb(0 0 0 / 0.16) 72%,
+      transparent
+    ),
+    radial-gradient(circle at 50% 0, rgb(255 221 193 / 0.24), transparent 40%);
+  opacity: 0.85;
+}
+
+.avatar-body--velvet::after {
+  top: 0.08rem;
+  left: 50%;
+  width: 0.7rem;
+  height: 0.34rem;
+  border-right: 1px solid rgb(255 235 220 / 0.55);
+  border-bottom: 1px solid rgb(255 235 220 / 0.55);
+  border-left: 1px solid rgb(255 235 220 / 0.55);
+  transform: translateX(-50%);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+}
+
+.avatar-body--tuxedo::before {
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 43%,
+      rgb(245 240 232 / 0.9) 43% 57%,
+      transparent 57%
+    ),
+    linear-gradient(135deg, rgb(255 255 255 / 0.12), transparent 36%);
+}
+
+.avatar-body--tuxedo::after {
+  top: 0.34rem;
+  left: 50%;
+  width: 0.34rem;
+  height: 0.34rem;
+  border: 1px solid #d4b56a;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.avatar-body--hoodie::before {
+  inset: 0;
+  border: 0.18rem solid rgb(255 255 255 / 0.08);
+  border-top: 0;
+  border-radius: 0 0 0.55rem 0.55rem;
+}
+
+.avatar-body--hoodie::after {
+  top: 0.24rem;
+  left: 50%;
+  width: 0.8rem;
+  height: 0.48rem;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  border-top: 0;
+  border-radius: 0 0 0.55rem 0.55rem;
+  transform: translateX(-50%);
+}
+
+.avatar-body--knit::before {
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 0.26rem,
+    rgb(255 255 255 / 0.1) 0.26rem 0.31rem
+  );
+}
+
+.avatar-body--staff::before {
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0 43%,
+    rgb(245 240 232 / 0.72) 43% 57%,
+    transparent 57%
+  );
+  opacity: 0.42;
 }

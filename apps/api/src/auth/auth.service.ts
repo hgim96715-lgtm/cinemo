@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import {
+  ADMIN_AVATAR,
   DEFAULT_AVATAR,
   DEFAULT_PROFILE,
   normalizeProfileTags,
@@ -48,9 +49,12 @@ type AuthUserRow = {
   tags?: string[];
 };
 
-function toAvatarConfig(value: unknown): AvatarConfig {
+function toAvatarConfig(
+  value: unknown,
+  role: AuthUserRow['role'] = 'user',
+): AvatarConfig {
   if (value && typeof value === 'object') return value as AvatarConfig;
-  return DEFAULT_AVATAR;
+  return role === 'admin' ? ADMIN_AVATAR : DEFAULT_AVATAR;
 }
 
 function toAuthUser(user: AuthUserRow) {
@@ -60,7 +64,7 @@ function toAuthUser(user: AuthUserRow) {
     nickname: user.nickname,
     role: user.role,
     isTestAccount: user.isTestAccount,
-    avatarConfig: toAvatarConfig(user.avatarConfig),
+    avatarConfig: toAvatarConfig(user.avatarConfig, user.role),
     bio: user.bio ?? DEFAULT_PROFILE.bio,
     profilePublic: user.profilePublic ?? DEFAULT_PROFILE.profilePublic,
     tags: normalizeProfileTags(user.tags ?? []),
@@ -151,16 +155,35 @@ export class AuthService {
     if (!normalized) return { available: false };
     return this.isAvailable({ nickname: normalized });
   }
+
   async updateAvatar(userId: string, dto: UpdateAvatarDto) {
-    const avatarConfig = {
-      hat: dto.hat,
-      hatColor: dto.hatColor,
-      skinColor: dto.skinColor,
-      eyeStyle: dto.eyeStyle,
-      blushColor: dto.blushColor,
-      mouthStyle: dto.mouthStyle,
-      outfit: dto.outfit,
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarConfig: true, role: true },
+    });
+    if (!currentUser) throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    const previousAvatar = toAvatarConfig(
+      currentUser.avatarConfig,
+      currentUser.role,
+    );
+
+    const avatarConfig: AvatarConfig = {
+      ...previousAvatar,
+      hat: dto.hat ?? previousAvatar.hat,
+      hatColor: dto.hatColor ?? previousAvatar.hatColor,
+      skinColor: dto.skinColor ?? previousAvatar.skinColor,
+      eyeStyle: dto.eyeStyle ?? previousAvatar.eyeStyle,
+      eyebrowStyle: dto.eyebrowStyle ?? previousAvatar.eyebrowStyle,
+      glassesStyle: dto.glassesStyle ?? previousAvatar.glassesStyle,
+      hairStyle: dto.hairStyle ?? previousAvatar.hairStyle,
+      blushColor:
+        dto.blushColor !== undefined
+          ? dto.blushColor
+          : previousAvatar.blushColor,
+      mouthStyle: dto.mouthStyle ?? previousAvatar.mouthStyle,
+      outfit: dto.outfit !== undefined ? dto.outfit : previousAvatar.outfit,
     };
+
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: { avatarConfig: avatarConfig as unknown as Prisma.InputJsonValue },
@@ -168,6 +191,7 @@ export class AuthService {
     });
     return toAuthUser(user);
   }
+
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const data: Prisma.UserUpdateInput = {};
     if (dto.nickname !== undefined) {
@@ -212,7 +236,7 @@ export class AuthService {
     return {
       nickname: user.nickname,
       profilePublic: true,
-      avatarConfig: toAvatarConfig(user.avatarConfig),
+      avatarConfig: toAvatarConfig,
       bio: user.bio,
       tags: normalizeProfileTags(user.tags ?? []),
     };

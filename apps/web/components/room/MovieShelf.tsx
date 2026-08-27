@@ -3,19 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Check, Heart } from 'lucide-react';
-import type {
-  UserMovieKind,
-  UserMovieListItem,
-  UserMovieMarks,
+import { Check, Heart, Search } from 'lucide-react';
+import {
+  GachaMovie,
+  type UserMovieKind,
+  type UserMovieListItem,
+  type UserMovieMarks,
 } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
 import {
-  getUserMovieMarksRequest,
   listUserMoviesRequest,
   toggleUserMovieRequest,
 } from '@/lib/user-movie-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
+import { MovieDetailModal } from './MovieDetailModal';
 
 const PAGE_SIZE = 24;
 
@@ -41,7 +42,8 @@ export function MovieShelf({ kind, title }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [flippedId, setFlippedId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMovie, setSelectedMovie] = useState<GachaMovie | null>(null);
   const [marksByTmdbId, setMarksByTmdbId] = useState<
     Record<number, Pick<UserMovieMarks, 'wish' | 'watched'>>
   >({});
@@ -72,7 +74,6 @@ export function MovieShelf({ kind, title }: Props) {
     async function loadFirst() {
       setLoading(true);
       setError(null);
-      setFlippedId(null);
       try {
         const res = await listUserMoviesRequest(
           accessToken!,
@@ -144,28 +145,6 @@ export function MovieShelf({ kind, title }: Props) {
     return () => observer.disconnect();
   }, [hasMore, loadMore, items.length]);
 
-  useEffect(() => {
-    if (!accessToken || flippedId == null) return;
-    let cancelled = false;
-    async function loadMarks() {
-      try {
-        const res = await getUserMovieMarksRequest(accessToken!, flippedId!);
-        if (!cancelled) {
-          setMarksByTmdbId((prev) => ({
-            ...prev,
-            [res.tmdbId]: { wish: res.wish, watched: res.watched },
-          }));
-        }
-      } catch {
-        /* keep seeded */
-      }
-    }
-    void loadMarks();
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, flippedId]);
-
   async function toggleMark(tmdbId: number, markKind: UserMovieKind) {
     if (!accessToken) return;
     setError(null);
@@ -176,7 +155,6 @@ export function MovieShelf({ kind, title }: Props) {
     };
     const prevItems = items;
     const prevTotal = total;
-    const prevFlipped = flippedId;
 
     const turningOn =
       markKind === 'wish' ? !prevMarks.wish : !prevMarks.watched;
@@ -199,7 +177,6 @@ export function MovieShelf({ kind, title }: Props) {
     if (leaveShelf) {
       setItems((prev) => prev.filter((item) => item.tmdbId !== tmdbId));
       setTotal((n) => Math.max(0, n - 1));
-      setFlippedId((id) => (id === tmdbId ? null : id));
     }
 
     try {
@@ -218,7 +195,6 @@ export function MovieShelf({ kind, title }: Props) {
       setMarksByTmdbId((prev) => ({ ...prev, [tmdbId]: prevMarks }));
       setItems(prevItems);
       setTotal(prevTotal);
-      setFlippedId(prevFlipped);
       setError(error instanceof Error ? error.message : '저장에 실패했습니다.');
     }
   }
@@ -239,18 +215,48 @@ export function MovieShelf({ kind, title }: Props) {
     );
   }
 
-  const emptyLabel =
-    kind === 'wish' ? '찜한 영화가 없어요.' : '본 작품이 없어요.';
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+
+  const visibleItems = normalizedQuery
+    ? items.filter((item) => {
+        const movie = item.movie;
+        return [movie.title, movie.director, movie.release_date].some((value) =>
+          value?.toLocaleLowerCase().includes(normalizedQuery),
+        );
+      })
+    : items;
+
+  const emptyLabel = normalizedQuery
+    ? '검색 결과가 없어요.'
+    : kind === 'wish'
+      ? '찜한 영화가 없어요.'
+      : '본 작품이 없어요.';
 
   return (
     <main className="room room--shelf">
       <header className="room-shelf-header">
         <div className="room-shelf-heading">
-          <p className="room-kicker">SHELF</p>
+          <p className="room-kicker">
+            {kind === 'watched' ? 'WATCHED' : 'WISHLIST'}
+          </p>
+          <p className="room-shelf-subtitle">CINEMO FILM ARCHIVE</p>
           <h1 className="room-shelf-title">
             {title}
-            <span className="room-shelf-count">{total}</span>
+            <span className="room-shelf-count">
+              <span className="room-shelf-count-number">{total}</span>
+              <span className="room-shelf-count-unit">편</span>
+            </span>
           </h1>
+          <div className="room-shelf-search">
+            <Search size={18} strokeWidth={1.5} aria-hidden />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="영화 제목·감독·연도 검색"
+              aria-label={`${title} 검색`}
+            />
+          </div>
         </div>
       </header>
 
@@ -259,83 +265,47 @@ export function MovieShelf({ kind, title }: Props) {
 
         {loading ? (
           <p className="room-copy">불러오는 중…</p>
-        ) : items.length === 0 ? (
+        ) : visibleItems.length === 0 ? (
           <p className="room-copy">{emptyLabel}</p>
         ) : (
           <ul className="room-movie-grid">
-            {items.map((item) => {
+            {visibleItems.map((item) => {
               const movie = item.movie;
               const poster = tmdbPosterUrl(movie.poster_path, 'w342');
-              const flipped = flippedId === item.tmdbId;
               const marks = marksByTmdbId[item.tmdbId];
               return (
                 <li
                   key={`${item.tmdbId}-${item.updatedAt}`}
                   className="room-movie"
                 >
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    className={`room-flip${flipped ? ' is-flipped' : ''}`}
-                    onClick={() =>
-                      setFlippedId((id) =>
-                        id === item.tmdbId ? null : item.tmdbId,
-                      )
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setFlippedId((id) =>
-                          id === item.tmdbId ? null : item.tmdbId,
-                        );
-                      }
-                    }}
-                    aria-label={
-                      flipped
-                        ? `${movie.title} 포스터`
-                        : `${movie.title} 줄거리`
-                    }
-                  >
-                    <span className="room-flip-inner">
-                      <span className="room-flip-face room-flip-face--front">
-                        <span className="room-flip-poster">
-                          {poster ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={poster} alt="" />
-                          ) : (
-                            <span className="room-flip-poster-empty">
-                              No Poster
-                            </span>
-                          )}
-                        </span>
-                        <span className="room-flip-meta">
-                          <span className="room-flip-title">{movie.title}</span>
-                          <span className="room-flip-hint">탭해서 뒤집기</span>
-                        </span>
-                      </span>
-                      <span className="room-flip-face room-flip-face--back">
-                        <span className="room-flip-back-title">
-                          {movie.title}
-                        </span>
-                        <span className="room-flip-facts">
-                          <span>
-                            {movie.release_date?.slice(0, 4) || '----'}
+                  <div className="room-movie-card-wrap">
+                    <button
+                      type="button"
+                      className="room-movie-card"
+                      onClick={() => setSelectedMovie(movie)}
+                      aria-label={`${movie.title} 상세 보기`}
+                    >
+                      <div className="room-movie-poster">
+                        {poster ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={poster} alt={movie.title} />
+                        ) : (
+                          <span className="room-movie-poster-empty">
+                            No Poster
                           </span>
-                          {movie.director ? (
-                            <span>감독 · {movie.director}</span>
-                          ) : null}
+                        )}
+                      </div>
+                    </button>
+
+                    <div className="room-movie-info">
+                      <div className="room-movie-meta">
+                        <span className="room-movie-title">{movie.title}</span>
+                        <span className="room-movie-facts">
+                          {movie.release_date?.slice(0, 4) || '개봉연도 없음'}
                         </span>
-                        <span
-                          className="room-flip-overview"
-                          onClick={(e) => e.stopPropagation()}
-                          onPointerDown={(e) => e.stopPropagation()}
-                        >
-                          {movie.overview?.trim() || '줄거리 정보가 없어요.'}
-                        </span>
-                      </span>
-                    </span>
-                  </div>
-                  <div className="room-flip-marks">
+                      </div>
+
+                      <div className="room-movie-actions">
                     <button
                       type="button"
                       className={`room-mark${marks?.wish ? ' is-on' : ''}`}
@@ -358,7 +328,9 @@ export function MovieShelf({ kind, title }: Props) {
                       onClick={() => void toggleMark(item.tmdbId, 'watched')}
                     >
                       <Check size={14} strokeWidth={2} aria-hidden />
-                    </button>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </li>
               );
@@ -374,9 +346,19 @@ export function MovieShelf({ kind, title }: Props) {
         {loadingMore ? <p className="room-copy">더 불러오는 중…</p> : null}
       </div>
 
+      {selectedMovie ? (
+        <MovieDetailModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+        />
+      ) : null}
+
       <div className="room-actions room-actions--shelf">
         <Link href="/" className="lobby-btn">
           로비로
+        </Link>
+        <Link href="/room" className="lobby-btn">
+          내방으로
         </Link>
       </div>
     </main>

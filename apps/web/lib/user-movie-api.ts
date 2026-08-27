@@ -1,4 +1,5 @@
 import type {
+  GachaMovie,
   ToggleUserMovieResult,
   UserMovieCounts,
   UserMovieKind,
@@ -39,4 +40,43 @@ export function listUserMoviesRequest(
 
 export function getUserMovieCountsRequest(token: string) {
   return apiFetch<UserMovieCounts>('/user-movies/counts', { token });
+}
+
+export type UpdateDisplayBody = {
+  tmdbId: number;
+  kind: 'watched';
+  isDisplayed: boolean;
+  wallSlot: number;
+};
+
+export type UserMovieDisplayResult = {
+  tmdbId: number;
+  kind: 'watched';
+  isDisplayed: boolean;
+  wallSlot: number | null;
+  displayOrder: number | null;
+};
+
+export function updateUserMovieDisplayRequest(
+  token: string,
+  body: UpdateDisplayBody,
+) {
+  return apiFetch<UserMovieDisplayResult>('/user-movies/display', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(body),
+  });
+}
+
+export type DisplayedUserMovie = {
+  tmdbId: number;
+  wallSlot: number;
+  displayOrder: number | null;
+  movie: GachaMovie;
+};
+
+export function listDisplayedUserMoviesRequest(token: string) {
+  return apiFetch<{ items: DisplayedUserMovie[] }>('/user-movies/displayed', {
+    token,
+  });
 }

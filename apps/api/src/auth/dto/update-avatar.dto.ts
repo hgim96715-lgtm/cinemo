@@ -12,6 +12,10 @@ class SolidOutfitDto {
   @IsIn(['solid'])
   type!: 'solid';
 
+  @IsOptional()
+  @IsIn(['basic', 'staff', 'velvet', 'tuxedo', 'hoodie', 'knit'])
+  preset?: 'basic' | 'staff' | 'velvet' | 'tuxedo' | 'hoodie' | 'knit';
+
   @IsString()
   color!: string;
 }
@@ -19,6 +23,10 @@ class SolidOutfitDto {
 class StripeOutfitDto {
   @IsIn(['stripe'])
   type!: 'stripe';
+
+  @IsOptional()
+  @IsIn(['basic', 'staff', 'velvet', 'tuxedo', 'hoodie', 'knit'])
+  preset?: 'basic' | 'staff' | 'velvet' | 'tuxedo' | 'hoodie' | 'knit';
 
   @IsString()
   color1!: string;
@@ -31,6 +39,10 @@ class DotsOutfitDto {
   @IsIn(['dots'])
   type!: 'dots';
 
+  @IsOptional()
+  @IsIn(['basic', 'staff', 'velvet', 'tuxedo', 'hoodie', 'knit'])
+  preset?: 'basic' | 'staff' | 'velvet' | 'tuxedo' | 'hoodie' | 'knit';
+
   @IsString()
   color1!: string;
 
@@ -38,15 +50,14 @@ class DotsOutfitDto {
   color2!: string;
 }
 
-/** discriminator 서브타입 공통 베이스 (class-transformer용) */
 class OutfitDto {
   @IsIn(['solid', 'stripe', 'dots'])
   type!: 'solid' | 'stripe' | 'dots';
 }
 
 export class UpdateAvatarDto {
-  @IsIn(['cap', 'beanie', 'crown', 'none'])
-  hat!: 'cap' | 'beanie' | 'crown' | 'none';
+  @IsIn(['cap', 'beanie', 'crown', 'beret', 'director', 'popcorn', 'none'])
+  hat!: 'cap' | 'beanie' | 'crown' | 'beret' | 'director' | 'popcorn' | 'none';
 
   @IsString()
   hatColor!: string;
@@ -58,12 +69,24 @@ export class UpdateAvatarDto {
   eyeStyle!: 'normal' | 'crescent' | 'dot';
 
   @IsOptional()
-  @ValidateIf((_, v) => v !== null)
+  @IsIn(['natural', 'raised', 'soft'])
+  eyebrowStyle?: 'natural' | 'raised' | 'soft';
+
+  @IsOptional()
+  @IsIn(['none', 'round', 'square'])
+  glassesStyle?: 'none' | 'round' | 'square';
+
+  @IsOptional()
+  @IsIn(['none', 'short', 'bob'])
+  hairStyle?: 'none' | 'short' | 'bob';
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @IsString()
   blushColor!: string | null;
 
-  @IsIn(['smile', 'open', 'cat'])
-  mouthStyle!: 'smile' | 'open' | 'cat';
+  @IsIn(['smile', 'open', 'neutral', 'surprised', 'pout'])
+  mouthStyle!: 'smile' | 'open' | 'neutral' | 'surprised' | 'pout';
 
   @IsObject()
   @ValidateNested()

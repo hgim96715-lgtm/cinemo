@@ -13,6 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpsertUserMovieDto } from './dto/upsert-user-movie.dto';
 import { UserId } from '../auth/decorators/user-id.decorator';
 import { UserMovieKind } from '../generated/prisma/enums';
+import { UpdateDisplayDto } from './dto/update-display.dto';
 
 @ApiTags('user-movies')
 @ApiBearerAuth()
@@ -46,5 +47,15 @@ export class UserMovieController {
     @Query('limit', new DefaultValuePipe(24), ParseIntPipe) limit: number,
   ) {
     return this.userMovieService.listByKind(userId, kind, page, limit);
+  }
+
+  @Post('display')
+  updateDisplay(@UserId() userId: string, @Body() dto: UpdateDisplayDto) {
+    return this.userMovieService.updateDisplay(userId, dto);
+  }
+
+  @Get('displayed')
+  listDisplayed(@UserId() userId: string) {
+    return this.userMovieService.listDisplayed(userId);
   }
 }

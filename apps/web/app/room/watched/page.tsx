@@ -5,5 +5,5 @@ import '../../styles/room.css';
 import '../../styles/lobby.css';
 
 export default function WatchedShelfPage() {
-  return <MovieShelf kind="watched" title="봤어요 선반" />;
+  return <MovieShelf kind="watched" title="관람 기록" />;
 }

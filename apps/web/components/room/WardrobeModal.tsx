@@ -4,62 +4,42 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import type {
   AvatarConfig,
-  HatStyle,
-  EyeStyle,
-  MouthStyle,
 } from '@cinemo/shared';
 import { AvatarFigure } from './AvatarFigure';
-
-const SKIN_COLORS = ['#f5f0e8', '#f0d4b0', '#d4975a', '#8b5e3c', '#4a2e1a'];
-const HAT_COLORS = [
-  '#b8914c',
-  '#e85d5d',
-  '#5d8fe8',
-  '#6fbd6f',
-  '#8f5ecb',
-  '#2c2c2c',
-];
-const BLUSH_COLORS: (string | null)[] = [
-  '#f4a7b9',
-  '#f4c4a7',
-  '#a7d4f4',
-  '#b4f4a7',
-  null,
-];
-const OUTFIT_COLORS = [
-  '#c8a96e',
-  '#5d8fe8',
-  '#e85d5d',
-  '#6fbd6f',
-  '#8f5ecb',
-  '#2c2c2c',
-  '#e8d45d',
-];
-
-const HAT_OPTIONS: { value: HatStyle; label: string }[] = [
-  { value: 'cap', label: '캡' },
-  { value: 'beanie', label: '비니' },
-  { value: 'crown', label: '왕관' },
-  { value: 'none', label: '없음' },
-];
-
-const EYE_OPTIONS: { value: EyeStyle; label: string }[] = [
-  { value: 'normal', label: '동그란' },
-  { value: 'crescent', label: '초승달' },
-  { value: 'dot', label: '점' },
-];
-
-const MOUTH_OPTIONS: { value: MouthStyle; label: string }[] = [
-  { value: 'smile', label: '미소' },
-  { value: 'open', label: '오픈' },
-  { value: 'cat', label: '고양이' },
-];
+import {
+  BLUSH_COLORS,
+  EYE_OPTIONS,
+  EYEBROW_OPTIONS,
+  GLASSES_OPTIONS,
+  HAT_COLORS,
+  HAT_OPTIONS,
+  HAIR_OPTIONS,
+  MOUTH_OPTIONS,
+  OUTFIT_COLORS,
+  OUTFIT_OPTIONS,
+  SKIN_COLORS,
+  withOutfitPreset,
+} from './avatar-options';
 
 type Props = {
   initial: AvatarConfig;
   onSave: (config: AvatarConfig) => void;
   onClose: () => void;
 };
+
+function normalizeAvatarForSave(avatar: AvatarConfig): AvatarConfig {
+  const legacy = avatar as AvatarConfig & {
+    expressionStyle?: unknown;
+    hairStyle?: string;
+  };
+  const { expressionStyle: _expressionStyle, ...withoutExpression } = legacy;
+
+  if (withoutExpression.hairStyle === 'wave') {
+    withoutExpression.hairStyle = 'none';
+  }
+
+  return withoutExpression as AvatarConfig;
+}
 
 export function WardrobeModal({ initial, onSave, onClose }: Props) {
   const [tempAvatar, setTempAvatar] = useState<AvatarConfig>(initial);
@@ -78,6 +58,7 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
         : { color1: OUTFIT_COLORS[0]!, color2: OUTFIT_COLORS[1]! };
     return {
       type: 'stripe' as const,
+      preset: tempAvatar.outfit.preset,
       color1: overrides.color1 ?? prev.color1,
       color2: overrides.color2 ?? prev.color2,
     };
@@ -90,10 +71,12 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
         : { color1: '#ffffff', color2: OUTFIT_COLORS[0]! };
     return {
       type: 'dots' as const,
+      preset: tempAvatar.outfit.preset,
       color1: overrides.color1 ?? prev.color1,
       color2: overrides.color2 ?? prev.color2,
     };
   }
+
 
   return (
     <div className="wardrobe-overlay" onClick={onClose}>
@@ -197,6 +180,51 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
                 </div>
               </div>
               <div className="wardrobe-row">
+                <span className="wardrobe-label">눈썹</span>
+                <div className="wardrobe-chips">
+                  {EYEBROW_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`wardrobe-chip${(tempAvatar.eyebrowStyle ?? 'natural') === value ? ' is-active' : ''}`}
+                      onClick={() => patch({ eyebrowStyle: value })}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="wardrobe-row">
+                <span className="wardrobe-label">안경</span>
+                <div className="wardrobe-chips">
+                  {GLASSES_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`wardrobe-chip${(tempAvatar.glassesStyle ?? 'none') === value ? ' is-active' : ''}`}
+                      onClick={() => patch({ glassesStyle: value })}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="wardrobe-row">
+                <span className="wardrobe-label">머리</span>
+                <div className="wardrobe-chips">
+                  {HAIR_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`wardrobe-chip${(tempAvatar.hairStyle ?? 'none') === value ? ' is-active' : ''}`}
+                      onClick={() => patch({ hairStyle: value })}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="wardrobe-row">
                 <span className="wardrobe-label">입</span>
                 <div className="wardrobe-chips">
                   {MOUTH_OPTIONS.map(({ value, label }) => (
@@ -232,6 +260,25 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
           {tab === 'outfit' && (
             <>
               <div className="wardrobe-row">
+                <span className="wardrobe-label">의상</span>
+                <div className="wardrobe-chips">
+                  {OUTFIT_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`wardrobe-chip${(tempAvatar.outfit.preset ?? 'basic') === value ? ' is-active' : ''}`}
+                      onClick={() =>
+                        patch({
+                          outfit: withOutfitPreset(tempAvatar.outfit, value),
+                        })
+                      }
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="wardrobe-row">
                 <span className="wardrobe-label">패턴</span>
                 <div className="wardrobe-chips">
                   <button
@@ -239,7 +286,11 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
                     className={`wardrobe-chip${tempAvatar.outfit.type === 'solid' ? ' is-active' : ''}`}
                     onClick={() =>
                       patch({
-                        outfit: { type: 'solid', color: OUTFIT_COLORS[0]! },
+                        outfit: {
+                          type: 'solid',
+                          preset: tempAvatar.outfit.preset,
+                          color: OUTFIT_COLORS[0]!,
+                        },
                       })
                     }
                   >
@@ -273,7 +324,13 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
                         className={`wardrobe-swatch${tempAvatar.outfit.type === 'solid' && tempAvatar.outfit.color === color ? ' is-active' : ''}`}
                         style={{ background: color }}
                         onClick={() =>
-                          patch({ outfit: { type: 'solid', color } })
+                          patch({
+                            outfit: {
+                              type: 'solid',
+                              preset: tempAvatar.outfit.preset,
+                              color,
+                            },
+                          })
                         }
                         aria-label={color}
                       />
@@ -371,7 +428,7 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
             type="button"
             className="lobby-btn lobby-btn--primary"
             onClick={() => {
-              onSave(tempAvatar);
+              onSave(normalizeAvatarForSave(tempAvatar));
             }}
           >
             저장
