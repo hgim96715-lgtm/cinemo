@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import type {
-  AvatarConfig,
-} from '@cinemo/shared';
+import type { AvatarConfig } from '@cinemo/shared';
 import { AvatarFigure } from './AvatarFigure';
 import {
   BLUSH_COLORS,
@@ -33,10 +31,6 @@ function normalizeAvatarForSave(avatar: AvatarConfig): AvatarConfig {
     hairStyle?: string;
   };
   const { expressionStyle: _expressionStyle, ...withoutExpression } = legacy;
-
-  if (withoutExpression.hairStyle === 'wave') {
-    withoutExpression.hairStyle = 'none';
-  }
 
   return withoutExpression as AvatarConfig;
 }
@@ -76,7 +70,6 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
       color2: overrides.color2 ?? prev.color2,
     };
   }
-
 
   return (
     <div className="wardrobe-overlay" onClick={onClose}>

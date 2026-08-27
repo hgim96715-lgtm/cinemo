@@ -551,15 +551,7 @@
     border-radius: 1rem 1rem 0.45rem 0.45rem;
   }
   
-  .avatar-hair--wave {
-    width: 2.18rem;
-    height: 1.12rem;
-    border-radius: 1rem 1rem 0.7rem 0.7rem;
-    background:
-      radial-gradient(circle at 20% 80%, #3c2b24 0 0.28rem, transparent 0.3rem),
-      radial-gradient(circle at 80% 80%, #3c2b24 0 0.28rem, transparent 0.3rem),
-      #3c2b24;
-  }
+
   
   .avatar-mouth--neutral {
     width: 0.42rem;
@@ -738,35 +730,6 @@
 
 .avatar-hair--bob::after {
   right: 0.08rem;
-}
-
-.avatar-hair--wave {
-  top: -0.12rem;
-  width: 2.04rem;
-  height: 0.9rem;
-  border-radius: 1.1rem 1.1rem 0.32rem 0.32rem;
-  background: #3a2925;
-}
-
-.avatar-hair--wave::before,
-.avatar-hair--wave::after {
-  content: '';
-  position: absolute;
-  bottom: -0.28rem;
-  width: 0.4rem;
-  height: 0.68rem;
-  border-radius: 0 0 0.42rem 0.42rem;
-  background: #3a2925;
-}
-
-.avatar-hair--wave::before {
-  left: 0.02rem;
-  transform: rotate(4deg);
-}
-
-.avatar-hair--wave::after {
-  right: 0.02rem;
-  transform: rotate(-4deg);
 }
 
 .avatar-glasses {
