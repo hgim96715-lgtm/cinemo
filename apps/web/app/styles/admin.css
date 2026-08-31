@@ -1002,3 +1002,78 @@ select.admin-ops-input {
     color: var(--admin-fg);
     background: rgb(243 239 230 / 0.06);
   }
+
+@media (max-width: 40rem) {
+  .admin-shell {
+    display: block;
+    min-height: 100dvh;
+  }
+
+  .admin-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: block;
+    padding: 0.85rem 0.8rem 0.7rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--admin-line);
+    background: rgb(14 16 20 / 0.96);
+    backdrop-filter: blur(0.75rem);
+  }
+
+  .admin-kicker,
+  .admin-brand,
+  .admin-who {
+    display: inline-block;
+    margin: 0;
+    vertical-align: baseline;
+  }
+
+  .admin-kicker {
+    margin-right: 0.55rem;
+    font-size: 0.56rem;
+  }
+
+  .admin-brand {
+    font-size: 0.95rem;
+  }
+
+  .admin-who {
+    margin-left: 0.45rem;
+    font-size: 0.72rem;
+  }
+
+  .admin-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+    gap: 0.25rem;
+    margin-top: 0.65rem;
+  }
+
+  .admin-nav a,
+  .admin-nav button.admin-link--out {
+    min-width: 0;
+    margin: 0;
+    padding: 0.55rem 0.6rem;
+    font-size: 0.76rem;
+    line-height: 1.2;
+  }
+
+  .admin-main {
+    min-width: 0;
+    padding: 1.15rem 0.8rem 2rem;
+  }
+
+  .admin-title {
+    font-size: 1.3rem;
+    line-height: 1.35;
+  }
+
+  .admin-sub {
+    line-height: 1.55;
+  }
+
+  .admin-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
