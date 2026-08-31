@@ -1,8 +1,11 @@
 import {
   Body,
+  BadRequestException,
   Controller,
   DefaultValuePipe,
   Get,
+  HttpCode,
+  HttpStatus,
   ParseIntPipe,
   Post,
   Query,
@@ -119,6 +122,7 @@ export class TmdbController {
 
   @Public()
   @Post('seed-pool/cron')
+  @HttpCode(HttpStatus.ACCEPTED)
   @ApiQuery({ name: 'pages', required: false, example: 3 })
   seedPoolCron(
     @Headers('x-cron-secret') secret: string | undefined,
@@ -128,12 +132,28 @@ export class TmdbController {
       throw new UnauthorizedException('잘못된 cron secret입니다.');
     }
 
-    return this.seedRunService.execute(
+    return this.seedRunService.executeBackground(
       'cron',
       pages,
       GACHA_MACHINES.length,
       () => this.tmdbService.seedPoolAll(pages),
     );
+  }
+
+  @Public()
+  @Get('seed-pool/cron/status')
+  getSeedPoolCronStatus(
+    @Headers('x-cron-secret') secret: string | undefined,
+    @Query('runId') runId: string | undefined,
+  ) {
+    if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
+      throw new UnauthorizedException('잘못된 cron secret입니다.');
+    }
+    if (!runId) {
+      throw new BadRequestException('runId가 필요합니다.');
+    }
+
+    return this.seedRunService.getById(runId);
   }
 
   @Roles('admin')

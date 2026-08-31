@@ -474,13 +474,13 @@
   color: var(--lobby-fg);
 }
 
-/* 홀: 문 | 카운터(직원+데스크) | 문들 */
+/* 홀: 중앙 매표소 + 네 공간 카드 */
 .lobby-hall {
-  display: grid;
-  grid-template-columns: 4.75rem minmax(0, 21rem) 4.75rem;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   width: 100%;
   flex: 1 1 auto;
   min-height: 0;
@@ -488,82 +488,102 @@
   padding-bottom: 0.35rem;
 }
 
-.lobby-doors {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  opacity: 0.4;
-  transition: opacity 900ms ease;
-}
-
-.lobby--lit .lobby-doors {
-  opacity: 0.95;
-}
-
-.lobby-door {
+.lobby-destinations {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 4.4rem;
-  padding: 0.55rem 0.3rem;
-  border: 2px solid rgb(243 239 230 / 0.18);
-  border-radius: 0.15rem 0.15rem 0 0;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent 40%),
-    rgb(0 0 0 / 0.28);
-  color: var(--lobby-muted);
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-align: center;
-  line-height: 1.2;
-  text-decoration: none;
-  transition: border-color 200ms ease, color 200ms ease, background 200ms ease;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  width: min(100%, 37rem);
+  margin-top: 0.2rem;
 }
 
-.lobby-door-frame {
-  position: absolute;
-  inset: 0.28rem 0.22rem 0.35rem;
-  border: 1px solid rgb(243 239 230 / 0.1);
-  border-radius: 0.08rem;
-  pointer-events: none;
-}
-
-.lobby-door-label {
+.lobby-destination {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 5.6rem;
+  gap: 0.25rem;
+  padding: 0.7rem 0.35rem 0.65rem;
+  border: 1px solid rgb(243 239 230 / 0.17);
+  border-radius: 0.55rem;
+  background:
+    linear-gradient(160deg, rgb(243 239 230 / 0.08), transparent 56%),
+    rgb(0 0 0 / 0.3);
+  color: var(--lobby-muted);
+  text-align: center;
+  text-decoration: none;
+  touch-action: manipulation;
+  opacity: 0.72;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease,
+    background 200ms ease,
+    transform 200ms ease,
+    opacity 200ms ease;
+}
+
+.lobby--lit .lobby-destination {
+  border-color: rgb(212 181 106 / 0.3);
+  opacity: 0.96;
+}
+
+.lobby-destination-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-bottom: 0.15rem;
+  stroke-width: 1.35;
+  color: var(--lobby-gold);
+}
+
+.lobby-destination-kicker {
   max-width: 100%;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  letter-spacing: 0.12em;
+  overflow: hidden;
+  color: rgb(212 181 106 / 0.72);
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.lobby-doors--right .lobby-door {
-  min-height: 3.6rem;
+.lobby-destination-label {
+  color: var(--lobby-fg);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.lobby-doors--right .lobby-door:first-child {
-  min-height: 4.2rem;
-}
-
-.lobby-door--soon {
-  opacity: 0.55;
-  cursor: default;
-}
-
-.lobby-door:hover:not(.lobby-door--soon) {
+.lobby-destination:hover {
   border-color: var(--lobby-gold);
   color: var(--lobby-fg);
   background:
     linear-gradient(180deg, rgb(212 181 106 / 0.1), transparent 45%),
     rgb(0 0 0 / 0.22);
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.lobby-counter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 21rem) 7.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: min(100%, 29.5rem);
 }
 
 .lobby-counter {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  min-width: 0;
   gap: 0.35rem;
   text-align: center;
 }
@@ -633,16 +653,16 @@
   position: relative;
   z-index: 2;
   width: max-content;
-  max-width: min(15rem, calc(100vw - 2rem));
+  max-width: min(19rem, calc(100vw - 2rem));
   margin: 0;
-  padding: 0.34rem 0.52rem 0.38rem;
+  padding: 0.5rem 0.85rem 0.55rem;
   border: 1px solid rgb(212 181 106 / 0.55);
-  border-radius: 0.85rem;
+  border-radius: 1rem;
   background: linear-gradient(180deg, #fffaf0 0%, #f6ebd8 100%);
   color: #4a3d32;
-  font-size: 0.68rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.4;
   letter-spacing: -0.02em;
   text-align: center;
   box-shadow: none;
@@ -1070,10 +1090,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 1.1rem;
-  width: 100%;
-  max-width: 26rem;
+  gap: 0.3rem;
+  width: 7.5rem;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.2rem 0;
   opacity: 0.5;
   transition: opacity 900ms ease;
   flex-shrink: 0;
@@ -1135,45 +1156,41 @@
 
 .lobby-guest-bar {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.55rem;
+  justify-content: center;
+  gap: 0.45rem;
   width: 100%;
-  padding: 0.35rem 0.45rem;
-  border-top: 1px solid rgb(243 239 230 / 0.08);
+  padding: 0;
 }
 
 .lobby-guest-identity {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.28rem;
   min-width: 0;
 }
 
-.lobby-guest-identity .lobby-guest-figure {
-  transform: scale(0.78);
-  transform-origin: center;
+.lobby-guest-identity .avatar-figure {
+  transform: scale(1.08);
+  transform-origin: center bottom;
+  margin-bottom: 0.22rem;
 }
 
 .lobby-mat {
   flex-shrink: 0;
-  width: 5.6rem;
-  height: 1.25rem;
+  width: auto;
+  min-width: 6.4rem;
+  height: 1.55rem;
+  padding: 0 0.75rem;
   display: grid;
   place-items: center;
-  border: 1px solid rgb(243 239 230 / 0.14);
-  border-radius: 0.2rem;
+  border: 1px solid rgb(212 181 106 / 0.35);
+  border-radius: 999px;
   text-decoration: none;
   cursor: pointer;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(243 239 230 / 0.04),
-      rgb(243 239 230 / 0.04) 4px,
-      transparent 4px,
-      transparent 8px
-    ),
-    rgb(255 255 255 / 0.03);
+  background: rgb(212 181 106 / 0.05);
   transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
 }
 
@@ -1183,27 +1200,19 @@
 }
 
 .lobby--lit .lobby-mat {
-  border-color: rgb(212 181 106 / 0.28);
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(212 181 106 / 0.08),
-      rgb(212 181 106 / 0.08) 4px,
-      transparent 4px,
-      transparent 8px
-    ),
-    rgb(212 181 106 / 0.04);
+  border-color: rgb(212 181 106 / 0.55);
+  background: rgb(212 181 106 / 0.1);
 }
 
 .lobby-mat-label {
-    max-width: 100%;
-    overflow: hidden;
-    font-size: 0.5rem;
-    letter-spacing: 0.1em;
-    line-height: 1;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    color: var(--lobby-muted);
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--lobby-gold);
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .lobby-mat:hover .lobby-mat-label {
@@ -1250,7 +1259,8 @@
 
 .lobby-guest-name {
   margin: 0;
-  font-size: 0.82rem;
+  color: var(--lobby-fg);
+  font-size: 0.86rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -1258,55 +1268,51 @@
   max-width: 5.5rem;
 }
 
-.lobby-guest-ticket {
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--lobby-muted);
-  font-size: 0.68rem;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.lobby-ticket-stub {
-  display: inline-block;
-  padding: 0.1rem 0.35rem;
-  border: 1px dashed rgb(212 181 106 / 0.45);
-  color: var(--lobby-gold);
-  font-size: 0.64rem;
-  letter-spacing: 0.1em;
-}
-
 @media (max-width: 640px) {
+  .lobby-board-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lobby-board-slots .lobby-chart:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .lobby-chart-row-title {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
+
   .lobby-hall {
-    grid-template-columns: 1fr;
-    justify-items: center;
     gap: 0.7rem;
   }
 
-  .lobby-doors {
-    flex-direction: row;
-    width: 100%;
-    justify-content: center;
+  .lobby-destinations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 22rem);
   }
 
-  .lobby-door,
-  .lobby-doors--right .lobby-door,
-  .lobby-doors--right .lobby-door:first-child {
-    min-height: 2.6rem;
-    min-width: 5.2rem;
-    padding: 0.45rem 0.7rem;
-  }
-
-  .lobby-door-label {
-    writing-mode: horizontal-tb;
-    letter-spacing: 0.06em;
+  .lobby-destination {
+    min-height: 5rem;
+    min-width: 0;
+    padding-inline: 0.55rem;
   }
 
   .lobby-counter {
-    order: -1;
     width: min(100%, 20rem);
+  }
+
+  .lobby-counter-row {
+    grid-template-columns: 1fr;
+    width: min(100%, 20rem);
+    gap: 0.65rem;
+  }
+
+  .lobby-guest {
+    width: 7rem;
+    justify-self: center;
   }
 }
 

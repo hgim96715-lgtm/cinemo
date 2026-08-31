@@ -84,6 +84,30 @@ export class SeedRunService {
     task: () => Promise<T>,
   ): Promise<T> {
     const run = await this.start(trigger, pages, machineCount);
+    return this.runAndFinalize(run.id, task);
+  }
+
+  async executeBackground<T extends Record<string, SeedRunResult>>(
+    trigger: SeedRunTrigger,
+    pages: number,
+    machineCount: number,
+    task: () => Promise<T>,
+  ) {
+    const run = await this.start(trigger, pages, machineCount);
+
+    void this.runAndFinalize(run.id, task).catch(() => undefined);
+
+    return {
+      accepted: true,
+      runId: run.id,
+      status: 'running' as const,
+    };
+  }
+
+  private async runAndFinalize<T extends Record<string, SeedRunResult>>(
+    runId: string,
+    task: () => Promise<T>,
+  ): Promise<T> {
     try {
       const result = await task();
       const values = Object.values(result);
@@ -104,14 +128,14 @@ export class SeedRunService {
         },
       );
       if (values.some((result) => !result.ok)) {
-        await this.partial(run.id, '일부 영화 저장에 실패했습니다.', stats);
+        await this.partial(runId, '일부 영화 저장에 실패했습니다.', stats);
       } else {
-        await this.succeed(run.id, stats);
+        await this.succeed(runId, stats);
       }
       return result;
     } catch (error) {
       await this.fail(
-        run.id,
+        runId,
         error instanceof Error ? error.message : String(error),
       );
       throw error;
@@ -154,6 +178,12 @@ export class SeedRunService {
       orderBy: {
         startedAt: 'desc',
       },
+    });
+  }
+
+  async getById(id: string) {
+    return this.prisma.moviePoolSeedRun.findUnique({
+      where: { id },
     });
   }
 }

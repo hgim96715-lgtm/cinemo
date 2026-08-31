@@ -17,7 +17,46 @@ jobs:
           API_URL: ${{ secrets.CINEMO_API_URL }}
           CRON_SECRET: ${{ secrets.CINEMO_CRON_SECRET }}
         run: |
-          curl --fail-with-body --silent --show-error \
+          set -euo pipefail
+
+          response="$(curl --fail-with-body --silent --show-error \
             --request POST \
             --url "${API_URL}/v1/tmdb/seed-pool/cron?pages=3" \
-            --header "x-cron-secret: ${CRON_SECRET}"
+            --header "x-cron-secret: ${CRON_SECRET}")"
+
+          run_id="$(printf '%s' "$response" | jq -r '.runId')"
+          test -n "$run_id"
+          test "$run_id" != "null"
+
+          echo "MoviePool 시드 시작: $run_id"
+
+          for attempt in $(seq 1 150); do
+            status_response="$(curl --fail-with-body --silent --show-error \
+              --url "${API_URL}/v1/tmdb/seed-pool/cron/status?runId=${run_id}" \
+              --header "x-cron-secret: ${CRON_SECRET}")"
+
+            status="$(printf '%s' "$status_response" | jq -r '.status')"
+            echo "시드 상태 (${attempt}/150): ${status}"
+
+            case "$status" in
+              succeeded)
+                echo "MoviePool 시드 성공"
+                exit 0
+                ;;
+              partial|failed)
+                printf '%s\n' "$status_response"
+                exit 1
+                ;;
+              running)
+                sleep 10
+                ;;
+              *)
+                echo "알 수 없는 시드 상태: ${status}"
+                printf '%s\n' "$status_response"
+                exit 1
+                ;;
+            esac
+          done
+
+          echo "MoviePool 시드 상태 확인 시간 초과"
+          exit 1
