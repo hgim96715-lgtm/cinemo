@@ -1269,6 +1269,22 @@
 }
 
 @media (max-width: 640px) {
+  .lobby {
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .lobby-stage {
+    max-height: none;
+  }
+
+  .lobby-hall {
+    flex: 0 0 auto;
+    min-height: auto;
+  }
+
   .lobby-board-slots {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
