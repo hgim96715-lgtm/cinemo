@@ -2025,10 +2025,10 @@
 .room-scene-layout > .room-feature-boards {
   display: grid;
   grid-column: 4;
-  grid-row: 1 / span 1;
-  grid-template-rows: repeat(1, auto);
-  align-self: stretch;
-  align-content:center;
+  grid-row: 1;
+  grid-template-rows: repeat(2, auto);
+  align-self: start;
+  align-content: start;
   align-items: center;
   gap: 0.7rem;
   width: 100%;
@@ -2064,8 +2064,9 @@
 
 .room-scene-layout > .room-me {
   grid-column: 4;
-  grid-row: 3;
-  align-self: end;
+  grid-row: 2 / span 2;
+  align-self: stretch;
+  justify-content: center;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -2104,7 +2105,8 @@
 @media (max-width: 60rem) {
   .room-scene-layout {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: auto auto minmax(10rem, 1fr) auto;
+    grid-template-rows: auto auto max-content auto;
+    align-content: start;
     gap: 0.8rem 0.55rem;
     padding: 6% 5% 4%;
   }
@@ -2135,6 +2137,8 @@
   .room-scene-layout > .room-me {
     grid-column: 2;
     grid-row: 3;
+    align-self: start;
+    min-height: max-content;
   }
 
   .room-scene-layout > .room-object--wardrobe {
@@ -2159,6 +2163,10 @@
 }
 
 @media (max-width: 30rem) {
+  .room-scene {
+    aspect-ratio: 1 / 1.75;
+  }
+
   .room-scene-layout {
     gap: 0.7rem 0.35rem;
     padding-inline: 4%;
