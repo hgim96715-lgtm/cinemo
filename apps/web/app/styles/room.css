@@ -1595,11 +1595,11 @@
 
   .room-object--watched {
     left: 4%;
-    bottom: 28%;
+    bottom: 36%;
   }
 
   .room-object--quotes {
-    bottom: 5%;
+    bottom: 3%;
     left: 4%;
   }
 
@@ -1623,6 +1623,20 @@
 
   .room-object--collection .room-object-count {
     font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 30rem) {
+  .room-object--collection {
+    width: 28%;
+  }
+
+  .room-object--watched {
+    bottom: 38%;
+  }
+
+  .room-object--quotes {
+    bottom: 2%;
   }
 }
 
