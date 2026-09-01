@@ -30,6 +30,7 @@ import { seedDemoReviewLikes } from '../lib/demo-review-likes';
 type Personas = {
   nicknames: string[];
   reviews: { body: string; rating: number }[];
+  quotes: { text: string }[];
   profiles: {
     bio: string | null;
     tags: string[];
@@ -38,6 +39,7 @@ type Personas = {
 };
 
 type ReviewTemplate = { body: string; rating: number };
+type QuoteTemplate = { text: string };
 type ProfileTemplate = Personas['profiles'][number];
 
 function loadPersonas(): Personas {
@@ -69,6 +71,10 @@ function pickMachine(): GachaMachineId {
 
 function pickReview(personas: Personas): ReviewTemplate {
   return personas.reviews[Math.floor(Math.random() * personas.reviews.length)]!;
+}
+
+function pickQuote(personas: Personas): QuoteTemplate | undefined {
+  return personas.quotes[Math.floor(Math.random() * personas.quotes.length)];
 }
 
 function pickProfile(personas: Personas): ProfileTemplate {
@@ -112,7 +118,13 @@ function sleep(ms: number) {
 }
 
 type SeedResult =
-  | { ok: true; nickname: string; movieTitle: string; tmdbId: number }
+  | {
+      ok: true;
+      nickname: string;
+      movieTitle: string;
+      tmdbId: number;
+      quoteCreated: boolean;
+    }
   | { ok: false; nickname: string; reason: string };
 
 async function runUserActivity(
@@ -174,7 +186,33 @@ async function runUserActivity(
     rating: template.rating,
   });
 
-  return { ok: true, nickname, movieTitle, tmdbId };
+  const quoteTemplate = pickQuote(personas);
+  if (!quoteTemplate) {
+    return { ok: true, nickname, movieTitle, tmdbId, quoteCreated: false };
+  }
+
+  const existingQuote = await deps.prisma.quotePost.findFirst({
+    where: { userId, tmdbId, text: quoteTemplate.text },
+    select: { id: true },
+  });
+  let quoteCreated = false;
+  if (!existingQuote) {
+    const quote = await deps.prisma.quotePost.create({
+      data: {
+        userId,
+        tmdbId,
+        movieTitle,
+        text: quoteTemplate.text,
+        usePosterBackground: true,
+      },
+    });
+    await deps.prisma.quotePostBookmark.create({
+      data: { userId, quotePostId: quote.id },
+    });
+    quoteCreated = true;
+  }
+
+  return { ok: true, nickname, movieTitle, tmdbId, quoteCreated };
 }
 
 async function nextRegisterSeq(
@@ -290,6 +328,7 @@ async function main() {
       dateKey,
       demoUserIds,
     );
+    const quotePosts = ok.filter((r) => r.quoteCreated).length;
 
     console.log('\n[demo-seed] 완료');
     for (const r of ok) {
@@ -301,6 +340,7 @@ async function main() {
       console.log(`  − ${r.nickname} · ${r.reason}`);
     }
     console.log(`  후기 ${ok.length}건 / 스킵 ${fail.length}건`);
+    console.log(`  명대사 ${quotePosts}건`);
     console.log(`  좋아요 ${reviewLikes}건`);
   } finally {
     await app.close();

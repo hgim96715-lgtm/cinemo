@@ -16,6 +16,7 @@ import { seedDemoReviewLikes } from '../lib/demo-review-likes';
 type DemoPersonas = {
   nicknames: string[];
   reviews: { body: string; rating: number }[];
+  quotes: { text: string }[];
   profiles: { bio: string | null; tags: string[]; profilePublic: boolean }[];
 };
 
@@ -32,6 +33,7 @@ type DemoSeedSummary = {
   createdUsers: number;
   cafeMessages: number;
   reviewLikes: number;
+  quotePosts: number;
 };
 
 const DAY_MS = 86_400_000;
@@ -167,6 +169,7 @@ export class DemoSeedService {
     const returnCount = Math.max(0, DEMO_TOTAL_ACTIVITY - DEMO_NEW_PER_DAY);
     let createdUsers = 0;
     let activities = 0;
+    let quotePosts = 0;
     let sequence = 1;
     const users: DemoUser[] = [];
 
@@ -202,7 +205,7 @@ export class DemoSeedService {
     }
 
     const movies = await this.prisma.moviePool.findMany({
-      select: { tmdbId: true },
+      select: { tmdbId: true, title: true },
       orderBy: { syncedAt: 'desc' },
       take: 200,
     });
@@ -241,8 +244,8 @@ export class DemoSeedService {
         await this.adminService.countIncrement('visits', eventAt);
       }
 
-      const movieId =
-        movies[this.indexFor(dateKey, index, movies.length)].tmdbId;
+      const movie = movies[this.indexFor(dateKey, index, movies.length)];
+      const movieId = movie.tmdbId;
       const ticket = await this.prisma.ticket.findUnique({
         where: { userId_ticketDate: { userId: user.id, ticketDate: date } },
       });
@@ -307,6 +310,20 @@ export class DemoSeedService {
         await this.adminService.countIncrement('reviews', eventAt);
         activities += 1;
       }
+
+      if (
+        await this.seedQuote(
+          user,
+          tmdbId,
+          movie.title,
+          dateKey,
+          index,
+          personas,
+          eventAt,
+        )
+      ) {
+        quotePosts += 1;
+      }
     }
 
     const cafeMessages =
@@ -323,7 +340,42 @@ export class DemoSeedService {
       createdUsers,
       cafeMessages,
       reviewLikes,
+      quotePosts,
     };
+  }
+
+  private async seedQuote(
+    user: DemoUser,
+    tmdbId: number,
+    movieTitle: string,
+    dateKey: string,
+    index: number,
+    personas: DemoPersonas,
+    createdAt: Date,
+  ) {
+    const template = this.pick(personas.quotes, dateKey, index);
+    if (!template) return false;
+
+    const existing = await this.prisma.quotePost.findFirst({
+      where: { userId: user.id, tmdbId, text: template.text },
+      select: { id: true },
+    });
+    if (existing) return false;
+
+    const quote = await this.prisma.quotePost.create({
+      data: {
+        userId: user.id,
+        tmdbId,
+        movieTitle,
+        text: template.text,
+        usePosterBackground: true,
+        createdAt,
+      },
+    });
+    await this.prisma.quotePostBookmark.create({
+      data: { userId: user.id, quotePostId: quote.id },
+    });
+    return true;
   }
 
   private async seedCafe(users: DemoUser[], now: Date): Promise<number> {
