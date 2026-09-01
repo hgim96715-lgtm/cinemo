@@ -1006,7 +1006,7 @@
   }
 
   .room-feature-board {
-    top: 53%;
+    top: 48%;
     min-height: 4rem;
     gap: 0.4rem;
     padding: 0.45rem 0.5rem;
@@ -1050,7 +1050,7 @@
   }
 
   .room-object--phone {
-    top: 39%;
+    top: 36%;
     left: 6%;
     width: 15%;
     min-height: 3.6rem;
@@ -1063,14 +1063,14 @@
   }
 
   .room-object--wardrobe {
-    top: 38%;
+    top: 35%;
     right: 5%;
     width: 15%;
     min-height: 5.3rem;
   }
 
   .room-scene .room-me {
-    bottom: 3%;
+    bottom: 1%;
     width: 32%;
   }
 }
@@ -1096,6 +1096,37 @@
 
   .room-object--phone {
     top: 49%;
+  }
+
+  .room-object--wardrobe {
+    top: 49%;
+  }
+}
+
+@media (min-width: 40.0625rem) and (max-width: 60rem) {
+  .room-feature-board {
+    top: 49%;
+    min-height: 5rem;
+  }
+
+  .room-feature-board--calendar {
+    left: 18%;
+    width: 25%;
+  }
+
+  .room-feature-board--whiteboard {
+    right: 18%;
+    width: 29%;
+  }
+
+  .room-object--phone,
+  .room-object--wardrobe {
+    top: 42%;
+  }
+
+  .room-scene .room-me {
+    bottom: 3%;
+    width: 30%;
   }
 }
 
@@ -1765,7 +1796,7 @@
 
   .room-object--watched {
     left: 4%;
-    bottom: 26%;
+    bottom: 20%;
   }
 
   .room-object--quotes {
@@ -1802,7 +1833,7 @@
   }
 
   .room-object--watched {
-    bottom: 25%;
+    bottom: 20%;
   }
 
   .room-object--quotes {
