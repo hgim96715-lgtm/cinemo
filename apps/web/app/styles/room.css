@@ -979,9 +979,15 @@
 
 }
 
+@media (min-width: 40.0625rem) and (max-width: 60rem) {
+  .room-scene {
+    aspect-ratio: 4 / 5;
+  }
+}
+
 @media (max-width: 40rem) {
   .room-scene {
-    aspect-ratio: 5 / 6;
+    aspect-ratio: 2 / 3;
     border-radius: 1rem;
   }
 
