@@ -40,6 +40,8 @@ model User {
     cafeTableSeats         CafeTableSeat[]
     loginLogs              AdminLoginLog[]
     movieProviderOverrides MovieProviderOverride[]
+    quotePosts             QuotePost[]
+    quotePostBookmarks     QuotePostBookmark[]
 
     @@map("users")
 }
@@ -342,4 +344,38 @@ model AdminDailyReport {
 
     @@index([startedAt(sort: Desc)])
     @@map("admin_daily_reports")
+}
+
+model QuotePost {
+    id                  String   @id @default(uuid(7)) @db.Uuid
+    userId              String   @map("user_id") @db.Uuid
+    tmdbId              Int      @map("tmdb_id")
+    movieTitle          String?  @map("movie_title")
+    text                String   @db.VarChar(1000)
+    usePosterBackground Boolean  @default(true) @map("use_poster_background")
+    createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updaatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+    quotePostBookmarks QuotePostBookmark[]
+
+    @@unique([userId, tmdbId, text])
+    @@index([tmdbId])
+    @@index([createdAt(sort: Desc)])
+    @@map("quote_posts")
+}
+
+model QuotePostBookmark {
+    id          String   @id @default(uuid(7)) @db.Uuid
+    userId      String   @map("user_id") @db.Uuid
+    quotePostId String   @map("quote_post_id") @db.Uuid
+    createdAt   DateTime @default(now()) @map("create_at") @db.Timestamptz(3)
+
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    quotePost QuotePost @relation(fields: [quotePostId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, quotePostId])
+    @@index([userId, createdAt(sort: Desc)])
+    @@index([quotePostId])
+    @@map("quote_post_bookmarks")
 }

@@ -18,6 +18,7 @@ import { AiController } from './ai/ai.controller';
 import { AiModule } from './ai/ai.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { GuideModule } from './guide/guide.module';
+import { QuotePostModule } from './quote-post/quote-post.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { GuideModule } from './guide/guide.module';
     AiModule,
     ProfilesModule,
     GuideModule,
+    QuotePostModule,
   ],
   controllers: [AppController, AiController],
   providers: [AppService],
