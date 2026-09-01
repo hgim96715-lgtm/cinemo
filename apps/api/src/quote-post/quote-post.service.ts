@@ -15,9 +15,23 @@ export class QuotePostService {
     private readonly tmdbService: TmdbService,
   ) {}
 
+  private async findMovieIdsByTitle(search: string) {
+    const movies = await this.prisma.moviePool.findMany({
+      where: {
+        title: { contains: search, mode: 'insensitive' },
+      },
+      select: { tmdbId: true },
+      take: 120,
+    });
+    return movies.map((movie) => movie.tmdbId);
+  }
+
   async list(limit = 24, userId?: string, cursor?: string, search?: string) {
     const take = Math.min(Math.max(limit, 1), 120);
     const normalizedSearch = search?.trim();
+    const movieIds = normalizedSearch
+      ? await this.findMovieIdsByTitle(normalizedSearch)
+      : [];
 
     const rows = await this.prisma.quotePost.findMany({
       where: normalizedSearch
@@ -38,6 +52,7 @@ export class QuotePostService {
                   },
                 },
               },
+              ...(movieIds.length ? [{ tmdbId: { in: movieIds } }] : []),
             ],
           }
         : undefined,
@@ -107,6 +122,9 @@ export class QuotePostService {
   ) {
     const take = Math.min(Math.max(limit, 1), 120);
     const normalizedSearch = search?.trim();
+    const movieIds = normalizedSearch
+      ? await this.findMovieIdsByTitle(normalizedSearch)
+      : [];
 
     const bookmarks = await this.prisma.quotePostBookmark.findMany({
       where: {
@@ -135,6 +153,7 @@ export class QuotePostService {
                       },
                     },
                   },
+                  ...(movieIds.length ? [{ tmdbId: { in: movieIds } }] : []),
                 ],
               },
             }

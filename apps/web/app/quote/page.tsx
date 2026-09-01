@@ -356,7 +356,8 @@ export default function QuotePage() {
                         onDelete={() => setDeletingQuote(quote)}
                       />
                       <p
-                        className={`quote-film-text${quote.text.length > 36 ? ' quote-film-text--long' : ''}`}
+                        className={`quote-film-text${quote.text.length > 36 ? ' quote-film-text--long' : ''}${quote.text.length > 72 ? ' quote-film-text--extra-long' : ''}`}
+                        title={quote.text}
                       >
                         {quote.text}
                       </p>

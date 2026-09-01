@@ -137,7 +137,7 @@
 
 .quote-page--saved .quote-reel-section {
   width: 100%;
-  margin-top: clamp(2.5rem, 10vh, 8rem);
+  margin-top: 1.25rem;
 }
 
 .quote-page--saved .quote-film-track {
@@ -522,6 +522,12 @@
 .quote-film-text--long {
   font-size: clamp(1.12rem, 2.15vw, 1.6rem);
   line-height: 1.45;
+}
+
+.quote-film-text--extra-long {
+  font-size: clamp(0.98rem, 1.7vw, 1.28rem);
+  line-height: 1.55;
+  -webkit-line-clamp: 4;
 }
 
 .quote-film-meta {
@@ -1286,5 +1292,25 @@
 
   .quote-page:not(.quote-page--saved) .quote-reel-heading h1 {
     font-size: clamp(1.8rem, 8vw, 2.45rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .quote-page--saved .quote-header {
+    margin-bottom: 0.65rem;
+  }
+
+  .quote-page--saved .quote-saved-search-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    margin: 0;
+    padding: 0.45rem 0.65rem 0.7rem;
+    background: linear-gradient(180deg, #0e1117 78%, transparent);
+  }
+
+  .quote-page--saved .quote-reel-section {
+    margin-top: 0.75rem;
   }
 }

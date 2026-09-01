@@ -153,7 +153,12 @@ export default function SavedQuotePage() {
                       />
                     ) : null}
                     <div className="quote-film-frame-content">
-                      <p className="quote-film-text">{quote.text}</p>
+                      <p
+                        className={`quote-film-text${quote.text.length > 36 ? ' quote-film-text--long' : ''}${quote.text.length > 72 ? ' quote-film-text--extra-long' : ''}`}
+                        title={quote.text}
+                      >
+                        {quote.text}
+                      </p>
 
                       <footer className="quote-film-meta">
                         <strong>{quote.movie.title}</strong>
