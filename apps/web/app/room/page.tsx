@@ -248,7 +248,8 @@ export default function MyRoomPage() {
           <div className="room-scene-wall" aria-hidden />
           <div className="room-scene-floor" aria-hidden />
 
-          <div className="room-poster-wall" aria-label="영화 포스터 전시 공간">
+          <div className="room-scene-layout">
+            <div className="room-poster-wall" aria-label="영화 포스터 전시 공간">
             {[1, 2, 3].map((wallSlot) => {
               const movie = selectedPosters[wallSlot];
 
@@ -286,36 +287,38 @@ export default function MyRoomPage() {
                 </button>
               );
             })}
-          </div>
+            </div>
 
-          <div className="room-feature-board room-feature-board--calendar">
-            <span className="room-feature-board-icon" aria-hidden>
-              <CalendarDays size={22} strokeWidth={1.35} />
-            </span>
-            <span className="room-feature-board-copy">
-              <small>MY SCREENINGS</small>
-              <strong>관람일</strong>
-              <span className="room-feature-board-days" aria-hidden>
-                <i>03</i>
-                <i>12</i>
-                <i>27</i>
-              </span>
-            </span>
-          </div>
+            <div className="room-feature-boards">
+              <div className="room-feature-board room-feature-board--calendar">
+                <span className="room-feature-board-icon" aria-hidden>
+                  <CalendarDays size={22} strokeWidth={1.35} />
+                </span>
+                <span className="room-feature-board-copy">
+                  <small>MY SCREENINGS</small>
+                  <strong>관람일</strong>
+                  <span className="room-feature-board-days" aria-hidden>
+                    <i>03</i>
+                    <i>12</i>
+                    <i>27</i>
+                  </span>
+                </span>
+              </div>
 
-          <div className="room-feature-board room-feature-board--whiteboard">
-            <span className="room-feature-board-icon" aria-hidden>
-              <NotebookPen size={22} strokeWidth={1.35} />
-            </span>
-            <span className="room-feature-board-copy">
-              <small>QUOTE BOARD</small>
-              <strong>명대사 화이트보드</strong>
-              <span className="room-feature-board-lines" aria-hidden>
-                <i />
-                <i />
-              </span>
-            </span>
-          </div>
+              <div className="room-feature-board room-feature-board--whiteboard">
+                <span className="room-feature-board-icon" aria-hidden>
+                  <NotebookPen size={22} strokeWidth={1.35} />
+                </span>
+                <span className="room-feature-board-copy">
+                  <small>QUOTE BOARD</small>
+                  <strong>명대사 화이트보드</strong>
+                  <span className="room-feature-board-lines" aria-hidden>
+                    <i />
+                    <i />
+                  </span>
+                </span>
+              </div>
+            </div>
 
           <Link
             href="/room/watched"
@@ -403,6 +406,7 @@ export default function MyRoomPage() {
                 ))}
               </ul>
             ) : null}
+          </div>
           </div>
         </div>
       </div>

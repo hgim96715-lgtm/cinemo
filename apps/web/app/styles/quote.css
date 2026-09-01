@@ -515,7 +515,7 @@
     0 0 0.8rem rgb(0 0 0 / 0.62);
   text-wrap: balance;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-decoration-break: clone;
 }
 
@@ -527,7 +527,7 @@
 .quote-film-text--extra-long {
   font-size: clamp(0.98rem, 1.7vw, 1.28rem);
   line-height: 1.55;
-  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .quote-film-meta {
@@ -560,7 +560,7 @@
     0 0 0.75rem rgb(0 0 0 / 0.55);
   text-wrap: balance;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .quote-film-author {

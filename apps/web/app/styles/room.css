@@ -1985,3 +1985,211 @@
     padding-inline: 1rem;
   }
 }
+
+/* ── Room scene layout ── */
+.room-scene-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(9rem, 1.2fr);
+  grid-template-rows: auto minmax(8rem, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem 0.7rem;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 5% 5% 4%;
+}
+
+.room-scene-layout > .room-poster-wall,
+.room-scene-layout > .room-feature-boards,
+.room-scene-layout > .room-object,
+.room-scene-layout > .room-me {
+  position: static;
+  inset: auto;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  transform: none;
+}
+
+.room-scene-layout > .room-poster-wall {
+  grid-column: 1 / span 3;
+  grid-row: 1;
+  align-self: start;
+  width: 100%;
+}
+
+.room-scene-layout > .room-feature-boards {
+  display: grid;
+  grid-column: 4;
+  grid-row: 1 / span 1;
+  grid-template-rows: repeat(1, auto);
+  align-self: stretch;
+  align-content:center;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.room-scene-layout > .room-feature-boards > .room-feature-board {
+  position: static;
+  inset: auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 7.8rem;
+  height: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.room-scene-layout > .room-feature-boards > .room-feature-board strong {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.room-scene-layout > .room-feature-boards > .room-feature-board .room-feature-board-copy {
+  min-width: 0;
+}
+
+.room-scene-layout > .room-object--phone {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  width: 100%;
+  padding: 0.15rem;
+}
+
+.room-scene-layout > .room-me {
+  grid-column: 4;
+  grid-row: 3;
+  align-self: end;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.room-scene-layout > .room-object--wardrobe {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+  width: 100%;
+}
+
+.room-scene-layout > .room-object--watched {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.room-scene-layout > .room-object--quotes {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.room-scene-layout > .room-object--wish {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.room-scene-layout > .room-object--collection {
+  align-self: center;
+  width: 100%;
+  min-height: 0;
+  padding: 0.2rem;
+}
+
+@media (max-width: 60rem) {
+  .room-scene-layout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto minmax(10rem, 1fr) auto;
+    gap: 0.8rem 0.55rem;
+    padding: 6% 5% 4%;
+  }
+
+  .room-scene-layout > .room-poster-wall {
+    grid-column: 1 / -1;
+  }
+
+  .room-scene-layout > .room-feature-boards {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    align-self: center;
+    align-content: stretch;
+    gap: 0.65rem;
+  }
+
+  .room-scene-layout > .room-feature-boards > .room-feature-board {
+    min-height: 6.2rem;
+  }
+
+  .room-scene-layout > .room-object--phone {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .room-scene-layout > .room-me {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .room-scene-layout > .room-object--wardrobe {
+    grid-column: 3;
+    grid-row: 3;
+  }
+
+  .room-scene-layout > .room-object--watched {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .room-scene-layout > .room-object--quotes {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .room-scene-layout > .room-object--wish {
+    grid-column: 3;
+    grid-row: 4;
+  }
+}
+
+@media (max-width: 30rem) {
+  .room-scene-layout {
+    gap: 0.7rem 0.35rem;
+    padding-inline: 4%;
+  }
+
+  .room-scene-layout > .room-feature-boards {
+    gap: 0.45rem;
+  }
+
+  .room-scene-layout > .room-feature-boards > .room-feature-board {
+    min-height: 5.8rem;
+    padding: 0.55rem 0.5rem;
+  }
+
+  .room-scene-layout > .room-feature-boards > .room-feature-board .room-feature-board-icon {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .room-scene-layout > .room-feature-boards > .room-feature-board .room-feature-board-icon svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .room-scene-layout > .room-feature-boards > .room-feature-board .room-feature-board-copy small {
+    font-size: 0.39rem;
+  }
+
+  .room-scene-layout > .room-feature-boards > .room-feature-board .room-feature-board-copy strong {
+    font-size: 0.64rem;
+    line-height: 1.2;
+  }
+}
