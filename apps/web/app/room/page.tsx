@@ -23,7 +23,16 @@ import '../styles/room.css';
 import '../styles/lobby.css';
 import '../styles/avatar.css';
 import '../styles/profile.css';
-import { Film, Heart, Phone, Plus, Shirt, Clapperboard } from 'lucide-react';
+import {
+  CalendarDays,
+  Clapperboard,
+  Film,
+  Heart,
+  NotebookPen,
+  Phone,
+  Plus,
+  Shirt,
+} from 'lucide-react';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { PosterPickerModal } from '@/components/room/PosterPickerModal';
 
@@ -277,6 +286,35 @@ export default function MyRoomPage() {
                 </button>
               );
             })}
+          </div>
+
+          <div className="room-feature-board room-feature-board--calendar">
+            <span className="room-feature-board-icon" aria-hidden>
+              <CalendarDays size={22} strokeWidth={1.35} />
+            </span>
+            <span className="room-feature-board-copy">
+              <small>MY SCREENINGS</small>
+              <strong>관람일</strong>
+              <span className="room-feature-board-days" aria-hidden>
+                <i>03</i>
+                <i>12</i>
+                <i>27</i>
+              </span>
+            </span>
+          </div>
+
+          <div className="room-feature-board room-feature-board--whiteboard">
+            <span className="room-feature-board-icon" aria-hidden>
+              <NotebookPen size={22} strokeWidth={1.35} />
+            </span>
+            <span className="room-feature-board-copy">
+              <small>QUOTE BOARD</small>
+              <strong>명대사 화이트보드</strong>
+              <span className="room-feature-board-lines" aria-hidden>
+                <i />
+                <i />
+              </span>
+            </span>
           </div>
 
           <Link
