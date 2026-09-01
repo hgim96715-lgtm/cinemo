@@ -23,7 +23,7 @@ import '../styles/room.css';
 import '../styles/lobby.css';
 import '../styles/avatar.css';
 import '../styles/profile.css';
-import { Film, Heart, Phone, Plus, Shirt } from 'lucide-react';
+import { Film, Heart, Phone, Plus, Shirt, Clapperboard } from 'lucide-react';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { PosterPickerModal } from '@/components/room/PosterPickerModal';
 
@@ -105,8 +105,8 @@ export default function MyRoomPage() {
       const updated = await updateAvatarRequest(accessToken, config);
       setUser(updated);
       setWardrobeOpen(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
     } finally {
       setSaving(false);
     }
@@ -239,11 +239,6 @@ export default function MyRoomPage() {
           <div className="room-scene-wall" aria-hidden />
           <div className="room-scene-floor" aria-hidden />
 
-          <div className="room-window" aria-hidden>
-            <span className="room-window-sky" />
-            <span className="room-window-city" />
-          </div>
-
           <div className="room-poster-wall" aria-label="영화 포스터 전시 공간">
             {[1, 2, 3].map((wallSlot) => {
               const movie = selectedPosters[wallSlot];
@@ -290,7 +285,7 @@ export default function MyRoomPage() {
             aria-label={`관람 기록`}
           >
             <span className="room-collection-icon" aria-hidden>
-              <Film size={26} strokeWidth={1.35} />
+              <Clapperboard size={26} strokeWidth={1.35} />
             </span>
             <span className="room-object-label">관람 기록</span>
             {/* <span className="room-object-count">{counts?.watched ?? 0}편</span> */}
@@ -306,6 +301,17 @@ export default function MyRoomPage() {
             </span>
             <span className="room-object-label">보고 싶은 영화</span>
             {/* <span className="room-object-count">{counts?.wish ?? 0}편</span> */}
+          </Link>
+
+          <Link
+            href="/room/quotes"
+            className="room-object room-object--collection room-object--quotes"
+            aria-label="명대사 모음집"
+          >
+            <span className="room-collection-icon" aria-hidden>
+              <Film size={26} strokeWidth={1.35} />
+            </span>
+            <span className="room-object-label">명대사 모음집</span>
           </Link>
 
           <button

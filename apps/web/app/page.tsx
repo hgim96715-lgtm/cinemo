@@ -3,8 +3,12 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ADMIN_AVATAR, type TicketStatus } from '@cinemo/shared';
-import { Coffee, Film, MessageCircle, Quote } from 'lucide-react';
+import {
+  ADMIN_AVATAR,
+  LOBBY_ROOMS,
+  type TicketStatus,
+} from '@cinemo/shared';
+import { Clapperboard, Coffee, Film, MessageCircle } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TicketBooth } from '@/components/lobby/TicketBooth';
 import './styles/lobby.css';
@@ -67,7 +71,10 @@ function HomeContent() {
               <TicketBooth onStatusChange={setTicketStatus} />
             </section>
 
-            <div className="lobby-guest" aria-label={user ? user.nickname : '손님'}>
+            <div
+              className="lobby-guest"
+              aria-label={user ? user.nickname : '손님'}
+            >
               <div className="lobby-guest-bar">
                 <div className="lobby-guest-identity">
                   <AvatarFigure
@@ -81,7 +88,11 @@ function HomeContent() {
                 </div>
                 <Link
                   href={
-                    user?.role === 'admin' ? '/admin' : user ? '/room' : '/login'
+                    user?.role === 'admin'
+                      ? '/admin'
+                      : user
+                        ? '/room'
+                        : '/login'
                   }
                   className="lobby-mat"
                   aria-label={
@@ -101,13 +112,17 @@ function HomeContent() {
           </div>
 
           <nav className="lobby-destinations" aria-label="CINEMO 공간">
-            <Link href="/quote" className="lobby-destination">
-              <Quote className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">QUOTE REEL</span>
+            <Link
+              href="/quote"
+              className="lobby-destination"
+              data-room-id={LOBBY_ROOMS.QUOTE_FILM}
+            >
+              <Film className="lobby-destination-icon" aria-hidden />
+              <span className="lobby-destination-kicker">QUOTE FILM</span>
               <span className="lobby-destination-label">명대사방</span>
             </Link>
             <Link href="/gacha" className="lobby-destination">
-              <Film className="lobby-destination-icon" aria-hidden />
+              <Clapperboard className="lobby-destination-icon" aria-hidden />
               <span className="lobby-destination-kicker">GACHA</span>
               <span className="lobby-destination-label">뽑기방</span>
             </Link>
