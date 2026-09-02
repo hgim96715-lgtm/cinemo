@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -15,9 +15,13 @@ import { AvatarFigure } from '@/components/room/AvatarFigure';
 import { WardrobeModal } from '@/components/room/WardrobeModal';
 import { ProfileModal } from '@/components/room/ProfileModal';
 import {
+  addWatchedMovieRequest,
   getUserMovieCountsRequest,
   listDisplayedUserMoviesRequest,
+  listUserMoviesRequest,
+  removeWatchedMovieRequest,
   updateUserMovieDisplayRequest,
+  updateWatchedAtRequest,
 } from '@/lib/user-movie-api';
 import '../styles/room.css';
 import '../styles/lobby.css';
@@ -35,6 +39,9 @@ import {
 } from 'lucide-react';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { PosterPickerModal } from '@/components/room/PosterPickerModal';
+import { MovieCalendarModal } from '@/components/room/MovieCalendarModal';
+import { WatchedDateEditModal } from '@/components/room/WatchedDateEditModal';
+import QuoteActionModal from '@/components/quote/QuoteActionModal';
 
 export default function MyRoomPage() {
   const router = useRouter();
@@ -44,6 +51,7 @@ export default function MyRoomPage() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const hydrated = useAuthStore((s) => s.hydrated);
   const [counts, setCounts] = useState<UserMovieCounts | null>(null);
+  const [screeningDays, setScreeningDays] = useState<string[]>([]);
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -56,6 +64,20 @@ export default function MyRoomPage() {
   const [selectedPosters, setSelectedPosters] = useState<
     Record<number, GachaMovie>
   >({});
+
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
+  const [calendarAddDate, setCalendarAddDate] = useState<string | null>(null);
+  const [calendarAddError, setCalendarAddError] = useState<string | null>(null);
+  const [isCalendarAdding, startCalendarTransition] = useTransition();
+  const [calendarDeleteTarget, setCalendarDeleteTarget] = useState<
+    number | null
+  >(null);
+  const [calendarEditTarget, setCalendarEditTarget] = useState<{
+    tmdbId: number;
+    watchedAt: string;
+  } | null>(null);
+  const [isCalendarEditing, startCalendarEditTransition] = useTransition();
 
   useEffect(() => {
     if (!hydrated) return;
@@ -79,6 +101,44 @@ export default function MyRoomPage() {
       cancelled = true;
     };
   }, [accessToken]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const token = accessToken;
+    let cancelled = false;
+
+    async function loadRecentScreenings() {
+      try {
+        const response = await listUserMoviesRequest(token, 'watched', 1, 4);
+        if (cancelled) return;
+
+        const days = response.items
+          .map((item) => {
+            if (!item.watchedAt) return null;
+
+            return new Intl.DateTimeFormat('en-CA', {
+              timeZone: 'Asia/Seoul',
+              month: '2-digit',
+              day: '2-digit',
+            })
+              .format(new Date(item.watchedAt))
+              .replace('-', '.');
+          })
+          .filter((day): day is string => Boolean(day));
+
+        setScreeningDays(Array.from(new Set(days)));
+      } catch {
+        if (!cancelled) setScreeningDays([]);
+      }
+    }
+
+    void loadRecentScreenings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, calendarRefreshKey]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -153,6 +213,23 @@ export default function MyRoomPage() {
       </main>
     );
   }
+
+  const todayLabel = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  }).format(new Date());
+  const todayShortLabel = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(new Date())
+    .replace('-', '.');
+  const recentScreeningDays = screeningDays.filter(
+    (day) => day !== todayShortLabel,
+  );
 
   function openPosterPicker(wallSlot: number) {
     setSelectedWallSlot(wallSlot);
@@ -231,6 +308,63 @@ export default function MyRoomPage() {
     }
   }
 
+  function handleCalendarMovieSelect(movie: GachaMovie) {
+    if (!calendarAddDate || !accessToken || isCalendarAdding) return;
+
+    startCalendarTransition(async () => {
+      try {
+        await addWatchedMovieRequest(accessToken, movie.id, calendarAddDate);
+
+        startCalendarTransition(() => {
+          setCalendarRefreshKey((current) => current + 1);
+          setCalendarAddDate(null);
+        });
+      } catch {
+        startCalendarTransition(() => {
+          setCalendarAddDate(null);
+          setCalendarAddError('관람 영화 추가에 실패했어요.');
+        });
+      }
+    });
+  }
+
+  async function handleCalendarMovieDelete(tmdbId: number) {
+    if (!accessToken) return;
+    try {
+      await removeWatchedMovieRequest(accessToken, tmdbId);
+      setCalendarRefreshKey((current) => current + 1);
+    } catch {
+      setCalendarAddError('관람기록 삭제에 실패했어요.');
+    }
+  }
+
+  function handleCalendarMovieEdit(tmdbId: number, watchedAt: string) {
+    setCalendarEditTarget({ tmdbId, watchedAt });
+  }
+
+  function handleCalendarMovieEditSave(watchedAt: string) {
+    if (!calendarEditTarget || !accessToken || isCalendarEditing) return;
+
+    startCalendarEditTransition(async () => {
+      try {
+        await updateWatchedAtRequest(
+          accessToken,
+          calendarEditTarget.tmdbId,
+          watchedAt,
+        );
+
+        startCalendarEditTransition(() => {
+          setCalendarRefreshKey((current) => current + 1);
+          setCalendarEditTarget(null);
+        });
+      } catch {
+        startCalendarEditTransition(() => {
+          setCalendarAddError('관람일 수정에 실패했어요.');
+        });
+      }
+    });
+  }
+
   function logout() {
     clearSession();
     router.push('/');
@@ -249,61 +383,79 @@ export default function MyRoomPage() {
           <div className="room-scene-floor" aria-hidden />
 
           <div className="room-scene-layout">
-            <div className="room-poster-wall" aria-label="영화 포스터 전시 공간">
-            {[1, 2, 3].map((wallSlot) => {
-              const movie = selectedPosters[wallSlot];
+            <div
+              className="room-poster-wall"
+              aria-label="영화 포스터 전시 공간"
+            >
+              {[1, 2, 3].map((wallSlot) => {
+                const movie = selectedPosters[wallSlot];
 
-              return (
-                <button
-                  key={wallSlot}
-                  type="button"
-                  disabled={saving}
-                  className={`room-poster-frame${movie ? '' : ' room-poster-frame--empty'}`}
-                  onClick={() => openPosterPicker(wallSlot)}
-                >
-                  {movie?.poster_path ? (
-                    <img
-                      className="room-selected-poster"
-                      src={
-                        tmdbPosterUrl(movie.poster_path, 'w342') ?? undefined
-                      }
-                      aria-label={
-                        movie
-                          ? `${movie.title} 포스터 교체`
-                          : `${wallSlot}번 포스터 걸기`
-                      }
-                      alt={movie.title}
-                    />
-                  ) : movie ? (
-                    <span>{movie.title}</span>
-                  ) : (
-                    <>
-                      <span>
-                        <Plus size={24} strokeWidth={1.35} aria-hidden />
-                      </span>
-                      <small>영화를 걸어보세요</small>
-                    </>
-                  )}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={wallSlot}
+                    type="button"
+                    disabled={saving}
+                    className={`room-poster-frame${movie ? '' : ' room-poster-frame--empty'}`}
+                    onClick={() => openPosterPicker(wallSlot)}
+                  >
+                    {movie?.poster_path ? (
+                      <img
+                        className="room-selected-poster"
+                        src={
+                          tmdbPosterUrl(movie.poster_path, 'w342') ?? undefined
+                        }
+                        aria-label={
+                          movie
+                            ? `${movie.title} 포스터 교체`
+                            : `${wallSlot}번 포스터 걸기`
+                        }
+                        alt={movie.title}
+                      />
+                    ) : movie ? (
+                      <span>{movie.title}</span>
+                    ) : (
+                      <>
+                        <span>
+                          <Plus size={24} strokeWidth={1.35} aria-hidden />
+                        </span>
+                        <small>영화를 걸어보세요</small>
+                      </>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="room-feature-boards">
-              <div className="room-feature-board room-feature-board--calendar">
+              <button
+                type="button"
+                className="room-feature-board room-feature-board--calendar"
+                onClick={() => setCalendarOpen(true)}
+                aria-label="관람일 달력 열기"
+              >
                 <span className="room-feature-board-icon" aria-hidden>
                   <CalendarDays size={22} strokeWidth={1.35} />
                 </span>
+
                 <span className="room-feature-board-copy">
                   <small>MY SCREENINGS</small>
                   <strong>관람일</strong>
-                  <span className="room-feature-board-days" aria-hidden>
-                    <i>03</i>
-                    <i>12</i>
-                    <i>27</i>
+
+                  <span className="room-feature-board-today">
+                    <small>오늘</small>
+                    <strong>{todayLabel}</strong>
+                  </span>
+
+                  <span
+                    className="room-feature-board-days"
+                    aria-label={`최근 관람일 ${recentScreeningDays.join(', ')}`}
+                  >
+                    {recentScreeningDays.length > 0
+                      ? recentScreeningDays.map((day) => <i key={day}>{day}</i>)
+                      : null}
                   </span>
                 </span>
-              </div>
+              </button>
 
               <div className="room-feature-board room-feature-board--whiteboard">
                 <span className="room-feature-board-icon" aria-hidden>
@@ -320,93 +472,93 @@ export default function MyRoomPage() {
               </div>
             </div>
 
-          <Link
-            href="/room/watched"
-            className="room-object room-object--collection room-object--watched"
-            aria-label={`관람 기록`}
-          >
-            <span className="room-collection-icon" aria-hidden>
-              <Clapperboard size={26} strokeWidth={1.35} />
-            </span>
-            <span className="room-object-label">관람 기록</span>
-            {/* <span className="room-object-count">{counts?.watched ?? 0}편</span> */}
-          </Link>
+            <Link
+              href="/room/watched"
+              className="room-object room-object--collection room-object--watched"
+              aria-label={`관람 기록`}
+            >
+              <span className="room-collection-icon" aria-hidden>
+                <Clapperboard size={26} strokeWidth={1.35} />
+              </span>
+              <span className="room-object-label">관람 기록</span>
+              {/* <span className="room-object-count">{counts?.watched ?? 0}편</span> */}
+            </Link>
 
-          <Link
-            href="/room/wish"
-            className="room-object room-object--collection room-object--wish"
-            aria-label={`보고 싶은 영화`}
-          >
-            <span className="room-collection-icon" aria-hidden>
-              <Heart size={26} strokeWidth={1.35} />
-            </span>
-            <span className="room-object-label">보고 싶은 영화</span>
-            {/* <span className="room-object-count">{counts?.wish ?? 0}편</span> */}
-          </Link>
+            <Link
+              href="/room/wish"
+              className="room-object room-object--collection room-object--wish"
+              aria-label={`보고 싶은 영화`}
+            >
+              <span className="room-collection-icon" aria-hidden>
+                <Heart size={26} strokeWidth={1.35} />
+              </span>
+              <span className="room-object-label">보고 싶은 영화</span>
+              {/* <span className="room-object-count">{counts?.wish ?? 0}편</span> */}
+            </Link>
 
-          <Link
-            href="/room/quotes"
-            className="room-object room-object--collection room-object--quotes"
-            aria-label="명대사 모음집"
-          >
-            <span className="room-collection-icon" aria-hidden>
-              <Film size={26} strokeWidth={1.35} />
-            </span>
-            <span className="room-object-label">명대사 모음집</span>
-          </Link>
+            <Link
+              href="/room/quotes"
+              className="room-object room-object--collection room-object--quotes"
+              aria-label="명대사 모음집"
+            >
+              <span className="room-collection-icon" aria-hidden>
+                <Film size={26} strokeWidth={1.35} />
+              </span>
+              <span className="room-object-label">명대사 모음집</span>
+            </Link>
 
-          <button
-            type="button"
-            className="room-object room-object--collection room-object--wardrobe"
-            onClick={() => setWardrobeOpen(true)}
-            disabled={saving}
-            aria-label="스타일룸 열기"
-          >
-            <span className="room-collection-icon" aria-hidden>
-              <Shirt size={26} strokeWidth={1.35} />
-            </span>
-            <span className="room-object-label">스타일룸</span>
-          </button>
-
-          <button
-            type="button"
-            className="room-object room-object--phone"
-            disabled
-            title="고객센터 준비 중"
-            aria-label="고객센터, 준비 중"
-          >
-            <span className="room-phone-icon" aria-hidden>
-              <Phone size={28} strokeWidth={1.35} />
-            </span>
-            <span className="room-object-label">고객센터</span>
-          </button>
-
-          <div className="room-me">
             <button
               type="button"
-              className={`room-me-speech${user.bio?.trim() ? '' : ' room-me-speech--hint'}`}
-              onClick={() => setProfileOpen(true)}
+              className="room-object room-object--collection room-object--wardrobe"
+              onClick={() => setWardrobeOpen(true)}
+              disabled={saving}
+              aria-label="스타일룸 열기"
             >
-              <span className="room-me-speech-text">
-                {user.bio?.trim()
-                  ? user.bio.trim()
-                  : '프로필 작성하려면 클릭하세요'}
+              <span className="room-collection-icon" aria-hidden>
+                <Shirt size={26} strokeWidth={1.35} />
               </span>
+              <span className="room-object-label">스타일룸</span>
             </button>
-            <div className="room-me-avatar">
-              <AvatarFigure config={avatarConfig} />
+
+            <button
+              type="button"
+              className="room-object room-object--phone"
+              disabled
+              title="고객센터 준비 중"
+              aria-label="고객센터, 준비 중"
+            >
+              <span className="room-phone-icon" aria-hidden>
+                <Phone size={28} strokeWidth={1.35} />
+              </span>
+              <span className="room-object-label">고객센터</span>
+            </button>
+
+            <div className="room-me">
+              <button
+                type="button"
+                className={`room-me-speech${user.bio?.trim() ? '' : ' room-me-speech--hint'}`}
+                onClick={() => setProfileOpen(true)}
+              >
+                <span className="room-me-speech-text">
+                  {user.bio?.trim()
+                    ? user.bio.trim()
+                    : '프로필 작성하려면 클릭하세요'}
+                </span>
+              </button>
+              <div className="room-me-avatar">
+                <AvatarFigure config={avatarConfig} />
+              </div>
+              <p className="room-me-name">{user.nickname}</p>
+              {user.tags.length > 0 ? (
+                <ul className="room-me-tags" aria-label="내 태그">
+                  {user.tags.slice(0, 3).map((tag) => (
+                    <li key={tag} className="room-me-tag">
+                      #{tag}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
-            <p className="room-me-name">{user.nickname}</p>
-            {user.tags.length > 0 ? (
-              <ul className="room-me-tags" aria-label="내 태그">
-                {user.tags.slice(0, 3).map((tag) => (
-                  <li key={tag} className="room-me-tag">
-                    #{tag}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
           </div>
         </div>
       </div>
@@ -456,6 +608,58 @@ export default function MyRoomPage() {
               ? () => void handlePosterRemoved()
               : undefined
           }
+        />
+      ) : null}
+
+      {calendarAddDate && accessToken ? (
+        <PosterPickerModal
+          token={accessToken}
+          isPending={isCalendarAdding}
+          onClose={() => setCalendarAddDate(null)}
+          onSelect={handleCalendarMovieSelect}
+        />
+      ) : null}
+
+      {calendarOpen && accessToken ? (
+        <MovieCalendarModal
+          key={calendarRefreshKey}
+          token={accessToken}
+          onClose={() => setCalendarOpen(false)}
+          onAdd={(date) => setCalendarAddDate(date)}
+          onEdit={handleCalendarMovieEdit}
+          onDelete={(tmdbId) => setCalendarDeleteTarget(tmdbId)}
+        />
+      ) : null}
+
+      {calendarEditTarget && accessToken ? (
+        <WatchedDateEditModal
+          initialDate={calendarEditTarget.watchedAt.slice(0, 10)}
+          isPending={isCalendarEditing}
+          onClose={() => setCalendarEditTarget(null)}
+          onSave={handleCalendarMovieEditSave}
+        />
+      ) : null}
+
+      {calendarAddError ? (
+        <QuoteActionModal
+          isOpen
+          mode="error"
+          title="관람 기록 처리 실패"
+          message={calendarAddError}
+          onClose={() => setCalendarAddError(null)}
+        />
+      ) : null}
+      {calendarDeleteTarget !== null ? (
+        <QuoteActionModal
+          isOpen
+          mode="confirm"
+          title="관람 기록 삭제"
+          message="이 관람 기록을 삭제할까?"
+          onClose={() => setCalendarDeleteTarget(null)}
+          onConfirm={async () => {
+            await handleCalendarMovieDelete(calendarDeleteTarget);
+            setCalendarDeleteTarget(null);
+          }}
         />
       ) : null}
     </main>

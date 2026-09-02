@@ -105,3 +105,17 @@ export function formatKst(value: Date): string {
     timeStyle: 'medium',
   }).format(value);
 }
+
+/** KST 월 `[start, end)` — Timestamptz 필터용 */
+export function kstMonthRange(
+  year: number,
+  month: number,
+): { start: Date; end: Date } {
+  const monthKey = `${year}-${String(month).padStart(2, '0')}-01`;
+  const nextMonth = new Date(Date.UTC(year, month, 1));
+  const nextMonthKey = `${nextMonth.getUTCFullYear()}-${String(nextMonth.getUTCMonth() + 1).padStart(2, '0')}-01`;
+  return {
+    start: kstDayRange(monthKey).start,
+    end: kstDayRange(nextMonthKey).start,
+  };
+}

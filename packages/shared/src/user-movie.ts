@@ -19,6 +19,7 @@ export type UserMovieMarks = {
 export type UserMovieListItem = {
   tmdbId: number;
   updatedAt: string;
+  watchedAt: string | null;
   movie: GachaMovie;
 };
 
@@ -31,4 +32,26 @@ export type UserMovieListPage = {
 export type UserMovieCounts = {
   wish: number;
   watched: number;
+};
+
+export type UserMovieCalendarItem = {
+  tmdbId: number;
+  date: string;
+  watchedAt: string;
+  movie: GachaMovie;
+};
+
+export type UserMovieCalendar = {
+  year: number;
+  month: number;
+  items: UserMovieCalendarItem[];
+};
+
+export type UserMovieStats = {
+  year: number;
+  total: number;
+  monthly: Array<{
+    month: number;
+    count: number;
+  }>;
 };

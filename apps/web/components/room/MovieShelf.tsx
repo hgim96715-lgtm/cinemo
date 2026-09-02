@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Check, Heart, Search } from 'lucide-react';
+import { CalendarDays, Check, Heart, Search } from 'lucide-react';
 import {
   GachaMovie,
   type UserMovieKind,
@@ -42,7 +42,10 @@ export function MovieShelf({ kind, title }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterYear, setFilterYear] = useState<number | undefined>();
+  const [filterMonth, setFilterMonth] = useState<number | undefined>();
   const [selectedMovie, setSelectedMovie] = useState<GachaMovie | null>(null);
   const [marksByTmdbId, setMarksByTmdbId] = useState<
     Record<number, Pick<UserMovieMarks, 'wish' | 'watched'>>
@@ -50,6 +53,19 @@ export function MovieShelf({ kind, title }: Props) {
   const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const loadingMoreRef = useRef(false);
+  const requestVersionRef = useRef(0);
+
+  function formatWatchedAt(value: string | null) {
+    if (!value) return null;
+    return new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .format(new Date(value))
+      .replaceAll('-', '.');
+  }
 
   const seedMarks = useCallback(
     (list: UserMovieListItem[]) => {
@@ -69,47 +85,77 @@ export function MovieShelf({ kind, title }: Props) {
   );
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [searchInput]);
+
+  useEffect(() => {
     if (!accessToken || !user) return;
+
     let cancelled = false;
+    const token = accessToken;
+    const requestVersion = requestVersionRef.current + 1;
+    requestVersionRef.current = requestVersion;
+
     async function loadFirst() {
       setLoading(true);
       setError(null);
+
       try {
-        const res = await listUserMoviesRequest(
-          accessToken!,
-          kind,
-          1,
-          PAGE_SIZE,
-        );
+        const res = await listUserMoviesRequest(token, kind, 1, PAGE_SIZE, {
+          search: searchQuery,
+          year: filterYear,
+          month: filterMonth,
+        });
+
         if (cancelled) return;
+
         setItems(res.items);
         setPage(1);
         setHasMore(res.hasMore);
         setTotal(res.total);
         seedMarks(res.items);
-      } catch (e) {
+      } catch (error) {
         if (!cancelled) {
           setItems([]);
           setHasMore(false);
           setTotal(0);
           setError(
-            e instanceof Error ? e.message : '목록을 불러오지 못했습니다.',
+            error instanceof Error
+              ? error.message
+              : '목록을 불러오지 못했습니다.',
           );
         }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
+
     void loadFirst();
+
     return () => {
       cancelled = true;
     };
-  }, [accessToken, user, kind, seedMarks]);
+  }, [
+    accessToken,
+    user,
+    kind,
+    searchQuery,
+    filterYear,
+    filterMonth,
+    seedMarks,
+  ]);
 
   const loadMore = useCallback(async () => {
     if (!accessToken || !hasMore || loadingMoreRef.current) return;
     loadingMoreRef.current = true;
     setLoadingMore(true);
+    const requestVersion = requestVersionRef.current;
     try {
       const nextPage = page + 1;
       const res = await listUserMoviesRequest(
@@ -117,7 +163,13 @@ export function MovieShelf({ kind, title }: Props) {
         kind,
         nextPage,
         PAGE_SIZE,
+        {
+          search: searchQuery,
+          year: filterYear,
+          month: filterMonth,
+        },
       );
+      if (requestVersion !== requestVersionRef.current) return;
       setItems((prev) => [...prev, ...res.items]);
       setPage(nextPage);
       setHasMore(res.hasMore);
@@ -129,7 +181,16 @@ export function MovieShelf({ kind, title }: Props) {
       loadingMoreRef.current = false;
       setLoadingMore(false);
     }
-  }, [accessToken, hasMore, kind, page, seedMarks]);
+  }, [
+    accessToken,
+    filterMonth,
+    filterYear,
+    hasMore,
+    kind,
+    page,
+    searchQuery,
+    seedMarks,
+  ]);
 
   useEffect(() => {
     const node = loadMoreTriggerRef.current;
@@ -215,22 +276,14 @@ export function MovieShelf({ kind, title }: Props) {
     );
   }
 
-  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+  const visibleItems = items;
 
-  const visibleItems = normalizedQuery
-    ? items.filter((item) => {
-        const movie = item.movie;
-        return [movie.title, movie.director, movie.release_date].some((value) =>
-          value?.toLocaleLowerCase().includes(normalizedQuery),
-        );
-      })
-    : items;
-
-  const emptyLabel = normalizedQuery
-    ? '검색 결과가 없어요.'
-    : kind === 'wish'
-      ? '찜한 영화가 없어요.'
-      : '본 작품이 없어요.';
+  const emptyLabel =
+    searchQuery.trim() || filterYear || filterMonth
+      ? '검색 결과가 없어요.'
+      : kind === 'wish'
+        ? '찜한 영화가 없어요.'
+        : '본 작품이 없어요.';
 
   return (
     <main className="room room--shelf">
@@ -247,15 +300,74 @@ export function MovieShelf({ kind, title }: Props) {
               <span className="room-shelf-count-unit">편</span>
             </span>
           </h1>
-          <div className="room-shelf-search">
-            <Search size={18} strokeWidth={1.5} aria-hidden />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="영화 제목·감독·연도 검색"
-              aria-label={`${title} 검색`}
-            />
+          <div className="room-shelf-toolbar">
+            <div className="room-shelf-search">
+              <Search size={18} strokeWidth={1.5} aria-hidden />
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="영화 제목·감독·연도 검색"
+                aria-label={`${title} 검색`}
+              />
+            </div>
+
+            {kind === 'watched' ? (
+              <div className="room-shelf-filters">
+                <select
+                  value={filterYear ?? ''}
+                  onChange={(event) =>
+                    setFilterYear(
+                      event.target.value
+                        ? Number(event.target.value)
+                        : undefined,
+                    )
+                  }
+                  aria-label="관람 연도 필터"
+                >
+                  <option value="">전체 연도</option>
+                  {Array.from(
+                    {
+                      length:
+                        Number(
+                          new Intl.DateTimeFormat('en-US', {
+                            timeZone: 'Asia/Seoul',
+                            year: 'numeric',
+                          }).format(new Date()),
+                        ) - 1999,
+                    },
+                    (_, index) => 2000 + index,
+                  )
+                    .reverse()
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}년
+                      </option>
+                    ))}
+                </select>
+
+                <select
+                  value={filterMonth ?? ''}
+                  onChange={(event) =>
+                    setFilterMonth(
+                      event.target.value
+                        ? Number(event.target.value)
+                        : undefined,
+                    )
+                  }
+                  aria-label="관람 월 필터"
+                >
+                  <option value="">전체 월</option>
+                  {Array.from({ length: 12 }, (_, index) => index + 1).map(
+                    (month) => (
+                      <option key={month} value={month}>
+                        {month}월
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+            ) : null}
           </div>
         </div>
       </header>
@@ -301,33 +413,50 @@ export function MovieShelf({ kind, title }: Props) {
                       <div className="room-movie-meta">
                         <span className="room-movie-title">{movie.title}</span>
                         <span className="room-movie-facts">
-                          {movie.release_date?.slice(0, 4) || '개봉연도 없음'}
+                          <span className="room-movie-release-year">
+                            개봉{' '}
+                            {movie.release_date?.slice(0, 4) || '연도 없음'}
+                          </span>
+                          {kind === 'watched' && item.watchedAt ? (
+                            <span className="room-movie-watched-at">
+                              <CalendarDays
+                                size={12}
+                                strokeWidth={1.7}
+                                aria-hidden
+                              />
+                              <span>
+                                관람 {formatWatchedAt(item.watchedAt)}
+                              </span>
+                            </span>
+                          ) : null}
                         </span>
                       </div>
 
                       <div className="room-movie-actions">
-                    <button
-                      type="button"
-                      className={`room-mark${marks?.wish ? ' is-on' : ''}`}
-                      aria-pressed={marks?.wish ?? false}
-                      aria-label={marks?.wish ? '찜 해제' : '찜'}
-                      onClick={() => void toggleMark(item.tmdbId, 'wish')}
-                    >
-                      <Heart
-                        size={14}
-                        strokeWidth={1.75}
-                        fill={marks?.wish ? 'currentColor' : 'none'}
-                        aria-hidden
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      className={`room-mark${marks?.watched ? ' is-on' : ''}`}
-                      aria-pressed={marks?.watched ?? false}
-                      aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
-                      onClick={() => void toggleMark(item.tmdbId, 'watched')}
-                    >
-                      <Check size={14} strokeWidth={2} aria-hidden />
+                        <button
+                          type="button"
+                          className={`room-mark${marks?.wish ? ' is-on' : ''}`}
+                          aria-pressed={marks?.wish ?? false}
+                          aria-label={marks?.wish ? '찜 해제' : '찜'}
+                          onClick={() => void toggleMark(item.tmdbId, 'wish')}
+                        >
+                          <Heart
+                            size={14}
+                            strokeWidth={1.75}
+                            fill={marks?.wish ? 'currentColor' : 'none'}
+                            aria-hidden
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          className={`room-mark${marks?.watched ? ' is-on' : ''}`}
+                          aria-pressed={marks?.watched ?? false}
+                          aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
+                          onClick={() =>
+                            void toggleMark(item.tmdbId, 'watched')
+                          }
+                        >
+                          <Check size={14} strokeWidth={2} aria-hidden />
                         </button>
                       </div>
                     </div>

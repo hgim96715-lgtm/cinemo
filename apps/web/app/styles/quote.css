@@ -1106,10 +1106,17 @@
   width: 3.5rem;
   height: 3.5rem;
   place-items: center;
-  margin: 0.5rem auto 0;
+  clear: both;
+  margin: 0.9rem auto 0;
   border: 1px solid rgb(216 184 106 / 0.55);
   border-radius: 50%;
   color: var(--quote-gold);
+  line-height: 0;
+}
+
+.quote-action-icon svg {
+  display: block;
+  flex: 0 0 auto;
 }
 
 .quote-action-modal .quote-compose-heading {

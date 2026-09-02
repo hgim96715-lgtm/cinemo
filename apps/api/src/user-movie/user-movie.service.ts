@@ -1,8 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserMovieKind } from '../generated/prisma/enums';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { UpdateDisplayDto } from './dto/update-display.dto';
+import { kstDateKey, kstDayRange, kstMonthRange } from '../lib/date-kst';
+
+type UserMovieListFilters = {
+  search?: string;
+  year?: number;
+  month?: number;
+};
 
 @Injectable()
 export class UserMovieService {
@@ -23,9 +34,69 @@ export class UserMovieService {
       return { tmdbId, kind, active: false };
     }
     await this.prisma.userMovie.create({
-      data: { userId, tmdbId, kind },
+      data: {
+        userId,
+        tmdbId,
+        kind,
+        watchedAt: kind === 'watched' ? new Date() : null,
+      },
     });
     return { tmdbId, kind, active: true };
+  }
+
+  async addWatchedMovie(userId: string, tmdbId: number, watchedAt: string) {
+    const watchedDate = new Date(`${watchedAt}T12:00:00+09:00`);
+
+    if (Number.isNaN(watchedDate.getTime())) {
+      throw new BadRequestException('관람일이 올바르지 않습니다.');
+    }
+
+    return this.prisma.userMovie.upsert({
+      where: {
+        userId_tmdbId_kind: {
+          userId,
+          tmdbId,
+          kind: 'watched',
+        },
+      },
+      create: {
+        userId,
+        tmdbId,
+        kind: 'watched',
+        watchedAt: watchedDate,
+      },
+      update: {
+        watchedAt: watchedDate,
+      },
+    });
+  }
+
+  async updateWatchedAt(userId: string, tmdbId: number, watchedAt: string) {
+    const watchedDate = new Date(`${watchedAt}T12:00:00+09:00`);
+
+    if (Number.isNaN(watchedDate.getTime())) {
+      throw new BadRequestException('관람일이 올바르지 않습니다.');
+    }
+    const existing = await this.prisma.userMovie.findUnique({
+      where: { userId_tmdbId_kind: { userId, tmdbId, kind: 'watched' } },
+    });
+    if (!existing) throw new NotFoundException('관람 기록을 찾을 수 없습니다.');
+
+    return this.prisma.userMovie.update({
+      where: { id: existing.id },
+      data: { watchedAt: watchedDate },
+    });
+  }
+
+  async removeWatchedMovie(userId: string, tmdbId: number) {
+    const existing = await this.prisma.userMovie.findUnique({
+      where: { userId_tmdbId_kind: { userId, tmdbId, kind: 'watched' } },
+    });
+    if (!existing) throw new NotFoundException('관람 기록을 찾을 수 없습니다.');
+
+    await this.prisma.userMovie.delete({ where: { id: existing.id } });
+
+    return { tmdbId, kind: 'watched', active: false };
   }
 
   async getMarks(userId: string, tmdbId: number) {
@@ -40,34 +111,85 @@ export class UserMovieService {
     };
   }
 
-  async listByKind(userId: string, kind: UserMovieKind, page = 1, limit = 24) {
+  async listByKind(
+    userId: string,
+    kind: UserMovieKind,
+    page = 1,
+    limit = 24,
+    filters: UserMovieListFilters = {},
+  ) {
     const take = Math.min(Math.max(limit, 1), 48);
     const safePage = Math.max(page, 1);
     const skip = (safePage - 1) * take;
+    const search = filters.search?.trim().toLocaleLowerCase();
+    const monthOnly =
+      kind === 'watched' && !filters.year && Boolean(filters.month);
+    const needsInMemoryFilter = Boolean(search) || monthOnly;
+    const watchedAt =
+      kind === 'watched' && filters.year
+        ? filters.month
+          ? (() => {
+              const { start, end } = kstMonthRange(
+                filters.year!,
+                filters.month,
+              );
+              return { gte: start, lt: end };
+            })()
+          : {
+              gte: kstMonthRange(filters.year, 1).start,
+              lt: kstDayRange(`${filters.year + 1}-01-01`).start,
+            }
+        : undefined;
+    const where = {
+      userId,
+      kind,
+      ...(watchedAt ? { watchedAt } : {}),
+    };
 
-    const [total, rows] = await Promise.all([
-      this.prisma.userMovie.count({ where: { userId, kind } }),
-      this.prisma.userMovie.findMany({
-        where: { userId, kind },
-        orderBy: { updatedAt: 'desc' },
-        skip,
-        take,
-        select: { tmdbId: true, updatedAt: true },
-      }),
-    ]);
+    const rows = await this.prisma.userMovie.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      ...(needsInMemoryFilter ? {} : { skip, take }),
+      select: { tmdbId: true, updatedAt: true, watchedAt: true },
+    });
 
     const items = await Promise.all(
       rows.map(async (row) => ({
         tmdbId: row.tmdbId,
         updatedAt: row.updatedAt.toISOString(),
+        watchedAt: row.watchedAt?.toISOString() ?? null,
         movie: await this.tmdbService.getMovieCached(row.tmdbId),
       })),
     );
+
+    const filteredItems = needsInMemoryFilter
+      ? items.filter(({ watchedAt, movie }) => {
+          const monthMatches = monthOnly
+            ? watchedAt !== null &&
+              kstDateKey(new Date(watchedAt)).slice(5, 7) ===
+                String(filters.month).padStart(2, '0')
+            : true;
+          const searchMatches = search
+            ? [movie.title, movie.director, movie.release_date].some((value) =>
+                value?.toLocaleLowerCase().includes(search),
+              )
+            : true;
+
+          return monthMatches && searchMatches;
+        })
+      : items;
+    const total = needsInMemoryFilter
+      ? filteredItems.length
+      : await this.prisma.userMovie.count({ where });
+    const pagedItems = needsInMemoryFilter
+      ? filteredItems.slice(skip, skip + take)
+      : filteredItems;
+
     return {
-      items,
+      items: pagedItems,
       page: safePage,
       total,
-      hasMore: skip + rows.length < total,
+      hasMore: skip + pagedItems.length < total,
     };
   }
 
@@ -77,6 +199,53 @@ export class UserMovieService {
       this.prisma.userMovie.count({ where: { userId, kind: 'watched' } }),
     ]);
     return { wish, watched };
+  }
+
+  async getCalendar(userId: string, year: number, month: number) {
+    const { start, end } = kstMonthRange(year, month);
+
+    const rows = await this.prisma.userMovie.findMany({
+      where: {
+        userId,
+        kind: 'watched',
+        watchedAt: { gte: start, lt: end },
+      },
+      orderBy: { watchedAt: 'asc' },
+      select: { tmdbId: true, watchedAt: true },
+    });
+
+    const items = await Promise.all(
+      rows.map(async (row) => ({
+        tmdbId: row.tmdbId,
+        date: kstDateKey(row.watchedAt!),
+        watchedAt: row.watchedAt!.toISOString(),
+        movie: await this.tmdbService.getMovieCached(row.tmdbId),
+      })),
+    );
+    return { year, month, items };
+  }
+
+  async getStats(userId: string, year: number) {
+    const start = kstMonthRange(year, 1).start;
+    const end = kstDayRange(`${year + 1}-01-01`).start;
+
+    const rows = await this.prisma.userMovie.findMany({
+      where: { userId, kind: 'watched', watchedAt: { gte: start, lt: end } },
+      select: { watchedAt: true },
+    });
+
+    const monthly = Array.from({ length: 12 }, (_, index) => ({
+      month: index + 1,
+      count: 0,
+    }));
+
+    for (const row of rows) {
+      if (!row.watchedAt) continue;
+
+      const month = Number(kstDateKey(row.watchedAt).slice(5, 7));
+      monthly[month - 1].count += 1;
+    }
+    return { year, total: rows.length, monthly };
   }
 
   async updateDisplay(userId: string, dto: UpdateDisplayDto) {
@@ -93,6 +262,7 @@ export class UserMovieService {
           userId,
           tmdbId: dto.tmdbId,
           kind: 'watched',
+          watchedAt: new Date(),
         },
         update: {},
       });

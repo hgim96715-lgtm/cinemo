@@ -56,6 +56,7 @@ model UserMovie {
     userId       String        @map("user_id") @db.Uuid
     tmdbId       Int           @map("tmdb_id")
     kind         UserMovieKind
+    watchedAt    DateTime?     @map("watched_at") @db.Timestamptz(3)
     isDisplayed  Boolean       @default(false) @map("is_displayed")
     displayOrder Int?          @map("display_order")
     wallSlot     Int?          @map("wall_slot")
