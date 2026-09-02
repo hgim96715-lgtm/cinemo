@@ -51,7 +51,9 @@ export default function MyRoomPage() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const hydrated = useAuthStore((s) => s.hydrated);
   const [counts, setCounts] = useState<UserMovieCounts | null>(null);
-  const [screeningDays, setScreeningDays] = useState<string[]>([]);
+  const [latestScreeningDay, setLatestScreeningDay] = useState<string | null>(
+    null,
+  );
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -108,32 +110,30 @@ export default function MyRoomPage() {
     const token = accessToken;
     let cancelled = false;
 
-    async function loadRecentScreenings() {
+    async function loadLatestScreening() {
       try {
-        const response = await listUserMoviesRequest(token, 'watched', 1, 4);
-        if (cancelled) return;
+        const response = await listUserMoviesRequest(token, 'watched', 1, 1);
+        const watchedAt = response.items[0]?.watchedAt;
 
-        const days = response.items
-          .map((item) => {
-            if (!item.watchedAt) return null;
-
-            return new Intl.DateTimeFormat('en-CA', {
-              timeZone: 'Asia/Seoul',
-              month: '2-digit',
-              day: '2-digit',
-            })
-              .format(new Date(item.watchedAt))
-              .replace('-', '.');
-          })
-          .filter((day): day is string => Boolean(day));
-
-        setScreeningDays(Array.from(new Set(days)));
+        if (!cancelled) {
+          setLatestScreeningDay(
+            watchedAt
+              ? new Intl.DateTimeFormat('en-CA', {
+                  timeZone: 'Asia/Seoul',
+                  month: '2-digit',
+                  day: '2-digit',
+                })
+                  .format(new Date(watchedAt))
+                  .replace('-', '.')
+              : null,
+          );
+        }
       } catch {
-        if (!cancelled) setScreeningDays([]);
+        if (!cancelled) setLatestScreeningDay(null);
       }
     }
 
-    void loadRecentScreenings();
+    void loadLatestScreening();
 
     return () => {
       cancelled = true;
@@ -227,10 +227,8 @@ export default function MyRoomPage() {
   })
     .format(new Date())
     .replace('-', '.');
-  const recentScreeningDays = screeningDays.filter(
-    (day) => day !== todayShortLabel,
-  );
-
+  const showLatestScreeningDay =
+    latestScreeningDay && latestScreeningDay !== todayShortLabel;
   function openPosterPicker(wallSlot: number) {
     setSelectedWallSlot(wallSlot);
     setPosterPickerOpen(true);
@@ -438,22 +436,26 @@ export default function MyRoomPage() {
                 </span>
 
                 <span className="room-feature-board-copy">
-                  <small>MY SCREENINGS</small>
-                  <strong>관람일</strong>
+                  <small>MOVIE CALENDAR</small>
+                  <strong>영화 달력</strong>
 
                   <span className="room-feature-board-today">
                     <small>오늘</small>
                     <strong>{todayLabel}</strong>
                   </span>
 
-                  <span
-                    className="room-feature-board-days"
-                    aria-label={`최근 관람일 ${recentScreeningDays.join(', ')}`}
-                  >
-                    {recentScreeningDays.length > 0
-                      ? recentScreeningDays.map((day) => <i key={day}>{day}</i>)
-                      : null}
-                  </span>
+                  {showLatestScreeningDay ? (
+                    <span
+                      className="room-feature-board-latest"
+                      aria-label={`최근 관람일 ${latestScreeningDay}`}
+                    >
+                      <small>최근 관람일</small>
+                      <strong>
+                        {latestScreeningDay.replace('.', '월 ')}일
+                      </strong>
+                    </span>
+                  ) : null}
+
                 </span>
               </button>
 

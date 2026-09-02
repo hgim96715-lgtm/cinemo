@@ -118,10 +118,13 @@ listDisplayedUserMoviesRequest(token)
 /room
   · 관람일 카드 클릭 → MovieCalendarModal
   · 관람일 카드에는 오늘 KST 날짜와 요일을 항상 표시
-  · 실제 최근 관람일만 별도 날짜 칩으로 표시하며 임시 날짜는 표시하지 않음
+  · 카드 제목은 `MOVIE CALENDAR / 영화 달력`으로 표시
+  · `watchedAt` 기준 최근 관람일 1개만 `최근 관람일 · MM월 DD일` 형식으로 표시
+  · 최근 관람일이 오늘이면 오늘 날짜와 중복 표시하지 않음
   · 연도 select: 2000년부터 현재 KST 연도까지 이동
   · 월 select 또는 이전·오늘·다음 버튼으로 월 이동
   · 오늘 날짜와 오늘 이전 날짜에만 + 버튼 노출
+  · 모바일 날짜 셀은 날짜와 + 버튼을 상단 한 줄에 배치해 서로 겹치지 않게 함
   · 날짜 클릭 → 해당 날짜에 본 영화 표시
   · + 클릭 → PosterPickerModal을 달력 앞에 표시
   · 영화 선택 → watched upsert + watchedAt 저장

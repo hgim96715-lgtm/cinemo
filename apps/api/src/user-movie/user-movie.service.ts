@@ -148,7 +148,13 @@ export class UserMovieService {
 
     const rows = await this.prisma.userMovie.findMany({
       where,
-      orderBy: { updatedAt: 'desc' },
+      orderBy:
+        kind === 'watched'
+          ? [
+              { watchedAt: { sort: 'desc', nulls: 'last' } },
+              { updatedAt: 'desc' },
+            ]
+          : { updatedAt: 'desc' },
       ...(needsInMemoryFilter ? {} : { skip, take }),
       select: { tmdbId: true, updatedAt: true, watchedAt: true },
     });

@@ -84,8 +84,11 @@ MY ROOM 화면 개편
   · `UserMovie.watchedAt`을 추가해 영화별 관람일 1개 저장
   · `POST/PATCH/DELETE /user-movies/watched-at`으로 추가·수정·삭제
   · `/room`의 관람일 카드 → `MovieCalendarModal` 연결
+  · 방 카드 라벨은 `MOVIE CALENDAR / 영화 달력`으로 표시
+  · 방 카드에는 오늘 KST 날짜·요일과 `watchedAt` 기준 최근 관람일 1개만 표시
   · 달력에서 2000년부터 현재 연도까지 연도 선택 가능
   · 월 선택·이전·오늘·다음 이동, 오늘 이전 날짜에 영화 추가 가능
+  · 모바일 달력 날짜 셀은 날짜와 `+` 버튼을 상단 한 줄에 배치해 겹침 방지
   · 날짜 클릭 → 해당 날짜 관람 영화·수정·삭제 표시
   · 영화 포스터 선택은 `PosterPickerModal`이 달력보다 앞에 표시
   · `/room/watched`에 영화 제목·감독·개봉연도 검색 추가

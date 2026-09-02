@@ -245,20 +245,22 @@ export function MovieCalendarModal({
                 aria-label={`${year}년 ${month}월 ${day}일 관람 기록`}
                 aria-pressed={selected}
               >
-                <strong className="movie-calendar-day-number">{day}</strong>
+                <span className="movie-calendar-day-topline">
+                  <strong className="movie-calendar-day-number">{day}</strong>
 
-                {canAddMovie ? (
-                  <span
-                    className="movie-calendar-day-add"
-                    aria-label={`${year}년 ${month}월 ${day}일 영화 추가`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onAdd?.(dateKey);
-                    }}
-                  >
-                    <Plus size={15} strokeWidth={1.7} aria-hidden="true" />
-                  </span>
-                ) : null}
+                  {canAddMovie ? (
+                    <span
+                      className="movie-calendar-day-add"
+                      aria-label={`${year}년 ${month}월 ${day}일 영화 추가`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onAdd?.(dateKey);
+                      }}
+                    >
+                      <Plus size={15} strokeWidth={1.7} aria-hidden="true" />
+                    </span>
+                  ) : null}
+                </span>
 
                 {dayMovies.length > 0 ? (
                   <span className="movie-calendar-day-posters">
