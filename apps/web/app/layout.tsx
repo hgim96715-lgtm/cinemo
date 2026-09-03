@@ -3,6 +3,7 @@ import {
   Geist,
   Geist_Mono,
   Cormorant_Garamond,
+  Noto_Sans_KR,
   Noto_Serif_KR,
 } from 'next/font/google';
 import './globals.css';
@@ -38,6 +39,12 @@ const notoSerifKr = Noto_Serif_KR({
   weight: ['500', '600', '700'],
 });
 
+const notoSansKr = Noto_Sans_KR({
+  variable: '--font-noto-sans-kr',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+});
+
 export const metadata: Metadata = {
   title: 'CINEMO',
   description: '영화관 로비 소셜 — 매표소 · 뽑기 · 후기방',
@@ -47,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${notoSerifKr.variable} ${nanumPen.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${notoSerifKr.variable} ${notoSansKr.variable} ${nanumPen.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <AuthBootstrap>{children}</AuthBootstrap>

@@ -38,6 +38,18 @@
   transition: color 160ms ease, transform 160ms ease;
 }
 
+.quote-page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem 1.25rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.8rem);
+}
+
+.quote-page-nav .quote-back-link {
+  margin-bottom: 0;
+}
+
 .quote-back-link:hover {
   color: var(--quote-gold);
   transform: translateX(-0.2rem);
@@ -109,6 +121,12 @@
   margin-bottom: 0.9rem;
 }
 
+.quote-page--saved .room-shelf-nav {
+  width: min(calc(100% - 2rem), 60rem);
+  margin-inline: auto;
+  margin-bottom: clamp(1rem, 3vw, 1.4rem);
+}
+
 .quote-page--saved .quote-back-link {
   margin-bottom: 0.75rem;
   font-size: 0.9rem;
@@ -152,6 +170,30 @@
 
 .quote-page--saved .quote-film-frame-content {
   padding: 2rem 1.15rem 1rem;
+}
+
+.quote-page--saved .quote-film--grid .quote-film-frame {
+  min-height: 16rem;
+}
+
+.quote-page--saved .quote-film--grid .quote-film-frame-content {
+  min-height: 16rem;
+}
+
+.quote-page--saved .quote-film--grid .quote-film-frame:not(.quote-film-frame--add)::after {
+  background:
+    radial-gradient(
+      ellipse 82% 58% at 50% 48%,
+      rgb(5 6 8 / 0.44),
+      transparent 74%,
+      rgb(5 6 8 / 0.24)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(5 6 8 / 0.2) 0%,
+      transparent 34%,
+      rgb(5 6 8 / 0.92) 100%
+    );
 }
 
 .quote-page--saved .room-actions--shelf {
@@ -551,10 +593,11 @@
   min-width: 0;
   overflow: hidden;
   color: #e1c475;
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-ui), var(--font-sans), sans-serif;
   font-size: clamp(1.05rem, 2vw, 1.35rem);
   font-weight: 700;
   line-height: 1.25;
+  letter-spacing: -0.025em;
   text-shadow:
     0 0.1rem 0.35rem rgb(0 0 0 / 0.95),
     0 0 0.75rem rgb(0 0 0 / 0.55);
@@ -568,6 +611,7 @@
   max-width: 100%;
   overflow: hidden;
   color: rgb(244 239 231 / 0.72);
+  font-family: var(--font-ui), var(--font-sans), sans-serif;
   font-size: clamp(0.72rem, 1.35vw, 0.9rem);
   font-weight: 500;
   line-height: 1.2;
@@ -996,15 +1040,15 @@
   }
 
   .quote-compose-overlay {
-    place-items: end center;
-    padding: 0;
+    place-items: center;
+    padding: 1rem;
   }
 
   .quote-compose-modal {
-    width: 100%;
-    max-height: calc(100dvh - 0.75rem);
-    border-radius: 1rem 1rem 0 0;
-    padding: 1.5rem 1rem 1rem;
+    width: min(100%, 34rem);
+    max-height: calc(100dvh - 2rem);
+    border-radius: 1rem;
+    padding: 1.5rem 1rem;
   }
 
   .quote-compose-heading {

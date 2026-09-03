@@ -3,9 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CalendarDays, Check, Heart, Search } from 'lucide-react';
 import {
-  GachaMovie,
+  ArrowLeft,
+  CalendarDays,
+  ChevronDown,
+  MapPin,
+  Search,
+} from 'lucide-react';
+import {
   type UserMovieKind,
   type UserMovieListItem,
   type UserMovieMarks,
@@ -24,6 +29,86 @@ type Props = {
   kind: UserMovieKind;
   title: string;
 };
+
+type MovieShelfFilterOption = {
+  value: string;
+  label: string;
+};
+
+type MovieShelfFilterSelectProps = {
+  value: string;
+  options: MovieShelfFilterOption[];
+  onChange: (value: string) => void;
+  ariaLabel: string;
+};
+
+function MovieShelfFilterSelect({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+}: MovieShelfFilterSelectProps) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selectedOption =
+    options.find((option) => option.value === value) ?? options[0];
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [open]);
+
+  return (
+    <div
+      className={`room-shelf-filter-select${open ? ' is-open' : ''}`}
+      ref={rootRef}
+    >
+      <button
+        type="button"
+        className="room-shelf-filter-trigger"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selectedOption?.label ?? ''}</span>
+        <ChevronDown size={18} strokeWidth={1.7} aria-hidden />
+      </button>
+
+      {open ? (
+        <div
+          className="room-shelf-filter-menu"
+          role="listbox"
+          aria-label={ariaLabel}
+        >
+          {options.map((option) => (
+            <button
+              key={option.value || 'empty'}
+              type="button"
+              className="room-shelf-filter-option"
+              role="option"
+              aria-selected={option.value === value}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function MovieShelf({ kind, title }: Props) {
   const router = useRouter();
@@ -46,7 +131,9 @@ export function MovieShelf({ kind, title }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterYear, setFilterYear] = useState<number | undefined>();
   const [filterMonth, setFilterMonth] = useState<number | undefined>();
-  const [selectedMovie, setSelectedMovie] = useState<GachaMovie | null>(null);
+
+  const [selectedScreening, setSelectedScreening] =
+    useState<UserMovieListItem | null>(null);
   const [marksByTmdbId, setMarksByTmdbId] = useState<
     Record<number, Pick<UserMovieMarks, 'wish' | 'watched'>>
   >({});
@@ -238,6 +325,9 @@ export function MovieShelf({ kind, title }: Props) {
     if (leaveShelf) {
       setItems((prev) => prev.filter((item) => item.tmdbId !== tmdbId));
       setTotal((n) => Math.max(0, n - 1));
+      if (selectedScreening?.tmdbId === tmdbId) {
+        setSelectedScreening(null);
+      }
     }
 
     try {
@@ -269,7 +359,7 @@ export function MovieShelf({ kind, title }: Props) {
             입장하기
           </Link>
           <Link href="/room" className="lobby-btn">
-            내 방으로
+            MY CINEMA
           </Link>
         </div>
       </main>
@@ -285,8 +375,39 @@ export function MovieShelf({ kind, title }: Props) {
         ? '찜한 영화가 없어요.'
         : '본 작품이 없어요.';
 
+  const currentKstYear = Number(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+    }).format(new Date()),
+  );
+  const yearOptions: MovieShelfFilterOption[] = [
+    { value: '', label: '전체 연도' },
+    ...Array.from(
+      { length: currentKstYear - 1999 },
+      (_, index) => currentKstYear - index,
+    ).map((year) => ({ value: String(year), label: `${year}년` })),
+  ];
+  const monthOptions: MovieShelfFilterOption[] = [
+    { value: '', label: '전체 월' },
+    ...Array.from({ length: 12 }, (_, index) => index + 1).map((month) => ({
+      value: String(month),
+      label: `${month}월`,
+    })),
+  ];
+
   return (
     <main className="room room--shelf">
+      <nav className="room-shelf-nav" aria-label="페이지 이동">
+        <Link href="/" className="room-top-nav-link">
+          <ArrowLeft size={15} strokeWidth={1.7} aria-hidden />
+          로비로
+        </Link>
+        <Link href="/room" className="room-top-nav-link">
+          MY CINEMA
+        </Link>
+      </nav>
+
       <header className="room-shelf-header">
         <div className="room-shelf-heading">
           <p className="room-kicker">
@@ -314,58 +435,22 @@ export function MovieShelf({ kind, title }: Props) {
 
             {kind === 'watched' ? (
               <div className="room-shelf-filters">
-                <select
-                  value={filterYear ?? ''}
-                  onChange={(event) =>
-                    setFilterYear(
-                      event.target.value
-                        ? Number(event.target.value)
-                        : undefined,
-                    )
+                <MovieShelfFilterSelect
+                  value={filterYear ? String(filterYear) : ''}
+                  options={yearOptions}
+                  ariaLabel="관람 연도 필터"
+                  onChange={(value) =>
+                    setFilterYear(value ? Number(value) : undefined)
                   }
-                  aria-label="관람 연도 필터"
-                >
-                  <option value="">전체 연도</option>
-                  {Array.from(
-                    {
-                      length:
-                        Number(
-                          new Intl.DateTimeFormat('en-US', {
-                            timeZone: 'Asia/Seoul',
-                            year: 'numeric',
-                          }).format(new Date()),
-                        ) - 1999,
-                    },
-                    (_, index) => 2000 + index,
-                  )
-                    .reverse()
-                    .map((year) => (
-                      <option key={year} value={year}>
-                        {year}년
-                      </option>
-                    ))}
-                </select>
-
-                <select
-                  value={filterMonth ?? ''}
-                  onChange={(event) =>
-                    setFilterMonth(
-                      event.target.value
-                        ? Number(event.target.value)
-                        : undefined,
-                    )
+                />
+                <MovieShelfFilterSelect
+                  value={filterMonth ? String(filterMonth) : ''}
+                  options={monthOptions}
+                  ariaLabel="관람 월 필터"
+                  onChange={(value) =>
+                    setFilterMonth(value ? Number(value) : undefined)
                   }
-                  aria-label="관람 월 필터"
-                >
-                  <option value="">전체 월</option>
-                  {Array.from({ length: 12 }, (_, index) => index + 1).map(
-                    (month) => (
-                      <option key={month} value={month}>
-                        {month}월
-                      </option>
-                    ),
-                  )}
-                </select>
+                />
               </div>
             ) : null}
           </div>
@@ -384,7 +469,6 @@ export function MovieShelf({ kind, title }: Props) {
             {visibleItems.map((item) => {
               const movie = item.movie;
               const poster = tmdbPosterUrl(movie.poster_path, 'w342');
-              const marks = marksByTmdbId[item.tmdbId];
               return (
                 <li
                   key={`${item.tmdbId}-${item.updatedAt}`}
@@ -394,7 +478,7 @@ export function MovieShelf({ kind, title }: Props) {
                     <button
                       type="button"
                       className="room-movie-card"
-                      onClick={() => setSelectedMovie(movie)}
+                      onClick={() => setSelectedScreening(item)}
                       aria-label={`${movie.title} 상세 보기`}
                     >
                       <div className="room-movie-poster">
@@ -412,52 +496,37 @@ export function MovieShelf({ kind, title }: Props) {
                     <div className="room-movie-info">
                       <div className="room-movie-meta">
                         <span className="room-movie-title">{movie.title}</span>
-                        <span className="room-movie-facts">
-                          <span className="room-movie-release-year">
-                            개봉{' '}
-                            {movie.release_date?.slice(0, 4) || '연도 없음'}
-                          </span>
-                          {kind === 'watched' && item.watchedAt ? (
-                            <span className="room-movie-watched-at">
-                              <CalendarDays
-                                size={12}
-                                strokeWidth={1.7}
-                                aria-hidden
-                              />
-                              <span>
+                        {kind === 'watched' ? (
+                          <div className="room-movie-screening-details">
+                            {item.watchedAt ? (
+                              <span className="room-movie-detail-chip is-date">
+                                <CalendarDays
+                                  size={12}
+                                  strokeWidth={1.7}
+                                  aria-hidden
+                                />
                                 관람 {formatWatchedAt(item.watchedAt)}
                               </span>
+                            ) : null}
+                            {item.viewingLocation ? (
+                              <span className="room-movie-detail-chip">
+                                <MapPin
+                                  size={12}
+                                  strokeWidth={1.7}
+                                  aria-hidden
+                                />
+                                {item.viewingLocation}
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <span className="room-movie-facts">
+                            <span className="room-movie-release-year">
+                              개봉{' '}
+                              {movie.release_date?.slice(0, 4) || '연도 없음'}
                             </span>
-                          ) : null}
-                        </span>
-                      </div>
-
-                      <div className="room-movie-actions">
-                        <button
-                          type="button"
-                          className={`room-mark${marks?.wish ? ' is-on' : ''}`}
-                          aria-pressed={marks?.wish ?? false}
-                          aria-label={marks?.wish ? '찜 해제' : '찜'}
-                          onClick={() => void toggleMark(item.tmdbId, 'wish')}
-                        >
-                          <Heart
-                            size={14}
-                            strokeWidth={1.75}
-                            fill={marks?.wish ? 'currentColor' : 'none'}
-                            aria-hidden
-                          />
-                        </button>
-                        <button
-                          type="button"
-                          className={`room-mark${marks?.watched ? ' is-on' : ''}`}
-                          aria-pressed={marks?.watched ?? false}
-                          aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
-                          onClick={() =>
-                            void toggleMark(item.tmdbId, 'watched')
-                          }
-                        >
-                          <Check size={14} strokeWidth={2} aria-hidden />
-                        </button>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -475,21 +544,33 @@ export function MovieShelf({ kind, title }: Props) {
         {loadingMore ? <p className="room-copy">더 불러오는 중…</p> : null}
       </div>
 
-      {selectedMovie ? (
+      {selectedScreening ? (
         <MovieDetailModal
-          movie={selectedMovie}
-          onClose={() => setSelectedMovie(null)}
+          movie={selectedScreening.movie}
+          screening={selectedScreening}
+          marks={marksByTmdbId[selectedScreening.tmdbId]}
+          onToggleMark={(markKind) => {
+            void toggleMark(selectedScreening.tmdbId, markKind);
+          }}
+          onClose={() => setSelectedScreening(null)}
+          onSaved={(details) => {
+            setItems((currentItems) =>
+              currentItems.map((item) =>
+                item.tmdbId === selectedScreening.tmdbId
+                  ? { ...item, ...details }
+                  : item,
+              ),
+            );
+
+            setSelectedScreening((currentScreening) =>
+              currentScreening
+                ? { ...currentScreening, ...details }
+                : currentScreening,
+            );
+          }}
         />
       ) : null}
 
-      <div className="room-actions room-actions--shelf">
-        <Link href="/" className="lobby-btn">
-          로비로
-        </Link>
-        <Link href="/room" className="lobby-btn">
-          내방으로
-        </Link>
-      </div>
     </main>
   );
 }

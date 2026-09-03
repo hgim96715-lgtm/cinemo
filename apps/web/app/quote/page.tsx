@@ -224,10 +224,19 @@ export default function QuotePage() {
   return (
     <main className="quote-page">
       <header className="quote-header">
-        <Link href="/" className="quote-back-link">
-          <ArrowLeft size={18} aria-hidden />
-          로비
-        </Link>
+        <nav className="quote-page-nav" aria-label="명대사 페이지 이동">
+          <Link href="/" className="quote-back-link">
+            <ArrowLeft size={18} aria-hidden />
+            로비
+          </Link>
+          <Link
+            href="/room/quotes"
+            className="quote-back-link quote-collection-link"
+          >
+            <Film size={17} aria-hidden />
+            명대사 모음집
+          </Link>
+        </nav>
 
         <p className="quote-kicker">QUOTE FILM</p>
         <div className="quote-reel-heading">

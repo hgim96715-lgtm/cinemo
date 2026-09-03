@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Bookmark, Trash2, X } from 'lucide-react';
 import '../../app/styles/quote.css';
 
 type QuoteActionModalProps = {
@@ -8,6 +8,8 @@ type QuoteActionModalProps = {
   mode: 'confirm' | 'error';
   title: string;
   message: string;
+  confirmLabel?: string;
+  pendingLabel?: string;
   onClose: () => void;
   onConfirm?: () => void | Promise<void>;
   isPending?: boolean;
@@ -18,6 +20,8 @@ export default function QuoteActionModal({
   mode,
   title,
   message,
+  confirmLabel = '삭제하기',
+  pendingLabel = '처리 중…',
   onClose,
   onConfirm,
   isPending = false,
@@ -27,7 +31,11 @@ export default function QuoteActionModal({
   const isConfirm = mode === 'confirm';
 
   return (
-    <div className="quote-compose-overlay" onClick={onClose} role="presentation">
+    <div
+      className="quote-compose-overlay"
+      onClick={onClose}
+      role="presentation"
+    >
       <section
         className="quote-compose-modal quote-action-modal"
         role="dialog"
@@ -45,7 +53,13 @@ export default function QuoteActionModal({
         </button>
 
         <div className="quote-action-icon" aria-hidden>
-          {isConfirm ? <Trash2 size={22} /> : <AlertTriangle size={22} />}
+          {title === '저장 취소' ? (
+            <Bookmark size={22} />
+          ) : isConfirm ? (
+            <Trash2 size={22} />
+          ) : (
+            <AlertTriangle size={22} />
+          )}
         </div>
         <div className="quote-compose-heading">
           <p className="quote-compose-kicker">QUOTE FILM</p>
@@ -69,7 +83,7 @@ export default function QuoteActionModal({
               onClick={() => void onConfirm?.()}
               disabled={isPending}
             >
-              {isPending ? '삭제 중…' : '삭제하기'}
+              {isPending ? pendingLabel : confirmLabel}
             </button>
           )}
         </div>

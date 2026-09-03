@@ -4,10 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserMovieKind } from '../generated/prisma/enums';
+import {
+  UserMovieKind,
+  UserMovieViewingType,
+} from '../generated/prisma/enums';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { UpdateDisplayDto } from './dto/update-display.dto';
 import { kstDateKey, kstDayRange, kstMonthRange } from '../lib/date-kst';
+import { UpdateViewingDetailsDto } from './dto/update-viewing-details.dto';
 
 type UserMovieListFilters = {
   search?: string;
@@ -21,6 +25,22 @@ export class UserMovieService {
     private readonly prisma: PrismaService,
     private readonly tmdbService: TmdbService,
   ) {}
+
+  private parseWatchedDate(watchedAt: string) {
+    const watchedDate = new Date(`${watchedAt}T12:00:00+09:00`);
+
+    if (Number.isNaN(watchedDate.getTime())) {
+      throw new BadRequestException('관람일이 올바르지 않습니다.');
+    }
+
+    if (watchedAt > kstDateKey()) {
+      throw new BadRequestException(
+        '관람일은 오늘 또는 이전 날짜만 선택할 수 있습니다.',
+      );
+    }
+
+    return watchedDate;
+  }
 
   // active true: 영화 추가, false: 영화 삭제
   async toggle(userId: string, tmdbId: number, kind: 'wish' | 'watched') {
@@ -45,11 +65,7 @@ export class UserMovieService {
   }
 
   async addWatchedMovie(userId: string, tmdbId: number, watchedAt: string) {
-    const watchedDate = new Date(`${watchedAt}T12:00:00+09:00`);
-
-    if (Number.isNaN(watchedDate.getTime())) {
-      throw new BadRequestException('관람일이 올바르지 않습니다.');
-    }
+    const watchedDate = this.parseWatchedDate(watchedAt);
 
     return this.prisma.userMovie.upsert({
       where: {
@@ -72,11 +88,7 @@ export class UserMovieService {
   }
 
   async updateWatchedAt(userId: string, tmdbId: number, watchedAt: string) {
-    const watchedDate = new Date(`${watchedAt}T12:00:00+09:00`);
-
-    if (Number.isNaN(watchedDate.getTime())) {
-      throw new BadRequestException('관람일이 올바르지 않습니다.');
-    }
+    const watchedDate = this.parseWatchedDate(watchedAt);
     const existing = await this.prisma.userMovie.findUnique({
       where: { userId_tmdbId_kind: { userId, tmdbId, kind: 'watched' } },
     });
@@ -97,6 +109,55 @@ export class UserMovieService {
     await this.prisma.userMovie.delete({ where: { id: existing.id } });
 
     return { tmdbId, kind: 'watched', active: false };
+  }
+
+  async updateViewingDetails(userId: string, dto: UpdateViewingDetailsDto) {
+    const existing = await this.prisma.userMovie.findUnique({
+      where: {
+        userId_tmdbId_kind: {
+          userId,
+          tmdbId: dto.tmdbId,
+          kind: 'watched',
+        },
+      },
+    });
+    if (!existing) throw new NotFoundException('관람 기록을 찾을 수 없습니다.');
+
+    let watchedDate: Date | null | undefined;
+    if (dto.watchedAt !== undefined) {
+      watchedDate = dto.watchedAt ? this.parseWatchedDate(dto.watchedAt) : null;
+    }
+
+    return this.prisma.userMovie.update({
+      where: { id: existing.id },
+      data: {
+        ...(watchedDate !== undefined ? { watchedAt: watchedDate } : {}),
+        ...(dto.viewingType !== undefined
+          ? {
+              viewingType: dto.viewingType,
+              viewingTypeCustom:
+                dto.viewingType === UserMovieViewingType.other
+                  ? dto.viewingTypeCustom?.trim() || null
+                  : null,
+            }
+          : {}),
+        ...(dto.viewingType === undefined && dto.viewingTypeCustom !== undefined
+          ? {
+              viewingTypeCustom: dto.viewingTypeCustom?.trim() || null,
+            }
+          : {}),
+        ...(dto.viewingPlatform !== undefined
+          ? { viewingPlatform: dto.viewingPlatform?.trim() || null }
+          : {}),
+        ...(dto.viewingLocation !== undefined
+          ? { viewingLocation: dto.viewingLocation?.trim() || null }
+          : {}),
+        ...(dto.review !== undefined
+          ? { review: dto.review?.trim() || null }
+          : {}),
+        ...(dto.rating !== undefined ? { rating: dto.rating } : {}),
+      },
+    });
   }
 
   async getMarks(userId: string, tmdbId: number) {
@@ -156,7 +217,17 @@ export class UserMovieService {
             ]
           : { updatedAt: 'desc' },
       ...(needsInMemoryFilter ? {} : { skip, take }),
-      select: { tmdbId: true, updatedAt: true, watchedAt: true },
+      select: {
+        tmdbId: true,
+        updatedAt: true,
+        watchedAt: true,
+        viewingType: true,
+        viewingTypeCustom: true,
+        viewingPlatform: true,
+        viewingLocation: true,
+        review: true,
+        rating: true,
+      },
     });
 
     const items = await Promise.all(
@@ -164,7 +235,13 @@ export class UserMovieService {
         tmdbId: row.tmdbId,
         updatedAt: row.updatedAt.toISOString(),
         watchedAt: row.watchedAt?.toISOString() ?? null,
+        viewingType: row.viewingType,
+        viewingTypeCustom: row.viewingTypeCustom,
+        viewingPlatform: row.viewingPlatform,
+        viewingLocation: row.viewingLocation,
         movie: await this.tmdbService.getMovieCached(row.tmdbId),
+        review: row.review,
+        rating: row.rating,
       })),
     );
 

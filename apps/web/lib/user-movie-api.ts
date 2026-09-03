@@ -7,6 +7,7 @@ import type {
   UserMovieListPage,
   UserMovieMarks,
   UserMovieStats,
+  UserMovieViewingDetails,
 } from '@cinemo/shared';
 import { apiFetch } from './api';
 
@@ -142,5 +143,24 @@ export function removeWatchedMovieRequest(token: string, tmdbId: number) {
   return apiFetch(`/user-movies/watched-at/${tmdbId}`, {
     method: 'DELETE',
     token,
+  });
+}
+
+type UpdateUserMovieScreeningInput = UserMovieViewingDetails & {
+  watchedAt: string | null;
+};
+
+export function updateViewingDetailsRequest(
+  token: string,
+  tmdbId: number,
+  details: UpdateUserMovieScreeningInput,
+) {
+  return apiFetch('/user-movies/viewing-details', {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify({
+      tmdbId,
+      ...details,
+    }),
   });
 }

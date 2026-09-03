@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { UserMovieCalendarItem, UserMovieCalendar } from '@cinemo/shared';
 import { getUserMovieCalendarRequest } from '@/lib/user-movie-api';
-import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 type Props = {
   token: string;
@@ -49,6 +49,81 @@ function moveKstMonth(year: number, month: number, amount: number) {
   return getKstYearMonth(movedDate);
 }
 
+type CalendarPeriodSelectProps = {
+  value: number;
+  options: number[];
+  suffix: string;
+  label: string;
+  onChange: (value: number) => void;
+};
+
+function CalendarPeriodSelect({
+  value,
+  options,
+  suffix,
+  label,
+  onChange,
+}: CalendarPeriodSelectProps) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [open]);
+
+  return (
+    <div
+      ref={rootRef}
+      className={`movie-calendar-period-select${open ? ' is-open' : ''}`}
+    >
+      <button
+        type="button"
+        className="movie-calendar-period-trigger"
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>
+          {value}
+          {suffix}
+        </span>
+        <ChevronDown size={18} strokeWidth={1.7} aria-hidden="true" />
+      </button>
+
+      {open ? (
+        <div className="movie-calendar-period-menu" role="listbox" aria-label={label}>
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              className="movie-calendar-period-option"
+              role="option"
+              aria-selected={option === value}
+              onClick={() => {
+                onChange(option);
+                setOpen(false);
+              }}
+            >
+              {option}
+              {suffix}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 const initialKstMonth = getKstYearMonth();
 
 export function MovieCalendarModal({
@@ -80,13 +155,15 @@ export function MovieCalendarModal({
   const selectedMovies = selectedDate
     ? (moviesByDate.get(selectedDate) ?? [])
     : [];
+  const currentKstYear = getKstYearMonth().year;
+  const yearOptions = Array.from(
+    { length: currentKstYear - 1999 },
+    (_, index) => currentKstYear - index,
+  );
+  const monthOptions = Array.from({ length: 12 }, (_, index) => index + 1);
 
   useEffect(() => {
     let cancelled = false;
-
-    setLoading(true);
-    setError(null);
-    setSelectedDate(null);
 
     async function loadCalendar() {
       try {
@@ -113,10 +190,17 @@ export function MovieCalendarModal({
     };
   }, [token, year, month]);
 
+  function changeCalendarPeriod(nextYear: number, nextMonth: number) {
+    setLoading(true);
+    setError(null);
+    setSelectedDate(null);
+    setYear(nextYear);
+    setMonth(nextMonth);
+  }
+
   function moveMonth(amount: number) {
     const nextMonth = moveKstMonth(year, month, amount);
-    setYear(nextMonth.year);
-    setMonth(nextMonth.month);
+    changeCalendarPeriod(nextMonth.year, nextMonth.month);
   }
 
   return (
@@ -134,34 +218,21 @@ export function MovieCalendarModal({
               className="movie-calendar-period-picker"
               id="movie-calendar-title"
             >
-              <select
+              <CalendarPeriodSelect
                 value={year}
-                onChange={(event) => setYear(Number(event.target.value))}
-                aria-label="년도 선택"
-              >
-                {Array.from(
-                  { length: getKstYearMonth().year - 1999 },
-                  (_, index) => 2000 + index,
-                ).map((optionYear) => (
-                  <option key={optionYear} value={optionYear}>
-                    {optionYear}년
-                  </option>
-                ))}
-              </select>
+                options={yearOptions}
+                suffix="년"
+                label="년도 선택"
+                onChange={(nextYear) => changeCalendarPeriod(nextYear, month)}
+              />
 
-              <select
+              <CalendarPeriodSelect
                 value={month}
-                onChange={(event) => setMonth(Number(event.target.value))}
-                aria-label="월 선택"
-              >
-                {Array.from({ length: 12 }, (_, index) => index + 1).map(
-                  (optionMonth) => (
-                    <option key={optionMonth} value={optionMonth}>
-                      {optionMonth}월
-                    </option>
-                  ),
-                )}
-              </select>
+                options={monthOptions}
+                suffix="월"
+                label="월 선택"
+                onChange={(nextMonth) => changeCalendarPeriod(year, nextMonth)}
+              />
             </div>
           </div>
 
@@ -190,8 +261,7 @@ export function MovieCalendarModal({
             className="movie-calendar-today"
             onClick={() => {
               const current = getKstYearMonth();
-              setYear(current.year);
-              setMonth(current.month);
+              changeCalendarPeriod(current.year, current.month);
             }}
           >
             오늘
@@ -238,29 +308,19 @@ export function MovieCalendarModal({
                   dayMovies.length > 0 ? 'has-movie' : '',
                   selected ? 'is-selected' : '',
                 ]
-                  .filter(Boolean)
+                .filter(Boolean)
                   .join(' ')}
-                onClick={() => setSelectedDate(dateKey)}
+                onClick={() => {
+                  setSelectedDate(dateKey);
+                  if (dayMovies.length === 0 && canAddMovie) {
+                    onAdd?.(dateKey);
+                  }
+                }}
                 disabled={!canAddMovie}
-                aria-label={`${year}년 ${month}월 ${day}일 관람 기록`}
+                aria-label={`${year}년 ${month}월 ${day}일 ${dayMovies.length > 0 ? '관람 기록 보기' : '영화 기록 추가'}`}
                 aria-pressed={selected}
               >
-                <span className="movie-calendar-day-topline">
-                  <strong className="movie-calendar-day-number">{day}</strong>
-
-                  {canAddMovie ? (
-                    <span
-                      className="movie-calendar-day-add"
-                      aria-label={`${year}년 ${month}월 ${day}일 영화 추가`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onAdd?.(dateKey);
-                      }}
-                    >
-                      <Plus size={15} strokeWidth={1.7} aria-hidden="true" />
-                    </span>
-                  ) : null}
-                </span>
+                <strong className="movie-calendar-day-number">{day}</strong>
 
                 {dayMovies.length > 0 ? (
                   <span className="movie-calendar-day-posters">
@@ -307,9 +367,18 @@ export function MovieCalendarModal({
             </p>
           ) : (
             <>
-              <h3>
-                {month}월 {Number(selectedDate.slice(-2))}일 관람 영화
-              </h3>
+              <div className="movie-calendar-detail-heading">
+                <h3>
+                  {month}월 {Number(selectedDate.slice(-2))}일 관람 영화
+                </h3>
+                <button
+                  type="button"
+                  className="movie-calendar-detail-add"
+                  onClick={() => onAdd?.(selectedDate)}
+                >
+                  이 날짜에 영화 추가
+                </button>
+              </div>
 
               <ul className="movie-calendar-detail-list">
                 {selectedMovies.map((item) => (
@@ -322,22 +391,28 @@ export function MovieCalendarModal({
                       />
                     ) : null}
 
-                    <span>{item.movie.title}</span>
-                    <button
-                      type="button"
-                      className="movie-calendar-edit"
-                      onClick={() => onEdit?.(item.tmdbId, item.watchedAt)}
-                    >
-                      관람일 수정
-                    </button>
+                    <div className="movie-calendar-detail-item-content">
+                      <span>{item.movie.title}</span>
+                      <div className="movie-calendar-detail-item-actions">
+                        <button
+                          type="button"
+                          className="movie-calendar-edit"
+                          onClick={() =>
+                            onEdit?.(item.tmdbId, item.watchedAt)
+                          }
+                        >
+                          관람일 수정
+                        </button>
 
-                    <button
-                      type="button"
-                      className="movie-calendar-delete"
-                      onClick={() => onDelete?.(item.tmdbId)}
-                    >
-                      관람 기록 삭제
-                    </button>
+                        <button
+                          type="button"
+                          className="movie-calendar-delete"
+                          onClick={() => onDelete?.(item.tmdbId)}
+                        >
+                          관람 기록 삭제
+                        </button>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>

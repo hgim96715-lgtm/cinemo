@@ -1,21 +1,32 @@
 'use client';
 
-import { useDeferredValue, useEffect, useState, type CSSProperties } from 'react';
+import {
+  useDeferredValue,
+  useEffect,
+  useState,
+  type CSSProperties,
+} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Film, Search } from 'lucide-react';
 import type { QuotePostItem } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
-import { listSavedQuotePostsRequest } from '@/lib/quote-api';
+import {
+  listSavedQuotePostsRequest,
+  unsaveQuotePostRequest,
+} from '@/lib/quote-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import '../../styles/quote.css';
 import '../../styles/room.css';
 import '../../styles/lobby.css';
+import QuoteFilmActions from '@/components/quote/QuoteFilmActions';
+import QuoteActionModal from '@/components/quote/QuoteActionModal';
 
 export default function SavedQuotePage() {
   const pageSize = 24;
   const accessToken = useAuthStore((state) => state.accessToken);
   const hydrated = useAuthStore((state) => state.hydrated);
+  const user = useAuthStore((s) => s.user);
 
   const [quotes, setQuotes] = useState<QuotePostItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +34,14 @@ export default function SavedQuotePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const deferredSearchQuery = useDeferredValue(searchQuery);
+
+  const [quoteActionError, setQuoteActionError] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<QuotePostItem | null>(null);
+  const [unsavingQuoteId, setUnsavingQuoteId] = useState<
+    QuotePostItem['id'] | null
+  >(null);
+  const [quoteActionQuote, setQuoteActionQuote] =
+    useState<QuotePostItem | null>(null);
 
   useEffect(() => {
     if (!hydrated || !accessToken) return;
@@ -61,11 +80,10 @@ export default function SavedQuotePage() {
 
     setLoadingMore(true);
     try {
-      const response = await listSavedQuotePostsRequest(
-        accessToken,
-        pageSize,
-        { cursor: nextCursor, search: deferredSearchQuery },
-      );
+      const response = await listSavedQuotePostsRequest(accessToken, pageSize, {
+        cursor: nextCursor,
+        search: deferredSearchQuery,
+      });
       setQuotes((current) => {
         const existingIds = new Set(current.map((quote) => quote.id));
         return [
@@ -81,8 +99,38 @@ export default function SavedQuotePage() {
     }
   }
 
+  async function handleUnsaveQuote() {
+    if (!accessToken || !quoteActionQuote) return;
+
+    const quoteId = quoteActionQuote.id;
+    setUnsavingQuoteId(quoteId);
+
+    try {
+      await unsaveQuotePostRequest(accessToken, quoteId);
+
+      setQuotes((currentQuotes) =>
+        currentQuotes.filter((quote) => quote.id !== quoteId),
+      );
+      setQuoteActionQuote(null);
+    } catch {
+      setQuoteActionQuote(null);
+      setQuoteActionError(true);
+    } finally {
+      setUnsavingQuoteId(null);
+    }
+  }
+
   return (
     <main className="quote-page quote-page--saved">
+      <nav className="room-shelf-nav" aria-label="페이지 이동">
+        <Link href="/quote" className="room-top-nav-link">
+          명대사방
+        </Link>
+        <Link href="/room" className="room-top-nav-link">
+          MY CINEMA
+        </Link>
+      </nav>
+
       <header className="quote-header">
         <div className="quote-reel-heading">
           <Film size={22} aria-hidden />
@@ -113,7 +161,9 @@ export default function SavedQuotePage() {
         {!hydrated || (loading && accessToken) ? (
           <p className="quote-film-empty">명대사 모음집을 불러오는 중…</p>
         ) : !accessToken ? (
-          <p className="quote-film-empty">로그인 후 명대사 모음집을 볼 수 있어요.</p>
+          <p className="quote-film-empty">
+            로그인 후 명대사 모음집을 볼 수 있어요.
+          </p>
         ) : quotes.length === 0 ? (
           <p className="quote-film-empty">
             {deferredSearchQuery.trim()
@@ -152,6 +202,12 @@ export default function SavedQuotePage() {
                         decoding="async"
                       />
                     ) : null}
+                    <QuoteFilmActions
+                      canManage={user?.id === quote.authorId}
+                      isSaved
+                      onSave={() => setQuoteActionQuote(quote)}
+                      onEdit={() => setEditingQuote(quote)}
+                    />
                     <div className="quote-film-frame-content">
                       <p
                         className={`quote-film-text${quote.text.length > 36 ? ' quote-film-text--long' : ''}${quote.text.length > 72 ? ' quote-film-text--extra-long' : ''}`}
@@ -162,7 +218,9 @@ export default function SavedQuotePage() {
 
                       <footer className="quote-film-meta">
                         <strong>{quote.movie.title}</strong>
-                        <small className="quote-film-author">@{quote.nickname}</small>
+                        <small className="quote-film-author">
+                          @{quote.nickname}
+                        </small>
                       </footer>
                     </div>
                   </article>
@@ -182,18 +240,28 @@ export default function SavedQuotePage() {
           </button>
         ) : null}
       </section>
-
-      <nav
-        className="room-actions room-actions--shelf"
-        aria-label="페이지 이동"
-      >
-        <Link href="/?lobby=1" className="lobby-btn">
-          로비로
-        </Link>
-        <Link href="/room" className="lobby-btn">
-          내방으로
-        </Link>
-      </nav>
+      <QuoteActionModal
+        isOpen={Boolean(quoteActionQuote)}
+        mode="confirm"
+        title="저장 취소"
+        message={`"${quoteActionQuote?.movie.title ?? '이 명대사'}"를 모음집에서 뺄까요?`}
+        confirmLabel="저장 취소"
+        pendingLabel="취소 중…"
+        onClose={() => {
+          if (!unsavingQuoteId) {
+            setQuoteActionQuote(null);
+          }
+        }}
+        onConfirm={handleUnsaveQuote}
+        isPending={unsavingQuoteId === quoteActionQuote?.id}
+      />
+      <QuoteActionModal
+        isOpen={quoteActionError}
+        mode="error"
+        title="저장 취소 실패"
+        message="명대사 저장을 취소하지 못했어요. 잠시 후 다시 시도해주세요."
+        onClose={() => setQuoteActionError(false)}
+      />
     </main>
   );
 }

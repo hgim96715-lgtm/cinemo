@@ -8,7 +8,7 @@ type QuoteFilmActionsProps = {
   isSaved: boolean;
   onSave: () => void;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 };
 
 export default function QuoteFilmActions({
@@ -75,33 +75,19 @@ export default function QuoteFilmActions({
           {isSaved ? '저장 취소' : '저장하기'}
         </button>
 
-        {canManage && (
-          <>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                closeMenu();
-                onEdit();
-              }}
-            >
-              <Pencil size={15} aria-hidden />
-              수정하기
-            </button>
-
-            <button
-              type="button"
-              role="menuitem"
-              className="quote-film-actions-delete"
-              onClick={() => {
-                closeMenu();
-                onDelete();
-              }}
-            >
-              <Trash2 size={15} aria-hidden />
-              삭제하기
-            </button>
-          </>
+        {canManage && onDelete && (
+          <button
+            type="button"
+            role="menuitem"
+            className="quote-film-actions-delete"
+            onClick={() => {
+              closeMenu();
+              onDelete();
+            }}
+          >
+            <Trash2 size={15} aria-hidden />
+            삭제하기
+          </button>
         )}
       </div>
     </details>

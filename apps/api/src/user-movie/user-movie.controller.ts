@@ -19,6 +19,7 @@ import { UserMovieKind } from '../generated/prisma/enums';
 import { UpdateDisplayDto } from './dto/update-display.dto';
 import { AddWatchedMovieDto } from './dto/add-watched-movie.dto';
 import { UpdateWatchedAtDto } from './dto/update-watched-at.dto';
+import { UpdateViewingDetailsDto } from './dto/update-viewing-details.dto';
 
 @ApiTags('user-movies')
 @ApiBearerAuth()
@@ -47,6 +48,14 @@ export class UserMovieController {
       dto.tmdbId,
       dto.watchedAt,
     );
+  }
+
+  @Patch('viewing-details')
+  updateViewingDetails(
+    @UserId() userId: string,
+    @Body() dto: UpdateViewingDetailsDto,
+  ) {
+    return this.userMovieService.updateViewingDetails(userId, dto);
   }
 
   @Delete('watched-at/:tmdbId')

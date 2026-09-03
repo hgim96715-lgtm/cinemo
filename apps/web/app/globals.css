@@ -6,6 +6,7 @@
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-cormorant), var(--font-noto-serif-kr);
   --font-display-kr: var(--font-noto-serif-kr);
+  --font-ui: var(--font-noto-sans-kr), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -14,6 +15,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-cormorant), var(--font-noto-serif-kr);
+  --font-ui: var(--font-noto-sans-kr), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
