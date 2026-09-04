@@ -19,6 +19,7 @@ import { AiModule } from './ai/ai.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { GuideModule } from './guide/guide.module';
 import { QuotePostModule } from './quote-post/quote-post.module';
+import { PlacesModule } from './places/places.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { QuotePostModule } from './quote-post/quote-post.module';
     ProfilesModule,
     GuideModule,
     QuotePostModule,
+    PlacesModule,
   ],
   controllers: [AppController, AiController],
   providers: [AppService],

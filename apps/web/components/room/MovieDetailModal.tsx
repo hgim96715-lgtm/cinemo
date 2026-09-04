@@ -25,6 +25,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { kstDateKey } from '@/lib/date-kst';
+import { PlaceSearchResult, searchPlacesRequest } from '@/lib/places-api';
 
 const movieScreeningSchema = z.object({
   watchedAt: z
@@ -113,7 +114,10 @@ function MovieDetailSelect({
   }, [open]);
 
   return (
-    <div className={`movie-detail-select${open ? ' is-open' : ''}`} ref={rootRef}>
+    <div
+      className={`movie-detail-select${open ? ' is-open' : ''}`}
+      ref={rootRef}
+    >
       <button
         type="button"
         className="movie-detail-select-trigger"
@@ -128,7 +132,11 @@ function MovieDetailSelect({
       </button>
 
       {open ? (
-        <div className="movie-detail-select-menu" role="listbox" aria-label={ariaLabel}>
+        <div
+          className="movie-detail-select-menu"
+          role="listbox"
+          aria-label={ariaLabel}
+        >
           {options.map((option) => (
             <button
               key={option.value || 'empty'}
@@ -163,6 +171,50 @@ type SavedScreeningDetails = UserMovieViewingDetails & {
   watchedAt: string | null;
 };
 
+type RecentLocation = Pick<
+  PlaceSearchResult,
+  'id' | 'name' | 'address' | 'roadAddress'
+>;
+
+const RECENT_LOCATIONS_STORAGE_KEY = 'cinemo.recent-viewing-locations';
+const MAX_RECENT_LOCATIONS = 8;
+
+function normalizeLocationValue(value: string) {
+  return value.replace(/\s+/g, '').toLowerCase();
+}
+
+function getRecentLocationMatches(
+  locations: RecentLocation[],
+  query: string,
+) {
+  const normalizedQuery = normalizeLocationValue(query);
+
+  return locations.filter((location) => {
+    if (!normalizedQuery) return true;
+
+    return normalizeLocationValue(
+      [location.name, location.address, location.roadAddress].join(' '),
+    ).includes(normalizedQuery);
+  });
+}
+
+function mergeLocationSuggestions(
+  recentLocations: RecentLocation[],
+  kakaoLocations: PlaceSearchResult[],
+) {
+  return [
+    ...recentLocations,
+    ...kakaoLocations.filter(
+      (location) =>
+        !recentLocations.some(
+          (recentLocation) =>
+            normalizeLocationValue(recentLocation.name) ===
+            normalizeLocationValue(location.name),
+        ),
+    ),
+  ];
+}
+
 type MovieDetailModalProps = {
   movie: GachaMovie;
   screening?: UserMovieListItem;
@@ -188,6 +240,73 @@ export function MovieDetailModal({
   );
   const todayKst = kstDateKey();
   const poster = tmdbPosterUrl(movie.poster_path, 'w342');
+  const [locationSuggestions, setLocationSuggestions] = useState<
+    PlaceSearchResult[]
+  >([]);
+  const [locationSuggestionsQuery, setLocationSuggestionsQuery] =
+    useState('');
+  const [recentLocations, setRecentLocations] = useState<RecentLocation[]>(
+    () => {
+      if (typeof window === 'undefined') return [];
+
+      try {
+        const savedLocations = window.localStorage.getItem(
+          RECENT_LOCATIONS_STORAGE_KEY,
+        );
+
+        return savedLocations
+          ? (JSON.parse(savedLocations) as RecentLocation[])
+          : [];
+      } catch {
+        return [];
+      }
+    },
+  );
+  const [isLocationFocused, setIsLocationFocused] = useState(false);
+
+  const [searchingPlacesQuery, setSearchingPlacesQuery] = useState('');
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        RECENT_LOCATIONS_STORAGE_KEY,
+        JSON.stringify(recentLocations),
+      );
+    } catch {
+      // localStorage를 사용할 수 없는 환경에서도 관람 정보 저장은 계속함
+    }
+  }, [recentLocations]);
+
+  function rememberLocation(location: PlaceSearchResult | string) {
+    const locationName =
+      typeof location === 'string' ? location.trim() : location.name.trim();
+
+    if (!locationName) return;
+
+    const recentLocation: RecentLocation =
+      typeof location === 'string'
+        ? {
+            id: `recent:${normalizeLocationValue(locationName)}`,
+            name: locationName,
+            address: '',
+            roadAddress: '',
+          }
+        : {
+            id: `recent:${normalizeLocationValue(locationName)}`,
+            name: locationName,
+            address: location.address,
+            roadAddress: location.roadAddress,
+          };
+
+    setRecentLocations((currentLocations) => [
+      recentLocation,
+      ...currentLocations.filter(
+        (currentLocation) =>
+          normalizeLocationValue(currentLocation.name) !==
+          normalizeLocationValue(locationName),
+      ),
+    ].slice(0, MAX_RECENT_LOCATIONS));
+  }
 
   const {
     handleSubmit,
@@ -230,6 +349,9 @@ export function MovieDetailModal({
     control,
     name: 'viewingType',
   });
+
+  const viewingLocation = useWatch({ control, name: 'viewingLocation' });
+
   useEffect(() => {
     resetMovieScreeningForm({
       watchedAt: screening?.watchedAt?.slice(0, 10) ?? '',
@@ -249,6 +371,75 @@ export function MovieDetailModal({
       rating: screening?.rating ?? null,
     });
   }, [screening, resetMovieScreeningForm]);
+
+  useEffect(() => {
+    const query = viewingLocation.trim();
+
+    if (!isLocationFocused || !accessToken || isSubmitting || query.length < 2) {
+      return;
+    }
+
+    const token = accessToken;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      async function loadLocations() {
+        setSearchingPlacesQuery(query);
+        try {
+          const results = await searchPlacesRequest(token, query);
+
+          if (!cancelled) {
+            setLocationSuggestions(results);
+            setLocationSuggestionsQuery(query);
+          }
+        } catch {
+          if (!cancelled) setLocationSuggestions([]);
+        } finally {
+          if (!cancelled) {
+            setSearchingPlacesQuery((currentQuery) =>
+              currentQuery === query ? '' : currentQuery,
+            );
+          }
+        }
+      }
+      void loadLocations();
+    }, 300);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [
+    accessToken,
+    isLocationFocused,
+    isSubmitting,
+    recentLocations,
+    viewingLocation,
+  ]);
+
+  const recentLocationMatches = getRecentLocationMatches(
+    recentLocations,
+    viewingLocation.trim(),
+  );
+  const isSearchingPlaces =
+    searchingPlacesQuery === viewingLocation.trim() &&
+    searchingPlacesQuery.length >= 2;
+  const visibleLocationSuggestions = (
+    isLocationFocused
+      ? viewingLocation.trim().length < 2 ||
+        locationSuggestionsQuery !== viewingLocation.trim()
+        ? recentLocationMatches
+        : mergeLocationSuggestions(recentLocationMatches, locationSuggestions)
+      : []
+  ) as PlaceSearchResult[];
+
+  function handleLocationSelect(location: PlaceSearchResult) {
+    setValue('viewingLocation', location.name, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    rememberLocation(location);
+    setIsLocationFocused(false);
+    setLocationSuggestions([]);
+  }
 
   const handleSaveViewingDetails = handleSubmit(
     async (values: MovieScreeningFormValues) => {
@@ -279,6 +470,8 @@ export function MovieDetailModal({
           screening.tmdbId,
           details,
         );
+
+        rememberLocation(values.viewingLocation);
 
         onSaved?.(details);
       } catch {
@@ -476,7 +669,6 @@ export function MovieDetailModal({
                     ariaLabel="플랫폼 선택"
                     disabled={isSubmitting}
                     onChange={(value) => {
-
                       if (value === 'other') {
                         setValue('viewingPlatformMode', 'custom', {
                           shouldDirty: true,
@@ -518,9 +710,51 @@ export function MovieDetailModal({
                     placeholder="CGV 압구정, 집 등"
                     maxLength={100}
                     disabled={isSubmitting}
+                    onFocus={() => setIsLocationFocused(true)}
+                    onBlur={() => {
+                      window.setTimeout(() => setIsLocationFocused(false), 0);
+                    }}
                   />
                   {errors.viewingLocation?.message ? (
                     <small role="alert">{errors.viewingLocation.message}</small>
+                  ) : null}
+                  {isSearchingPlaces ? (
+                    <small className="movie-detail-location-status">
+                      장소를 찾는 중…
+                    </small>
+                  ) : null}
+
+                  {!isSearchingPlaces && visibleLocationSuggestions.length > 0 ? (
+                    <div
+                      className="movie-detail-location-suggestions"
+                      role="listbox"
+                      aria-label="관람 장소 추천"
+                    >
+                      {visibleLocationSuggestions.map((location) => (
+                        <button
+                          key={location.id}
+                          type="button"
+                          role="option"
+                          aria-selected={false}
+                          className="movie-detail-location-option"
+                          onPointerDown={(event) => {
+                            event.preventDefault();
+                            handleLocationSelect(location);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              handleLocationSelect(location);
+                            }
+                          }}
+                        >
+                          <strong>{location.name}</strong>
+                          <span>
+                            {location.roadAddress || location.address}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   ) : null}
                 </label>
 
