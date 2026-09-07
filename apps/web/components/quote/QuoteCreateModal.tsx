@@ -8,6 +8,7 @@ import { Film, Plus, Search, X } from 'lucide-react';
 import type { GachaMovie } from '@cinemo/shared';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import '../../app/styles/quote.css';
+import { MovieQuoteSuggestion } from '@/lib/ai-api';
 
 const quoteSchema = z.object({
   tmdbId: z.number().int().positive('영화를 먼저 선택하세요.'),
@@ -16,6 +17,8 @@ const quoteSchema = z.object({
     .trim()
     .min(1, '명대사를 입력하세요.')
     .max(1000, '명대사는 1000자까지 입력할 수 있습니다.'),
+  originalText: z.string().nullable(),
+  originalLanguage: z.string().nullable(),
   usePosterBackground: z.boolean(),
 });
 
@@ -32,8 +35,14 @@ type QuoteCreateModalProps = {
   onSubmit: (input: {
     tmdbId: number;
     text: string;
+    originalText: string | null;
+    originalLanguage: string | null;
     usePosterBackground: boolean;
   }) => void | Promise<void>;
+  quoteSuggestions: MovieQuoteSuggestion[];
+  isRecommendingQuotes: boolean;
+  quoteSuggestionError: string | null;
+  onRecommendQuotes: () => void | Promise<void>;
 };
 
 export default function QuoteCreateModal({
@@ -45,6 +54,10 @@ export default function QuoteCreateModal({
   onSearchMovies,
   onSelectMovie,
   onSubmit,
+  quoteSuggestions,
+  quoteSuggestionError,
+  isRecommendingQuotes,
+  onRecommendQuotes,
 }: QuoteCreateModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -54,12 +67,15 @@ export default function QuoteCreateModal({
     setValue,
     setError,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
       tmdbId: selectedMovie?.id ?? 0,
       text: '',
+      originalText: null,
+      originalLanguage: null,
       usePosterBackground: true,
     },
   });
@@ -191,16 +207,73 @@ export default function QuoteCreateModal({
             </p>
           )}
 
+          <div className="quote-suggestion-header">
+            <span>AI 명대사 추천</span>
+
+            <button
+              type="button"
+              className="quote-suggestion-button"
+              onClick={() => void onRecommendQuotes()}
+              disabled={!selectedMovie || isRecommendingQuotes}
+            >
+              {isRecommendingQuotes ? '추천 중…' : '추천받기'}
+            </button>
+          </div>
+
+          {quoteSuggestionError ? (
+            <p className="quote-compose-error" role="alert">
+              {quoteSuggestionError}
+            </p>
+          ) : null}
+
+          {quoteSuggestions.length > 0 ? (
+            <div className="quote-suggestions">
+              {quoteSuggestions.map((suggestion, index) => (
+                <button
+                  key={`${suggestion.originalText}-${index}`}
+                  type="button"
+                  className="quote-suggestion-item"
+                  onClick={() => {
+                    setValue('text', suggestion.koreanText, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                    setValue('originalText', suggestion.originalText);
+                    setValue('originalLanguage', suggestion.originalLanguage);
+                  }}
+                >
+                  <strong>{suggestion.koreanText}</strong>
+
+                  {suggestion.originalText !== suggestion.koreanText ? (
+                    <small>{suggestion.originalText}</small>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
           <label className="quote-compose-label" htmlFor="quote-text">
-            명대사
+            한국어 명대사
           </label>
 
           <textarea
             id="quote-text"
             {...register('text')}
-            placeholder="이 장면의 문장을 남겨보세요."
+            placeholder="한국어 명대사를 입력하세요."
             maxLength={1000}
-            rows={5}
+            rows={4}
+          />
+
+          <label className="quote-compose-label" htmlFor="quote-original-text">
+            원문 대사
+          </label>
+
+          <textarea
+            id="quote-original-text"
+            {...register('originalText')}
+            placeholder="영화의 원문 대사를 입력하세요."
+            maxLength={1000}
+            rows={3}
           />
 
           {errors.text && (
@@ -232,10 +305,16 @@ export default function QuoteCreateModal({
 
             <div className="quote-compose-preview-content">
               <p>
-                {selectedMovie
-                  ? '명대사가 여기에 기록됩니다.'
-                  : '영화를 선택하세요.'}
+                {watch('text') ||
+                  (selectedMovie
+                    ? '명대사를 입력하세요.'
+                    : '영화를 선택하세요.')}
               </p>
+
+              {watch('originalText') ? (
+                <small>{watch('originalText')}</small>
+              ) : null}
+
               <small>{selectedMovie?.title || 'QUOTE FILM'}</small>
             </div>
 

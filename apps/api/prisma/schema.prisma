@@ -58,22 +58,22 @@ enum UserMovieViewingType {
 }
 
 model UserMovie {
-    id              String                @id @default(uuid(7)) @db.Uuid
-    userId          String                @map("user_id") @db.Uuid
-    tmdbId          Int                   @map("tmdb_id")
-    kind            UserMovieKind
-    watchedAt       DateTime?             @map("watched_at") @db.Timestamptz(3)
-    viewingType     UserMovieViewingType? @map("viewing_type")
-    viewingTypeCustom String?              @map("viewing_type_custom") @db.VarChar(100)
-    viewingPlatform String?               @map("viewing_platform") @db.VarChar(40)
-    viewingLocation String?               @map("viewing_location") @db.VarChar(100)
-    review          String?               @db.Text
-    rating          Int?                  @db.SmallInt
-    isDisplayed     Boolean               @default(false) @map("is_displayed")
-    displayOrder    Int?                  @map("display_order")
-    wallSlot        Int?                  @map("wall_slot")
-    createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt       DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+    id                String                @id @default(uuid(7)) @db.Uuid
+    userId            String                @map("user_id") @db.Uuid
+    tmdbId            Int                   @map("tmdb_id")
+    kind              UserMovieKind
+    watchedAt         DateTime?             @map("watched_at") @db.Timestamptz(3)
+    viewingType       UserMovieViewingType? @map("viewing_type")
+    viewingTypeCustom String?               @map("viewing_type_custom") @db.VarChar(100)
+    viewingPlatform   String?               @map("viewing_platform") @db.VarChar(40)
+    viewingLocation   String?               @map("viewing_location") @db.VarChar(100)
+    review            String?               @db.Text
+    rating            Int?                  @db.SmallInt
+    isDisplayed       Boolean               @default(false) @map("is_displayed")
+    displayOrder      Int?                  @map("display_order")
+    wallSlot          Int?                  @map("wall_slot")
+    createdAt         DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt         DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
 
     user User @relation(fields: [userId], references: [id])
 
@@ -364,7 +364,9 @@ model QuotePost {
     userId              String   @map("user_id") @db.Uuid
     tmdbId              Int      @map("tmdb_id")
     movieTitle          String?  @map("movie_title")
-    text                String   @db.VarChar(1000)
+    text                String   @db.Text
+    originalText        String?  @map("original_text") @db.Text
+    originalLanguage    String?  @map("original_language") @db.Text
     usePosterBackground Boolean  @default(true) @map("use_poster_background")
     createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
     updaatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)

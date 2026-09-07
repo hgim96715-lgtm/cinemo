@@ -8,6 +8,7 @@ import { Film, Save, X } from 'lucide-react';
 import type { QuotePostItem } from '@cinemo/shared';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import '../../app/styles/quote.css';
+import type { MovieQuoteSuggestion } from '@/lib/ai-api';
 
 const quoteEditSchema = z.object({
   text: z
@@ -15,6 +16,8 @@ const quoteEditSchema = z.object({
     .trim()
     .min(1, '명대사를 입력하세요.')
     .max(1000, '명대사는 1000자까지 입력할 수 있습니다.'),
+  originalText: z.string().nullable().optional(),
+  originalLanguage: z.string().nullable().optional(),
   usePosterBackground: z.boolean(),
 });
 
@@ -26,8 +29,14 @@ type QuoteEditModalProps = {
   onClose: () => void;
   onSubmit: (input: {
     text: string;
+    originalText: string | null;
+    originalLanguage: string | null;
     usePosterBackground: boolean;
   }) => void | Promise<void>;
+  quoteSuggestions: MovieQuoteSuggestion[];
+  isRecommendingQuotes: boolean;
+  quoteSuggestionError: string | null;
+  onRecommendQuotes: () => void | Promise<void>;
 };
 
 export default function QuoteEditModal({
@@ -35,17 +44,24 @@ export default function QuoteEditModal({
   quote,
   onClose,
   onSubmit,
+  quoteSuggestions,
+  isRecommendingQuotes,
+  quoteSuggestionError,
+  onRecommendQuotes,
 }: QuoteEditModalProps) {
   const {
     register,
     handleSubmit,
     reset,
     setError,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<QuoteEditFormValues>({
     resolver: zodResolver(quoteEditSchema),
     defaultValues: {
       text: '',
+      originalText: null,
+      originalLanguage: null,
       usePosterBackground: true,
     },
   });
@@ -57,13 +73,20 @@ export default function QuoteEditModal({
 
     reset({
       text: quote.text,
+      originalText: quote.originalText ?? null,
+      originalLanguage: quote.originalLanguage ?? null,
       usePosterBackground: quote.usePosterBackground,
     });
   }, [quote, isOpen, reset]);
 
   const handleSave: SubmitHandler<QuoteEditFormValues> = async (values) => {
     try {
-      await onSubmit(values);
+      await onSubmit({
+        text: values.text.trim(),
+        originalText: values.originalText?.trim() || null,
+        originalLanguage: values.originalLanguage?.trim() || null,
+        usePosterBackground: values.usePosterBackground,
+      });
       onClose();
     } catch {
       setError('root.server', {
@@ -118,20 +141,89 @@ export default function QuoteEditModal({
           onSubmit={handleSubmit(handleSave)}
         >
           <label className="quote-compose-label" htmlFor="quote-edit-text">
-            명대사
+            한국어 명대사
           </label>
+
+          <div className="quote-suggestion-header">
+            <span>AI 명대사 추천</span>
+
+            <button
+              type="button"
+              className="quote-suggestion-button"
+              onClick={() => void onRecommendQuotes()}
+              disabled={isRecommendingQuotes}
+            >
+              {isRecommendingQuotes ? '추천 중…' : '추천받기'}
+            </button>
+          </div>
+
+          {quoteSuggestionError ? (
+            <p className="quote-compose-error" role="alert">
+              {quoteSuggestionError}
+            </p>
+          ) : null}
+
+          {quoteSuggestions.length > 0 ? (
+            <div className="quote-suggestions">
+              {quoteSuggestions.map((suggestion, index) => (
+                <button
+                  key={`${suggestion.originalText}-${index}`}
+                  type="button"
+                  className="quote-suggestion-item"
+                  onClick={() => {
+                    reset({
+                      text: suggestion.koreanText,
+                      originalText:
+                        suggestion.originalText !== suggestion.koreanText
+                          ? suggestion.originalText
+                          : null,
+                      originalLanguage: suggestion.originalLanguage || null,
+                      usePosterBackground: quote?.usePosterBackground ?? true,
+                    });
+                  }}
+                >
+                  <strong>{suggestion.koreanText}</strong>
+
+                  {suggestion.originalText !== suggestion.koreanText ? (
+                    <small>{suggestion.originalText}</small>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           <textarea
             id="quote-edit-text"
             {...register('text')}
-            placeholder="이 장면의 문장을 남겨보세요."
+            placeholder="한국어 명대사를 입력하세요."
             maxLength={1000}
-            rows={5}
+            rows={4}
           />
 
           {errors.text && (
             <p className="quote-compose-error" role="alert">
               {errors.text.message}
+            </p>
+          )}
+
+          <label
+            className="quote-compose-label"
+            htmlFor="quote-edit-original-text"
+          >
+            원문 대사
+          </label>
+
+          <textarea
+            id="quote-edit-original-text"
+            {...register('originalText')}
+            placeholder="영화의 원문 대사를 입력하세요."
+            maxLength={1000}
+            rows={3}
+          />
+
+          {errors.originalText && (
+            <p className="quote-compose-error" role="alert">
+              {errors.originalText.message}
             </p>
           )}
 
@@ -157,7 +249,10 @@ export default function QuoteEditModal({
             </div>
 
             <div className="quote-compose-preview-content">
-              <p>{quote.text}</p>
+              <p>{watch('text') || quote.text}</p>
+              {watch('originalText') ? (
+                <small>{watch('originalText')}</small>
+              ) : null}
               <small>{quote.movie?.title ?? 'QUOTE FILM'}</small>
             </div>
 

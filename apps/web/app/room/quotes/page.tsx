@@ -173,7 +173,7 @@ export default function SavedQuotePage() {
         ) : (
           <div className="quote-film quote-film--grid">
             <div className="quote-film-track" role="list">
-              {quotes.map((quote) => {
+              {quotes.map((quote, index) => {
                 const poster = quote.usePosterBackground
                   ? tmdbPosterUrl(quote.movie.poster_path, 'w342')
                   : null;
@@ -198,7 +198,7 @@ export default function SavedQuotePage() {
                         alt=""
                         fill
                         sizes="(max-width: 30rem) calc(100vw - 1.3rem), (max-width: 48rem) 46vw, (max-width: 72rem) 30vw, 23vw"
-                        loading="lazy"
+                        loading={index === 0 ? 'eager' : 'lazy'}
                         decoding="async"
                       />
                     ) : null}
@@ -210,11 +210,25 @@ export default function SavedQuotePage() {
                     />
                     <div className="quote-film-frame-content">
                       <p
-                        className={`quote-film-text${quote.text.length > 36 ? ' quote-film-text--long' : ''}${quote.text.length > 72 ? ' quote-film-text--extra-long' : ''}`}
-                        title={quote.text}
+                        className={`quote-film-text${
+                          quote.text.length > 36 ? ' quote-film-text--long' : ''
+                        }${
+                          quote.text.length > 72
+                            ? ' quote-film-text--extra-long'
+                            : ''
+                        }`}
                       >
                         {quote.text}
                       </p>
+
+                      {quote.originalText &&
+                      quote.originalText !== quote.text ? (
+                        <div className="quote-film-original-wrap">
+                          <small className="quote-film-original-text">
+                            {quote.originalText}
+                          </small>
+                        </div>
+                      ) : null}
 
                       <footer className="quote-film-meta">
                         <strong>{quote.movie.title}</strong>

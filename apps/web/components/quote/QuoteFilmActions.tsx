@@ -1,6 +1,6 @@
 'use client';
 
-import { Bookmark, Ellipsis, Pencil, Trash2 } from 'lucide-react';
+import { Bookmark, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 type QuoteFilmActionsProps = {
@@ -54,7 +54,7 @@ export default function QuoteFilmActions({
         className="quote-film-actions-trigger"
         aria-label="명대사 메뉴 열기"
       >
-        <Ellipsis size={18} strokeWidth={1.7} aria-hidden />
+        <MoreHorizontal size={16} strokeWidth={1.8} aria-hidden />
       </summary>
 
       <div className="quote-film-actions-menu" role="menu">
@@ -75,20 +75,36 @@ export default function QuoteFilmActions({
           {isSaved ? '저장 취소' : '저장하기'}
         </button>
 
-        {canManage && onDelete && (
-          <button
-            type="button"
-            role="menuitem"
-            className="quote-film-actions-delete"
-            onClick={() => {
-              closeMenu();
-              onDelete();
-            }}
-          >
-            <Trash2 size={15} aria-hidden />
-            삭제하기
-          </button>
-        )}
+        {canManage ? (
+          <>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                closeMenu();
+                onEdit();
+              }}
+            >
+              <Pencil size={15} strokeWidth={1.7} aria-hidden />
+              수정하기
+            </button>
+
+            {onDelete ? (
+              <button
+                type="button"
+                role="menuitem"
+                className="quote-film-actions-delete"
+                onClick={() => {
+                  closeMenu();
+                  onDelete();
+                }}
+              >
+                <Trash2 size={15} aria-hidden />
+                삭제하기
+              </button>
+            ) : null}
+          </>
+        ) : null}
       </div>
     </details>
   );

@@ -19,6 +19,18 @@ export class CreateQuotePostDto {
   @MaxLength(1000)
   text: string;
 
+  @ApiPropertyOptional({ example: 'Tomorrow is another day.' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  originalText?: string | null;
+
+  @ApiPropertyOptional({ example: 'English' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  originalLanguage?: string | null;
+
   @ApiPropertyOptional({ default: true })
   @IsBoolean()
   @IsOptional()

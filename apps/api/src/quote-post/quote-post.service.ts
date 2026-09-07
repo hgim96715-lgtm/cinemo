@@ -102,6 +102,8 @@ export class QuotePostService {
         authorId: quote.userId,
         tmdbId: quote.tmdbId,
         text: quote.text,
+        originalText: quote.originalText,
+        originalLanguage: quote.originalLanguage,
         usePosterBackground: quote.usePosterBackground,
         nickname: quote.user.nickname,
         createdAt: quote.createdAt.toISOString(),
@@ -110,7 +112,7 @@ export class QuotePostService {
       })),
     ).then((items) => ({
       items,
-      nextCursor: rows.length > take ? pageRows.at(-1)?.id ?? null : null,
+      nextCursor: rows.length > take ? (pageRows.at(-1)?.id ?? null) : null,
     }));
   }
 
@@ -193,6 +195,8 @@ export class QuotePostService {
         authorId: quotePost.userId,
         tmdbId: quotePost.tmdbId,
         text: quotePost.text,
+        originalText: quotePost.originalText,
+        originalLanguage: quotePost.originalLanguage,
         usePosterBackground: quotePost.usePosterBackground,
         nickname: quotePost.user.nickname,
         createdAt: quotePost.createdAt.toISOString(),
@@ -202,7 +206,7 @@ export class QuotePostService {
     ).then((items) => ({
       items,
       nextCursor:
-        bookmarks.length > take ? pageBookmarks.at(-1)?.id ?? null : null,
+        bookmarks.length > take ? (pageBookmarks.at(-1)?.id ?? null) : null,
     }));
   }
 
@@ -217,6 +221,8 @@ export class QuotePostService {
         tmdbId: dto.tmdbId,
         movieTitle: movie.title,
         text,
+        originalText: dto.originalText?.trim() || null,
+        originalLanguage: dto.originalLanguage?.trim() || null,
         usePosterBackground: dto.usePosterBackground ?? true,
       },
       include: {
@@ -229,6 +235,8 @@ export class QuotePostService {
       authorId: quote.userId,
       tmdbId: quote.tmdbId,
       text: quote.text,
+      originalText: quote.originalText,
+      originalLanguage: quote.originalLanguage,
       isSaved: false,
       usePosterBackground: quote.usePosterBackground,
       nickname: quote.user.nickname,
@@ -242,6 +250,8 @@ export class QuotePostService {
       tmdbId?: number;
       movieTitle?: string;
       text?: string;
+      originalText?: string | null;
+      originalLanguage?: string | null;
       usePosterBackground?: boolean;
     } = {};
     let movie: Awaited<ReturnType<TmdbService['getMovieCached']>> | null = null;
@@ -254,6 +264,12 @@ export class QuotePostService {
       const text = dto.text.trim();
       if (!text) throw new BadRequestException('명대사를 입력해야 합니다.');
       data.text = text;
+    }
+    if (dto.originalText !== undefined) {
+      data.originalText = dto.originalText?.trim() || null;
+    }
+    if (dto.originalLanguage !== undefined) {
+      data.originalLanguage = dto.originalLanguage?.trim() || null;
     }
     if (dto.usePosterBackground !== undefined) {
       data.usePosterBackground = dto.usePosterBackground;
@@ -278,12 +294,13 @@ export class QuotePostService {
       authorId: quote.userId,
       tmdbId: quote.tmdbId,
       text: quote.text,
+      originalText: quote.originalText,
+      originalLanguage: quote.originalLanguage,
       isSaved: false,
       usePosterBackground: quote.usePosterBackground,
       nickname: quote.user.nickname,
       createdAt: quote.createdAt.toISOString(),
-      movie:
-        movie ?? (await this.tmdbService.getMovieCached(quote.tmdbId)),
+      movie: movie ?? (await this.tmdbService.getMovieCached(quote.tmdbId)),
     };
   }
 

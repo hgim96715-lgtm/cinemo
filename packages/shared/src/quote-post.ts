@@ -5,6 +5,8 @@ export type QuotePostItem = {
   authorId: string;
   tmdbId: number;
   text: string;
+  originalText: string | null;
+  originalLanguage: string | null;
   usePosterBackground: boolean;
   nickname: string;
   createdAt: string;
@@ -20,5 +22,7 @@ export type QuotePostPage = {
 export type CreateQuotePostInput = {
   tmdbId: number;
   text: string;
+  originalText?: string | null;
+  originalLanguage?: string | null;
   usePosterBackground: boolean;
 };

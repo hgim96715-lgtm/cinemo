@@ -2,16 +2,25 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Anthropic from '@anthropic-ai/sdk';
 import { EnvKeys } from '../config/env.keys';
-import type { IAiProvider } from './ai.interface';
+import type {
+  IAiProvider,
+  MovieQuoteSuggestion,
+  RecommendMovieQuotesInput,
+} from './ai.interface';
 
 @Injectable()
 export class ClaudeService implements IAiProvider {
   private readonly logger = new Logger(ClaudeService.name);
   private readonly claudeClient: Anthropic;
+  private readonly model: string;
+
   constructor(private readonly configService: ConfigService) {
     this.claudeClient = new Anthropic({
       apiKey: this.configService.getOrThrow(EnvKeys.CLAUDE_KEY),
     });
+    this.model =
+      this.configService.get<string>(EnvKeys.CLAUDE_MODEL) ??
+      'claude-haiku-4-5';
   }
 
   async translateOverview(
@@ -20,7 +29,7 @@ export class ClaudeService implements IAiProvider {
   ): Promise<string | null> {
     try {
       const msg = await this.claudeClient.messages.create({
-        model: 'claude-haiku-4-5',
+        model: this.model,
         max_tokens: 512,
         messages: [
           {
@@ -44,7 +53,7 @@ export class ClaudeService implements IAiProvider {
   async koreanTitle(titleEn: string, year: string): Promise<string | null> {
     try {
       const msg = await this.claudeClient.messages.create({
-        model: 'claude-haiku-4-5',
+        model: this.model,
         max_tokens: 64,
         messages: [
           {
@@ -77,7 +86,7 @@ export class ClaudeService implements IAiProvider {
   async koreanDirector(name: string): Promise<string | null> {
     try {
       const msg = await this.claudeClient.messages.create({
-        model: 'claude-haiku-4-5',
+        model: this.model,
         max_tokens: 32,
         messages: [
           {
@@ -99,5 +108,71 @@ export class ClaudeService implements IAiProvider {
       );
       return null;
     }
+  }
+
+  async recommendMovieQuotes(
+    input: RecommendMovieQuotesInput,
+  ): Promise<MovieQuoteSuggestion[]> {
+    const message = await this.claudeClient.messages.create({
+      model: this.model,
+      max_tokens: 1200,
+      messages: [
+        {
+          role: 'user',
+          content: `
+          영화에 실제로 등장한 짧은 명대사만 반환함.
+
+          영화 제목: ${input.title}
+          개봉 연도: ${input.releaseYear ?? '알 수 없음'}
+          줄거리: ${input.overview ?? '없음'}
+
+          반드시 지킬 규칙:
+          - 영화 속 실제 대사라고 확신할 수 있는 문장만 작성함
+          - 영화의 주제나 분위기를 요약한 문장은 작성하지 않음
+          - 대사를 새로 만들거나 감성적으로 각색하지 않음
+          - originalText는 실제 영화 대사의 원문을 작성함
+          - koreanText는 originalText의 자연스러운 번역만 작성함
+          - originalText와 koreanText의 의미가 달라지면 안 됨
+          - "인생이 아름답다", "다시 시작할 수 있다"처럼 주제를 요약한 문장은 제외함
+          - 실제 대사를 확인할 수 없으면 추측하지 말고 quotes를 빈 배열로 반환함
+          - 출처를 확인하지 못했으면 source는 null로 작성함
+          - 인기 여부를 확인하지 못했으면 isPopular는 false로 작성함
+          - 최대 3개까지만 반환함
+
+          반드시 아래 JSON만 반환함:
+          {
+            "quotes": [
+              {
+                "originalText": "영화 속 실제 원문",
+                "koreanText": "원문의 자연스러운 한국어 번역",
+                "originalLanguage": "English",
+                "isPopular": false,
+                "source": null
+              }
+            ]
+          }
+          `,
+        },
+      ],
+    });
+
+    const textBlock = message.content.find(
+      (content) => content.type === 'text',
+    );
+
+    if (!textBlock || textBlock.type !== 'text') {
+      return [];
+    }
+    const jsonText = textBlock.text
+      .trim()
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim();
+
+    const parsed = JSON.parse(jsonText) as {
+      quotes: MovieQuoteSuggestion[];
+    };
+
+    return parsed.quotes;
   }
 }

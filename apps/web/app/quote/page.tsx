@@ -4,7 +4,6 @@ import {
   useDeferredValue,
   useEffect,
   useState,
-  type CSSProperties,
 } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -27,6 +26,10 @@ import '../styles/lobby.css';
 import QuoteEditModal from '@/components/quote/QuoteEditModal';
 import QuoteFilmActions from '@/components/quote/QuoteFilmActions';
 import QuoteActionModal from '@/components/quote/QuoteActionModal';
+import {
+  MovieQuoteSuggestion,
+  recommendMovieQuotesRequest,
+} from '@/lib/ai-api';
 
 export default function QuotePage() {
   const pageSize = 24;
@@ -55,6 +58,15 @@ export default function QuotePage() {
 
   const [quoteSearch, setQuoteSearch] = useState('');
   const deferredQuoteSearch = useDeferredValue(quoteSearch);
+
+  // ai
+  const [quoteSuggestions, setQuoteSuggestions] = useState<
+    MovieQuoteSuggestion[]
+  >([]);
+  const [isRecommendingQuotes, setIsRecommendingQuotes] = useState(false);
+  const [quoteSuggestionError, setQuoteSuggestionError] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -141,6 +153,8 @@ export default function QuotePage() {
   async function handleCreateQuote(input: {
     tmdbId: number;
     text: string;
+    originalText: string | null;
+    originalLanguage: string | null;
     usePosterBackground: boolean;
   }) {
     if (!accessToken) throw new Error('로그인이 필요합니다.');
@@ -148,6 +162,8 @@ export default function QuotePage() {
     const createQuote = await createQuotePostRequest(accessToken, {
       tmdbId: input.tmdbId,
       text: input.text,
+      originalText: input.originalText,
+      originalLanguage: input.originalLanguage,
       usePosterBackground: input.usePosterBackground,
     });
 
@@ -155,10 +171,14 @@ export default function QuotePage() {
     setIsCreateOpen(false);
     setSelectedMovie(null);
     setMovieSearchResults([]);
+    setQuoteSuggestions([]);
+    setQuoteSuggestionError(null);
   }
 
   async function handleEditQuote(input: {
     text: string;
+    originalText: string | null;
+    originalLanguage: string | null;
     usePosterBackground: boolean;
   }) {
     if (!accessToken || !editingQuote) {
@@ -176,7 +196,8 @@ export default function QuotePage() {
         quote.id === updatedQuote.id ? updatedQuote : quote,
       ),
     );
-    setEditingQuote(null);
+    setQuoteSuggestions([]);
+    setQuoteSuggestionError(null);
   }
 
   async function handleDeleteQuote(id: string) {
@@ -218,6 +239,30 @@ export default function QuotePage() {
     } catch (error) {
       console.error('[QuotePage] 명대사 저장 실패:', error);
       setActionError('명대사를 저장하지 못했어요. 잠시 후 다시 시도해주세요.');
+    }
+  }
+
+  async function handleRecommendMovieQuotes(
+    movie = selectedMovie,
+  ) {
+    if (!accessToken || !movie) return;
+    setIsRecommendingQuotes(true);
+    setQuoteSuggestionError(null);
+
+    try {
+      const suggestions = await recommendMovieQuotesRequest(accessToken, {
+        title: movie.title,
+        releaseYear: movie.release_date
+          ? Number(movie.release_date.slice(0, 4))
+          : null,
+        overview: movie.overview ?? null,
+      });
+      setQuoteSuggestions(suggestions);
+    } catch {
+      setQuoteSuggestions([]);
+      setQuoteSuggestionError('명대사 추천을 불러오지 못했어요.');
+    } finally {
+      setIsRecommendingQuotes(false);
     }
   }
 
@@ -327,23 +372,24 @@ export default function QuotePage() {
                 </span>
               </button>
 
-              {quotes.map((quote) => {
+              {quotes.map((quote, quoteIndex) => {
                 const poster = quote.usePosterBackground
                   ? tmdbPosterUrl(quote.movie.poster_path, 'w342')
                   : null;
+                const translatedText = quote.text.trim();
+                const originalText = quote.originalText?.trim() ?? '';
+                const hasOriginalText =
+                  originalText.length > 0 && originalText !== translatedText;
 
                 return (
                   <article
                     key={quote.id}
-                    className="quote-film-frame"
+                    className={`quote-film-frame${
+                      hasOriginalText
+                        ? ' quote-film-frame--has-original'
+                        : ' quote-film-frame--korean-only'
+                    }`}
                     role="listitem"
-                    style={
-                      poster
-                        ? ({
-                            '--quote-poster-image': `url("${poster}")`,
-                          } as CSSProperties)
-                        : undefined
-                    }
                   >
                     {poster ? (
                       <Image
@@ -352,7 +398,7 @@ export default function QuotePage() {
                         alt=""
                         fill
                         sizes="(max-width: 30rem) calc(100vw - 1.3rem), (max-width: 48rem) 46vw, (max-width: 72rem) 30vw, 23vw"
-                        loading="lazy"
+                        loading={quoteIndex === 0 ? 'eager' : 'lazy'}
                         decoding="async"
                       />
                     ) : null}
@@ -361,15 +407,36 @@ export default function QuotePage() {
                         canManage={currentUserId === quote.authorId}
                         isSaved={quote.isSaved}
                         onSave={() => void handleToggleSaveQuote(quote)}
-                        onEdit={() => setEditingQuote(quote)}
+                        onEdit={() => {
+                          setQuoteSuggestions([]);
+                          setQuoteSuggestionError(null);
+                          setEditingQuote(quote);
+                        }}
                         onDelete={() => setDeletingQuote(quote)}
                       />
-                      <p
-                        className={`quote-film-text${quote.text.length > 36 ? ' quote-film-text--long' : ''}${quote.text.length > 72 ? ' quote-film-text--extra-long' : ''}`}
-                        title={quote.text}
-                      >
-                        {quote.text}
-                      </p>
+                      <div className="quote-film-copy">
+                        <p
+                          className={`quote-film-text${
+                            quote.text.length > 36
+                              ? ' quote-film-text--long'
+                              : ''
+                          }${
+                            quote.text.length > 72
+                              ? ' quote-film-text--extra-long'
+                              : ''
+                          }`}
+                        >
+                          {quote.text}
+                        </p>
+
+                        {hasOriginalText ? (
+                          <div className="quote-film-original-wrap">
+                            <small className="quote-film-original-text">
+                              {originalText}
+                            </small>
+                          </div>
+                        ) : null}
+                      </div>
 
                       <footer className="quote-film-meta">
                         <strong>{quote.movie.title}</strong>
@@ -400,9 +467,15 @@ export default function QuotePage() {
         movies={movieSearchResults}
         selectedMovie={selectedMovie}
         isSearching={isSearchingMovies}
+        quoteSuggestions={quoteSuggestions}
+        isRecommendingQuotes={isRecommendingQuotes}
+        quoteSuggestionError={quoteSuggestionError}
+        onRecommendQuotes={handleRecommendMovieQuotes}
         onClose={() => {
           setIsCreateOpen(false);
           setMovieSearchResults([]);
+          setQuoteSuggestions([]);
+          setQuoteSuggestionError(null);
         }}
         onSearchMovies={handleSearchMovies}
         onSelectMovie={handleSelectMovie}
@@ -411,8 +484,18 @@ export default function QuotePage() {
       <QuoteEditModal
         isOpen={editingQuote !== null}
         quote={editingQuote}
-        onClose={() => setEditingQuote(null)}
+        onClose={() => {
+          setEditingQuote(null);
+          setQuoteSuggestions([]);
+          setQuoteSuggestionError(null);
+        }}
         onSubmit={handleEditQuote}
+        quoteSuggestions={quoteSuggestions}
+        isRecommendingQuotes={isRecommendingQuotes}
+        quoteSuggestionError={quoteSuggestionError}
+        onRecommendQuotes={() =>
+          void handleRecommendMovieQuotes(editingQuote?.movie ?? null)
+        }
       />
       <QuoteActionModal
         isOpen={deletingQuote !== null}

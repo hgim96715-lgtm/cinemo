@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { ClaudeService } from './claude.service';
 import { AiService } from './ai.service';
 import { AI_PROVIDER } from './ai.interface';
+import { OpenAiService } from './openai.service';
 
 @Module({
   providers: [
-    { provide: AI_PROVIDER, useClass: ClaudeService }, // ← GPT로 바꾸려면 여기만 수정
+    { provide: AI_PROVIDER, useClass: ClaudeService },
+    // { provide: AI_PROVIDER, useClass: OpenAiService },
     AiService,
   ],
   exports: [AiService],
