@@ -180,6 +180,52 @@ async function runUserActivity(
   }
 
   const template = pickReview(personas);
+  await deps.prisma.userMovie.upsert({
+    where: {
+      userId_tmdbId_kind: {
+        userId,
+        tmdbId,
+        kind: 'watched',
+      },
+    },
+    create: {
+      userId,
+      tmdbId,
+      kind: 'watched',
+      watchedAt: new Date(),
+      viewingType: 'theater',
+      viewingLocation: 'CINEMO',
+      review: template.body,
+      rating: template.rating,
+    },
+    update: {},
+  });
+
+  const upcomingMovies = await deps.prisma.moviePool.findMany({
+    where: { releaseDate: { gte: kstDateKey() } },
+    orderBy: { releaseDate: 'asc' },
+    take: 30,
+    select: { tmdbId: true },
+  });
+  const wishMovie = upcomingMovies[0];
+  if (wishMovie) {
+    await deps.prisma.userMovie.upsert({
+      where: {
+        userId_tmdbId_kind: {
+          userId,
+          tmdbId: wishMovie.tmdbId,
+          kind: 'wish',
+        },
+      },
+      create: {
+        userId,
+        tmdbId: wishMovie.tmdbId,
+        kind: 'wish',
+      },
+      update: {},
+    });
+  }
+
   await deps.review.create(userId, {
     tmdbId,
     body: template.body,

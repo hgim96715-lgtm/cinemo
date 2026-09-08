@@ -1110,53 +1110,107 @@
 }
 
 /* 공개 예정작 페이지 */
+.upcoming-lobby {
+  height: auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.upcoming-lobby .lobby-stage {
+  max-height: none;
+}
+
 .upcoming-page {
   width: 100%;
   min-height: 100dvh;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
 }
-  
-  .upcoming-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--lobby-muted);
-    font-size: 0.78rem;
-    text-decoration: none;
-  }
-  
-  .upcoming-back-link:hover {
-    color: var(--lobby-gold);
-  }
-  
-  .upcoming-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 3rem 0 1.8rem;
-    text-align: center;
-  }
-  
-  .upcoming-header svg {
-    color: var(--lobby-gold);
-    margin-bottom: 0.35rem;
-  }
-  
-  .upcoming-header h1 {
-    margin: 0;
-    color: var(--lobby-fg);
-    font-family: var(--font-display), Georgia, serif;
-    font-size: clamp(1.55rem, 4vw, 2.2rem);
-    font-weight: 500;
-  }
-  
-  .upcoming-header p:last-child {
-    margin: 0;
-    color: var(--lobby-muted);
-    font-size: 0.85rem;
-  }
+
+.upcoming-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.upcoming-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.3rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--lobby-muted);
+  font-size: 0.76rem;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.upcoming-nav-link:hover {
+  color: var(--lobby-fg);
+  border-color: rgb(212 181 106 / 0.42);
+  background: rgb(212 181 106 / 0.08);
+  transform: translateY(-1px);
+}
+
+.upcoming-nav-link:focus-visible {
+  outline: 2px solid var(--lobby-gold);
+  outline-offset: 3px;
+}
+
+.upcoming-nav-link svg {
+  flex: 0 0 auto;
+  color: var(--lobby-gold);
+}
+
+.upcoming-nav-link--wish {
+  color: #f1dfb0;
+  border-color: rgb(212 181 106 / 0.28);
+  background: rgb(212 181 106 / 0.08);
+}
+
+.upcoming-nav-link--wish:hover {
+  border-color: var(--lobby-gold);
+  background: rgb(212 181 106 / 0.16);
+}
+
+.upcoming-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 3rem 0 1.8rem;
+  text-align: center;
+}
+
+.upcoming-header svg {
+  color: var(--lobby-gold);
+  margin-bottom: 0.35rem;
+}
+
+.upcoming-header h1 {
+  margin: 0;
+  color: var(--lobby-fg);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.55rem, 4vw, 2.2rem);
+  font-weight: 500;
+}
+
+.upcoming-header p:last-child {
+  margin: 0;
+  color: var(--lobby-muted);
+  font-size: 0.85rem;
+}
   
 .upcoming-list {
   width: 100%;
@@ -1287,6 +1341,16 @@
 @media (max-width: 560px) {
   .upcoming-page {
     padding-inline: 0;
+  }
+
+  .upcoming-nav {
+    padding-inline: 0.25rem;
+  }
+
+  .upcoming-nav-link {
+    gap: 0.35rem;
+    padding-inline: 0.55rem;
+    font-size: 0.7rem;
   }
 
   .upcoming-movie-card {

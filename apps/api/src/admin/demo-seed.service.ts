@@ -205,13 +205,17 @@ export class DemoSeedService {
     }
 
     const movies = await this.prisma.moviePool.findMany({
-      select: { tmdbId: true, title: true },
+      select: { tmdbId: true, title: true, releaseDate: true },
       orderBy: { syncedAt: 'desc' },
       take: 200,
     });
     if (movies.length === 0) {
       throw new Error('MoviePool이 비어 있어 demo 뽑기를 만들 수 없습니다.');
     }
+    const upcomingMovies = movies.filter(
+      (movie) => movie.releaseDate && movie.releaseDate >= kstDateKey(now),
+    ).sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
+    const featuredUpcomingMovie = upcomingMovies[0];
 
     for (let index = 0; index < users.length; index += 1) {
       const user = users[index];
@@ -286,6 +290,52 @@ export class DemoSeedService {
         await this.adminService.countIncrement('ticketsUsed', eventAt);
       }
 
+      const selectedMovie = await this.prisma.moviePool.findUnique({
+        where: { tmdbId },
+        select: { title: true },
+      });
+      const movieTitle = selectedMovie?.title ?? movie.title;
+
+      const reviewTemplate = this.pick(personas.reviews, dateKey, index)!;
+      await this.prisma.userMovie.upsert({
+        where: {
+          userId_tmdbId_kind: {
+            userId: user.id,
+            tmdbId,
+            kind: 'watched',
+          },
+        },
+        create: {
+          userId: user.id,
+          tmdbId,
+          kind: 'watched',
+          watchedAt: eventAt,
+          viewingType: 'theater',
+          viewingLocation: 'CINEMO',
+          review: reviewTemplate.body,
+          rating: reviewTemplate.rating,
+        },
+        update: {},
+      });
+
+      if (featuredUpcomingMovie) {
+        await this.prisma.userMovie.upsert({
+          where: {
+            userId_tmdbId_kind: {
+              userId: user.id,
+              tmdbId: featuredUpcomingMovie.tmdbId,
+              kind: 'wish',
+            },
+          },
+          create: {
+            userId: user.id,
+            tmdbId: featuredUpcomingMovie.tmdbId,
+            kind: 'wish',
+          },
+          update: {},
+        });
+      }
+
       const review = await this.prisma.reviewPost.findFirst({
         where: {
           userId: user.id,
@@ -296,13 +346,12 @@ export class DemoSeedService {
         },
       });
       if (!review) {
-        const template = this.pick(personas.reviews, dateKey, index)!;
         await this.prisma.reviewPost.create({
           data: {
             userId: user.id,
             tmdbId,
-            body: template.body,
-            rating: template.rating,
+            body: reviewTemplate.body,
+            rating: reviewTemplate.rating,
             createdAt: eventAt,
             updatedAt: eventAt,
           },
@@ -315,7 +364,7 @@ export class DemoSeedService {
         await this.seedQuote(
           user,
           tmdbId,
-          movie.title,
+          movieTitle,
           dateKey,
           index,
           personas,

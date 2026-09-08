@@ -167,47 +167,14 @@ export class LobbyBoardService {
 
   async getBoard(): Promise<LobbyBoardResponse> {
     const week = kstWeekRange();
-    const today = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/seoul',
-    }).format(new Date());
 
-    const [weekTopMovies, upcomingPool, boxOfficeMovies] = await Promise.all([
+    const [weekTopMovies, upcomingMovies, boxOfficeMovies] = await Promise.all([
       this.weekTopMovies(week.start, week.end),
-      this.prisma.moviePool.findMany({
-        where: { releaseDate: { gte: today } },
-        orderBy: { releaseDate: 'asc' },
-        take: 30,
-        select: {
-          tmdbId: true,
-          title: true,
-          releaseDate: true,
-          posterPath: true,
-        },
-      }),
+      this.getUpcomingMovies(),
       this.getBoxOfficeMovies(),
     ]);
 
-    const upcomingIds = upcomingPool.map((movie) => movie.tmdbId);
-
-    const wishCounts = upcomingIds.length
-      ? await this.prisma.userMovie.groupBy({
-          by: ['tmdbId'],
-          where: { kind: 'wish', tmdbId: { in: upcomingIds } },
-          _count: { tmdbId: true },
-        })
-      : [];
-
-    const countMap = new Map(
-      wishCounts.map((row) => [row.tmdbId, row._count.tmdbId]),
-    );
-    const upcomingInterestMovies = upcomingPool
-      .map((movie) => ({
-        tmdbId: movie.tmdbId,
-        title: movie.title,
-        releaseDate: movie.releaseDate,
-        posterPath: movie.posterPath,
-        interestCount: countMap.get(movie.tmdbId) ?? 0,
-      }))
+    const upcomingInterestMovies = upcomingMovies
       .sort(
         (a, b) =>
           b.interestCount - a.interestCount ||
@@ -254,29 +221,70 @@ export class LobbyBoardService {
     const oneYearLater = new Date(`${today}T00:00:00+09:00`);
     oneYearLater.setUTCDate(oneYearLater.getUTCDate() + 365);
     const until = oneYearLater.toISOString().slice(0, 10);
-    const response = await this.tmdbService.discoverMovies(
-      {
-        region: 'KR',
-        'release_date.gte': today,
-        'release_date.lte': until,
-        with_release_type: '2|3',
-      },
-      1,
-      'ko-KR',
+    const filters = {
+      region: 'KR',
+      'release_date.gte': today,
+      'release_date.lte': until,
+      with_release_type: '2|3',
+    };
+
+    const hasKoreanTitle = (title: string) =>
+      title.trim() !== '' &&
+      !title.includes('정보가 없습니다.') &&
+      /[\uAC00-\uD7A3]/.test(title);
+
+    const responses = await Promise.all(
+      [1, 2, 3].map((page) =>
+        this.tmdbService.discoverMovies(filters, page, 'ko-KR'),
+      ),
     );
 
-    const movies = response.results
+    const movies = responses
+      .flatMap((response) => response.results)
       .filter(
         (movie) =>
           movie.release_date >= today &&
           movie.release_date <= until &&
-          movie.title.trim() !== '' &&
-          !movie.title.includes('정보가 없습니다.') &&
+          hasKoreanTitle(movie.title) &&
+          Boolean(movie.poster_path) &&
           movie.release_date !== '',
       )
       .sort((a, b) => a.release_date.localeCompare(b.release_date));
 
-    const tmdbIds = movies.map((movie) => movie.id);
+    const pooledMovies = await this.prisma.moviePool.findMany({
+      where: {
+        releaseDate: { gte: today, lte: until },
+        title: { not: '' },
+        posterPath: { not: null },
+      },
+      select: {
+        tmdbId: true,
+        title: true,
+        releaseDate: true,
+        posterPath: true,
+      },
+    });
+
+    const movieMap = new Map(
+      movies.map((movie) => [movie.id, {
+        tmdbId: movie.id,
+        title: movie.title,
+        releaseDate: movie.release_date,
+        posterPath: movie.poster_path,
+      }]),
+    );
+
+    for (const movie of pooledMovies) {
+      if (!hasKoreanTitle(movie.title) || !movie.posterPath) continue;
+      if (!movieMap.has(movie.tmdbId)) {
+        movieMap.set(movie.tmdbId, movie);
+      }
+    }
+
+    const upcomingMovies = [...movieMap.values()].sort((a, b) =>
+      a.releaseDate.localeCompare(b.releaseDate),
+    );
+    const tmdbIds = upcomingMovies.map((movie) => movie.tmdbId);
 
     const wishCounts = tmdbIds.length
       ? await this.prisma.userMovie.groupBy({
@@ -295,12 +303,12 @@ export class LobbyBoardService {
       wishCounts.map((row) => [row.tmdbId, row._count.tmdbId]),
     );
 
-    return movies.map((movie) => ({
-      tmdbId: movie.id,
+    return upcomingMovies.map((movie) => ({
+      tmdbId: movie.tmdbId,
       title: movie.title,
-      releaseDate: movie.release_date,
-      posterPath: movie.poster_path,
-      interestCount: countMap.get(movie.id) ?? 0,
+      releaseDate: movie.releaseDate,
+      posterPath: movie.posterPath,
+      interestCount: countMap.get(movie.tmdbId) ?? 0,
     }));
   }
 }

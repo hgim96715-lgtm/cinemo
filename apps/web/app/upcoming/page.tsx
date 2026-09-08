@@ -128,12 +128,19 @@ export default function UpcomingPage() {
   }
 
   return (
-    <main className="lobby lobby--lit">
+    <main className="lobby upcoming-lobby lobby--lit">
       <section className="lobby-stage upcoming-page">
-        <Link href="/" className="upcoming-back-link">
-          <ArrowLeft size={18} aria-hidden />
-          <span>CINEMO LOBBY</span>
-        </Link>
+        <nav className="upcoming-nav" aria-label="개봉 예정 영화 메뉴">
+          <Link href="/" className="upcoming-nav-link upcoming-nav-link--lobby">
+            <ArrowLeft size={17} aria-hidden />
+            <span>CINEMO LOBBY</span>
+          </Link>
+
+          <Link href="/my-cinema/wish" className="upcoming-nav-link upcoming-nav-link--wish">
+            <Heart size={17} aria-hidden />
+            <span>찜한 영화</span>
+          </Link>
+        </nav>
 
         <header className="upcoming-header">
           <CalendarDays size={28} aria-hidden />
