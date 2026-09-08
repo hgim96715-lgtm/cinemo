@@ -38,7 +38,7 @@ function getUpcomingPeriods(): UpcomingPeriod[] {
   const month = Number(parts.find((part) => part.type === 'month')?.value);
   const currentMonth = new Date(Date.UTC(year, month - 1, 1));
 
-  const monthPeriods = [0, 1, 2].map((offset) => {
+  const monthPeriods = [0, 1, 2, 3].map((offset) => {
     const date = new Date(
       Date.UTC(year, currentMonth.getUTCMonth() + offset, 1),
     );
@@ -53,7 +53,9 @@ function getUpcomingPeriods(): UpcomingPeriod[] {
   return [
     { key: 'all', label: '전체' },
     ...monthPeriods,
-    { key: String(year + 1), label: `${year + 1}년` },
+    ...(month === 12
+      ? [{ key: String(year + 1), label: `${year + 1}년` }]
+      : []),
   ];
 }
 

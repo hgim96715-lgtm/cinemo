@@ -104,11 +104,14 @@
 .movie-detail-info h2 {
   max-width: 22ch;
   margin: 0 auto;
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-noto-serif-kr), var(--font-geist-sans), sans-serif;
   font-size: clamp(1.7rem, 5vw, 2.6rem);
-  line-height: 1.1;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
   text-align: center;
   text-wrap: balance;
+  word-break: keep-all;
 }
 
 .movie-detail-genres {
