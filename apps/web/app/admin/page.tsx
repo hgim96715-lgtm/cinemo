@@ -160,6 +160,38 @@ export default function AdminPage() {
             </li>
           </ul>
 
+          <table className="admin-today-table">
+            <caption>오늘 통계</caption>
+            <thead>
+              <tr>
+                <th scope="col">항목</th>
+                <th scope="col">오늘 합계</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">로비 방문</th>
+                <td>{overview?.todayVisitCount ?? 0}명</td>
+              </tr>
+              <tr>
+                <th scope="row">작성된 후기</th>
+                <td>{overview?.reviewCount ?? 0}개</td>
+              </tr>
+              <tr>
+                <th scope="row">익명 후기방 방문</th>
+                <td>{overview?.todayAnonReviewCount ?? 0}명</td>
+              </tr>
+              <tr>
+                <th scope="row">티켓 발급</th>
+                <td>{overview?.todayTicketIssuedCount ?? 0}장</td>
+              </tr>
+              <tr>
+                <th scope="row">카페 이용</th>
+                <td>{overview?.cafeSeatedCount ?? 0}명</td>
+              </tr>
+            </tbody>
+          </table>
+
           <h2 className="admin-section">이번주</h2>
           <p className="admin-sub admin-sub--tight">월–오늘</p>
 

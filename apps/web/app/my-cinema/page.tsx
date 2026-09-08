@@ -12,9 +12,9 @@ import {
 } from '@cinemo/shared';
 import { useAuthStore, type UpdateProfileInput } from '@/lib/auth-store';
 import { updateAvatarRequest, updateProfileRequest } from '@/lib/auth-api';
-import { AvatarFigure } from '@/components/room/AvatarFigure';
-import { WardrobeModal } from '@/components/room/WardrobeModal';
-import { ProfileModal } from '@/components/room/ProfileModal';
+import { AvatarFigure } from '@/components/my-cinema/AvatarFigure';
+import { WardrobeModal } from '@/components/my-cinema/WardrobeModal';
+import { ProfileModal } from '@/components/my-cinema/ProfileModal';
 import {
   addWatchedMovieRequest,
   getUserMovieCountsRequest,
@@ -24,7 +24,7 @@ import {
   updateUserMovieDisplayRequest,
   updateWatchedAtRequest,
 } from '@/lib/user-movie-api';
-import '../styles/room.css';
+import '../styles/my-cinema.css';
 import '../styles/lobby.css';
 import '../styles/avatar.css';
 import '../styles/profile.css';
@@ -42,13 +42,13 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
-import { PosterPickerModal } from '@/components/room/PosterPickerModal';
-import { MovieCalendarModal } from '@/components/room/MovieCalendarModal';
-import { WatchedDateEditModal } from '@/components/room/WatchedDateEditModal';
+import { PosterPickerModal } from '@/components/my-cinema/PosterPickerModal';
+import { MovieCalendarModal } from '@/components/my-cinema/MovieCalendarModal';
+import { WatchedDateEditModal } from '@/components/my-cinema/WatchedDateEditModal';
 import QuoteActionModal from '@/components/quote/QuoteActionModal';
-import { MovieStatsPanel } from '@/components/room/MovieStatsPanel';
+import { MovieStatsPanel } from '@/components/my-cinema/MovieStatsPanel';
 
-export default function MyRoomPage() {
+export default function MyCinemaPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -88,7 +88,7 @@ export default function MyRoomPage() {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!accessToken) router.replace('/login?next=/room');
+    if (!accessToken) router.replace('/login?next=/my-cinema');
   }, [hydrated, accessToken, router]);
 
   useEffect(() => {
@@ -205,14 +205,16 @@ export default function MyRoomPage() {
 
   if (!user) {
     return (
-      <main className="room">
-        <p className="room-copy">내 방은 입장 후 이용할 수 있어요.</p>
-        <div className="room-actions">
+      <main className="my-cinema">
+        <p className="my-cinema-copy my-cinema-message">
+          MY CINEMA는 로그인 후 이용할 수 있어요.
+        </p>
+        <div className="my-cinema-actions">
           <Link href="/login" className="lobby-btn lobby-btn--primary">
             입장하기
           </Link>
           <Link href="/" className="lobby-btn">
-            로비로
+            CINEMO LOBBY
           </Link>
         </div>
       </main>
@@ -380,69 +382,69 @@ export default function MyRoomPage() {
   }
 
   return (
-    <main className="room room--dashboard">
-      <nav className="room-dashboard-nav" aria-label="페이지 이동">
-        <Link href="/" className="room-top-nav-link">
+    <main className="my-cinema my-cinema--dashboard">
+      <nav className="my-cinema-dashboard-nav" aria-label="페이지 이동">
+        <Link href="/" className="my-cinema-top-nav-link">
           <ArrowLeft size={15} strokeWidth={1.7} aria-hidden />
-          로비로
+          CINEMO LOBBY
         </Link>
       </nav>
 
-      <header className="room-header room-dashboard-header">
-        <p className="room-kicker">MY CINEMA</p>
-        <h1 className="room-title room-dashboard-brand">
+      <header className="my-cinema-header my-cinema-dashboard-header">
+        <p className="my-cinema-kicker">MY CINEMA</p>
+        <h1 className="my-cinema-title my-cinema-dashboard-brand">
           <Clapperboard size={30} strokeWidth={1.35} aria-hidden="true" />
           <span>{user.nickname}</span>
         </h1>
-        <p className="room-dashboard-lede">
+        <p className="my-cinema-dashboard-lede">
           내가 본 영화와 취향을 한눈에 모아보는 공간
         </p>
       </header>
 
-      <div className="room-dashboard">
-        <section className="room-profile-card" aria-label="내 프로필">
-          <div className="room-profile-copy">
-            <p className="room-dashboard-kicker">MY CINEMA PROFILE</p>
+      <div className="my-cinema-dashboard">
+        <section className="my-cinema-profile-card" aria-label="내 프로필">
+          <div className="my-cinema-profile-copy">
+            <p className="my-cinema-dashboard-kicker">MY CINEMA PROFILE</p>
             <h2>{user.nickname}</h2>
             <p>오늘은 어떤 영화를 기록해볼까?</p>
           </div>
 
-          <div className="room-profile-figure">
+          <div className="my-cinema-profile-figure">
             <button
               type="button"
-              className={`room-me-speech${user.bio?.trim() ? '' : ' room-me-speech--hint'}`}
+              className={`my-cinema-me-speech${user.bio?.trim() ? '' : ' my-cinema-me-speech--hint'}`}
               onClick={() => setProfileOpen(true)}
             >
-              <span className="room-me-speech-text">
+              <span className="my-cinema-me-speech-text">
                 {user.bio?.trim()
                   ? user.bio.trim()
                   : '프로필 작성하려면 클릭하세요'}
               </span>
             </button>
-            <div className="room-me-avatar">
+            <div className="my-cinema-me-avatar">
               <AvatarFigure config={avatarConfig} />
             </div>
           </div>
 
-          <div className="room-profile-footer">
+          <div className="my-cinema-profile-footer">
             {user.tags.length > 0 ? (
-              <ul className="room-me-tags" aria-label="내 태그">
+              <ul className="my-cinema-me-tags" aria-label="내 태그">
                 {user.tags.slice(0, 5).map((tag) => (
-                  <li key={tag} className="room-me-tag">
+                  <li key={tag} className="my-cinema-me-tag">
                     #{tag}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="room-profile-empty">아직 취향 태그가 없음</p>
+              <p className="my-cinema-profile-empty">아직 취향 태그가 없음</p>
             )}
-            <div className="room-profile-actions">
+            <div className="my-cinema-profile-actions">
               <button type="button" onClick={() => setProfileOpen(true)}>
                 프로필 수정
               </button>
               <button
                 type="button"
-                className="room-profile-logout"
+                className="my-cinema-profile-logout"
                 onClick={logout}
               >
                 로그아웃
@@ -459,14 +461,14 @@ export default function MyRoomPage() {
           </div>
         </section>
 
-        <section className="room-summary-grid" aria-label="영화 기록 요약">
-          <article className="room-summary-card">
+        <section className="my-cinema-summary-grid" aria-label="영화 기록 요약">
+          <article className="my-cinema-summary-card">
             <Popcorn size={22} strokeWidth={1.4} aria-hidden />
             <span>WATCHED</span>
             <strong>{counts?.watched ?? '—'}</strong>
             <small>관람 기록</small>
           </article>
-          <article className="room-summary-card">
+          <article className="my-cinema-summary-card">
             <Heart size={22} strokeWidth={1.4} aria-hidden />
             <span>WISHLIST</span>
             <strong>{counts?.wish ?? '—'}</strong>
@@ -474,7 +476,7 @@ export default function MyRoomPage() {
           </article>
           <button
             type="button"
-            className="room-summary-card room-summary-card--calendar"
+            className="my-cinema-summary-card my-cinema-summary-card--calendar"
             onClick={() => setCalendarOpen(true)}
             aria-label="영화 달력 열기"
           >
@@ -490,20 +492,20 @@ export default function MyRoomPage() {
           </button>
         </section>
 
-        <section className="room-dashboard-grid" aria-label="영화 분석">
+        <section className="my-cinema-dashboard-grid" aria-label="영화 분석">
           {accessToken ? (
             <MovieStatsPanel token={accessToken} year={currentKstYear} />
           ) : null}
-          <section className="room-insight-card">
+          <section className="my-cinema-insight-card">
             <div>
-              <p className="room-dashboard-kicker">NEXT TO EXPLORE</p>
+              <p className="my-cinema-dashboard-kicker">NEXT TO EXPLORE</p>
               <h2>내 영화 취향 더 알아보기</h2>
               <p>
                 관람 기록이 쌓이면 장르·플랫폼·관람 장소별 분석을 추가할 수
                 있습니다.
               </p>
             </div>
-            <div className="room-insight-lines" aria-hidden>
+            <div className="my-cinema-insight-lines" aria-hidden>
               <span />
               <span />
               <span />
@@ -511,15 +513,18 @@ export default function MyRoomPage() {
           </section>
         </section>
 
-        <section className="room-wall-card" aria-label="영화 포스터 전시 공간">
-          <div className="room-section-heading">
+        <section
+          className="my-cinema-wall-card"
+          aria-label="영화 포스터 전시 공간"
+        >
+          <div className="my-cinema-section-heading">
             <div>
-              <p className="room-dashboard-kicker">MY FILM WALL</p>
+              <p className="my-cinema-dashboard-kicker">MY FILM WALL</p>
               <h2>영화를 걸어보세요</h2>
             </div>
-            <p>내 방에 남겨두고 싶은 포스터</p>
+            <p>MY CINEMA에 남겨두고 싶은 포스터</p>
           </div>
-          <div className="room-poster-wall">
+          <div className="my-cinema-poster-wall">
             {[1, 2, 3].map((wallSlot) => {
               const movie = selectedPosters[wallSlot];
               const posterUrl = movie?.poster_path
@@ -531,12 +536,12 @@ export default function MyRoomPage() {
                   key={wallSlot}
                   type="button"
                   disabled={saving}
-                  className={`room-poster-frame${movie ? '' : ' room-poster-frame--empty'}`}
+                  className={`my-cinema-poster-frame${movie ? '' : ' my-cinema-poster-frame--empty'}`}
                   onClick={() => openPosterPicker(wallSlot)}
                 >
                   {posterUrl ? (
                     <Image
-                      className="room-selected-poster"
+                      className="my-cinema-selected-poster"
                       src={posterUrl}
                       alt={movie.title}
                       fill
@@ -559,25 +564,25 @@ export default function MyRoomPage() {
           </div>
         </section>
 
-        <nav className="room-tool-grid" aria-label="내 방 메뉴">
-          <Link href="/room/watched" className="room-tool-card">
+        <nav className="my-cinema-tool-grid" aria-label="MY CINEMA 메뉴">
+          <Link href="/my-cinema/watched" className="my-cinema-tool-card">
             <Popcorn size={21} strokeWidth={1.4} aria-hidden />
             <span>관람 기록</span>
             <small>본 영화 관리</small>
           </Link>
-          <Link href="/room/wish" className="room-tool-card">
+          <Link href="/my-cinema/wish" className="my-cinema-tool-card">
             <Heart size={21} strokeWidth={1.4} aria-hidden />
             <span>보고 싶은 영화</span>
             <small>다음 영화 찾기</small>
           </Link>
-          <Link href="/room/quotes" className="room-tool-card">
+          <Link href="/my-cinema/quotes" className="my-cinema-tool-card">
             <Film size={21} strokeWidth={1.4} aria-hidden />
             <span>명대사 모음집</span>
             <small>마음에 남은 문장</small>
           </Link>
           <button
             type="button"
-            className="room-tool-card is-disabled"
+            className="my-cinema-tool-card is-disabled"
             disabled
             title="고객센터 준비 중"
           >
@@ -585,7 +590,7 @@ export default function MyRoomPage() {
             <span>고객센터</span>
             <small>준비 중</small>
           </button>
-          <div className="room-tool-card is-disabled">
+          <div className="my-cinema-tool-card is-disabled">
             <NotebookPen size={21} strokeWidth={1.4} aria-hidden />
             <span>명대사 화이트보드</span>
             <small>곧 만나요</small>
@@ -593,7 +598,7 @@ export default function MyRoomPage() {
         </nav>
       </div>
 
-      {error ? <p className="room-copy">{error}</p> : null}
+      {error ? <p className="my-cinema-copy">{error}</p> : null}
 
       {wardrobeOpen ? (
         <WardrobeModal

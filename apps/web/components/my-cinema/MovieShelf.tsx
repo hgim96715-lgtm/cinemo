@@ -68,12 +68,12 @@ function MovieShelfFilterSelect({
 
   return (
     <div
-      className={`room-shelf-filter-select${open ? ' is-open' : ''}`}
+      className={`my-cinema-shelf-filter-select${open ? ' is-open' : ''}`}
       ref={rootRef}
     >
       <button
         type="button"
-        className="room-shelf-filter-trigger"
+        className="my-cinema-shelf-filter-trigger"
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -85,7 +85,7 @@ function MovieShelfFilterSelect({
 
       {open ? (
         <div
-          className="room-shelf-filter-menu"
+          className="my-cinema-shelf-filter-menu"
           role="listbox"
           aria-label={ariaLabel}
         >
@@ -93,7 +93,7 @@ function MovieShelfFilterSelect({
             <button
               key={option.value || 'empty'}
               type="button"
-              className="room-shelf-filter-option"
+              className="my-cinema-shelf-filter-option"
               role="option"
               aria-selected={option.value === value}
               onClick={() => {
@@ -118,7 +118,7 @@ export function MovieShelf({ kind, title }: Props) {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!accessToken) router.replace('/login?next=/room');
+    if (!accessToken) router.replace('/login?next=/my-cinema');
   }, [hydrated, accessToken, router]);
   const [items, setItems] = useState<UserMovieListItem[]>([]);
   const [page, setPage] = useState(1);
@@ -352,13 +352,15 @@ export function MovieShelf({ kind, title }: Props) {
 
   if (!user || !accessToken) {
     return (
-      <main className="room room--shelf">
-        <p className="room-copy">선반은 입장 후 이용할 수 있어요.</p>
-        <div className="room-actions">
+      <main className="my-cinema my-cinema--shelf">
+        <p className="my-cinema-copy my-cinema-message">
+          MY CINEMA는 로그인 후 이용할 수 있어요.
+        </p>
+        <div className="my-cinema-actions">
           <Link href="/login" className="lobby-btn lobby-btn--primary">
             입장하기
           </Link>
-          <Link href="/room" className="lobby-btn">
+          <Link href="/my-cinema" className="my-cinema-top-nav-link">
             MY CINEMA
           </Link>
         </div>
@@ -397,32 +399,32 @@ export function MovieShelf({ kind, title }: Props) {
   ];
 
   return (
-    <main className="room room--shelf">
-      <nav className="room-shelf-nav" aria-label="페이지 이동">
-        <Link href="/" className="room-top-nav-link">
+    <main className="my-cinema my-cinema--shelf">
+      <nav className="my-cinema-shelf-nav" aria-label="페이지 이동">
+        <Link href="/" className="my-cinema-top-nav-link">
           <ArrowLeft size={15} strokeWidth={1.7} aria-hidden />
-          로비로
+          CINEMO LOBBY
         </Link>
-        <Link href="/room" className="room-top-nav-link">
+        <Link href="/my-cinema" className="my-cinema-top-nav-link">
           MY CINEMA
         </Link>
       </nav>
 
-      <header className="room-shelf-header">
-        <div className="room-shelf-heading">
-          <p className="room-kicker">
+      <header className="my-cinema-shelf-header">
+        <div className="my-cinema-shelf-heading">
+          <p className="my-cinema-kicker">
             {kind === 'watched' ? 'WATCHED' : 'WISHLIST'}
           </p>
-          <p className="room-shelf-subtitle">CINEMO FILM ARCHIVE</p>
-          <h1 className="room-shelf-title">
+          <p className="my-cinema-shelf-subtitle">CINEMO FILM ARCHIVE</p>
+          <h1 className="my-cinema-shelf-title">
             {title}
-            <span className="room-shelf-count">
-              <span className="room-shelf-count-number">{total}</span>
-              <span className="room-shelf-count-unit">편</span>
+            <span className="my-cinema-shelf-count">
+              <span className="my-cinema-shelf-count-number">{total}</span>
+              <span className="my-cinema-shelf-count-unit">편</span>
             </span>
           </h1>
-          <div className="room-shelf-toolbar">
-            <div className="room-shelf-search">
+          <div className="my-cinema-shelf-toolbar">
+            <div className="my-cinema-shelf-search">
               <Search size={18} strokeWidth={1.5} aria-hidden />
               <input
                 type="search"
@@ -434,7 +436,7 @@ export function MovieShelf({ kind, title }: Props) {
             </div>
 
             {kind === 'watched' ? (
-              <div className="room-shelf-filters">
+              <div className="my-cinema-shelf-filters">
                 <MovieShelfFilterSelect
                   value={filterYear ? String(filterYear) : ''}
                   options={yearOptions}
@@ -457,49 +459,49 @@ export function MovieShelf({ kind, title }: Props) {
         </div>
       </header>
 
-      <div ref={scrollRef} className="room-shelf-scroll">
-        {error ? <p className="room-copy">{error}</p> : null}
+      <div ref={scrollRef} className="my-cinema-shelf-scroll">
+        {error ? <p className="my-cinema-copy">{error}</p> : null}
 
         {loading ? (
-          <p className="room-copy">불러오는 중…</p>
+          <p className="my-cinema-copy">불러오는 중…</p>
         ) : visibleItems.length === 0 ? (
-          <p className="room-copy">{emptyLabel}</p>
+          <p className="my-cinema-copy">{emptyLabel}</p>
         ) : (
-          <ul className="room-movie-grid">
+          <ul className="my-cinema-movie-grid">
             {visibleItems.map((item) => {
               const movie = item.movie;
               const poster = tmdbPosterUrl(movie.poster_path, 'w342');
               return (
                 <li
                   key={`${item.tmdbId}-${item.updatedAt}`}
-                  className="room-movie"
+                  className="my-cinema-movie"
                 >
-                  <div className="room-movie-card-wrap">
+                  <div className="my-cinema-movie-card-wrap">
                     <button
                       type="button"
-                      className="room-movie-card"
+                      className="my-cinema-movie-card"
                       onClick={() => setSelectedScreening(item)}
                       aria-label={`${movie.title} 상세 보기`}
                     >
-                      <div className="room-movie-poster">
+                      <div className="my-cinema-movie-poster">
                         {poster ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={poster} alt={movie.title} />
                         ) : (
-                          <span className="room-movie-poster-empty">
+                          <span className="my-cinema-movie-poster-empty">
                             No Poster
                           </span>
                         )}
                       </div>
                     </button>
 
-                    <div className="room-movie-info">
-                      <div className="room-movie-meta">
-                        <span className="room-movie-title">{movie.title}</span>
+                    <div className="my-cinema-movie-info">
+                      <div className="my-cinema-movie-meta">
+                        <span className="my-cinema-movie-title">{movie.title}</span>
                         {kind === 'watched' ? (
-                          <div className="room-movie-screening-details">
+                          <div className="my-cinema-movie-screening-details">
                             {item.watchedAt ? (
-                              <span className="room-movie-detail-chip is-date">
+                              <span className="my-cinema-movie-detail-chip is-date">
                                 <CalendarDays
                                   size={12}
                                   strokeWidth={1.7}
@@ -509,7 +511,7 @@ export function MovieShelf({ kind, title }: Props) {
                               </span>
                             ) : null}
                             {item.viewingLocation ? (
-                              <span className="room-movie-detail-chip">
+                              <span className="my-cinema-movie-detail-chip">
                                 <MapPin
                                   size={12}
                                   strokeWidth={1.7}
@@ -520,8 +522,8 @@ export function MovieShelf({ kind, title }: Props) {
                             ) : null}
                           </div>
                         ) : (
-                          <span className="room-movie-facts">
-                            <span className="room-movie-release-year">
+                          <span className="my-cinema-movie-facts">
+                            <span className="my-cinema-movie-release-year">
                               개봉{' '}
                               {movie.release_date?.slice(0, 4) || '연도 없음'}
                             </span>
@@ -538,10 +540,10 @@ export function MovieShelf({ kind, title }: Props) {
 
         <div
           ref={loadMoreTriggerRef}
-          className="room-shelf-load-more"
+          className="my-cinema-shelf-load-more"
           aria-hidden
         />
-        {loadingMore ? <p className="room-copy">더 불러오는 중…</p> : null}
+        {loadingMore ? <p className="my-cinema-copy">더 불러오는 중…</p> : null}
       </div>
 
       {selectedScreening ? (
@@ -570,7 +572,6 @@ export function MovieShelf({ kind, title }: Props) {
           }}
         />
       ) : null}
-
     </main>
   );
 }

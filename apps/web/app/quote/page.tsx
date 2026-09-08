@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  useDeferredValue,
-  useEffect,
-  useState,
-} from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Film, Plus, Search } from 'lucide-react';
@@ -242,9 +238,7 @@ export default function QuotePage() {
     }
   }
 
-  async function handleRecommendMovieQuotes(
-    movie = selectedMovie,
-  ) {
+  async function handleRecommendMovieQuotes(movie = selectedMovie) {
     if (!accessToken || !movie) return;
     setIsRecommendingQuotes(true);
     setQuoteSuggestionError(null);
@@ -272,10 +266,10 @@ export default function QuotePage() {
         <nav className="quote-page-nav" aria-label="명대사 페이지 이동">
           <Link href="/" className="quote-back-link">
             <ArrowLeft size={18} aria-hidden />
-            로비
+            CINEMO LOBBY
           </Link>
           <Link
-            href="/room/quotes"
+            href="/my-cinema/quotes"
             className="quote-back-link quote-collection-link"
           >
             <Film size={17} aria-hidden />

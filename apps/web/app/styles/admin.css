@@ -1077,3 +1077,80 @@ select.admin-ops-input {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+.admin-today-table {
+    width: 100%;
+    margin: 24px 0 40px;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 18px;
+    background: rgb(18 17 22 / 0.82);
+  }
+  
+  .admin-today-table caption {
+
+    @media (max-width: 640px) {
+  .admin-today-table {
+    margin-top: 18px;
+    font-size: 0.9rem;
+  }
+
+  .admin-today-table th,
+  .admin-today-table td {
+    padding: 14px 12px;
+  }
+
+  .admin-today-table caption {
+    padding: 16px 14px 10px;
+  }
+}
+    padding: 18px 20px 12px;
+    color: #d2b46a;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-align: left;
+  }
+  
+  .admin-today-table th,
+  .admin-today-table td {
+    padding: 16px 20px;
+    border-top: 1px solid rgb(243 239 230 / 0.1);
+    text-align: left;
+  }
+  
+  .admin-today-table thead th {
+    color: #8f877a;
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  
+  .admin-today-table tbody th {
+    color: #d8d0c4;
+    font-weight: 500;
+  }
+  
+  .admin-today-table td {
+    color: #f3efe6;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  @media (max-width: 640px) {
+  .admin-today-table {
+    margin-top: 18px;
+    font-size: 0.9rem;
+  }
+
+  .admin-today-table th,
+  .admin-today-table td {
+    padding: 14px 12px;
+  }
+
+  .admin-today-table caption {
+    padding: 16px 14px 10px;
+  }
+}

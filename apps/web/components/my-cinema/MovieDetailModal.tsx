@@ -327,7 +327,7 @@ export function MovieDetailModal({
               <div className="movie-detail-mark-actions" aria-label="영화 상태">
                 <button
                   type="button"
-                  className={`room-mark${marks?.wish ? ' is-on' : ''}`}
+                  className={`my-cinema-mark${marks?.wish ? ' is-on' : ''}`}
                   aria-pressed={marks?.wish ?? false}
                   aria-label={marks?.wish ? '찜 해제' : '찜'}
                   onClick={() => onToggleMark('wish')}
@@ -342,7 +342,7 @@ export function MovieDetailModal({
                 </button>
                 <button
                   type="button"
-                  className={`room-mark${marks?.watched ? ' is-on' : ''}`}
+                  className={`my-cinema-mark${marks?.watched ? ' is-on' : ''}`}
                   aria-pressed={marks?.watched ?? false}
                   aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
                   onClick={() => onToggleMark('watched')}

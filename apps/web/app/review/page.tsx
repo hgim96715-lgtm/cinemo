@@ -265,13 +265,13 @@ export default function ReviewPage() {
             </Link>
             <Link href="/?lobby=1" className="review-back">
               <ArrowLeft size={16} aria-hidden />
-              로비
+              CINEMO LOBBY
             </Link>
           </>
         ) : (
           <Link href="/" className="review-back">
             <ArrowLeft size={16} aria-hidden />
-            로비
+            CINEMO LOBBY
           </Link>
         )}
       </header>

@@ -1,4 +1,6 @@
-/* ── Lobby ── */
+
+
+/* ── 01. 로비 기본 배경과 조명 ── */
 .lobby {
   --lobby-fg: #f3efe6;
   --lobby-muted: #8f877a;
@@ -49,7 +51,7 @@
   gap: 1.25rem;
 }
 
-/* 전광판 — 조명 → CINEMO → 날짜 → 3칸 */
+/* ── 02. 전광판 — 조명 → CINEMO → 날짜 → 주간 TOP 3 ── */
 .lobby-board-block {
   width: 100%;
   display: flex;
@@ -69,10 +71,21 @@
   min-height: 8.65rem;
   display: grid;
   place-items: center;
+  gap: 0.5rem;
   margin: 0;
   color: rgb(243 239 230 / 0.62);
   font-size: 0.78rem;
   letter-spacing: 0.08em;
+}
+
+.lobby-board-loading-icon {
+  animation: lobby-loading-spin 0.9s linear infinite;
+}
+
+@keyframes lobby-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .lobby--lit .lobby-board-loading {
@@ -149,7 +162,7 @@
 
 .lobby-board {
   width: 100%;
-  padding: 0.7rem 0.7rem 0.8rem;
+  padding: 0.8rem 0.8rem 0.9rem;
   border: 1px solid rgb(243 239 230 / 0.12);
   background: rgb(0 0 0 / 0.4);
   text-align: center;
@@ -164,9 +177,51 @@
 }
 
 .lobby-board-slots {
+  display: block;
+}
+
+.lobby-board-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
+  gap: 0.34rem;
+  margin-bottom: 0.7rem;
+  padding: 0.26rem;
+  border: 1px solid rgb(212 181 106 / 0.2);
+  border-radius: 0.65rem;
+  background: rgb(0 0 0 / 0.28);
+}
+
+.lobby-board-tabs button {
+  min-width: 0;
+  min-height: 2.2rem;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 0.42rem;
+  background: transparent;
+  color: rgb(243 239 230 / 0.48);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.lobby-board-tabs button:hover,
+.lobby-board-tabs button:focus-visible {
+  color: rgb(243 239 230 / 0.88);
+  border-color: rgb(212 181 106 / 0.42);
+  outline: none;
+}
+
+.lobby-board-tabs button.is-active {
+  border-color: rgb(212 181 106 / 0.62);
+  background: rgb(212 181 106 / 0.14);
+  color: rgb(243 232 200 / 0.98);
+  box-shadow: inset 0 0 14px rgb(212 181 106 / 0.08);
 }
 
 .lobby-chart {
@@ -181,8 +236,8 @@
 }
 
 .lobby-chart-viz {
-  height: 7rem;
-  padding: 0.55rem 0.6rem;
+  height: 8rem;
+  padding: 0.7rem 0.65rem;
   border: 1px solid rgb(243 239 230 / 0.12);
   border-radius: 0.55rem;
   background: rgb(0 0 0 / 0.28);
@@ -203,7 +258,7 @@
 
 .lobby-chart-label {
   margin: 0;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.05em;
   color: var(--lobby-muted);
   white-space: nowrap;
@@ -222,7 +277,7 @@
   color: rgb(212 181 106 / 0.78);
 }
 
-/* 큰 숫자 + 보조 문구 + 미니 스파크 */
+/* ── 03. 차트 빈 상태 ── */
 .lobby-chart-stat {
   display: flex;
   flex-direction: column;
@@ -260,65 +315,12 @@
   color: rgb(212 181 106 / 0.58);
 }
 
-.lobby-chart-spark {
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-  margin-top: auto;
-  opacity: 0.45;
-}
-
-.lobby-chart-spark--live {
-  opacity: 0.9;
-}
-
-.lobby-chart-spark-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.18rem;
-  height: 1.35rem;
-}
-
-.lobby-chart-spark--labeled .lobby-chart-spark-bars {
-  height: 1.15rem;
-}
-
-.lobby-chart-spark-bars span {
-  flex: 1;
-  min-width: 0;
-  border-radius: 0.06rem 0.06rem 0 0;
-  background: linear-gradient(
-    180deg,
-    rgb(212 181 106 / 0.7),
-    rgb(212 181 106 / 0.18)
-  );
-}
-
-.lobby-chart-spark-labels {
-  display: flex;
-  gap: 0.18rem;
-}
-
-.lobby-chart-spark-labels span {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.48rem;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  color: rgb(243 239 230 / 0.42);
-}
-
-.lobby--lit .lobby-chart-spark-labels span {
-  color: rgb(212 181 106 / 0.55);
-}
-
-/* 주간 TOP 3 리스트 */
+/* ── 04. 주간 TOP 3 리스트 ── */
 .lobby-chart-list {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.28rem;
+  gap: 0.42rem;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -327,10 +329,14 @@
 
 .lobby-chart-row {
   display: grid;
-  grid-template-columns: 0.7rem minmax(0, 1fr) 2.2rem 0.9rem;
+  grid-template-columns: 0.7rem minmax(0, 1fr) 2.4rem 3rem;
   align-items: center;
   gap: 0.28rem;
   min-width: 0;
+}
+
+.lobby-chart-row--with-change {
+  grid-template-columns: 0.7rem minmax(0, 1fr) 2rem 3rem 2.2rem;
 }
 
 .lobby-chart-row--empty {
@@ -338,7 +344,7 @@
 }
 
 .lobby-chart-row-rank {
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: rgb(212 181 106 / 0.75);
@@ -346,7 +352,7 @@
 
 .lobby-chart-row-title {
   min-width: 0;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   letter-spacing: 0.02em;
   color: rgb(243 239 230 / 0.82);
   white-space: nowrap;
@@ -356,7 +362,7 @@
 
 .lobby-chart-row-bar {
   display: block;
-  height: 0.28rem;
+  height: 0.32rem;
   border-radius: 999px;
   background: rgb(243 239 230 / 0.08);
   overflow: hidden;
@@ -374,107 +380,50 @@
 }
 
 .lobby-chart-row-count {
-  font-size: 0.58rem;
+  min-width: 0;
+  font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-align: right;
   color: rgb(212 181 106 / 0.7);
-}
-
-/* legacy plot (unused decorative fallback kept minimal) */
-.lobby-chart-plot {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.22rem;
-  height: 100%;
-  padding: 0.15rem 0.1rem 0;
-  border-bottom: 1px solid rgb(243 239 230 / 0.1);
-}
-
-.lobby-chart-plot span {
-  flex: 1;
-  min-width: 0;
-  border-radius: 0.08rem 0.08rem 0 0;
-  background: linear-gradient(180deg, rgb(212 181 106 / 0.55), rgb(212 181 106 / 0.18));
-  opacity: 0.45;
-}
-
-.lobby-chart-plot:not(.lobby-chart-plot--data):not(.lobby-chart-plot--rank) span:nth-child(1) { height: 42%; }
-.lobby-chart-plot:not(.lobby-chart-plot--data):not(.lobby-chart-plot--rank) span:nth-child(2) { height: 68%; }
-.lobby-chart-plot:not(.lobby-chart-plot--data):not(.lobby-chart-plot--rank) span:nth-child(3) { height: 55%; }
-.lobby-chart-plot:not(.lobby-chart-plot--data):not(.lobby-chart-plot--rank) span:nth-child(4) { height: 82%; }
-.lobby-chart-plot:not(.lobby-chart-plot--data):not(.lobby-chart-plot--rank) span:nth-child(5) { height: 70%; }
-.lobby-chart-plot:not(.lobby-chart-plot--data):not(.lobby-chart-plot--rank) span:nth-child(6) { height: 90%; }
-
-.lobby--lit .lobby-chart-plot {
-  background:
-    linear-gradient(180deg, transparent 55%, rgb(212 181 106 / 0.1)),
-    repeating-linear-gradient(
-      180deg,
-      transparent,
-      transparent 7px,
-      rgb(212 181 106 / 0.06) 7px,
-      rgb(212 181 106 / 0.06) 8px
-    );
-}
-
-.lobby-chart-viz--poster {
-  display: flex;
-  align-items: stretch;
-  gap: 0.4rem;
-}
-
-.lobby-chart-poster {
-  flex-shrink: 0;
-  width: 2.6rem;
-  height: 100%;
-  border: 1px solid rgb(243 239 230 / 0.14);
-  background:
-    linear-gradient(160deg, rgb(243 239 230 / 0.1), transparent 50%),
-    linear-gradient(180deg, #2a2620 0%, #141210 100%);
-}
-
-.lobby--lit .lobby-chart-poster {
-  border-color: rgb(212 181 106 / 0.4);
-  background:
-    linear-gradient(160deg, rgb(212 181 106 / 0.28), transparent 52%),
-    linear-gradient(180deg, #3a3224 0%, #17140f 100%);
-  box-shadow: inset 0 0 0 1px rgb(212 181 106 / 0.12);
-}
-
-.lobby-chart-poster-meta {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-width: 0;
-  padding-bottom: 0.1rem;
-}
-
-.lobby-chart-poster-title {
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
-  color: var(--lobby-muted);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-rank-up,
+.lobby-rank-down,
+.lobby-rank-same,
+.lobby-rank-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.1rem;
+  min-width: 0;
+  font-size: 0.58rem;
   white-space: nowrap;
 }
 
-.lobby-chart-value {
-  margin: 0;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: rgb(243 239 230 / 0.55);
-  line-height: 1;
+.lobby-rank-up {
+  color: rgb(157 204 139 / 0.9);
 }
 
-.lobby--lit .lobby-chart-value {
-  color: var(--lobby-fg);
+.lobby-rank-down {
+  color: rgb(217 137 137 / 0.9);
 }
 
-/* 홀: 중앙 매표소 + 네 공간 카드 */
+.lobby-rank-same {
+  color: rgb(243 239 230 / 0.42);
+}
+
+.lobby-rank-new {
+  color: rgb(212 181 106 / 0.85);
+  font-size: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+/* ── 05. 로비 홀과 공간 메뉴 ── */
 .lobby-hall {
   display: flex;
   flex-direction: column;
@@ -571,11 +520,11 @@
 
 .lobby-counter-row {
   display: grid;
-  grid-template-columns: minmax(0, 21rem) 7.5rem;
+  grid-template-columns: minmax(0, 21rem) minmax(9rem, 11rem);
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  width: min(100%, 29.5rem);
+  width: min(100%, 33rem);
 }
 
 .lobby-counter {
@@ -1084,17 +1033,318 @@
   color: #fff4d8;
 }
 
-/* 손님 + 입구 매트 */
+/* 공개 예정작 안내 카드 */
+.lobby-upcoming-card {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  gap: 0.18rem 1rem;
+  align-items: center;
+  width: min(100%, 42rem);
+  margin: 0.8rem auto 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid rgb(212 181 106 / 0.42);
+  border-radius: 0.8rem;
+  color: var(--lobby-fg);
+  background:
+    linear-gradient(135deg, rgb(212 181 106 / 0.12), rgb(20 19 18 / 0.72)),
+    rgb(20 19 18 / 0.78);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.lobby-upcoming-card:hover {
+  border-color: var(--lobby-gold);
+  background:
+    linear-gradient(135deg, rgb(212 181 106 / 0.2), rgb(20 19 18 / 0.82)),
+    rgb(20 19 18 / 0.82);
+  transform: translateY(-2px);
+}
+
+.lobby-upcoming-kicker {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  color: var(--lobby-gold);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+}
+
+.lobby-upcoming-card strong {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.lobby-upcoming-description {
+  grid-column: 1;
+  grid-row: 3;
+  min-width: 0;
+  color: var(--lobby-muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.lobby-upcoming-icon {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  align-self: center;
+  justify-self: end;
+  color: var(--lobby-gold);
+}
+
+@media (max-width: 620px) {
+  .lobby-upcoming-card {
+    width: 100%;
+    margin-top: 0.65rem;
+    padding: 0.8rem 0.9rem;
+  }
+}
+
+/* 공개 예정작 페이지 */
+.upcoming-page {
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+  
+  .upcoming-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--lobby-muted);
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+  
+  .upcoming-back-link:hover {
+    color: var(--lobby-gold);
+  }
+  
+  .upcoming-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 3rem 0 1.8rem;
+    text-align: center;
+  }
+  
+  .upcoming-header svg {
+    color: var(--lobby-gold);
+    margin-bottom: 0.35rem;
+  }
+  
+  .upcoming-header h1 {
+    margin: 0;
+    color: var(--lobby-fg);
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(1.55rem, 4vw, 2.2rem);
+    font-weight: 500;
+  }
+  
+  .upcoming-header p:last-child {
+    margin: 0;
+    color: var(--lobby-muted);
+    font-size: 0.85rem;
+  }
+  
+.upcoming-list {
+  width: 100%;
+  max-width: 42rem;
+  display: grid;
+  gap: 0.7rem;
+}
+  
+  .upcoming-list > p {
+    margin: 2rem 0;
+    color: var(--lobby-muted);
+    text-align: center;
+  }
+  
+.upcoming-movie-card {
+  display: grid;
+  grid-template-columns: 2rem 4.5rem minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.7rem;
+  border: 1px solid rgb(212 181 106 / 0.3);
+  border-radius: 0.75rem;
+  background: rgb(20 19 18 / 0.72);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.12);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.upcoming-movie-card:hover {
+  border-color: rgb(212 181 106 / 0.58);
+  background: rgb(25 23 20 / 0.86);
+  transform: translateY(-1px);
+}
+  
+  .upcoming-movie-card img {
+    width: 4.5rem;
+    height: 6.75rem;
+    border-radius: 0.35rem;
+    object-fit: cover;
+  }
+  
+  .upcoming-movie-rank {
+    color: var(--lobby-gold);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+  
+.upcoming-movie-card h2 {
+  margin: 0 0 0.25rem;
+  overflow: hidden;
+  color: var(--lobby-fg);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upcoming-movie-card p {
+  margin: 0;
+  color: var(--lobby-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.upcoming-movie-card h2 + p {
+  color: rgb(212 181 106 / 0.82);
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+}
+
+.upcoming-movie-card h2 + p + p {
+  margin-top: 0.12rem;
+  color: rgb(143 135 122 / 0.82);
+  font-size: 0.68rem;
+}
+  
+.upcoming-movie-card button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 6.2rem;
+  min-height: 2.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgb(212 181 106 / 0.4);
+  border-radius: 999px;
+  color: var(--lobby-fg);
+  background: rgb(212 181 106 / 0.06);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.upcoming-movie-card button svg {
+  flex: 0 0 auto;
+  color: var(--lobby-gold);
+}
+
+.upcoming-movie-card button:hover:not(:disabled) {
+  border-color: var(--lobby-gold);
+  color: #fff4d8;
+  background: rgb(212 181 106 / 0.16);
+  transform: translateY(-1px);
+}
+
+.upcoming-movie-card button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.upcoming-movie-card button:focus-visible {
+  outline: 2px solid var(--lobby-gold);
+  outline-offset: 3px;
+}
+
+.upcoming-movie-card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+  
+@media (max-width: 560px) {
+  .upcoming-page {
+    padding-inline: 0;
+  }
+
+  .upcoming-movie-card {
+    grid-template-columns: 1.8rem 3.8rem minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    gap: 0.5rem 0.65rem;
+  }
+
+  .upcoming-movie-card img {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 3.8rem;
+    height: 5.7rem;
+  }
+
+  .upcoming-movie-rank {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .upcoming-movie-card > div {
+    grid-column: 3;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .upcoming-movie-card h2 {
+    display: -webkit-box;
+    overflow: hidden;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .upcoming-movie-card button {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 0;
+    min-width: 5.6rem;
+    min-height: 2.15rem;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.66rem;
+  }
+}
+
+/* ── 06. 손님 정보와 MY CINEMA ── */
 .lobby-guest {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  width: 7.5rem;
+  gap: 0.55rem;
+  width: 100%;
   box-sizing: border-box;
   margin: 0;
-  padding: 0.2rem 0;
+  padding: 0.15rem 0;
   opacity: 0.5;
   transition: opacity 900ms ease;
   flex-shrink: 0;
@@ -1154,22 +1404,13 @@
   }
 }
 
-.lobby-guest-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  width: 100%;
-  padding: 0;
-}
-
 .lobby-guest-identity {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.28rem;
   min-width: 0;
+  padding: 0 0.5rem;
 }
 
 .lobby-guest-identity .avatar-figure {
@@ -1180,17 +1421,21 @@
 
 .lobby-mat {
   flex-shrink: 0;
-  width: auto;
-  min-width: 6.4rem;
-  height: 1.55rem;
-  padding: 0 0.75rem;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 3.15rem;
+  padding: 0.65rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
   border: 1px solid rgb(212 181 106 / 0.35);
-  border-radius: 999px;
+  border-radius: 0.65rem;
   text-decoration: none;
   cursor: pointer;
   background: rgb(212 181 106 / 0.05);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.12);
   transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
 }
 
@@ -1208,11 +1453,24 @@
   max-width: 100%;
   overflow: hidden;
   color: var(--lobby-gold);
-  font-size: 0.56rem;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.lobby-mat-description {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--lobby-muted);
+  font-size: 0.56rem;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lobby-mat:hover .lobby-mat-label {
@@ -1268,6 +1526,7 @@
   max-width: 5.5rem;
 }
 
+/* ── 07. 모바일 레이아웃 ── */
 @media (max-width: 640px) {
   .lobby {
     height: auto;
@@ -1285,19 +1544,17 @@
     min-height: auto;
   }
 
-  .lobby-board-slots {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .lobby-board-slots .lobby-chart:last-child {
-    grid-column: 1 / -1;
+  .lobby-board-tabs button {
+    min-height: 2.5rem;
+    padding-inline: 0.1rem;
+    font-size: 0.56rem;
   }
 
   .lobby-chart-row-title {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
     line-height: 1.2;
   }
 
@@ -1327,12 +1584,13 @@
   }
 
   .lobby-guest {
-    width: 7rem;
+    width: 100%;
     justify-self: center;
+    padding: 0.65rem 0.8rem 0.75rem;
   }
 }
 
-/* ── 발급 티켓 stub ── */
+/* ── 08. 발급 티켓 stub ── */
 .ticket-stub-overlay {
   position: fixed;
   inset: 0;
@@ -1448,7 +1706,7 @@
   }
 }
 
-/* Weekly Reveal */
+/* ── 09. Weekly Reveal 모달 ── */
 .weekly-reveal {
   position: fixed;
   inset: 0;

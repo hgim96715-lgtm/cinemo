@@ -103,13 +103,13 @@ export default function CafePage() {
             </Link>
             <Link href="/?lobby=1" className="review-back">
               <ArrowLeft className="cafe-back-icon" aria-hidden />
-              로비
+              CINEMO LOBBY
             </Link>
           </nav>
         ) : (
           <Link href="/" className="review-back">
             <ArrowLeft className="cafe-back-icon" aria-hidden />
-            로비
+            CINEMO LOBBY
           </Link>
         )}
 

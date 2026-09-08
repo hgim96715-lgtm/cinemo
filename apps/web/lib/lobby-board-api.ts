@@ -15,3 +15,15 @@ export function recordLobbyVisitRequest(token: string) {
 export function getWeeklyRevealRequest() {
   return apiFetch<WeeklyRevealWinner | null>('/lobby/weekly-reveal');
 }
+
+export type UpcomingMovie = {
+  tmdbId: number;
+  title: string;
+  releaseDate: string;
+  posterPath: string | null;
+  interestCount: number;
+};
+
+export function getUpcomingMoviesRequest() {
+  return apiFetch<UpcomingMovie[]>('/lobby/upcoming');
+}

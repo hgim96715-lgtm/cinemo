@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LobbyBoardResponse } from '@cinemo/shared';
+import { BoardBoxOfficeMovie, LobbyBoardResponse } from '@cinemo/shared';
 import {
+  kstDateKey,
   kstPreviousWeekRange,
-  kstTodayRange,
   kstWeekRange,
   todayKstDate,
 } from '../lib/date-kst';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { AdminService } from '../admin/admin.service';
-
-const HOUR_MS = 60 * 60 * 1000;
+import { ConfigService } from '@nestjs/config';
+import { EnvKeys } from '../config/env.keys';
 
 @Injectable()
 export class LobbyBoardService {
@@ -18,21 +18,97 @@ export class LobbyBoardService {
     private readonly prisma: PrismaService,
     private readonly tmdbService: TmdbService,
     private readonly adminService: AdminService,
+    private readonly configService: ConfigService,
   ) {}
 
-  private countByTime(
-    times: Date[],
-    start: Date,
-    slotMs: number,
-    slotCount: number,
-  ): number[] {
-    const series = Array.from({ length: slotCount }, () => 0);
-    const startMs = start.getTime();
-    for (const time of times) {
-      const i = Math.floor((time.getTime() - startMs) / slotMs);
-      if (i >= 0 && i < slotCount) series[i] += 1;
+  private boxOfficeCache: {
+    targetDt: string;
+    expiresAt: number;
+    movies: BoardBoxOfficeMovie[];
+  } | null = null;
+
+  private async getBoxOfficeMovies(): Promise<BoardBoxOfficeMovie[]> {
+    const KOBIS_DAILY_BOX_OFFICE_URL =
+      'https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json';
+
+    const apikey = this.configService
+      .get<string>(EnvKeys.KOBIS_API_KEY)
+      ?.trim();
+
+    if (!apikey) return [];
+
+    const targetDt = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul',
+    })
+      .format(new Date(Date.now() - 24 * 60 * 60 * 1000))
+      .replaceAll('-', '');
+
+    const cached = this.boxOfficeCache;
+    const fallbackMovies = cached?.movies ?? [];
+
+    if (
+      cached &&
+      cached.targetDt === targetDt &&
+      cached.expiresAt > Date.now()
+    ) {
+      return cached.movies;
     }
-    return series;
+
+    const url = new URL(KOBIS_DAILY_BOX_OFFICE_URL);
+    url.searchParams.set('key', apikey);
+    url.searchParams.set('targetDt', targetDt);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return [];
+      const data = (await response.json()) as {
+        boxOfficeResult?: {
+          dailyBoxOfficeList?: Array<{
+            rank: string;
+            movieNm: string;
+            audiCnt: string;
+            audiAcc: string;
+            rankInten: string;
+            rankOldAndNew: string;
+          }>;
+        };
+      };
+      const list = data.boxOfficeResult?.dailyBoxOfficeList ?? [];
+
+      const moviePool = await this.prisma.moviePool.findMany({
+        where: {
+          title: {
+            in: list.map((movie) => movie.movieNm),
+          },
+        },
+        select: {
+          title: true,
+          posterPath: true,
+        },
+      });
+
+      const posterMap = new Map(
+        moviePool.map((movie) => [movie.title, movie.posterPath]),
+      );
+
+      const movies = list.slice(0, 5).map((movie) => ({
+        rank: Number(movie.rank),
+        title: movie.movieNm,
+        audienceCount: Number(movie.audiAcc),
+        rankChange:
+          movie.rankOldAndNew === 'NEW' ? null : Number(movie.rankInten) || 0,
+        posterPath: posterMap.get(movie.movieNm) ?? null,
+      }));
+
+      this.boxOfficeCache = {
+        targetDt,
+        expiresAt: Date.now() + 10 * 60 * 1000,
+        movies,
+      };
+
+      return movies;
+    } catch {
+      return fallbackMovies;
+    }
   }
 
   private async weekTopMovies(start: Date, end: Date) {
@@ -90,44 +166,69 @@ export class LobbyBoardService {
   }
 
   async getBoard(): Promise<LobbyBoardResponse> {
-    const today = kstTodayRange();
     const week = kstWeekRange();
-    const visitDate = todayKstDate();
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/seoul',
+    }).format(new Date());
 
-    const [reviewTimes, visitTimes, weekTopMovies, todayVisits] =
-      await Promise.all([
-        this.prisma.reviewPost.findMany({
-          where: { createdAt: { gte: today.start, lt: today.end } },
-          select: { createdAt: true },
-        }),
-        this.prisma.lobbyVisit.findMany({
-          where: { visitDate },
-          select: { visitedAt: true },
-        }),
-        this.weekTopMovies(week.start, week.end),
-        this.prisma.lobbyVisit.count({ where: { visitDate } }),
-      ]);
+    const [weekTopMovies, upcomingPool, boxOfficeMovies] = await Promise.all([
+      this.weekTopMovies(week.start, week.end),
+      this.prisma.moviePool.findMany({
+        where: { releaseDate: { gte: today } },
+        orderBy: { releaseDate: 'asc' },
+        take: 30,
+        select: {
+          tmdbId: true,
+          title: true,
+          releaseDate: true,
+          posterPath: true,
+        },
+      }),
+      this.getBoxOfficeMovies(),
+    ]);
 
-    const todayReviewSeries = this.countByTime(
-      reviewTimes.map((r) => r.createdAt),
-      today.start,
-      4 * HOUR_MS,
-      6,
+    const upcomingIds = upcomingPool.map((movie) => movie.tmdbId);
+
+    const wishCounts = upcomingIds.length
+      ? await this.prisma.userMovie.groupBy({
+          by: ['tmdbId'],
+          where: { kind: 'wish', tmdbId: { in: upcomingIds } },
+          _count: { tmdbId: true },
+        })
+      : [];
+
+    const countMap = new Map(
+      wishCounts.map((row) => [row.tmdbId, row._count.tmdbId]),
     );
-    const todayVisitSeries = this.countByTime(
-      visitTimes.map((v) => v.visitedAt),
-      today.start,
-      4 * HOUR_MS,
-      6,
+    const upcomingInterestMovies = upcomingPool
+      .map((movie) => ({
+        tmdbId: movie.tmdbId,
+        title: movie.title,
+        releaseDate: movie.releaseDate,
+        posterPath: movie.posterPath,
+        interestCount: countMap.get(movie.tmdbId) ?? 0,
+      }))
+      .sort(
+        (a, b) =>
+          b.interestCount - a.interestCount ||
+          a.title.localeCompare(b.title, 'ko'),
+      )
+      .slice(0, 5)
+      .map((movie, index) => ({
+        rank: index + 1,
+        ...movie,
+      }));
+
+    const weekReviewCount = weekTopMovies.reduce(
+      (total, movie) => total + movie.count,
+      0,
     );
 
     return {
-      todayVisits,
-      todayVisitSeries,
-      todayReviewCount: todayReviewSeries.reduce((a, b) => a + b, 0),
-      todayReviewSeries,
-      weekReviewCount: weekTopMovies.reduce((a, m) => a + m.count, 0),
+      weekReviewCount,
       weekTopMovies,
+      boxOfficeMovies,
+      upcomingInterestMovies,
     };
   }
 
@@ -146,5 +247,60 @@ export class LobbyBoardService {
       sampleBody: sample?.body ?? null,
       movie: await this.tmdbService.getMovieCached(winner.tmdbId),
     };
+  }
+
+  async getUpcomingMovies() {
+    const today = kstDateKey();
+    const oneYearLater = new Date(`${today}T00:00:00+09:00`);
+    oneYearLater.setUTCDate(oneYearLater.getUTCDate() + 365);
+    const until = oneYearLater.toISOString().slice(0, 10);
+    const response = await this.tmdbService.discoverMovies(
+      {
+        region: 'KR',
+        'release_date.gte': today,
+        'release_date.lte': until,
+        with_release_type: '2|3',
+      },
+      1,
+      'ko-KR',
+    );
+
+    const movies = response.results
+      .filter(
+        (movie) =>
+          movie.release_date >= today &&
+          movie.release_date <= until &&
+          movie.title.trim() !== '' &&
+          !movie.title.includes('정보가 없습니다.') &&
+          movie.release_date !== '',
+      )
+      .sort((a, b) => a.release_date.localeCompare(b.release_date));
+
+    const tmdbIds = movies.map((movie) => movie.id);
+
+    const wishCounts = tmdbIds.length
+      ? await this.prisma.userMovie.groupBy({
+          by: ['tmdbId'],
+          where: {
+            kind: 'wish',
+            tmdbId: { in: tmdbIds },
+          },
+          _count: {
+            tmdbId: true,
+          },
+        })
+      : [];
+
+    const countMap = new Map(
+      wishCounts.map((row) => [row.tmdbId, row._count.tmdbId]),
+    );
+
+    return movies.map((movie) => ({
+      tmdbId: movie.id,
+      title: movie.title,
+      releaseDate: movie.release_date,
+      posterPath: movie.poster_path,
+      interestCount: countMap.get(movie.id) ?? 0,
+    }));
   }
 }

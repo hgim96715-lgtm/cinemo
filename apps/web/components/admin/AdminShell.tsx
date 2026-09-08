@@ -41,7 +41,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
           <Link href="/?lobby=1" className="admin-link--out">
-            로비로
+            CINEMO LOBBY
           </Link>
           <button
             type="button"

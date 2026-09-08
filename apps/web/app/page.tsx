@@ -3,12 +3,8 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  ADMIN_AVATAR,
-  LOBBY_ROOMS,
-  type TicketStatus,
-} from '@cinemo/shared';
-import { Clapperboard, Coffee, Film, MessageCircle } from 'lucide-react';
+import { ADMIN_AVATAR, LOBBY_ROOMS, type TicketStatus } from '@cinemo/shared';
+import { Clapperboard, Coffee, Film, CalendarClock } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TicketBooth } from '@/components/lobby/TicketBooth';
 import './styles/lobby.css';
@@ -17,7 +13,7 @@ import './styles/guide.css';
 import { LobbyBoard } from '@/components/lobby/LobbyBoard';
 import { WeeklyRevealModal } from '@/components/lobby/WeeklyRevealModal';
 import { useWeeklyReveal } from '@/hooks/useWeeklyReveal';
-import { AvatarFigure } from '@/components/room/AvatarFigure';
+import { AvatarFigure } from '@/components/my-cinema/AvatarFigure';
 import { useGuideStore } from '@/lib/guide-store';
 import { LobbyGuideModal } from '@/components/lobby/LobbyGuideModal';
 
@@ -64,6 +60,24 @@ function HomeContent() {
 
       <div className="lobby-stage">
         <LobbyBoard />
+        <Link
+          href="/upcoming"
+          className="lobby-upcoming-card"
+          aria-label="곧 스크린에서 만날 영화"
+        >
+          <span className="lobby-upcoming-kicker">COMING SOON</span>
+          <strong>곧 스크린에서 만날 영화</strong>
+          <span className="lobby-upcoming-description">
+            개봉일을 확인하고 미리 찜해보세요
+          </span>
+
+          <CalendarClock
+            className="lobby-upcoming-icon"
+            size={30}
+            strokeWidth={1.8}
+            aria-hidden
+          />
+        </Link>
 
         <div className="lobby-hall">
           <div className="lobby-counter-row">
@@ -75,43 +89,54 @@ function HomeContent() {
               className="lobby-guest"
               aria-label={user ? user.nickname : '손님'}
             >
-              <div className="lobby-guest-bar">
-                <div className="lobby-guest-identity">
-                  <AvatarFigure
-                    config={
-                      user?.role === 'admin' ? ADMIN_AVATAR : user?.avatarConfig
-                    }
-                  />
-                  <p className="lobby-guest-name">
-                    {user ? user.nickname : '손님'}
-                  </p>
-                </div>
-                <Link
-                  href={
-                    user?.role === 'admin'
-                      ? '/admin'
-                      : user
-                        ? '/room'
-                        : '/login'
+              <div className="lobby-guest-identity">
+                <AvatarFigure
+                  config={
+                    user?.role === 'admin' ? ADMIN_AVATAR : user?.avatarConfig
                   }
-                  className="lobby-mat"
-                  aria-label={
-                    user?.role === 'admin'
-                      ? '관리자 화면'
-                      : user
-                        ? '내 방'
-                        : '입장 후 내 방'
-                  }
-                >
-                  <span className="lobby-mat-label">
-                    {user?.role === 'admin' ? 'CINEMO OFFICE' : 'MY ROOM'}
-                  </span>
-                </Link>
+                />
+                <p className="lobby-guest-name">
+                  {user ? user.nickname : '손님'}
+                </p>
               </div>
+
+              <Link
+                href={
+                  user?.role === 'admin'
+                    ? '/admin'
+                    : user
+                      ? '/my-cinema'
+                      : '/login'
+                }
+                className="lobby-mat lobby-mat--primary"
+                aria-label={
+                  user?.role === 'admin'
+                    ? 'CINEMO OFFICE'
+                    : user
+                      ? 'MY CINEMA'
+                      : '로그인 후 MY CINEMA 입장'
+                }
+              >
+                <span className="lobby-mat-label">
+                  {user?.role === 'admin' ? 'CINEMO OFFICE' : 'MY CINEMA'}
+                </span>
+
+                {user?.role !== 'admin' ? (
+                  <span className="lobby-mat-description">
+                    관람 기록 · 영화 달력 · 영화 통계
+                  </span>
+                ) : null}
+              </Link>
             </div>
           </div>
 
           <nav className="lobby-destinations" aria-label="CINEMO 공간">
+            <Link href="/gacha" className="lobby-destination">
+              <Clapperboard className="lobby-destination-icon" aria-hidden />
+              <span className="lobby-destination-kicker">TICKET BOOTH</span>
+              <span className="lobby-destination-label">뽑기방</span>
+            </Link>
+
             <Link
               href="/quote"
               className="lobby-destination"
@@ -121,20 +146,11 @@ function HomeContent() {
               <span className="lobby-destination-kicker">QUOTE FILM</span>
               <span className="lobby-destination-label">명대사방</span>
             </Link>
-            <Link href="/gacha" className="lobby-destination">
-              <Clapperboard className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">GACHA</span>
-              <span className="lobby-destination-label">뽑기방</span>
-            </Link>
-            <Link href="/review" className="lobby-destination">
-              <MessageCircle className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">REVIEW BALL</span>
-              <span className="lobby-destination-label">후기방</span>
-            </Link>
+
             <Link href="/cafe" className="lobby-destination">
               <Coffee className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">SNACK BAR</span>
-              <span className="lobby-destination-label">카페</span>
+              <span className="lobby-destination-kicker">CINEMO CAFE</span>
+              <span className="lobby-destination-label">영화 카페</span>
             </Link>
           </nav>
         </div>

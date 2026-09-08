@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>김한경 · Portfolio</title>
+<style>
+  
+
+  :root {
+    --ink:    #111111;
+    --mid:    #555555;
+    --muted:  #888888;
+    --rule:   #E0E0E0;
+    --accent: #1A1A2E;
+    --tag-bg: #F2F2F2;
+    --page-w: 720px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR', sans-serif;
+    background: #fff;
+    color: var(--ink);
+    font-size: 13.5px;
+    line-height: 1.75;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    max-width: var(--page-w);
+    margin: 0 auto;
+    padding: 52px 48px 64px;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 36px;
+  }
+  .header h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .header .tagline {
+    font-size: 14.5px;
+    color: var(--mid);
+    font-weight: 400;
+    line-height: 1.55;
+    max-width: 560px;
+  }
+  .header .contact {
+    margin-top: 12px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .header .contact a {
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+  }
+  .header .contact a:hover { color: var(--ink); }
+
+  /* ── Section ── */
+  .section { margin-bottom: 38px; }
+  .section-title {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── Intro ── */
+  .intro {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #2a2a2a;
+  }
+  .intro .story {
+    margin-bottom: 12px;
+    padding-left: 14px;
+    border-left: 3px solid var(--ink);
+    font-size: 14.5px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  /* ── Experience ── */
+  .exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .exp-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .exp-role {
+    font-size: 12.5px;
+    color: var(--mid);
+    font-weight: 400;
+  }
+  .exp-date {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .exp-body {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 10px;
+    line-height: 1.75;
+  }
+  .exp-body ul {
+    padding-left: 16px;
+    margin-top: 6px;
+  }
+  .exp-body ul li {
+    margin-bottom: 5px;
+  }
+  .exp-body li::marker { color: var(--muted); }
+  .exp-note {
+    font-size: 12.5px;
+    color: var(--mid);
+    border-left: 2px solid var(--rule);
+    padding-left: 10px;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ── Projects ── */
+  .project { margin-bottom: 28px; }
+  .project:last-child { margin-bottom: 0; }
+  .project-featured {
+    padding: 16px 18px 15px;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    background: #fafafa;
+  }
+  .project-featured .project-name { font-size: 16px; }
+  .project-featured .project-desc { color: var(--ink); }
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+  }
+  .project-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .project-desc {
+    font-size: 12.5px;
+    color: var(--mid);
+    margin-bottom: 7px;
+  }
+  .project-body {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.75;
+    margin-bottom: 9px;
+  }
+  .project-body ul {
+    padding-left: 16px;
+    margin-top: 4px;
+  }
+  .project-body li { margin-bottom: 3px; }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  .tag {
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--mid);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+  }
+  .project-links {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .project-links a {
+    color: var(--mid);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    margin-right: 10px;
+  }
+
+  /* ── CINEMO showcase ── */
+  .cinemo-showcase {
+    margin-top: 16px;
+    display: grid;
+    gap: 8px;
+  }
+  .cinemo-shot {
+    margin: 0;
+    border: 1px solid var(--rule);
+    background: #10131a;
+    overflow: hidden;
+  }
+  .cinemo-shot img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 420px;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+  .cinemo-shot--hero img {
+    max-height: 420px;
+  }
+  .cinemo-shot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: stretch;
+  }
+  .cinemo-shot-grid .cinemo-shot {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cinemo-shot-grid img {
+    width: 100%;
+    height: clamp(260px, 72vw, 520px);
+    max-height: none;
+    object-fit: contain;
+    background: #10131a;
+  }
+  .cinemo-shot figcaption {
+    padding: 6px 8px;
+    background: #fff;
+    color: var(--mid);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .cinemo-showcase-note {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .project-preview {
+    margin: 14px 0 2px;
+    border: 1px solid var(--rule);
+    background: #f5f5f4;
+    overflow: hidden;
+  }
+  .project-preview img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 420px;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+  .project-preview a { display: block; }
+  .project-preview figcaption {
+    padding: 6px 8px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  /* ── Skills ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 6px 16px;
+    font-size: 13px;
+  }
+  .skill-label {
+    color: var(--muted);
+    font-size: 11.5px;
+    font-weight: 500;
+    padding-top: 2px;
+  }
+  .skill-value { color: #333; line-height: 1.65; }
+
+  /* ── Education ── */
+  .edu-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+  .edu-name { color: var(--ink); font-weight: 500; }
+  .edu-detail { color: var(--mid); font-size: 12px; }
+
+  /* ── Writing ── */
+  .writing-body {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.75;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 28px 0;
+  }
+
+  @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    body { font-size: 12.5px; }
+    .page {
+      max-width: none;
+      padding: 36px 40px 0;
+    }
+
+    /* CINEMO 설명·링크는 앞 페이지에 두고 화면 미리보기부터 새 페이지 시작 */
+    .project-featured .cinemo-showcase {
+      break-before: page;
+    }
+
+    /* 이미지 카드가 페이지 중간에서 잘리지 않도록 유지 */
+    .cinemo-shot,
+    .project-preview {
+      break-inside: avoid;
+    }
+
+    .cinemo-shot-grid {
+      break-inside: auto;
+    }
+
+    /* 마지막 빈 페이지가 생기지 않도록 여백 축소 */
+    .section { margin-bottom: 24px; }
+    .project { margin-bottom: 20px; }
+    .skills-section {
+      break-before: page;
+      padding-top: 28px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>김한경</h1>
+    <p class="tagline">
+      사용자의 취향과 기록을 화면과 데이터로 연결하고,<br>
+      하나의 경험으로 완성하는 풀스택 개발자
+    </p>
+    <div class="contact">
+      <span>010-4737-1692</span>
+      <a href="mailto:hgim96715@gmail.com">hgim96715@gmail.com</a>
+      <a href="https://github.com/hgim96715-lgtm">GitHub</a>
+    </div>
+  </div>
+
+  <!-- About -->
+  <div class="section">
+    <div class="section-title">About</div>
+    <div class="intro">
+      <p class="story">
+        응급구조사로 일하다 코드로 전향했습니다.<br>
+        화면의 작은 선택 하나가 다음 경험을 만들고, 그 선택이 데이터로 남는 과정이 흥미로웠습니다.
+      </p>
+      <p style="margin-top:12px;">
+        퍼블리셔로 <strong>교육 콘텐츠</strong>를 구현하며 사용자 행동에 따른 화면 흐름을 익혔고,
+        그 질문이 지금의 풀스택 개발로 이어졌습니다.<br>
+        현재는 <strong>NestJS · Next.js · TypeScript</strong>로 API와 UI를 직접 설계·구현하고,
+        <strong>Prisma · PostgreSQL</strong>로 사용자의 기록이 서비스 경험으로 이어지는 구조를 만드는 데 집중합니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- Experience -->
+  <div class="section">
+    <div class="section-title">Experience</div>
+
+    <div class="exp-header">
+      <div>
+        <span class="exp-title">일상이지</span>
+        <span class="exp-role"> · 웹 퍼블리셔</span>
+      </div>
+      <span class="exp-date">2024.04 – 2025.08</span>
+    </div>
+    <div class="exp-body">
+      수학·영어·과학 디지털 교과서용 <strong>인터랙티브 미니게임</strong>을 기획서 분석부터 구현까지 담당했습니다.
+      <ul>
+        <li>기획서를 분석해 미니게임의 <strong>화면 흐름과 동작 방식</strong>을 구상하고 JavaScript로 구현</li>
+        <li>클릭·선택·입력에 따른 상태 변화와 <strong>정답 처리 로직</strong>을 직접 설계</li>
+        <li>기획 의도를 코드로 옮기며 <strong>사용자 행동에 따른 UI 흐름</strong>을 반복적으로 구현</li>
+      </ul>
+    </div>
+    <div class="exp-note">→ 이 경험이 "데이터를 어떻게 설계할 것인가"라는 질문으로 이어져 백엔드 개발에 관심을 갖게 됐습니다.</div>
+  </div>
+
+  <!-- Projects -->
+  <div class="section">
+    <div class="section-title">Projects</div>
+
+    <!-- CINEMO -->
+    <div class="project project-featured">
+      <div class="project-header">
+        <span class="project-name">🎬 CINEMO</span>
+      </div>
+      <p class="project-desc">Cinema in Motion — 영화를 고르고, 기록하고, 다시 꺼내보는 나만의 영화관 — 풀스택 개인 프로젝트</p>
+      <div class="project-body">
+        영화 선택부터 관람 기록, 명대사와 커뮤니티까지 이어지는 흐름을 실제 영화관의 공간처럼 설계했습니다.
+        <ul>
+          <li><strong>CINEMO 로비</strong> — KOBIS 박스오피스, 사용자 관심 순위, 주간 TOP 3를 한 화면에서 제공</li>
+          <li><strong>MY CINEMA</strong> — 찜·봤어요·관람 기록을 영화 달력과 개인 컬렉션으로 연결</li>
+          <li><strong>QUOTE FILM</strong> — 영화 명대사와 원문을 분리해 기록하고 포스터 카드로 표현</li>
+          <li><strong>CINEMO CAFE</strong> — 영화별 후기와 다른 사용자의 이야기를 나누는 커뮤니티 공간</li>
+          <li><strong>외부 데이터 안정화</strong> — TMDB·KOBIS·Kakao Local과 AI Provider를 역할별로 분리하고 캐시·fallback 적용</li>
+        </ul>
+      </div>
+      <div class="tags">
+        <span class="tag">Next.js</span><span class="tag">NestJS</span><span class="tag">TypeScript</span>
+        <span class="tag">Prisma</span><span class="tag">PostgreSQL</span><span class="tag">TMDB API</span>
+        <span class="tag">KOBIS API</span><span class="tag">Kakao Local API</span><span class="tag">AI Provider</span>
+        <span class="tag">WebSocket</span><span class="tag">GitHub Actions</span><span class="tag">Railway</span><span class="tag">Neon</span>
+      </div>
+      <div class="project-links">
+        <a href="https://cinemo-six.vercel.app" target="_blank" rel="noreferrer">Live Demo</a>
+        <a href="https://github.com/hgim96715-lgtm/cinemo" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+      <div class="cinemo-showcase" aria-label="CINEMO 화면 미리보기">
+        <figure class="cinemo-shot cinemo-shot--hero">
+          <img src="assets/portfolio/cinemo/lobby.png" alt="CINEMO 로비 화면" loading="lazy">
+          <figcaption>로비 — 외부 데이터와 사용자 활동을 영화관 전광판처럼 보여주는 진입 화면</figcaption>
+        </figure>
+        <div class="cinemo-shot-grid">
+          <figure class="cinemo-shot">
+            <img src="assets/portfolio/cinemo/coming-movie.png" alt="CINEMO UPCOMING INTEREST 화면" loading="lazy">
+            <figcaption>UPCOMING INTEREST — 개봉 예정작과 사용자 관심 순위를 보여주는 화면</figcaption>
+          </figure>
+          <figure class="cinemo-shot">
+            <img src="assets/portfolio/cinemo/my-cinema.png" alt="CINEMO MY CINEMA 화면" loading="lazy">
+            <figcaption>MY CINEMA — 찜·봤어요·관람 기록을 모아보는 개인 영화 공간</figcaption>
+          </figure>
+          <figure class="cinemo-shot">
+            <img src="assets/portfolio/cinemo/review.png" alt="CINEMO QUOTE FILM 화면" loading="lazy">
+            <figcaption>QUOTE FILM — 다국어 원문까지 남길 수 있는 명대사 기록</figcaption>
+          </figure>
+          <figure class="cinemo-shot">
+            <img src="assets/portfolio/cinemo/admin-dashboard.png" alt="CINEMO 관리자 대시보드 화면" loading="lazy">
+            <figcaption>관리자 — 운영 현황과 서비스 데이터를 확인하는 관리 화면</figcaption>
+          </figure>
+        </div>
+        <p class="cinemo-showcase-note">이미지는 실제 최신 화면으로 교체할 수 있도록 기존 경로를 유지함</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Music Community -->
+    <div class="project">
+      <div class="project-header">
+        <span class="project-name">🎵 Music Community</span>
+      </div>
+      <p class="project-desc">추천 이유와 분위기로 곡을 나누는 소셜 음악 커뮤니티 — 풀스택 MVP</p>
+      <div class="project-body">
+        pnpm 모노레포에서 NestJS(API·인증·집계)와 Next.js(UI·REST 호출)를 직접 연결. JWT 인증을 Passport 없이 직접 구현하고, RBAC으로 역할별 접근을 제어했습니다.
+        <ul>
+          <li>피드 · 로그인/회원가입 · LP 자켓 꾸미기(스티커·연필) · 가사 모음 구현</li>
+          <li>Socket.IO 기반 Listening Room — 실시간 채팅, 곡/자켓 공유</li>
+          <li>Admin 대시보드 — 통계·사용자 관리·DAU·공지 기능</li>
+          <li>Vercel · Railway · Neon으로 배포. Docker Compose로 로컬 환경 구성</li>
+        </ul>
+      </div>
+      <div class="tags">
+        <span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">TypeScript</span>
+        <span class="tag">Prisma</span><span class="tag">PostgreSQL</span><span class="tag">JWT</span>
+        <span class="tag">Socket.IO</span><span class="tag">Docker</span>
+        <span class="tag">Vercel</span><span class="tag">Railway</span><span class="tag">Neon</span>
+      </div>
+      <div class="project-links">
+        <a href="https://music-community-web.vercel.app/recommendations">Demo</a>
+        <a href="https://github.com/hgim96715-lgtm/music-community">GitHub</a>
+      </div>
+      <figure class="project-preview">
+        <a href="assets/portfolio/music-community.png" target="_blank" rel="noreferrer">
+          <img src="assets/portfolio/music-community.png" alt="Music Community 음악 피드 화면 — 클릭하면 원본 보기" loading="lazy">
+        </a>
+        <figcaption>Music Community — 음악 카드와 추천 이유를 공유하는 피드</figcaption>
+      </figure>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Artinerary -->
+    <div class="project">
+      <div class="project-header">
+        <span class="project-name">🖼️ Artinerary</span>
+      </div>
+      <p class="project-desc">공공 문화 API 기반 전시 큐레이션 서비스</p>
+      <div class="project-body">
+        문화누리 XML을 수집·정규화한 전시 큐레이션 서비스. 외부 API 연동·데이터 정규화, JWT(httpOnly) 인증, 역할 분리, 관리자 보정 기능.
+      </div>
+      <div class="tags">
+        <span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">TypeScript</span>
+        <span class="tag">PostgreSQL</span><span class="tag">Docker</span>
+        <span class="tag">Public API (XML)</span><span class="tag">JWT</span>
+      </div>
+      <div class="project-links"><a href="https://artinerary-web.vercel.app">Demo</a><a href="https://github.com/hgim96715-lgtm/artinerary">GitHub</a></div>
+      <figure class="project-preview">
+        <a href="assets/portfolio/artinerary.png" target="_blank" rel="noreferrer">
+          <img src="assets/portfolio/artinerary.png" alt="Artinerary 전시 대시보드 화면 — 클릭하면 원본 보기" loading="lazy">
+        </a>
+        <figcaption>Artinerary — 지역·날짜·날씨를 함께 보여주는 전시 큐레이션 대시보드</figcaption>
+      </figure>
+    </div>
+
+    <!-- <div class="divider"></div> -->
+
+    <!-- 응급실
+    <div class="project">
+      <div class="project-header">
+        <span class="project-name">🚑 응급실 실시간 병상 현황</span>
+        <span style="font-size:12px;color:var(--muted);">역설계 사이드 프로젝트</span>
+      </div>
+      <p class="project-desc">응급구조사 실습 경험을 코드로 — 119·병원 간 실시간 병상 공유 파이프라인</p>
+      <div class="project-body">
+        현장에서 직접 겪었던 "119와 병원 간 정보 격차" 문제를 데이터 엔지니어 관점으로 역설계. 공공 API로 데이터를 수집·적재하고 Streamlit으로 시각화.
+      </div>
+      <div class="tags">
+        <span class="tag">Python</span><span class="tag">PostgreSQL</span>
+        <span class="tag">Public API</span><span class="tag">Streamlit</span>
+      </div>
+      <div class="project-links"><a href="https://github.com/hgim96715-lgtm/hospital-realtime-pipeline">GitHub</a></div>
+    </div>
+  </div> -->
+
+  <!-- Skills -->
+  <div class="section skills-section">
+    <div class="section-title">Skills</div>
+    <div class="skills-grid">
+      <span class="skill-label">Backend</span>
+      <span class="skill-value">NestJS · TypeScript · REST API · JWT · RBAC · Swagger · Jest</span>
+
+      <span class="skill-label">Database</span>
+      <span class="skill-value">PostgreSQL · Prisma · SQL · ER 모델링 · 마이그레이션</span>
+
+      <span class="skill-label">Frontend</span>
+      <span class="skill-value">Next.js · React · TypeScript · Tailwind CSS</span>
+
+      <span class="skill-label">Infra</span>
+      <span class="skill-value">Docker · Vercel · Railway · Neon · AWS (EB/RDS/S3) · GitHub Actions</span>
+    </div>
+  </div>
+
+  <!-- Education -->
+  <div class="section">
+    <div class="section-title">Education &amp; Certificates</div>
+
+    <div class="edu-row">
+      <span class="edu-name">경일대학교 응급구조학과</span>
+      <span class="edu-detail">2014.02 – 2018.02</span>
+    </div>
+    <div class="edu-row">
+      <span class="edu-name">SQLD · 한국데이터산업진흥원</span>
+      <span class="edu-detail">2026.03</span>
+    </div>
+    <div class="edu-row">
+      <span class="edu-name">정보처리기능사 · 한국산업인력공단</span>
+      <span class="edu-detail">2023.04</span>
+    </div>
+  </div>
+
+  <!-- Technical Writing -->
+  <div class="section">
+    <div class="section-title">Technical Writing</div>
+    <div class="writing-body">
+      <strong>Obsidian</strong>으로 공부·정리하는 개인 위키 <em>gong_study</em>.
+      개념 암기보다 동작 원리와 흐름 중심으로 — NestJS·Next.js·TypeScript·PostgreSQL 전반을
+      직접 구현하며 기록합니다. 프론트와 백엔드가 어떻게 연결되는지, 배포·운영까지 프로젝트에
+      반영하며 쌓은 내용이라 코드보다 먼저 읽어볼 수 있습니다.
+    </div>
+    <div class="project-links" style="margin-top:8px;">
+      <a href="https://github.com/hgim96715-lgtm/Obsidian_study">GitHub — Obsidian_study</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

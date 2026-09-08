@@ -17,7 +17,7 @@ import {
 } from '@/lib/quote-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import '../../styles/quote.css';
-import '../../styles/room.css';
+import '../../styles/my-cinema.css';
 import '../../styles/lobby.css';
 import QuoteFilmActions from '@/components/quote/QuoteFilmActions';
 import QuoteActionModal from '@/components/quote/QuoteActionModal';
@@ -122,11 +122,11 @@ export default function SavedQuotePage() {
 
   return (
     <main className="quote-page quote-page--saved">
-      <nav className="room-shelf-nav" aria-label="페이지 이동">
-        <Link href="/quote" className="room-top-nav-link">
+      <nav className="my-cinema-shelf-nav" aria-label="페이지 이동">
+        <Link href="/quote" className="my-cinema-top-nav-link">
           명대사방
         </Link>
-        <Link href="/room" className="room-top-nav-link">
+        <Link href="/my-cinema" className="my-cinema-top-nav-link">
           MY CINEMA
         </Link>
       </nav>

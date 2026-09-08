@@ -1,7 +1,7 @@
 'use client';
 
-import { MovieShelf } from '@/components/room/MovieShelf';
-import '../../styles/room.css';
+import { MovieShelf } from '@/components/my-cinema/MovieShelf';
+import '../../styles/my-cinema.css';
 import '../../styles/lobby.css';
 
 export default function WishShelfPage() {

@@ -27,4 +27,5 @@ export const envValidationSchema = Joi.object({
     .optional(),
   [EnvKeys.TEST_USER_PASSWORD]: Joi.string().min(8).optional(),
   [EnvKeys.KAKAO_REST_API_KEY]: Joi.string().optional(),
+  [EnvKeys.KOBIS_API_KEY]: Joi.string().trim().optional(),
 });

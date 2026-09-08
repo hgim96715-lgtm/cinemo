@@ -163,7 +163,7 @@ export default function GachaPage() {
               href={user?.role === 'admin' ? '/admin' : '/'}
               className="gacha-header-link"
             >
-              {user?.role === 'admin' ? '관리자 화면으로' : '로비로'}
+              {user?.role === 'admin' ? '관리자 화면으로' : 'CINEMO LOBBY'}
             </Link>
           </div>
           <p className="gacha-kicker">GACHA</p>
@@ -269,12 +269,12 @@ export default function GachaPage() {
                 관리자 화면으로
               </Link>
               <Link href="/?lobby=1" className="gacha-header-link">
-                로비로
+                CINEMO LOBBY
               </Link>
             </>
           ) : (
             <Link href="/" className="gacha-header-link">
-              로비로
+              CINEMO LOBBY
             </Link>
           )}
 
@@ -505,12 +505,12 @@ export default function GachaPage() {
                       관리자 화면으로
                     </Link>
                     <Link href="/?lobby=1" className="gacha-nav-link">
-                      로비로
+                      CINEMO LOBBY
                     </Link>
                   </>
                 ) : (
                   <Link href="/" className="gacha-nav-link">
-                    로비로
+                    CINEMO LOBBY
                   </Link>
                 )}
 

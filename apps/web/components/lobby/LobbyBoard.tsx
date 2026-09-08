@@ -1,8 +1,14 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { Calendar } from 'lucide-react';
-import type { BoardWeekTopMovie, LobbyBoardResponse } from '@cinemo/shared';
+import {
+  ArrowDown,
+  ArrowUp,
+  Calendar,
+  LoaderCircle,
+  Minus,
+} from 'lucide-react';
+import type { LobbyBoardResponse } from '@cinemo/shared';
 import {
   getLobbyBoardRequest,
   recordLobbyVisitRequest,
@@ -10,79 +16,91 @@ import {
 import { kstLobbyDateLabel } from '@/lib/date-kst';
 import { useAuthStore } from '@/lib/auth-store';
 
-const TODAY_HOUR_LABELS = ['0', '4', '8', '12', '16', '20'] as const;
+const chartNumberFormatter = new Intl.NumberFormat('ko-KR', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
 
-function MiniSpark({
-  series,
-  labels,
-}: {
-  series: number[] | null;
-  labels?: readonly string[];
-}) {
-  const hasData = Boolean(series?.some((n) => n > 0));
-  const bars = hasData && series ? series : [2, 4, 3, 5, 4, 6];
-  const max = Math.max(...bars, 1);
+function formatChartCount(count: number) {
+  if (count < 10_000) {
+    return chartNumberFormatter.format(count);
+  }
+
+  const value = Math.floor((count / 10_000) * 10) / 10;
+
+  return `${value.toLocaleString('ko-KR', {
+    maximumFractionDigits: 1,
+  })}만`;
+}
+
+type ChartMovie = {
+  tmdbId: number;
+  title: string;
+  count: number;
+  rankChange?: number | null;
+};
+
+function RankChange({ value }: { value?: number | null }) {
+  if (value === undefined) return null;
+
+  if (value === null) {
+    return <span className="lobby-rank-new">NEW</span>;
+  }
+
+  if (value > 0) {
+    return (
+      <span className="lobby-rank-up">
+        <ArrowUp size={11} aria-hidden />
+        {value}
+      </span>
+    );
+  }
+
+  if (value < 0) {
+    return (
+      <span className="lobby-rank-down">
+        <ArrowDown size={11} aria-hidden />
+        {Math.abs(value)}
+      </span>
+    );
+  }
 
   return (
-    <div
-      className={`lobby-chart-spark${hasData ? ' lobby-chart-spark--live' : ''}${labels ? ' lobby-chart-spark--labeled' : ''}`}
-    >
-      <div className="lobby-chart-spark-bars" aria-hidden>
-        {bars.map((n, i) => (
-          <span
-            key={i}
-            style={{
-              height: `${hasData ? Math.max(n > 0 ? 20 : 8, (n / max) * 100) : 30 + n * 8}%`,
-            }}
-          />
-        ))}
-      </div>
-      {labels ? (
-        <div className="lobby-chart-spark-labels" aria-hidden>
-          {labels.map((label) => (
-            <span key={label}>{label}</span>
-          ))}
-        </div>
-      ) : null}
-    </div>
+    <span className="lobby-rank-same">
+      <Minus size={11} aria-hidden />
+    </span>
   );
 }
 
 function StatViz({
   primary,
   secondary,
-  series,
-  labels,
 }: {
   primary: string;
   secondary: string;
-  series: number[] | null;
-  labels?: readonly string[];
 }) {
   return (
     <div className="lobby-chart-stat">
       <p className="lobby-chart-stat-primary">{primary}</p>
       <p className="lobby-chart-stat-secondary">{secondary}</p>
-      <MiniSpark series={series} labels={labels} />
     </div>
   );
 }
-
-function WeekListViz({ movies }: { movies: BoardWeekTopMovie[] }) {
-  const slots: (BoardWeekTopMovie | null)[] = [0, 1, 2].map(
-    (i) => movies[i] ?? null,
-  );
-  const max = Math.max(1, ...slots.map((m) => m?.count ?? 0));
+function WeekListViz({ movies }: { movies: ChartMovie[] }) {
+  const slots = [0, 1, 2].map((i) => movies[i] ?? null);
+  const max = Math.max(1, ...slots.map((movie) => movie?.count ?? 0));
 
   return (
     <ul className="lobby-chart-list">
-      {slots.map((movie, i) => (
+      {slots.map((movie, index) => (
         <li
-          key={i}
-          className={`lobby-chart-row${movie ? '' : ' lobby-chart-row--empty'}`}
+          key={movie?.tmdbId ?? index}
+          className={`lobby-chart-row${movie ? '' : ' lobby-chart-row--empty'}${movie?.rankChange !== undefined ? ' lobby-chart-row--with-change' : ''}`}
         >
-          <span className="lobby-chart-row-rank">{i + 1}</span>
+          <span className="lobby-chart-row-rank">{index + 1}</span>
+
           <span className="lobby-chart-row-title">{movie?.title ?? '—'}</span>
+
           <span className="lobby-chart-row-bar" aria-hidden>
             <i
               style={{
@@ -92,9 +110,12 @@ function WeekListViz({ movies }: { movies: BoardWeekTopMovie[] }) {
               }}
             />
           </span>
+
           <span className="lobby-chart-row-count">
-            {movie ? `${movie.count}` : ''}
+            {movie ? formatChartCount(movie.count) : ''}
           </span>
+
+          <RankChange value={movie?.rankChange} />
         </li>
       ))}
     </ul>
@@ -123,12 +144,37 @@ export function LobbyBoard() {
   const hydrated = useAuthStore((s) => s.hydrated);
   const [board, setBoard] = useState<LobbyBoardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [dateLabel, setDateLabel] = useState('');
+  const [dateLabel, setDateLabel] = useState(kstLobbyDateLabel);
   const [loading, setLoading] = useState(true);
+  const [boardMode, setBoardMode] = useState<
+    'box-office' | 'upcoming' | 'weekly'
+  >('weekly');
 
-  useEffect(() => {
-    setDateLabel(kstLobbyDateLabel());
-  }, []);
+  const chartMovies =
+    boardMode === 'box-office'
+      ? (board?.boxOfficeMovies ?? []).map((movie) => ({
+          tmdbId: movie.rank,
+          title: movie.title,
+          count: movie.audienceCount,
+          rankChange: movie.rankChange,
+        }))
+      : boardMode === 'upcoming'
+        ? (board?.upcomingInterestMovies ?? []).map((movie) => ({
+            tmdbId: movie.tmdbId,
+            title: movie.title,
+            count: movie.interestCount,
+          }))
+        : (board?.weekTopMovies ?? []).map((movie) => ({
+            tmdbId: movie.tmdbId,
+            title: movie.title,
+            count: movie.count,
+          }));
+  const chartLabel =
+    boardMode === 'box-office'
+      ? 'BOX OFFICE NOW'
+      : boardMode === 'upcoming'
+        ? 'UPCOMING INTEREST'
+        : 'WEEKLY TOP 3';
 
   useEffect(() => {
     if (!hydrated) return;
@@ -171,9 +217,14 @@ export function LobbyBoard() {
     };
   }, [accessToken, hydrated]);
 
-  const weekMovies = board?.weekTopMovies ?? [];
-  const todayCount = board?.todayReviewCount ?? 0;
-  const weekCount = board?.weekReviewCount ?? 0;
+  useEffect(() => {
+    const timerId = window.setInterval(() => {
+      setDateLabel(kstLobbyDateLabel());
+    }, 60_000);
+    return () => {
+      window.clearInterval(timerId);
+    };
+  }, []);
 
   return (
     <section className="lobby-board-block">
@@ -195,42 +246,54 @@ export function LobbyBoard() {
       {error ? <p className="lobby-board-date">{error}</p> : null}
       <div className="lobby-board" aria-label="전광판">
         {loading ? (
-          <p className="lobby-board-loading">통계를 불러오는 중…</p>
+          <p className="lobby-board-loading" role="status">
+            <LoaderCircle
+              className="lobby-board-loading-icon"
+              size={22}
+              strokeWidth={1.6}
+              aria-hidden
+            />
+            <span>통계를 불러오는 중</span>
+          </p>
         ) : (
           <div className="lobby-board-slots">
-            <ChartShell label="오늘 입장">
-              <StatViz
-                primary={
-                  board?.todayVisits != null ? `${board.todayVisits}` : '—'
-                }
-                secondary={
-                  board?.todayVisits != null
-                    ? '명 방문 (KST)'
-                    : '로그인 후 집계'
-                }
-                series={board?.todayVisitSeries ?? null}
-                labels={TODAY_HOUR_LABELS}
-              />
-            </ChartShell>
+            <div className="lobby-board-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={boardMode === 'box-office'}
+                className={boardMode === 'box-office' ? 'is-active' : ''}
+                onClick={() => setBoardMode('box-office')}
+              >
+                BOX OFFICE NOW
+              </button>
 
-            <ChartShell label="오늘의 후기">
-              <StatViz
-                primary={todayCount > 0 ? `${todayCount}` : '—'}
-                secondary={todayCount > 0 ? '건 (KST)' : '아직 없음'}
-                series={board?.todayReviewSeries ?? null}
-                labels={TODAY_HOUR_LABELS}
-              />
-            </ChartShell>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={boardMode === 'upcoming'}
+                className={boardMode === 'upcoming' ? 'is-active' : ''}
+                onClick={() => setBoardMode('upcoming')}
+              >
+                UPCOMING INTEREST
+              </button>
 
-            <ChartShell label="주간 TOP 3">
-              {weekCount > 0 ? (
-                <WeekListViz movies={weekMovies} />
+              <button
+                type="button"
+                role="tab"
+                aria-selected={boardMode === 'weekly'}
+                className={boardMode === 'weekly' ? 'is-active' : ''}
+                onClick={() => setBoardMode('weekly')}
+              >
+                WEEKLY TOP 3
+              </button>
+            </div>
+
+            <ChartShell label={chartLabel}>
+              {chartMovies.length > 0 ? (
+                <WeekListViz movies={chartMovies} />
               ) : (
-                <StatViz
-                  primary="—"
-                  secondary="이번 주 후기 없음"
-                  series={null}
-                />
+                <StatViz primary="—" secondary="아직 기록 없음" />
               )}
             </ChartShell>
           </div>
