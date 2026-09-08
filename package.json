@@ -2,6 +2,7 @@
   "name": "cinemo",
   "private": true,
   "scripts": {
+    "build": "pnpm --filter web build",
     "dev:api": "pnpm --filter api start:dev",
     "dev:web": "pnpm --filter web dev",
     "build:api": "pnpm --filter api build",
