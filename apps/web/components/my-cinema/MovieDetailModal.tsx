@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Check,
-  Heart,
-  X,
-  ZoomIn,
-  ZoomOut,
-} from 'lucide-react';
+import { Check, ExternalLink, Heart, X, ZoomIn, ZoomOut } from 'lucide-react';
 import type {
   GachaMovie,
   UserMovieKind,
@@ -39,10 +33,34 @@ import {
   readRecentLocations,
 } from './movie-detail-location';
 
+const TMDB_GENRE_LABELS: Record<number, string> = {
+  28: '액션',
+  12: '모험',
+  16: '애니메이션',
+  35: '코미디',
+  80: '범죄',
+  99: '다큐멘터리',
+  18: '드라마',
+  10751: '가족',
+  14: '판타지',
+  36: '역사',
+  27: '공포',
+  10402: '음악',
+  9648: '미스터리',
+  10749: '로맨스',
+  878: 'SF',
+  53: '스릴러',
+  10752: '전쟁',
+  37: '서부',
+};
+
 type MovieDetailModalProps = {
-  movie: GachaMovie;
+  movie: GachaMovie & {
+    genre_ids?: number[];
+  };
   screening?: UserMovieListItem;
   marks?: Pick<UserMovieMarks, 'wish' | 'watched'>;
+  showWatchedMark?: boolean;
   onClose: () => void;
   onToggleMark?: (kind: UserMovieKind) => void;
   onSaved?: (details: SavedScreeningDetails) => void;
@@ -52,6 +70,7 @@ export function MovieDetailModal({
   movie,
   screening,
   marks,
+  showWatchedMark = true,
   onClose,
   onToggleMark,
   onSaved,
@@ -68,9 +87,8 @@ export function MovieDetailModal({
     PlaceSearchResult[]
   >([]);
   const [locationSuggestionsQuery, setLocationSuggestionsQuery] = useState('');
-  const [recentLocations, setRecentLocations] = useState<RecentLocation[]>(
-    readRecentLocations,
-  );
+  const [recentLocations, setRecentLocations] =
+    useState<RecentLocation[]>(readRecentLocations);
   const [isLocationFocused, setIsLocationFocused] = useState(false);
 
   const [searchingPlacesQuery, setSearchingPlacesQuery] = useState('');
@@ -317,45 +335,85 @@ export function MovieDetailModal({
             <p className="movie-detail-kicker">MOVIE DETAIL</p>
 
             <h2 id="movie-detail-title">{movie.title}</h2>
+            {movie.genre_ids?.length ? (
+              <div className="movie-detail-genres" aria-label="영화 장르">
+                {movie.genre_ids
+                  .map((genreId) => TMDB_GENRE_LABELS[genreId])
+                  .filter(Boolean)
+                  .map((genre) => (
+                    <span key={genre}>{genre}</span>
+                  ))}
+              </div>
+            ) : null}
 
-            <p className="movie-detail-meta">
-              {movie.release_date?.slice(0, 4) || '개봉연도 정보 없음'}
-              {movie.director ? ` · 감독 ${movie.director}` : ''}
-            </p>
+            <dl className="movie-detail-facts">
+              {movie.release_date ? (
+                <div>
+                  <dt>개봉일</dt>
+                  <dd>{movie.release_date.replaceAll('-', '.')}</dd>
+                </div>
+              ) : null}
+              {movie.director ? (
+                <div>
+                  <dt>감독</dt>
+                  <dd>{movie.director}</dd>
+                </div>
+              ) : null}
+              {movie.cast && movie.cast.length > 0 ? (
+                <div>
+                  <dt>주요 배우</dt>
+                  <dd>{movie.cast.slice(0, 5).join(', ')}</dd>
+                </div>
+              ) : null}
+            </dl>
 
-            {onToggleMark ? (
+            {onToggleMark && showWatchedMark ? (
               <div className="movie-detail-mark-actions" aria-label="영화 상태">
                 <button
                   type="button"
-                  className={`my-cinema-mark${marks?.wish ? ' is-on' : ''}`}
+                  className={`my-cinema-mark movie-detail-interest-icon${
+                    marks?.wish ? ' is-on' : ''
+                  }`}
                   aria-pressed={marks?.wish ?? false}
-                  aria-label={marks?.wish ? '찜 해제' : '찜'}
+                  aria-label={marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'}
                   onClick={() => onToggleMark('wish')}
                 >
                   <Heart
-                    size={17}
-                    strokeWidth={1.7}
+                    size={22}
+                    strokeWidth={1.8}
                     fill={marks?.wish ? 'currentColor' : 'none'}
                     aria-hidden
                   />
-                  <span>{marks?.wish ? '찜한 영화' : '찜하기'}</span>
                 </button>
-                <button
-                  type="button"
-                  className={`my-cinema-mark${marks?.watched ? ' is-on' : ''}`}
-                  aria-pressed={marks?.watched ?? false}
-                  aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
-                  onClick={() => onToggleMark('watched')}
-                >
-                  <Check size={17} strokeWidth={2} aria-hidden />
-                  <span>{marks?.watched ? '관람 기록' : '봤어요'}</span>
-                </button>
+                {showWatchedMark ? (
+                  <button
+                    type="button"
+                    className={`my-cinema-mark${marks?.watched ? ' is-on' : ''}`}
+                    aria-pressed={marks?.watched ?? false}
+                    aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
+                    onClick={() => onToggleMark('watched')}
+                  >
+                    <Check size={17} strokeWidth={2} aria-hidden />
+                    <span>{marks?.watched ? '관람 기록' : '봤어요'}</span>
+                  </button>
+                ) : null}
               </div>
             ) : null}
 
             <p className="movie-detail-overview">
               {movie.overview?.trim() || '줄거리 정보가 없어요.'}
             </p>
+            {movie.trailerUrl ? (
+              <a
+                className="movie-detail-trailer-link"
+                href={movie.trailerUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                예고편 보기
+                <ExternalLink size={15} aria-hidden />
+              </a>
+            ) : null}
 
             <div className="movie-detail-text-controls">
               <span>설명 글자 크기</span>
@@ -377,6 +435,27 @@ export function MovieDetailModal({
               >
                 <ZoomIn size={16} strokeWidth={1.5} aria-hidden />
               </button>
+
+              {onToggleMark && !showWatchedMark ? (
+                <button
+                  type="button"
+                  className={
+                    marks?.wish
+                      ? 'movie-detail-interest-inline is-on'
+                      : 'movie-detail-interest-inline'
+                  }
+                  aria-pressed={marks?.wish ?? false}
+                  aria-label={marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'}
+                  onClick={() => onToggleMark('wish')}
+                >
+                  <Heart
+                    size={19}
+                    strokeWidth={1.8}
+                    fill={marks?.wish ? 'currentColor' : 'none'}
+                    aria-hidden
+                  />
+                </button>
+              ) : null}
             </div>
             {screening ? (
               <MovieDetailScreeningForm

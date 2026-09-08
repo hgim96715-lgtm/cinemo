@@ -73,8 +73,10 @@ export class OpenAiService implements IAiProvider {
       const response = await this.openai.responses.create({
         model: this.model,
         input:
-          `영화 "${titleEn}"의 줄거리를 자연스러운 한국어로 2~3문장으로 번역해줘.\n` +
-          `번역문만 출력해. 설명, 따옴표, 부연 일절 없이.\n\n` +
+          `영화 "${titleEn}"의 영어 줄거리를 한국어로 충실하게 번역해줘.\n` +
+          `요약하거나 새로 창작하지 말고, 등장인물·인물 관계·배경·사건·갈등·목표·위협 등 원문에 있는 정보를 빠뜨리지 마.\n` +
+          `자연스러운 2~4문장으로 작성하되, 원문이 짧으면 없는 내용을 추가하지 마.\n` +
+          `번역문만 출력해. 설명, 제목, 따옴표, 부연은 출력하지 마.\n\n` +
           overviewEn,
       });
       return this.getOutputText(response);

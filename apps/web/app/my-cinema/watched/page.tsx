@@ -2,6 +2,7 @@
 
 import { MovieShelf } from '@/components/my-cinema/MovieShelf';
 import '../../styles/my-cinema.css';
+import '../../styles/movie-detail-modal.css';
 import '../../styles/lobby.css';
 
 export default function WatchedShelfPage() {

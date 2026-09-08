@@ -1,4 +1,8 @@
-import type { GachaMovie, MoviePoolSeedRun } from '@cinemo/shared';
+import type {
+  GachaMovie,
+  MoviePoolSeedRun,
+  MovieWithTags,
+} from '@cinemo/shared';
 import { apiFetch } from './api';
 import { normalizeSearchQuery } from './search-query';
 
@@ -130,4 +134,8 @@ export function cancelSeedPoolRequest(token: string | null) {
     method: 'POST',
     token,
   });
+}
+
+export function getMovieDetailRequest(tmdbId: number) {
+  return apiFetch<MovieWithTags>(`/tmdb/movie/${tmdbId}`);
 }

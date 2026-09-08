@@ -11,6 +11,7 @@ import {
   Query,
   Headers,
   UnauthorizedException,
+  Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import {
@@ -38,6 +39,12 @@ export class TmdbController {
     return machineId && isGachaMachineId(machineId)
       ? GACHA_TMDB_FILTERS[machineId]
       : {};
+  }
+
+  @Public()
+  @Get('movie/:movieId')
+  getMovie(@Param('movieId', ParseIntPipe) movieId: number) {
+    return this.tmdbService.getMovie(movieId);
   }
 
   @Get('genres')

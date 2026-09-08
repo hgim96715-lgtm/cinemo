@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CalendarDays, Heart } from 'lucide-react';
+import { ArrowLeft, Heart, Sparkles } from 'lucide-react';
 import {
   getUpcomingMoviesRequest,
   type UpcomingMovie,
@@ -16,6 +16,46 @@ import {
 import { useAuthStore } from '@/lib/auth-store';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import '../styles/lobby.css';
+import '../styles/upcoming.css';
+import '../styles/my-cinema.css';
+import '../styles/movie-detail-modal.css';
+import { GachaMovie } from '@cinemo/shared';
+import { getMovieDetailRequest } from '@/lib/tmdb-api';
+import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
+
+type UpcomingPeriod = {
+  key: string;
+  label: string;
+};
+
+function getUpcomingPeriods(): UpcomingPeriod[] {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: 'numeric',
+  }).formatToParts(new Date());
+  const year = Number(parts.find((part) => part.type === 'year')?.value);
+  const month = Number(parts.find((part) => part.type === 'month')?.value);
+  const currentMonth = new Date(Date.UTC(year, month - 1, 1));
+
+  const monthPeriods = [0, 1, 2].map((offset) => {
+    const date = new Date(
+      Date.UTC(year, currentMonth.getUTCMonth() + offset, 1),
+    );
+    const monthNumber = date.getUTCMonth() + 1;
+
+    return {
+      key: `${date.getUTCFullYear()}-${String(monthNumber).padStart(2, '0')}`,
+      label: `${monthNumber}월`,
+    };
+  });
+
+  return [
+    { key: 'all', label: '전체' },
+    ...monthPeriods,
+    { key: String(year + 1), label: `${year + 1}년` },
+  ];
+}
 
 export default function UpcomingPage() {
   const router = useRouter();
@@ -29,15 +69,44 @@ export default function UpcomingPage() {
   const [interestedIds, setInterestedIds] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const periods = getUpcomingPeriods();
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const [detailMovie, setDetailMovie] = useState<GachaMovie | null>(null);
+  const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const month = new URLSearchParams(window.location.search).get('month');
+
+    setSelectedPeriod(
+      month && periods.some((period) => period.key === month) ? month : 'all',
+    );
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
+
     async function loadUpcomingMovies() {
+      const period = selectedPeriod;
+      if (period === null) return;
+
       setLoading(true);
       setError(null);
+      setPage(1);
+
       try {
-        const upcomingMovies = await getUpcomingMoviesRequest();
+        const result = await getUpcomingMoviesRequest(
+          period === 'all' ? undefined : period,
+          1,
+          10,
+        );
+
         if (!cancelled) {
-          setMovies(upcomingMovies);
+          setMovies(result.items);
+          setHasNext(result.hasNext);
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -47,6 +116,7 @@ export default function UpcomingPage() {
               : '개봉 예정작을 불러오지 못했어요.',
           );
           setMovies([]);
+          setHasNext(false);
         }
       } finally {
         if (!cancelled) {
@@ -54,11 +124,45 @@ export default function UpcomingPage() {
         }
       }
     }
+
     void loadUpcomingMovies();
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [selectedPeriod]);
+
+  async function handleLoadMore() {
+    if (loadingMore || !hasNext || selectedPeriod === null) return;
+
+    setLoadingMore(true);
+
+    try {
+      const nextPage = page + 1;
+      const result = await getUpcomingMoviesRequest(
+        selectedPeriod === 'all' ? undefined : selectedPeriod,
+        nextPage,
+        10,
+      );
+
+      setMovies((current) => [...current, ...result.items]);
+      setPage(nextPage);
+      setHasNext(result.hasNext);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  async function handleDetailClick(tmdbId: number) {
+    setLoadingDetailId(tmdbId);
+
+    try {
+      const movie = await getMovieDetailRequest(tmdbId);
+      setDetailMovie(movie);
+    } finally {
+      setLoadingDetailId(null);
+    }
+  }
 
   useEffect(() => {
     const token = accessToken;
@@ -127,6 +231,26 @@ export default function UpcomingPage() {
     return `${year}.${month}.${day} 개봉 예정`;
   }
 
+  function handlePeriodChange(period: string) {
+    setSelectedPeriod(period);
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (period === 'all') {
+      params.delete('month');
+    } else {
+      params.set('month', period);
+    }
+
+    const query = params.toString();
+
+    window.history.replaceState(
+      null,
+      '',
+      query ? `/upcoming?${query}` : '/upcoming',
+    );
+  }
+
   return (
     <main className="lobby upcoming-lobby lobby--lit">
       <section className="lobby-stage upcoming-page">
@@ -136,18 +260,40 @@ export default function UpcomingPage() {
             <span>CINEMO LOBBY</span>
           </Link>
 
-          <Link href="/my-cinema/wish" className="upcoming-nav-link upcoming-nav-link--wish">
+          <Link
+            href="/my-cinema/wish"
+            className="upcoming-nav-link upcoming-nav-link--wish"
+          >
             <Heart size={17} aria-hidden />
             <span>찜한 영화</span>
           </Link>
         </nav>
 
         <header className="upcoming-header">
-          <CalendarDays size={28} aria-hidden />
+          <Sparkles size={28} strokeWidth={1.8} aria-hidden />
           <p className="lobby-destination-kicker">COMING SOON</p>
           <h1>곧 스크린에서 만날 영화</h1>
           <p>개봉일을 확인하고 미리 찜해보세요</p>
         </header>
+
+        <div
+          className="upcoming-period-tabs"
+          role="tablist"
+          aria-label="개봉 시기 필터"
+        >
+          {periods.map((period) => (
+            <button
+              key={period.key}
+              type="button"
+              role="tab"
+              aria-selected={selectedPeriod === period.key}
+              className={selectedPeriod === period.key ? 'is-active' : ''}
+              onClick={() => handlePeriodChange(period.key)}
+            >
+              {period.label}
+            </button>
+          ))}
+        </div>
 
         <section
           className="upcoming-list"
@@ -160,15 +306,13 @@ export default function UpcomingPage() {
           ) : movies.length === 0 ? (
             <p>현재 개봉 예정작이 없어요.</p>
           ) : (
-            movies.map((movie, index) => {
+            movies.map((movie) => {
               const poster = tmdbPosterUrl(movie.posterPath, 'w185');
               const interested = interestedIds.includes(movie.tmdbId);
               const toggling = togglingInterestId === movie.tmdbId;
 
               return (
                 <article className="upcoming-movie-card" key={movie.tmdbId}>
-                  <span className="upcoming-movie-rank">{index + 1}</span>
-
                   {poster ? (
                     <Image
                       src={poster}
@@ -184,25 +328,65 @@ export default function UpcomingPage() {
                     <p>관심 등록 {movie.interestCount}명</p>
                   </div>
 
-                  <button
-                    type="button"
-                    aria-pressed={interested}
-                    disabled={toggling}
-                    onClick={() => void handleInterestClick(movie.tmdbId)}
-                  >
-                    <Heart
-                      width={18}
-                      height={18}
-                      strokeWidth={2}
-                      fill={interested ? 'currentColor' : 'none'}
-                      aria-hidden
-                    />
-                    {interested ? '관심 등록됨' : '보고 싶어요'}
-                  </button>
+                  <div className="upcoming-card-actions">
+                    <button
+                      type="button"
+                      className="upcoming-interest-button"
+                      aria-pressed={interested}
+                      disabled={toggling}
+                      onClick={() => void handleInterestClick(movie.tmdbId)}
+                    >
+                      <Heart
+                        width={18}
+                        height={18}
+                        strokeWidth={2}
+                        fill={interested ? 'currentColor' : 'none'}
+                        aria-hidden
+                      />
+                      {interested ? '관심 등록됨' : '보고 싶어요'}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="upcoming-detail-button"
+                      onClick={() => void handleDetailClick(movie.tmdbId)}
+                      disabled={loadingDetailId === movie.tmdbId}
+                    >
+                      {loadingDetailId === movie.tmdbId
+                        ? '불러오는 중...'
+                        : '상세 보기'}
+                    </button>
+                  </div>
                 </article>
               );
             })
           )}
+          {hasNext ? (
+            <button
+              type="button"
+              className="upcoming-load-more"
+              onClick={() => void handleLoadMore()}
+              disabled={loadingMore}
+            >
+              {loadingMore ? '불러오는 중...' : '더 보기'}
+            </button>
+          ) : null}
+          {detailMovie ? (
+            <MovieDetailModal
+              movie={detailMovie}
+              marks={{
+                wish: interestedIds.includes(detailMovie.id),
+                watched: false,
+              }}
+              showWatchedMark={false}
+              onToggleMark={(kind) => {
+                if (kind === 'wish') {
+                  void handleInterestClick(detailMovie.id);
+                }
+              }}
+              onClose={() => setDetailMovie(null)}
+            />
+          ) : null}
         </section>
       </section>
     </main>

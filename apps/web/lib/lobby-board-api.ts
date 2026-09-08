@@ -24,6 +24,22 @@ export type UpcomingMovie = {
   interestCount: number;
 };
 
-export function getUpcomingMoviesRequest() {
-  return apiFetch<UpcomingMovie[]>('/lobby/upcoming');
+export type UpcomingMoviesResponse = {
+  items: UpcomingMovie[];
+  total: number;
+  hasNext: boolean;
+};
+
+export function getUpcomingMoviesRequest(
+  month?: string,
+  page = 1,
+  limit = 10,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (month) params.set('month', month);
+
+  return apiFetch<UpcomingMoviesResponse>(`/lobby/upcoming?${params}`);
 }

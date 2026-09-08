@@ -168,13 +168,13 @@ export class LobbyBoardService {
   async getBoard(): Promise<LobbyBoardResponse> {
     const week = kstWeekRange();
 
-    const [weekTopMovies, upcomingMovies, boxOfficeMovies] = await Promise.all([
+    const [weekTopMovies, upcomingResult, boxOfficeMovies] = await Promise.all([
       this.weekTopMovies(week.start, week.end),
-      this.getUpcomingMovies(),
+      this.getUpcomingMovies(undefined, 1, 30),
       this.getBoxOfficeMovies(),
     ]);
 
-    const upcomingInterestMovies = upcomingMovies
+    const upcomingInterestMovies = upcomingResult.items
       .sort(
         (a, b) =>
           b.interestCount - a.interestCount ||
@@ -216,15 +216,44 @@ export class LobbyBoardService {
     };
   }
 
-  async getUpcomingMovies() {
+  async getUpcomingMovies(month?: string, page = 1, limit = 10) {
     const today = kstDateKey();
     const oneYearLater = new Date(`${today}T00:00:00+09:00`);
     oneYearLater.setUTCDate(oneYearLater.getUTCDate() + 365);
-    const until = oneYearLater.toISOString().slice(0, 10);
+
+    let fromDate = today;
+    let untilDate = oneYearLater.toISOString().slice(0, 10);
+
+    if (month && /^\d{4}$/.test(month)) {
+      const year = Number(month);
+      const yearStart = new Date(Date.UTC(year, 0, 1))
+        .toISOString()
+        .slice(0, 10);
+      const yearEnd = new Date(Date.UTC(year + 1, 0, 0))
+        .toISOString()
+        .slice(0, 10);
+
+      fromDate = yearStart > today ? yearStart : today;
+      untilDate = yearEnd < untilDate ? yearEnd : untilDate;
+    } else if (month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+      const [year, monthNumber] = month.split('-').map(Number);
+
+      const monthStart = new Date(Date.UTC(year, monthNumber - 1, 1))
+        .toISOString()
+        .slice(0, 10);
+
+      const monthEnd = new Date(Date.UTC(year, monthNumber, 0))
+        .toISOString()
+        .slice(0, 10);
+
+      fromDate = monthStart > today ? monthStart : today;
+      untilDate = monthEnd < untilDate ? monthEnd : untilDate;
+    }
+
     const filters = {
       region: 'KR',
-      'release_date.gte': today,
-      'release_date.lte': until,
+      'release_date.gte': fromDate,
+      'release_date.lte': untilDate,
       with_release_type: '2|3',
     };
 
@@ -243,8 +272,8 @@ export class LobbyBoardService {
       .flatMap((response) => response.results)
       .filter(
         (movie) =>
-          movie.release_date >= today &&
-          movie.release_date <= until &&
+          movie.release_date >= fromDate &&
+          movie.release_date <= untilDate &&
           hasKoreanTitle(movie.title) &&
           Boolean(movie.poster_path) &&
           movie.release_date !== '',
@@ -253,7 +282,7 @@ export class LobbyBoardService {
 
     const pooledMovies = await this.prisma.moviePool.findMany({
       where: {
-        releaseDate: { gte: today, lte: until },
+        releaseDate: { gte: fromDate, lte: untilDate },
         title: { not: '' },
         posterPath: { not: null },
       },
@@ -266,12 +295,15 @@ export class LobbyBoardService {
     });
 
     const movieMap = new Map(
-      movies.map((movie) => [movie.id, {
-        tmdbId: movie.id,
-        title: movie.title,
-        releaseDate: movie.release_date,
-        posterPath: movie.poster_path,
-      }]),
+      movies.map((movie) => [
+        movie.id,
+        {
+          tmdbId: movie.id,
+          title: movie.title,
+          releaseDate: movie.release_date,
+          posterPath: movie.poster_path,
+        },
+      ]),
     );
 
     for (const movie of pooledMovies) {
@@ -303,12 +335,25 @@ export class LobbyBoardService {
       wishCounts.map((row) => [row.tmdbId, row._count.tmdbId]),
     );
 
-    return upcomingMovies.map((movie) => ({
-      tmdbId: movie.tmdbId,
-      title: movie.title,
-      releaseDate: movie.releaseDate,
-      posterPath: movie.posterPath,
-      interestCount: countMap.get(movie.tmdbId) ?? 0,
-    }));
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(Math.max(1, limit), 30);
+    const total = upcomingMovies.length;
+    const start = (safePage - 1) * safeLimit;
+
+    const items = upcomingMovies
+      .slice(start, start + safeLimit)
+      .map((movie) => ({
+        tmdbId: movie.tmdbId,
+        title: movie.title,
+        releaseDate: movie.releaseDate,
+        posterPath: movie.posterPath,
+        interestCount: countMap.get(movie.tmdbId) ?? 0,
+      }));
+
+    return {
+      items,
+      total,
+      hasNext: start + items.length < total,
+    };
   }
 }

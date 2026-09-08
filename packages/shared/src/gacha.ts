@@ -67,7 +67,9 @@ export type GachaMovie = {
   poster_path: string | null;
   release_date: string;
   director: string | null;
+  cast?: string[];
   providers: WatchProvider[];
+  trailerUrl?: string | null;
 };
 
 export type UseTicketResult = {

@@ -181,7 +181,7 @@ export class TmdbService {
     releaseDate: string,
     director: string | null,
   ): Promise<{ title: string; overview: string; director: string | null }> {
-    const needsOverview = overview.trim() === '';
+    const needsOverview = this.isInsufficientOverview(overview);
     const needsTitle =
       !/[\uAC00-\uD7AF]/.test(title) && /[^\u0020-\u007E]/.test(title);
     const needsDirector =
@@ -546,24 +546,86 @@ export class TmdbService {
     throw new ServiceUnavailableException('뽑을 수 있는 영화가 없습니다.');
   }
 
+  private async resolveOverview(
+    movieId: number,
+    title: string,
+    overview: string,
+  ): Promise<string> {
+    if (!this.isInsufficientOverview(overview)) return overview;
+    try {
+      const englishDetail = await this.getMovieDetail(movieId, 'en-US');
+      if (!englishDetail.overview?.trim()) return '';
+      const translatedOverview =
+        (await this.aiService.translateOverview(
+          englishDetail.title || title,
+          englishDetail.overview,
+        )) || englishDetail.overview;
+
+      await this.prismaService.moviePool.updateMany({
+        where: {
+          tmdbId: movieId,
+          overview,
+        },
+        data: { overview: translatedOverview },
+      });
+
+      return translatedOverview;
+    } catch {
+      return '';
+    }
+  }
+
+  private isInsufficientOverview(overview: string): boolean {
+    const text = overview.trim();
+    if (!text) return true;
+
+    const sentenceCount = text
+      .split(/[.!?。！？]+/)
+      .filter((sentence) => sentence.trim()).length;
+
+    return text.length < 80 || sentenceCount < 2;
+  }
+
   /** TMDB id → 앱용 영화 카드 (감독 포함) */
   async getMovie(movieId: number): Promise<MovieWithTags> {
     const detail = await this.getMovieDetail(movieId);
     const director =
-      detail.credits?.crew?.find((c) => c.job === 'Director')?.name ?? null;
+      detail.credits?.crew?.find((crew) => crew.job === 'Director')?.name ??
+      null;
+    const cast =
+      detail.credits?.cast
+        ?.sort((a, b) => a.order - b.order)
+        .slice(0, 5)
+        .map((actor) => actor.name) ?? [];
+
     const genre_ids = detail.genres?.map((g) => g.id) ?? [];
     const origin_countries =
       detail.production_countries?.map((c) => c.iso_3166_1) ?? [];
     const providers = await this.getMovieProviders(movieId);
+    const overview = await this.resolveOverview(
+      movieId,
+      detail.title,
+      detail.overview,
+    );
+    const trailer = [...(detail.videos?.results ?? [])]
+      .filter((video) => video.site === 'YouTube' && video.type === 'Trailer')
+      .sort((a, b) => Number(b.official) - Number(a.official))[0];
+
+    const trailerUrl = trailer
+      ? `https://www.youtube.com/watch?v=${trailer.key}`
+      : null;
+
     return {
       id: movieId,
       title: detail.title,
-      overview: detail.overview,
+      overview,
       poster_path: detail.poster_path,
       release_date: detail.release_date,
       director,
+      cast,
       providers,
       genre_ids,
+      trailerUrl,
       origin_countries,
     };
   }
@@ -613,12 +675,23 @@ export class TmdbService {
       overview: string;
       poster_path: string | null;
       release_date: string;
-      credits?: { crew: { job: string; name: string }[] };
+      credits?: {
+        crew: { job: string; name: string }[];
+        cast?: { name: string; order: number }[];
+      };
+      videos?: {
+        results: {
+          key: string;
+          site: string;
+          type: string;
+          official: boolean;
+        }[];
+      };
       genres?: { id: number; name: string }[];
       production_countries?: { iso_3166_1: string; name: string }[];
     }>(`/movie/${movieId}`, {
       language,
-      append_to_response: 'credits',
+      append_to_response: 'credits,videos',
     });
   }
 

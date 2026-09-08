@@ -1,4 +1,11 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import {
+  Controller,
+  DefaultValuePipe,
+  Get,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { LobbyBoardService } from './lobby-board.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
@@ -23,8 +30,12 @@ export class LobbyBoardController {
 
   @Public()
   @Get('upcoming')
-  getUpcomingMovies() {
-    return this.lobbyBoardService.getUpcomingMovies();
+  getUpcomingMovies(
+    @Query('month') month: string | undefined,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.lobbyBoardService.getUpcomingMovies(month, page, limit);
   }
 
   @ApiBearerAuth()
