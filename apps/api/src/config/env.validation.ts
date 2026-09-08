@@ -26,6 +26,23 @@ export const envValidationSchema = Joi.object({
     .email({ tlds: { allow: false } })
     .optional(),
   [EnvKeys.TEST_USER_PASSWORD]: Joi.string().min(8).optional(),
-  [EnvKeys.KAKAO_REST_API_KEY]: Joi.string().optional(),
+  [EnvKeys.KAKAO_REST_API_KEY]: Joi.string().allow('').optional(),
+  [EnvKeys.KAKAO_OAUTH_CLIENT_SECRET]: Joi.string().allow('').optional(),
+  [EnvKeys.KAKAO_CALLBACK_URL]: Joi.string().uri().optional(),
+
   [EnvKeys.KOBIS_API_KEY]: Joi.string().trim().optional(),
+
+  [EnvKeys.GOOGLE_CLIENT_ID]: Joi.string().optional(),
+  [EnvKeys.GOOGLE_CLIENT_SECRET]: Joi.string().optional(),
+  [EnvKeys.GOOGLE_CALLBACK_URL]: Joi.string().uri().optional(),
+
+  [EnvKeys.NAVER_CLIENT_ID]: Joi.string().allow('').optional(),
+  [EnvKeys.NAVER_CLIENT_SECRET]: Joi.string().allow('').optional(),
+  [EnvKeys.NAVER_CALLBACK_URL]: Joi.string().uri().optional(),
+
+  [EnvKeys.APPLE_CLIENT_ID]: Joi.string().allow('').optional(),
+  [EnvKeys.APPLE_TEAM_ID]: Joi.string().allow('').optional(),
+  [EnvKeys.APPLE_KEY_ID]: Joi.string().allow('').optional(),
+  [EnvKeys.APPLE_PRIVATE_KEY]: Joi.string().allow('').optional(),
+  [EnvKeys.APPLE_CALLBACK_URL]: Joi.string().uri().optional(),
 });

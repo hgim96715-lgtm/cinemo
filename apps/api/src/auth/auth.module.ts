@@ -10,6 +10,9 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { RolesGuard } from './roles.guard';
 import { AdminModule } from '../admin/admin.module';
+import { GoogleStrategy } from './google.strategy';
+import { KakaoStrategy } from './kakao.strategy';
+import { NaverStrategy } from './naver.strategy';
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { AdminModule } from '../admin/admin.module';
       useClass: RolesGuard,
     },
     JwtStrategy,
+    GoogleStrategy,
+    KakaoStrategy,
+    NaverStrategy,
     AuthService,
   ],
   exports: [JwtModule, AuthService],

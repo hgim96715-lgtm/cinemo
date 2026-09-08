@@ -1,0 +1,115 @@
+/* ── Login: 소셜 로그인·로그인 전용 영역 ── */
+.auth-social {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.auth-social--has-recent {
+  margin-bottom: 1.05rem;
+}
+
+.auth-social-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-social-recent {
+  position: absolute;
+  top: calc(100% + 0.38rem);
+  left: 50%;
+  color: var(--auth-gold);
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+
+
+.auth-social-btn--recent {
+  border-color: rgb(243 239 230 / 0.68);
+  box-shadow:
+    0 0 0 2px rgb(243 239 230 / 0.1),
+    0 8px 18px rgb(0 0 0 / 0.24);
+}
+
+.auth-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border: 1px solid rgb(243 239 230 / 0.09);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.035);
+  color: rgb(243 239 230 / 0.7);
+  padding: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  cursor: not-allowed;
+  opacity: 0.72;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.auth-social-btn--icon {
+  min-height: 0;
+}
+
+.auth-social-btn--naver {
+  border-color: rgb(3 199 90 / 0.36);
+  background: rgb(3 199 90 / 0.13);
+}
+
+.auth-social-btn--naver img {
+  filter: brightness(0) invert(1) grayscale(0.1) opacity(0.86);
+}
+
+.auth-social-btn--apple {
+  border-color: rgb(243 239 230 / 0.28);
+  background: rgb(243 239 230 / 0.13);
+}
+
+.auth-social-btn--apple img {
+  filter: invert(1) opacity(0.9);
+}
+
+.auth-social-btn--kakao {
+  border-color: rgb(254 229 0 / 0.3);
+  background: rgb(254 229 0 / 0.08);
+  opacity: 0.9;
+}
+
+.auth-social-btn--kakao img {
+  filter: none;
+  opacity: 1;
+  transform: scale(1.16);
+}
+
+.auth-social-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+.auth-social-btn:disabled {
+  cursor: not-allowed;
+}
+
+.auth-social-btn:not(:disabled):hover {
+  border-color: var(--auth-gold-soft);
+  background: rgb(212 181 106 / 0.1);
+  transform: translateY(-1px);
+}
+
+.auth-social-btn:focus-visible {
+  outline: 2px solid var(--auth-gold);
+  outline-offset: 3px;
+}

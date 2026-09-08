@@ -18,12 +18,21 @@ enum UserRole {
     admin
 }
 
+enum LoginProvider {
+    email
+    google
+    naver
+    kakao
+    apple
+}
+
 model User {
     id                     String                  @id @default(uuid(7)) @db.Uuid
     email                  String                  @unique
     passwordHash           String                  @map("password_hash")
     nickname               String                  @unique
     role                   UserRole                @default(user)
+    lastLoginProvider      LoginProvider?
     avatarConfig           Json?
     bio                    String?                 @db.VarChar(200)
     profilePublic          Boolean                 @default(false) @map("profile_public")
@@ -42,8 +51,47 @@ model User {
     movieProviderOverrides MovieProviderOverride[]
     quotePosts             QuotePost[]
     quotePostBookmarks     QuotePostBookmark[]
+    socialAccounts         SocialAccount[]
+    oauthLoginCodes        OAuthLoginCode[]
 
     @@map("users")
+}
+
+enum AuthProvider {
+    google
+    naver
+    apple
+    kakao
+}
+
+model SocialAccount {
+    id                String       @id @default(uuid(7)) @db.Uuid
+    userId            String       @map("user_id") @db.Uuid
+    provider          AuthProvider
+    providerAccountId String       @map("provider_account_id")
+    createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+    @@index([userId])
+    @@map("social_accounts")
+}
+
+model OAuthLoginCode {
+    id         String    @id @default(uuid(7)) @db.Uuid
+    userId     String    @map("user_id") @db.Uuid
+    codeHash   String    @unique @map("code_hash")
+    expiresAt  DateTime  @map("expires_at") @db.Timestamptz(3)
+    consumedAt DateTime? @map("consumed_at") @db.Timestamptz(3)
+    createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([expiresAt])
+    @@index([userId])
+    @@map("oauth_login_codes")
 }
 
 enum UserMovieKind {

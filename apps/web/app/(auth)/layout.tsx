@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import '../styles/auth.css';
+import '../styles/login.css';
+import '../styles/register.css';
 
 export default function AuthLayout({
   children,

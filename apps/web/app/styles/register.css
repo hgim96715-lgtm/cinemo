@@ -1,0 +1,24 @@
+/* ── Register: 회원가입 전용 입력 안내 ── */
+.auth-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.auth-req {
+  color: var(--auth-gold);
+  font-size: 0.85em;
+}
+
+.auth-rule-inline {
+  margin-left: auto;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--auth-muted);
+  font-weight: 400;
+}
+
+.auth-rule-inline.is-ok {
+  color: #8fbf8a;
+}

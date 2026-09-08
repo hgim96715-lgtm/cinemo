@@ -17,6 +17,8 @@
 
 - [web/lobby.md](./web/lobby.md) · [web/board.md](./web/board.md) — 로비 전광판 탭 구조와 박스오피스 연동
 - [web/upcoming.md](./web/upcoming.md) — 개봉 예정 영화·월별 필터·관심 순위·상세 모달
+- [web/forms.md](./web/forms.md) — Zod v4·react-hook-form 공통 폼 규칙
+- [web/auth-recovery.md](./web/auth-recovery.md) — 이메일 재설정·SMS OTP·소셜 로그인·PASS 도입 검토
 - [api/external-api.md](./api/external-api.md) — KOBIS API·누적 관객 수·10분 캐시·실패 fallback
 - [web/kobis.md](./web/kobis.md) — KOBIS 역할·필드 매핑·TMDB와의 데이터 분리·누적 관객 수 축약 규칙
 - [web/lobby.md](./web/lobby.md) — 로비 KST 시계 1분 주기 갱신 오류 수정
@@ -177,7 +179,7 @@ AI·외부 연동 오류 기록
 
 ### 기능을 수정할 때
 
-1. [web/auth.md](./web/auth.md) — 인증, 세션, `apiFetch`, 초기 사용자 복원
+1. [web/auth.md](./web/auth.md) — 인증, 세션, `apiFetch`, Google OAuth 일회용 code, 초기 사용자 복원
 2. [state.md](./state.md) — 서버 상태·클라이언트 상태·실시간 상태의 구분
 3. [shared.md](./shared.md) — API와 Web이 공유하는 타입·상수
 4. 수정할 기능 문서 — 화면, API, DB 연결 확인

@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string;
   nickname: string;
   role: 'user' | 'admin';
+  lastLoginProvider: 'email' | 'google' | 'naver' | 'kakao' | 'apple' | null;
   isTestAccount: boolean;
   avatarConfig: AvatarConfig;
   bio: string | null;

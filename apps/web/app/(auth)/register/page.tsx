@@ -218,11 +218,10 @@ export default function RegisterPage() {
           티켓 발급받기
         </button>
       </form>
-      <p className="auth-links">
+      <nav className="auth-links" aria-label="인증 페이지 이동">
         <Link href="/login">로그인</Link>
-        {' · '}
-        <Link href="/">홈으로</Link>
-      </p>
+        <Link href="/">CINEMO LOBBY</Link>
+      </nav>
     </>
   );
 }

@@ -30,6 +30,13 @@ export function meRequest(token: string) {
   return apiFetch<AuthUser>('/auth/me', { token });
 }
 
+export function exchangeOAuthCodeRequest(code: string) {
+  return apiFetch<AuthResponse>('/auth/google/exchange', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
 export function updateAvatarRequest(token: string, avatar: AvatarConfig) {
   return apiFetch<AuthUser>('/auth/avatar', {
     method: 'PATCH',

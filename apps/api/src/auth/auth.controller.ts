@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Query, Post, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Query,
+  Post,
+  Patch,
+  UseGuards,
+  Res,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -7,11 +18,19 @@ import { Public } from './decorators/public.decorator';
 import { UserId } from './decorators/user-id.decorator';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ExchangeOAuthCodeDto } from './dto/exchange-oauth-code.dto';
+import { AuthGuard } from '@nestjs/passport';
+import type { SocialProfile } from './types/social-profile.type';
+import { EnvKeys } from '../config/env.keys';
+import { CurrentUser } from './decorators/current-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Public()
   @Get('check-email')
@@ -35,6 +54,93 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleLogin() {
+    // Google 로그인 페이지로 이동
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(
+    @CurrentUser() profile: SocialProfile,
+    @Res() response: Response,
+  ) {
+    const user = await this.authService.loginWithSocial(profile);
+    const code = await this.authService.createOAuthLoginCode(user.id);
+
+    const frontendUrl = this.configService.getOrThrow<string>(
+      EnvKeys.FRONTEND_URL,
+    );
+
+    const callbackUrl = new URL('/auth/callback', frontendUrl);
+    callbackUrl.searchParams.set('code', code);
+
+    response.redirect(callbackUrl.toString());
+  }
+
+  @Public()
+  @Post('google/exchange')
+  exchangeGoogleCode(@Body() dto: ExchangeOAuthCodeDto) {
+    return this.authService.exchangeOAuthLoginCode(dto.code);
+  }
+
+  @Public()
+  @Get('kakao')
+  @UseGuards(AuthGuard('kakao'))
+  kakaoLogin() {
+    // 카카오 로그인 페이지로 이동
+  }
+
+  @Public()
+  @Get('kakao/callback')
+  @UseGuards(AuthGuard('kakao'))
+  async kakaoCallback(
+    @CurrentUser() profile: SocialProfile,
+    @Res() response: Response,
+  ) {
+    const user = await this.authService.loginWithSocial(profile);
+    const code = await this.authService.createOAuthLoginCode(user.id);
+
+    const frontendUrl = this.configService.getOrThrow<string>(
+      EnvKeys.FRONTEND_URL,
+    );
+
+    const callbackUrl = new URL('/auth/callback', frontendUrl);
+    callbackUrl.searchParams.set('code', code);
+
+    response.redirect(callbackUrl.toString());
+  }
+
+  @Public()
+  @Get('naver')
+  @UseGuards(AuthGuard('naver'))
+  naverLogin() {
+    // 네이버 로그인 페이지로 이동
+  }
+
+  @Public()
+  @Get('naver/callback')
+  @UseGuards(AuthGuard('naver'))
+  async naverCallback(
+    @CurrentUser() profile: SocialProfile,
+    @Res() response: Response,
+  ) {
+    const user = await this.authService.loginWithSocial(profile);
+    const code = await this.authService.createOAuthLoginCode(user.id);
+
+    const frontendUrl = this.configService.getOrThrow<string>(
+      EnvKeys.FRONTEND_URL,
+    );
+
+    const callbackUrl = new URL('/auth/callback', frontendUrl);
+    callbackUrl.searchParams.set('code', code);
+
+    response.redirect(callbackUrl.toString());
   }
 
   @ApiBearerAuth()
