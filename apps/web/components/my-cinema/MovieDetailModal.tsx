@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, ExternalLink, Heart, X, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  Bell,
+  CalendarPlus,
+  Check,
+  ExternalLink,
+  Heart,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react';
 import type {
   GachaMovie,
   UserMovieKind,
@@ -32,6 +41,7 @@ import {
   prependRecentLocation,
   readRecentLocations,
 } from './movie-detail-location';
+import { ConfirmModal } from '../common/ConfirmModal';
 
 const TMDB_GENRE_LABELS: Record<number, string> = {
   28: '액션',
@@ -64,6 +74,8 @@ type MovieDetailModalProps = {
   onClose: () => void;
   onToggleMark?: (kind: UserMovieKind) => void;
   onSaved?: (details: SavedScreeningDetails) => void;
+  releaseNotificationEnabled?: boolean;
+  onToggleReleaseNotification?: () => void;
 };
 
 export function MovieDetailModal({
@@ -74,6 +86,8 @@ export function MovieDetailModal({
   onClose,
   onToggleMark,
   onSaved,
+  releaseNotificationEnabled = false,
+  onToggleReleaseNotification,
 }: MovieDetailModalProps) {
   const [largeText, setLargeText] = useState(false);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -91,7 +105,18 @@ export function MovieDetailModal({
     useState<RecentLocation[]>(readRecentLocations);
   const [isLocationFocused, setIsLocationFocused] = useState(false);
 
+  const [showNotificationGuide, setShowNotificationGuide] = useState(false);
+
   const [searchingPlacesQuery, setSearchingPlacesQuery] = useState('');
+  const calendarParams = new URLSearchParams({
+    tmdbId: String(movie.id),
+    title: movie.title,
+    releaseDate: movie.release_date,
+  });
+
+  const calendarUrl = movie.release_date
+    ? `/api/calendar/movie?${calendarParams.toString()}`
+    : null;
 
   useEffect(() => {
     try {
@@ -303,15 +328,25 @@ export function MovieDetailModal({
     };
   }, [onClose]);
 
+  function handleNotificationClick() {
+    if (!marks?.wish) {
+      setShowNotificationGuide(true);
+      return;
+    }
+
+    onToggleReleaseNotification?.();
+  }
+
   return (
-    <div className="movie-detail-overlay" role="presentation" onClick={onClose}>
-      <section
-        className={`movie-detail-modal${largeText ? ' is-large-text' : ''}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="movie-detail-title"
-        onClick={(event) => event.stopPropagation()}
-      >
+    <>
+      <div className="movie-detail-overlay" role="presentation" onClick={onClose}>
+        <section
+          className={`movie-detail-modal${largeText ? ' is-large-text' : ''}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="movie-detail-title"
+          onClick={(event) => event.stopPropagation()}
+        >
         <button
           type="button"
           className="movie-detail-close"
@@ -403,16 +438,69 @@ export function MovieDetailModal({
             <p className="movie-detail-overview">
               {movie.overview?.trim() || '줄거리 정보가 없어요.'}
             </p>
-            {movie.trailerUrl ? (
-              <a
-                className="movie-detail-trailer-link"
-                href={movie.trailerUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                예고편 보기
-                <ExternalLink size={15} aria-hidden />
-              </a>
+            {movie.trailerUrl || calendarUrl || onToggleReleaseNotification ? (
+              <div className="movie-detail-actions" aria-label="영화 관련 링크">
+                {movie.trailerUrl ? (
+                  <a
+                    className="movie-detail-trailer-link"
+                    href={movie.trailerUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    예고편 보기
+                    <ExternalLink size={15} aria-hidden />
+                  </a>
+                ) : null}
+                {calendarUrl ? (
+                  <a
+                    className="movie-detail-calendar-button"
+                    href={calendarUrl}
+                    aria-label={`${movie.title} 캘린더에 추가`}
+                    aria-describedby={`movie-calendar-tooltip-${movie.id}`}
+                  >
+                    <CalendarPlus size={17} aria-hidden />
+                    <span className="movie-detail-sr-only">캘린더에 추가</span>
+                    <span
+                      id={`movie-calendar-tooltip-${movie.id}`}
+                      className="movie-detail-tooltip"
+                      role="tooltip"
+                    >
+                      캘린더에 추가
+                    </span>
+                  </a>
+                ) : null}
+                {onToggleReleaseNotification ? (
+                  <button
+                    type="button"
+                    className={`movie-detail-notification-button${
+                      releaseNotificationEnabled ? ' is-on' : ''
+                    }`}
+                    aria-pressed={releaseNotificationEnabled}
+                    aria-label={
+                      releaseNotificationEnabled
+                        ? '개봉일 알림 해제'
+                        : '개봉일 알림 설정'
+                    }
+                    onClick={handleNotificationClick}
+                  >
+                    <Bell size={17} aria-hidden />
+                    <span className="movie-detail-sr-only">
+                      {releaseNotificationEnabled
+                        ? '개봉일 알림 해제'
+                        : '개봉일 알림 설정'}
+                    </span>
+                    <span
+                      id={`movie-notification-tooltip-${movie.id}`}
+                      className="movie-detail-tooltip"
+                      role="tooltip"
+                    >
+                      {releaseNotificationEnabled
+                        ? '개봉일 알림 해제'
+                        : '개봉일 알림 설정'}
+                    </span>
+                  </button>
+                ) : null}
+              </div>
             ) : null}
 
             <div className="movie-detail-text-controls">
@@ -482,7 +570,23 @@ export function MovieDetailModal({
             ) : null}
           </div>
         </div>
-      </section>
-    </div>
+        </section>
+      </div>
+
+      <ConfirmModal
+        open={showNotificationGuide}
+        eyebrow="개봉일 알림"
+        icon={<Bell size={30} strokeWidth={1.7} />}
+        title="보고 싶은 영화로 저장해 주세요"
+        description="개봉일 알림은 보고 싶은 영화로 저장한 작품에서만 설정할 수 있어요."
+        confirmLabel="보고 싶어요 추가"
+        cancelLabel="취소"
+        onClose={() => setShowNotificationGuide(false)}
+        onConfirm={() => {
+          onToggleMark?.('wish');
+          setShowNotificationGuide(false);
+        }}
+      />
+    </>
   );
 }

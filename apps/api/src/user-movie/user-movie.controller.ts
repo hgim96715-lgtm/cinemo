@@ -20,6 +20,7 @@ import { UpdateDisplayDto } from './dto/update-display.dto';
 import { AddWatchedMovieDto } from './dto/add-watched-movie.dto';
 import { UpdateWatchedAtDto } from './dto/update-watched-at.dto';
 import { UpdateViewingDetailsDto } from './dto/update-viewing-details.dto';
+import { UpdateReleaseNotificationDto } from './dto/update-release-notification.dto';
 
 @ApiTags('user-movies')
 @ApiBearerAuth()
@@ -121,5 +122,21 @@ export class UserMovieController {
   @Get('displayed')
   listDisplayed(@UserId() userId: string) {
     return this.userMovieService.listDisplayed(userId);
+  }
+
+  @Get('release-notification')
+  getReleaseNotification(
+    @UserId() userId: string,
+    @Query('tmdbId', ParseIntPipe) tmdbId: number,
+  ) {
+    return this.userMovieService.getReleaseNotification(userId, tmdbId);
+  }
+
+  @Patch('release-notification')
+  updateReleaseNotification(
+    @UserId() userId: string,
+    @Body() dto: UpdateReleaseNotificationDto,
+  ) {
+    return this.userMovieService.updateReleaseNotification(userId, dto);
   }
 }

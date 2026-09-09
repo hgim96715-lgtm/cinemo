@@ -20,9 +20,11 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { GuideModule } from './guide/guide.module';
 import { QuotePostModule } from './quote-post/quote-post.module';
 import { PlacesModule } from './places/places.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

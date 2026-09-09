@@ -228,13 +228,25 @@
   line-height: 1.9;
 }
 
+.movie-detail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 0.75rem;
+  border: 1px solid rgb(243 239 230 / 0.09);
+  border-radius: 0.85rem;
+  background: rgb(243 239 230 / 0.035);
+}
+
 .movie-detail-trailer-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
   width: fit-content;
-  margin-top: 1rem;
   padding: 0.55rem 0.8rem;
   border: 1px solid rgb(212 181 106 / 0.38);
   border-radius: 999px;
@@ -257,6 +269,148 @@
 .movie-detail-trailer-link:focus-visible {
   outline: 2px solid var(--lobby-gold);
   outline-offset: 3px;
+}
+
+.movie-detail-calendar-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.3rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border: 1px solid rgb(243 239 230 / 0.2);
+  border-radius: 50%;
+  background: rgb(243 239 230 / 0.05);
+  color: var(--lobby-muted);
+  font: inherit;
+  cursor: pointer;
+  vertical-align: top;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.movie-detail-calendar-button:hover {
+  border-color: rgb(212 181 106 / 0.72);
+  background: rgb(212 181 106 / 0.12);
+  color: var(--lobby-gold);
+  transform: translateY(-1px);
+}
+
+.movie-detail-calendar-button:focus-visible {
+  outline: 2px solid var(--lobby-gold);
+  outline-offset: 3px;
+}
+
+.movie-detail-calendar-button:active {
+  transform: translateY(0);
+}
+
+.movie-detail-notification-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.3rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border: 1px solid rgb(243 239 230 / 0.2);
+  border-radius: 50%;
+  color: var(--lobby-muted);
+  background: rgb(243 239 230 / 0.05);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.movie-detail-notification-button:hover,
+.movie-detail-notification-button.is-on {
+  border-color: rgb(212 181 106 / 0.72);
+  color: var(--lobby-gold);
+  background: rgb(212 181 106 / 0.12);
+  transform: translateY(-1px);
+}
+
+.movie-detail-notification-button.is-on {
+  box-shadow: 0 0 0 0.2rem rgb(212 181 106 / 0.1);
+}
+
+.movie-detail-notification-button:focus-visible {
+  outline: 2px solid var(--lobby-gold);
+  outline-offset: 3px;
+}
+
+.movie-detail-notification-button:active {
+  transform: translateY(0);
+}
+
+.movie-detail-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.55rem);
+  left: 50%;
+  z-index: 2;
+  width: max-content;
+  max-width: 12rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgb(212 181 106 / 0.3);
+  border-radius: 0.45rem;
+  color: var(--lobby-paper);
+  background: rgb(18 18 18 / 0.96);
+  box-shadow: 0 0.45rem 1rem rgb(0 0 0 / 0.24);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.25rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.movie-detail-tooltip::after {
+  position: absolute;
+  bottom: -0.3rem;
+  left: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 1px solid rgb(212 181 106 / 0.3);
+  border-bottom: 1px solid rgb(212 181 106 / 0.3);
+  background: rgb(18 18 18 / 0.96);
+  content: '';
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.movie-detail-calendar-button:hover .movie-detail-tooltip,
+.movie-detail-calendar-button:focus-visible .movie-detail-tooltip,
+.movie-detail-notification-button:hover .movie-detail-tooltip,
+.movie-detail-notification-button:focus-visible .movie-detail-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.movie-detail-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 40rem) {
+  .movie-detail-actions {
+    gap: 0.6rem;
+  }
 }
 
 .movie-detail-text-controls {

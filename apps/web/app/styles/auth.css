@@ -181,7 +181,7 @@
 .auth-field input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--auth-fg);
   caret-color: var(--auth-fg);
-  box-shadow: inset 0 0 0 1000px #14161c;
+  /* box-shadow: inset 0 0 0 1000px #14161c; */
   transition: background-color 99999s ease-out;
 }
 

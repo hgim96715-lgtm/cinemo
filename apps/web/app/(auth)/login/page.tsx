@@ -112,7 +112,7 @@ function LoginForm() {
           <div className="auth-password-row">
             <input
               type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
+              autoComplete="off"
               placeholder="비밀번호를 입력하세요"
               {...register('password')}
             />

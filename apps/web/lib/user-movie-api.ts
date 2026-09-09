@@ -164,3 +164,35 @@ export function updateViewingDetailsRequest(
     }),
   });
 }
+
+export type MovieReleaseNotificationResult = {
+  tmdbId: number;
+  enabled: boolean;
+  releaseDate: string;
+  sentAt: string | null;
+};
+
+export function getMovieReleaseNotificationRequest(
+  token: string,
+  tmdbId: number,
+) {
+  return apiFetch<MovieReleaseNotificationResult>(
+    `/user-movies/release-notification?tmdbId=${tmdbId}`,
+    { token },
+  );
+}
+
+export function updateMovieReleaseNotificationRequest(
+  token: string,
+  tmdbId: number,
+  enabled: boolean,
+) {
+  return apiFetch<MovieReleaseNotificationResult>(
+    '/user-movies/release-notification',
+    {
+      method: 'PATCH',
+      token,
+      body: JSON.stringify({ tmdbId, enabled }),
+    },
+  );
+}

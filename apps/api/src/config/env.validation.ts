@@ -51,4 +51,6 @@ export const envValidationSchema = Joi.object({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
+
+  [EnvKeys.NEST_CRON_SECRET]: Joi.string().min(32).required(),
 });

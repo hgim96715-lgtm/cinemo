@@ -10,8 +10,10 @@ import {
   type UpcomingMovie,
 } from '@/lib/lobby-board-api';
 import {
+  getMovieReleaseNotificationRequest,
   listUserMoviesRequest,
   toggleUserMovieRequest,
+  updateMovieReleaseNotificationRequest,
 } from '@/lib/user-movie-api';
 import { useAuthStore } from '@/lib/auth-store';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
@@ -19,6 +21,8 @@ import '../styles/lobby.css';
 import '../styles/upcoming.css';
 import '../styles/my-cinema.css';
 import '../styles/movie-detail-modal.css';
+import '../styles/confirm-modal.css';
+
 import { GachaMovie } from '@cinemo/shared';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
@@ -79,6 +83,10 @@ export default function UpcomingPage() {
 
   const [detailMovie, setDetailMovie] = useState<GachaMovie | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
+
+  const [releaseNotificationById, setReleaseNotificationById] = useState<
+    Record<number, boolean>
+  >({});
 
   useEffect(() => {
     const month = new URLSearchParams(window.location.search).get('month');
@@ -152,17 +160,6 @@ export default function UpcomingPage() {
       setHasNext(result.hasNext);
     } finally {
       setLoadingMore(false);
-    }
-  }
-
-  async function handleDetailClick(tmdbId: number) {
-    setLoadingDetailId(tmdbId);
-
-    try {
-      const movie = await getMovieDetailRequest(tmdbId);
-      setDetailMovie(movie);
-    } finally {
-      setLoadingDetailId(null);
     }
   }
 
@@ -251,6 +248,68 @@ export default function UpcomingPage() {
       '',
       query ? `/upcoming?${query}` : '/upcoming',
     );
+  }
+
+  async function handleDetailClick(tmdbId: number) {
+    setLoadingDetailId(tmdbId);
+
+    try {
+      const movie = await getMovieDetailRequest(tmdbId);
+      const upcomingMovie = movies.find((item) => item.tmdbId === tmdbId);
+
+      if (accessToken) {
+        try {
+          const notification = await getMovieReleaseNotificationRequest(
+            accessToken,
+            tmdbId,
+          );
+
+          setReleaseNotificationById((current) => ({
+            ...current,
+            [tmdbId]: notification.enabled,
+          }));
+        } catch {
+          setReleaseNotificationById((current) => ({
+            ...current,
+            [tmdbId]: false,
+          }));
+        }
+      }
+
+      setDetailMovie({
+        ...movie,
+        release_date: upcomingMovie?.releaseDate ?? movie.release_date,
+      });
+    } finally {
+      setLoadingDetailId(null);
+    }
+  }
+
+  async function handleReleaseNotificationToggle() {
+    if (!detailMovie) return;
+
+    if (!accessToken) {
+      router.push('/login?next=/upcoming');
+      return;
+    }
+
+    const tmdbId = detailMovie.id;
+    const enabled = !(releaseNotificationById[tmdbId] ?? false);
+
+    try {
+      await updateMovieReleaseNotificationRequest(accessToken, tmdbId, enabled);
+
+      setReleaseNotificationById((current) => ({
+        ...current,
+        [tmdbId]: enabled,
+      }));
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : '개봉일 알림 설정에 실패했어요.',
+      );
+    }
   }
 
   return (
@@ -381,6 +440,12 @@ export default function UpcomingPage() {
                 watched: false,
               }}
               showWatchedMark={false}
+              releaseNotificationEnabled={
+                releaseNotificationById[detailMovie.id] ?? false
+              }
+              onToggleReleaseNotification={() => {
+                void handleReleaseNotificationToggle();
+              }}
               onToggleMark={(kind) => {
                 if (kind === 'wish') {
                   void handleInterestClick(detailMovie.id);

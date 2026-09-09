@@ -71,4 +71,12 @@ Redis · FCM은 나중.
 
 모바일 클라이언트와 Redis·FCM은 이후 확장 대상.
 
+### 개봉일 이메일 알림에 사용한 패키지
+
+- `resend` — 이메일 발송
+- `@react-email/components` — React Email 템플릿 작성
+- `@react-email/render` — 이메일 컴포넌트를 HTML로 렌더링
+- `react` · `react-dom` — React Email 렌더링 런타임
+- `@nestjs/schedule` — 개봉일 알림 Cron 실행
+
 자세한 로컬 메모: [docs/README.md](docs/README.md) (로컬 전용·gitignore)

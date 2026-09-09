@@ -27,33 +27,34 @@ enum LoginProvider {
 }
 
 model User {
-    id                     String                  @id @default(uuid(7)) @db.Uuid
-    email                  String                  @unique
-    passwordHash           String                  @map("password_hash")
-    nickname               String                  @unique
-    role                   UserRole                @default(user)
-    lastLoginProvider      LoginProvider?
-    avatarConfig           Json?
-    bio                    String?                 @db.VarChar(200)
-    profilePublic          Boolean                 @default(false) @map("profile_public")
-    tags                   String[]                @default([])
-    isTestAccount          Boolean                 @default(false) @map("is_test_account")
-    createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
-    tickets                Ticket[]
-    userMovies             UserMovie[]
-    reviewPosts            ReviewPost[]
-    reviewPostLikes        ReviewPostLike[]
-    lobbyVisits            LobbyVisit[]
-    cafeMessages           CafeMessage[]
-    cafeTableSeats         CafeTableSeat[]
-    loginLogs              AdminLoginLog[]
-    movieProviderOverrides MovieProviderOverride[]
-    quotePosts             QuotePost[]
-    quotePostBookmarks     QuotePostBookmark[]
-    socialAccounts         SocialAccount[]
-    oauthLoginCodes        OAuthLoginCode[]
-    passwordResetTokens    PasswordResetToken[]
+    id                        String                     @id @default(uuid(7)) @db.Uuid
+    email                     String                     @unique
+    passwordHash              String                     @map("password_hash")
+    nickname                  String                     @unique
+    role                      UserRole                   @default(user)
+    lastLoginProvider         LoginProvider?
+    avatarConfig              Json?
+    bio                       String?                    @db.VarChar(200)
+    profilePublic             Boolean                    @default(false) @map("profile_public")
+    tags                      String[]                   @default([])
+    isTestAccount             Boolean                    @default(false) @map("is_test_account")
+    createdAt                 DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt                 DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+    tickets                   Ticket[]
+    userMovies                UserMovie[]
+    reviewPosts               ReviewPost[]
+    reviewPostLikes           ReviewPostLike[]
+    lobbyVisits               LobbyVisit[]
+    cafeMessages              CafeMessage[]
+    cafeTableSeats            CafeTableSeat[]
+    loginLogs                 AdminLoginLog[]
+    movieProviderOverrides    MovieProviderOverride[]
+    quotePosts                QuotePost[]
+    quotePostBookmarks        QuotePostBookmark[]
+    socialAccounts            SocialAccount[]
+    oauthLoginCodes           OAuthLoginCode[]
+    passwordResetTokens       PasswordResetToken[]
+    movieReleaseNotifications MovieReleaseNotification[]
 
     @@map("users")
 }
@@ -457,4 +458,21 @@ model QuotePostBookmark {
     @@index([userId, createdAt(sort: Desc)])
     @@index([quotePostId])
     @@map("quote_post_bookmarks")
+}
+
+model MovieReleaseNotification {
+    id          String    @id @default(uuid(7)) @db.Uuid
+    userId      String    @map("user_id") @db.Uuid
+    tmdbId      Int       @map("tmdb_id")
+    releaseDate DateTime  @map("release_date") @db.Date
+    enabled     Boolean   @default(true)
+    sentAt      DateTime? @map("sent_at") @db.Timestamptz(3)
+    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, tmdbId])
+    @@index([enabled, releaseDate, sentAt])
+    @@map("movie_release_notifications")
 }

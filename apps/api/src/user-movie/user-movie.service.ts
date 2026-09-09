@@ -4,14 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  UserMovieKind,
-  UserMovieViewingType,
-} from '../generated/prisma/enums';
+import { UserMovieKind, UserMovieViewingType } from '../generated/prisma/enums';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { UpdateDisplayDto } from './dto/update-display.dto';
-import { kstDateKey, kstDayRange, kstMonthRange } from '../lib/date-kst';
+import {
+  kstDateKey,
+  kstDayRange,
+  kstMonthRange,
+  todayKstDate,
+  toKstDate,
+} from '../lib/date-kst';
 import { UpdateViewingDetailsDto } from './dto/update-viewing-details.dto';
+import { UpdateReleaseNotificationDto } from './dto/update-release-notification.dto';
 
 type UserMovieListFilters = {
   search?: string;
@@ -424,5 +428,108 @@ export class UserMovieService {
       })),
     );
     return { items };
+  }
+
+  async getReleaseNotification(userId: string, tmdbId: number) {
+    const notification = await this.prisma.movieReleaseNotification.findUnique({
+      where: {
+        userId_tmdbId: { userId, tmdbId },
+      },
+    });
+    return {
+      tmdbId,
+      enabled: notification?.enabled ?? false,
+      releaseDate: notification ? kstDateKey(notification.releaseDate) : null,
+      sentAt: notification?.sentAt?.toISOString() ?? null,
+    };
+  }
+
+  async updateReleaseNotification(
+    userId: string,
+    dto: UpdateReleaseNotificationDto,
+  ) {
+    const wish = await this.prisma.userMovie.findUnique({
+      where: {
+        userId_tmdbId_kind: {
+          userId,
+          tmdbId: dto.tmdbId,
+          kind: 'wish',
+        },
+      },
+    });
+    if (!wish) {
+      throw new BadRequestException(
+        '보고 싶어요로 저장한 영화만 개봉일 알림을 설정할 수 있습니다.',
+      );
+    }
+    const movie = await this.tmdbService.getMovieCached(dto.tmdbId);
+    const releaseDate = movie.release_date?.trim();
+    if (!releaseDate) {
+      throw new BadRequestException('개봉일 정보가 없는 영화입니다.');
+    }
+    const existing = await this.prisma.movieReleaseNotification.findUnique({
+      where: {
+        userId_tmdbId: {
+          userId,
+          tmdbId: dto.tmdbId,
+        },
+      },
+    });
+
+    const normalizedReleaseDate = toKstDate(
+      new Date(`${releaseDate}T12:00:00+09:00`),
+    );
+
+    const releaseDateChanged =
+      existing?.releaseDate.getTime() !== normalizedReleaseDate.getTime();
+
+    const notification = await this.prisma.movieReleaseNotification.upsert({
+      where: {
+        userId_tmdbId: {
+          userId,
+          tmdbId: dto.tmdbId,
+        },
+      },
+      create: {
+        userId,
+        tmdbId: dto.tmdbId,
+        releaseDate: normalizedReleaseDate,
+        enabled: dto.enabled,
+      },
+      update: {
+        releaseDate: normalizedReleaseDate,
+        enabled: dto.enabled,
+        ...(releaseDateChanged ? { sentAt: null } : {}),
+      },
+    });
+    return {
+      tmdbId: notification.tmdbId,
+      enabled: notification.enabled,
+      releaseDate: releaseDate,
+      sentAt: notification.sentAt,
+    };
+  }
+
+  async findDueReleaseNotifications() {
+    return this.prisma.movieReleaseNotification.findMany({
+      where: {
+        enabled: true,
+        sentAt: null,
+        releaseDate: { lte: todayKstDate() },
+      },
+      orderBy: { releaseDate: 'asc' },
+      take: 100,
+      select: {
+        id: true,
+        tmdbId: true,
+        releaseDate: true,
+        user: {
+          select: {
+            email: true,
+            nickname: true,
+          },
+        },
+      },
+    });
   }
 }
