@@ -53,6 +53,7 @@ model User {
     quotePostBookmarks     QuotePostBookmark[]
     socialAccounts         SocialAccount[]
     oauthLoginCodes        OAuthLoginCode[]
+    passwordResetTokens    PasswordResetToken[]
 
     @@map("users")
 }
@@ -92,6 +93,21 @@ model OAuthLoginCode {
     @@index([expiresAt])
     @@index([userId])
     @@map("oauth_login_codes")
+}
+
+model PasswordResetToken {
+    id        String    @id @default(uuid(7)) @db.Uuid
+    userId    String    @map("user_id") @db.Uuid
+    tokenHash String    @unique @map("token_hash")
+    expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+    usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+    createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([expiresAt])
+    @@map("password_reset_tokens")
 }
 
 enum UserMovieKind {

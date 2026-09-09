@@ -13,6 +13,7 @@ import { AdminModule } from '../admin/admin.module';
 import { GoogleStrategy } from './google.strategy';
 import { KakaoStrategy } from './kakao.strategy';
 import { NaverStrategy } from './naver.strategy';
+import { MailService } from './mail.service';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { NaverStrategy } from './naver.strategy';
     KakaoStrategy,
     NaverStrategy,
     AuthService,
+    MailService,
   ],
-  exports: [JwtModule, AuthService],
+  exports: [JwtModule, AuthService, MailService],
 })
 export class AuthModule {}

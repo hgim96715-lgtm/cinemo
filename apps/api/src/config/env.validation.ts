@@ -45,4 +45,10 @@ export const envValidationSchema = Joi.object({
   [EnvKeys.APPLE_KEY_ID]: Joi.string().allow('').optional(),
   [EnvKeys.APPLE_PRIVATE_KEY]: Joi.string().allow('').optional(),
   [EnvKeys.APPLE_CALLBACK_URL]: Joi.string().uri().optional(),
+
+  [EnvKeys.RESEND_API_KEY]: Joi.string().trim().min(1).required(),
+  [EnvKeys.RESEND_FROM]: Joi.string()
+    .trim()
+    .email({ tlds: { allow: false } })
+    .required(),
 });

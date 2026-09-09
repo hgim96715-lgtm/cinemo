@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -28,6 +29,9 @@ import {
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { SocialProfile } from './types/social-profile.type';
 import { createHash, randomBytes } from 'crypto';
+import { MailService } from './mail.service';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -86,6 +90,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly adminService: AdminService,
+    private readonly mailService: MailService,
   ) {}
 
   private async buildAuthResponse(user: AuthUserRow, message: string) {
@@ -375,6 +380,97 @@ export class AuthService {
       avatarConfig: toAvatarConfig,
       bio: user.bio,
       tags: normalizeProfileTags(user.tags ?? []),
+    };
+  }
+
+  // 비밀번호 찾기
+  async requestPasswordReset(
+    dto: RequestPasswordResetDto,
+    frontendUrl: string,
+  ) {
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    const message = '입력한 이메일로 비밀번호 재설정 안내를 확인해 주세요.';
+    if (!user) {
+      return message;
+    }
+    const rawToken = randomBytes(30).toString('base64url');
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    await this.prisma.$transaction([
+      this.prisma.passwordResetToken.deleteMany({
+        where: { userId: user.id, usedAt: null },
+      }),
+      this.prisma.passwordResetToken.create({
+        data: {
+          userId: user.id,
+          tokenHash,
+          expiresAt,
+        },
+      }),
+    ]);
+    const resetUrl = new URL('/reset-password', frontendUrl);
+    resetUrl.searchParams.set('token', rawToken);
+    await this.mailService.sendPasswordResetEmail({
+      to: user.email,
+      nickname: user.nickname,
+      resetUrl: resetUrl.toString(),
+    });
+
+    return { message };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const tokenHash = createHash('sha256').update(dto.token).digest('hex');
+
+    const resetToken = await this.prisma.passwordResetToken.findFirst({
+      where: {
+        tokenHash,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        user: {
+          select: { passwordHash: true },
+        },
+      },
+    });
+    if (!resetToken) {
+      throw new UnauthorizedException(
+        '비밀번호 재설정 링크가 만료되었거나 올바르지 않아요.',
+      );
+    }
+    const isSamePassword = await bcrypt.compare(
+      dto.newPassword,
+      resetToken.user.passwordHash,
+    );
+
+    if (isSamePassword) {
+      throw new BadRequestException(
+        '기존에 사용한 비밀번호와 다른 비밀번호를 입력해 주세요.',
+      );
+    }
+    const passwordHash = await bcrypt.hash(dto.newPassword, BCRYPT_ROUNDS);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: resetToken.userId },
+        data: { passwordHash },
+      });
+      const result = await tx.passwordResetToken.updateMany({
+        where: { id: resetToken.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      if (result.count !== 1) {
+        throw new UnauthorizedException(
+          '비밀번호 재설정 링크가 이미 사용되었어요.',
+        );
+      }
+    });
+    return {
+      message: '비밀번호가 변경되었어요.',
     };
   }
 }

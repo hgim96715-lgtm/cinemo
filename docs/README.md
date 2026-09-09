@@ -11,14 +11,14 @@
 > [!note] 빠른 원칙
 > 코드가 바뀌면 관련 기능 문서와 `docs/prisma/README.md`의 데이터 모델을 함께 확인함. 미래 설계 문서는 현재 구조로 오해하지 않도록 별도 표시함.
 
-## 0. 최근 작업 기준 (2026-09-08)
+## 0. 최근 작업 기준 (2026-09-09)
 
 이번 정리는 기존 기능 문서에 반영함.
 
 - [web/lobby.md](./web/lobby.md) · [web/board.md](./web/board.md) — 로비 전광판 탭 구조와 박스오피스 연동
 - [web/upcoming.md](./web/upcoming.md) — 개봉 예정 영화·월별 필터·관심 순위·상세 모달
 - [web/forms.md](./web/forms.md) — Zod v4·react-hook-form 공통 폼 규칙
-- [web/auth-recovery.md](./web/auth-recovery.md) — 이메일 재설정·SMS OTP·소셜 로그인·PASS 도입 검토
+- [web/auth-recovery.md](./web/auth-recovery.md) — Resend 이메일 재설정·일회용 토큰·SMS OTP·소셜 로그인·PASS 도입 검토
 - [api/external-api.md](./api/external-api.md) — KOBIS API·누적 관객 수·10분 캐시·실패 fallback
 - [web/kobis.md](./web/kobis.md) — KOBIS 역할·필드 매핑·TMDB와의 데이터 분리·누적 관객 수 축약 규칙
 - [web/lobby.md](./web/lobby.md) — 로비 KST 시계 1분 주기 갱신 오류 수정

@@ -23,6 +23,8 @@ import { AuthGuard } from '@nestjs/passport';
 import type { SocialProfile } from './types/social-profile.type';
 import { EnvKeys } from '../config/env.keys';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -141,6 +143,22 @@ export class AuthController {
     callbackUrl.searchParams.set('code', code);
 
     response.redirect(callbackUrl.toString());
+  }
+
+  @Public()
+  @Post('password-reset/request')
+  requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
+    const frontendUrl = this.configService.getOrThrow<string>(
+      EnvKeys.FRONTEND_URL,
+    );
+
+    return this.authService.requestPasswordReset(dto, frontendUrl);
+  }
+
+  @Public()
+  @Post('password-reset/confirm')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 
   @ApiBearerAuth()

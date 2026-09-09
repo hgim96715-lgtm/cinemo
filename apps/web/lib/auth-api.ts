@@ -71,3 +71,17 @@ export function checkNicknameRequest(nickname: string) {
     `/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`,
   );
 }
+
+export function requestPasswordReset(email: string) {
+  return apiFetch<{ message: string }>('/auth/password-reset/request', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPasswordRequest(token: string, newPassword: string) {
+  return apiFetch<{ message: string }>('/auth/password-reset/confirm', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword }),
+  });
+}

@@ -21,6 +21,88 @@ flowchart LR
 - SMS OTP: 휴대폰 기반 복구가 실제로 필요해질 때 추가함
 - PASS: 초기 CINEMO에는 도입하지 않음
 
+## 현재 구현 상태 (2026-09-09)
+
+이메일 비밀번호 재설정의 기본 흐름을 구현함.
+
+```mermaid
+sequenceDiagram
+  participant User as 사용자
+  participant Web as Web
+  participant API as API
+  participant DB as PostgreSQL
+  participant Mail as Resend
+
+  User->>Web: /forgot-password에서 이메일 입력
+  Web->>API: POST /v1/auth/password-reset/request
+  API->>DB: 기존 미사용 토큰 삭제
+  API->>DB: tokenHash·expiresAt 저장
+  API->>Mail: 재설정 링크 발송
+  Mail-->>User: /reset-password?token=...
+  User->>Web: 새 비밀번호 입력
+  Web->>API: POST /v1/auth/password-reset/confirm
+  API->>DB: tokenHash·만료·usedAt 검증
+  API->>DB: 비밀번호 변경 + usedAt 기록
+```
+
+현재 코드:
+
+```txt
+apps/api/src/auth/dto/request-password-reset.dto.ts
+apps/api/src/auth/dto/reset-password.dto.ts
+apps/api/src/auth/mail.service.ts
+apps/api/src/auth/emails/password-reset-email.tsx
+apps/web/app/(auth)/forgot-password/page.tsx
+apps/web/app/(auth)/reset-password/page.tsx
+apps/web/lib/auth-api.ts
+```
+
+API:
+
+| 메서드 | 경로 | 역할 |
+|---|---|---|
+| `POST` | `/v1/auth/password-reset/request` | 이메일 확인 후 일회용 링크 발송 |
+| `POST` | `/v1/auth/password-reset/confirm` | 토큰 검증 후 새 비밀번호 저장 |
+
+구현 규칙:
+
+- 폼은 `Zod v4 + react-hook-form`으로 검증함
+- 재설정 요청은 계정 존재 여부를 응답으로 노출하지 않음
+- 토큰 원문은 저장하지 않고 SHA-256 `tokenHash`만 저장함
+- 토큰은 30분 후 만료되고 성공 시 `usedAt`을 기록함
+- 재설정 요청마다 기존 미사용 토큰을 삭제함
+- 새 비밀번호는 기존 비밀번호와 같은 값이면 거절함
+- 비밀번호는 기존 로그인과 같은 `bcrypt` 정책으로 해시함
+- 메일 본문은 React Email 컴포넌트로 렌더링함
+- 메일 발송은 Resend `MailService`에서 서버 전용으로 처리함
+
+### Resend 환경 변수
+
+```env
+RESEND_API_KEY=...
+RESEND_FROM=onboarding@resend.dev
+```
+
+- `RESEND_FROM`은 웹사이트 주소가 아니라 발신 이메일 주소임
+- `https://cinemo-six.vercel.app`은 `FRONTEND_URL`에 사용함
+- `onboarding@resend.dev`는 테스트용 발신 주소임
+- `resend.dev` 테스트 발송은 Resend 계정 이메일 수신자 기준으로 확인함
+- 운영 발송은 Resend에서 직접 소유·검증한 도메인 주소로 전환해야 함
+
+### 재설정 테스트 순서
+
+```txt
+1. CINEMO에 가입된 이메일로 /forgot-password 접속
+2. 재설정 링크 요청
+3. 받은편지함·스팸함 또는 Resend Emails/Logs 확인
+4. /reset-password?token=... 링크 접속
+5. 새 비밀번호와 확인 비밀번호 입력
+6. 변경 완료 후 로그인
+```
+
+> [!warning] 테스트 수신자
+> `onboarding@resend.dev`를 비밀번호 찾기 화면에 입력하는 것이 아님. 화면에는 CINEMO에 가입된 수신자 이메일을 입력하고, `RESEND_FROM`에만 발신 주소를 설정함.
+
 ## PASS를 바로 사용하지 않는 이유
 
 PASS는 일반적인 문자 인증처럼 프론트에서 번호만 보내는 기능이 아님. NICE·KCB 등 본인확인 사업자와의 신청·계약·심사, 인증 요청, 콜백, 서버 결과 검증 과정이 필요함.
@@ -62,6 +144,8 @@ POST /v1/auth/password-reset/request
   ↓
 POST /v1/auth/password-reset/confirm
 ```
+
+`/reset-password` 화면은 새 비밀번호와 확인 비밀번호를 함께 받고, 입력 중인 값을 확인할 수 있도록 두 필드에 보기/숨기기 아이콘을 제공함.
 
 ### 보안 규칙
 
@@ -152,16 +236,18 @@ Google·Naver 가입자
 
 ## 구현 순서
 
-1. `/forgot-password` 폼을 Zod v4 + react-hook-form으로 구성함
-2. 이메일 재설정 요청 API를 추가함
-3. 일회용 재설정 토큰과 만료 처리를 추가함
-4. `/reset-password` 페이지에서 새 비밀번호를 설정함
-5. 이메일 발송 실패·중복 요청·만료 토큰 UI를 정리함
-6. Google·Naver 로그인 연동을 완료함
-7. Kakao는 이메일 제공 권한을 확보할 수 있을 때 다시 검토함
-8. Apple은 Apple Developer Program과 Sign in with Apple 설정이 가능할 때 다시 검토함
-9. 휴대폰 기반 복구가 필요해질 때 SMS OTP를 추가함
-10. 사업자 인증이 필요한 시점에 PASS 도입을 다시 검토함
+1. ~~`/forgot-password` 폼을 Zod v4 + react-hook-form으로 구성함~~ 완료
+2. ~~이메일 재설정 요청 API를 추가함~~ 완료
+3. ~~일회용 재설정 토큰과 만료 처리를 추가함~~ 완료
+4. ~~`/reset-password` 페이지에서 새 비밀번호를 설정함~~ 완료
+5. ~~이메일 발송·중복 요청·만료 토큰 UI를 연결함~~ 기본 흐름 완료
+6. 이메일 발송 rate limit과 재전송 대기 시간 추가
+7. 비밀번호 재설정 성공 후 기존 세션 폐기 정책 확정
+8. ~~Google·Naver 로그인 연동을 완료함~~ 완료
+9. Kakao는 이메일 제공 권한을 확보할 수 있을 때 다시 검토함
+10. Apple은 Apple Developer Program과 Sign in with Apple 설정이 가능할 때 다시 검토함
+11. 휴대폰 기반 복구가 필요해질 때 SMS OTP를 추가함
+12. 사업자 인증이 필요한 시점에 PASS 도입을 다시 검토함
 
 ## 로그인 이후 확장 기능
 
