@@ -223,10 +223,33 @@ export default function UpcomingPage() {
     }
   }
 
+  function isTodayKst(releaseDate: string) {
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul',
+    }).format(new Date());
+
+    return releaseDate === today;
+  }
+
   function formatReleaseDate(releaseDate: string) {
-    // console.log(releaseDate);
     const [year, month, day] = releaseDate.split('-');
     if (!year || !month || !day) return '개봉일 미정';
+
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+
+    const today = [
+      parts.find((part) => part.type === 'year')?.value,
+      parts.find((part) => part.type === 'month')?.value,
+      parts.find((part) => part.type === 'day')?.value,
+    ].join('-');
+
+    if (releaseDate === today) return '오늘 개봉';
+
     return `${year}.${month}.${day} 개봉 예정`;
   }
 
@@ -385,7 +408,15 @@ export default function UpcomingPage() {
 
                   <div>
                     <h2>{movie.title}</h2>
-                    <p>{formatReleaseDate(movie.releaseDate)}</p>
+                    <p
+                      className={
+                        isTodayKst(movie.releaseDate)
+                          ? 'upcoming-release-date is-today'
+                          : 'upcoming-release-date'
+                      }
+                    >
+                      {formatReleaseDate(movie.releaseDate)}
+                    </p>
                     <p>관심 등록 {movie.interestCount}명</p>
                   </div>
 
