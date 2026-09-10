@@ -5,27 +5,21 @@ export const GUIDE_STORAGE_KEY = "cinemo_guide_done";
 export const GUIDE_STEPS = [
   {
     id: "ticket",
-    kicker: "TICKET",
-    title: "매표소에서 오늘 티켓",
-    body: "하루에 한 장. 뽑기방에 들어갈 때 씁니다.",
+    kicker: "TODAY'S TICKET",
+    title: "오늘의 영화 티켓을 받아보세요",
+    body: "매표소에서 티켓을 받고 뽑기방에서 오늘의 영화를 발견해요.",
   },
   {
-    id: "gacha",
-    kicker: "GACHA",
-    title: "뽑기방에서 한 편",
-    body: "장르·국적·추천 머신으로 오늘의 영화를 뽑아요.",
+    id: "upcoming",
+    kicker: "SCREEN",
+    title: "스크린에서 만날 영화를 저장해요",
+    body: "개봉 예정작 중 마음에 드는 영화는 ‘보고 싶어요’로 저장해요.",
   },
   {
-    id: "review",
-    kicker: "REVIEW",
-    title: "후기방에 남기기",
-    body: "본 영화에 짧은 후기와 별점을 올리면 볼이 가득 쌓여요. 일주일 마다 후기가 많은 영화가 주간 베스트 영화로 선정돼요.",
-  },
-  {
-    id: "cafe",
-    kicker: "CAFE",
-    title: "카페에서 수다",
-    body: "테이블에 앉아 다른 손님과 이야기할 수 있어요. 단, 채팅방들은 하루 이후에는 초기화 돼요.",
+    id: "my-cinema",
+    kicker: "MY CINEMA",
+    title: "나만의 영화 기록을 만들어보세요",
+    body: "본 영화는 관람 기록으로 남기고, 나만의 포스터를 걸어보세요.",
   },
 ] as const;
 

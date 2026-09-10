@@ -71,6 +71,7 @@
 }
 
 .admin-main {
+  min-width: 0;
   padding: 1.6rem 1.85rem 2rem;
 }
 
@@ -494,22 +495,6 @@
   text-align: left;
 }
 
-.admin-cafe-field {
-  margin-top: 0.85rem;
-}
-
-.admin-cafe-rules {
-  width: 100%;
-  min-height: 8rem;
-  text-align: left;
-  resize: vertical;
-  line-height: 1.45;
-}
-
-.admin-cafe-toolbar {
-  margin-top: 1rem;
-}
-
 select.admin-ops-input {
   appearance: none;
   padding-right: 1.7rem;
@@ -678,58 +663,83 @@ select.admin-ops-input {
   }
 }
 
-
-.admin-guide-step {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 1rem;
-    border: 1px solid var(--admin-line);
-    border-radius: 0.5rem;
-    background: rgb(0 0 0 / 0.2);
+@media (max-width: 52rem) {
+  .admin-shell {
+    display: block;
   }
 
-  .admin-guide-step + .admin-guide-step {
-    margin-top: 1rem;
-  }
-
-  .admin-guide-step > .admin-ops-toolbar {
+  .admin-nav {
+    display: grid;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.35rem;
+    column-gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-right: 0;
     border-bottom: 1px solid var(--admin-line);
   }
 
-  .admin-guide-step > .admin-ops-toolbar strong {
-    color: var(--admin-gold);
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
+  .admin-kicker,
+  .admin-brand,
+  .admin-who {
+    grid-column: 1;
   }
 
-  .admin-guide-step .admin-ops-field {
-    margin-top: 0.25rem;
+  .admin-who {
+    margin: 0.1rem 0 0;
   }
 
-  .admin-guide-step .admin-ops-input {
-    width: 100%;
-    text-align: left;
+  .admin-links {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
   }
 
-  .admin-guide-step textarea.admin-ops-input {
-    min-height: 5rem;
-    resize: vertical;
-    line-height: 1.5;
+  .admin-nav a,
+  .admin-nav button {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
-  @media (max-width: 40rem) {
-    .admin-guide-step {
-      padding: 0.8rem;
-    }
-
-    .admin-guide-step > .admin-ops-toolbar {
-      align-items: flex-start;
-    }
+  .admin-link--out {
+    margin-top: 0;
   }
+}
+
+@media (max-width: 40rem) {
+  .admin-nav {
+    display: block;
+    padding: 0.8rem;
+  }
+
+  .admin-links {
+    justify-content: flex-start;
+    margin-top: 0.7rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .admin-main {
+    padding: 1.15rem 0.8rem 1.6rem;
+  }
+
+  .admin-title {
+    font-size: 1.25rem;
+  }
+
+  .admin-sub {
+    line-height: 1.55;
+  }
+
+  .admin-ops-card {
+    padding: 0.8rem;
+  }
+
+}
 
 .admin-seed-modal-overlay {
   position: fixed;

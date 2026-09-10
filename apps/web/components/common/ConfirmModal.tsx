@@ -102,9 +102,11 @@ export function ConfirmModal({
             {confirmLabel}
           </button>
 
-          <button type="button" onClick={onClose}>
-            {cancelLabel}
-          </button>
+          {cancelLabel ? (
+            <button type="button" onClick={onClose}>
+              {cancelLabel}
+            </button>
+          ) : null}
         </div>
       </section>
     </div>

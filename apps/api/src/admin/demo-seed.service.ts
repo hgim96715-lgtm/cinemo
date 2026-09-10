@@ -2,21 +2,14 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as bcrypt from 'bcrypt';
-import { CAFE_TABLE_SLOTS, GACHA_MACHINES } from '@cinemo/shared';
+import { GACHA_MACHINES } from '@cinemo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminService } from './admin.service';
-import {
-  cafeDayRange,
-  kstDateKey,
-  kstDayRange,
-  toKstDate,
-} from '../lib/date-kst';
-import { seedDemoReviewLikes } from '../lib/demo-review-likes';
+import { kstDateKey, kstDayRange, toKstDate } from '../lib/date-kst';
 
 type DemoPersonas = {
   nicknames: string[];
   reviews: { body: string; rating: number }[];
-  quotes: { text: string }[];
   profiles: { bio: string | null; tags: string[]; profilePublic: boolean }[];
 };
 
@@ -31,9 +24,7 @@ type DemoSeedSummary = {
   date: string;
   activities: number;
   createdUsers: number;
-  cafeMessages: number;
-  reviewLikes: number;
-  quotePosts: number;
+  createdPostcards: number;
 };
 
 const DAY_MS = 86_400_000;
@@ -41,15 +32,45 @@ const DEMO_EMAIL_DOMAIN = 'demo.cinemo.invalid';
 const DEMO_EMAIL_PREFIX = 'demo';
 const DEMO_TOTAL_ACTIVITY = 5;
 const DEMO_NEW_PER_DAY = 2;
-const CAFE_MESSAGES = [
-  '오늘은 어떤 영화가 제일 끌려요?',
-  '방금 뽑은 영화 포스터 분위기가 좋네요.',
-  '후기방에 짧게 감상도 남겨볼까 해요.',
-  '이 시간에 영화 이야기하니 카페 같아서 좋다.',
-  '다음에는 추천방에서 한 편 골라봐야겠어요.',
-  '오늘의 한 편, 생각보다 오래 기억에 남을 듯해요.',
+
+const POSTCARD_SAMPLES = [
+  {
+    text: '좋은 장면은 영화가 끝난 뒤에도 오래 남는다.',
+    originalText: 'The best scenes stay with you long after the movie ends.',
+  },
+  {
+    text: '오늘의 한 편을 조용히 기억해두자.',
+    originalText: null,
+  },
+  {
+    text: '괜찮아, 천천히 가도 돼.',
+    originalText: 'It is okay. You can take your time.',
+  },
+  {
+    text: '끝난 뒤에도 마음에 남는 영화였다.',
+    originalText: null,
+  },
+  {
+    text: '생각보다 오래 마음에 머무는 장면.',
+    originalText: 'A scene that stays in your heart longer than expected.',
+  },
 ] as const;
 
+const POSTCARD_COMMENT_SAMPLES = [
+  '이 장면 정말 좋았어요. 영화 보고 나서도 계속 생각났어요.',
+  '저도 이 문장 마음에 남았어요. 다시 보고 싶네요.',
+  '엽서 분위기와 문장이 잘 어울려요.',
+  '이 영화 아직 못 봤는데 궁금해졌어요.',
+  '좋은 문장 남겨줘서 고마워요.',
+] as const;
+
+const POSTCARD_REPLY_SAMPLES = [
+  '맞아요. 저도 그 여운이 오래 갔어요.',
+  '그쵸? 다음에 같이 이야기해보고 싶어요.',
+  '좋게 봐줘서 고마워요!',
+  '시간 나면 꼭 봐보세요.',
+  '저도 다음에 다시 보려고요.',
+] as const;
 @Injectable()
 export class DemoSeedService {
   private personas: DemoPersonas | null = null;
@@ -98,7 +119,7 @@ export class DemoSeedService {
     if (users.length === 0) return { users: 0, rebuiltDates: 0 };
 
     const userIds = users.map((user) => user.id);
-    const [visits, logins, tickets, reviews, messages] = await Promise.all([
+    const [visits, logins, tickets] = await Promise.all([
       this.prisma.lobbyVisit.findMany({
         where: { userId: { in: userIds } },
         select: { visitDate: true },
@@ -111,43 +132,18 @@ export class DemoSeedService {
         where: { userId: { in: userIds } },
         select: { ticketDate: true },
       }),
-      this.prisma.reviewPost.findMany({
-        where: { userId: { in: userIds } },
-        select: { createdAt: true },
-      }),
-      this.prisma.cafeMessage.findMany({
-        where: { userId: { in: userIds } },
-        select: { createdAt: true },
-      }),
     ]);
     const affectedDates = new Set<string>([
       ...visits.map((row) => kstDateKey(row.visitDate)),
       ...logins.map((row) => kstDateKey(row.loggedAt)),
       ...tickets.map((row) => kstDateKey(row.ticketDate)),
-      ...reviews.map((row) => kstDateKey(row.createdAt)),
-      ...messages.map((row) => kstDateKey(row.createdAt)),
     ]);
 
     await this.prisma.$transaction([
-      this.prisma.reviewPostLike.deleteMany({
-        where: {
-          OR: [
-            { userId: { in: userIds } },
-            { post: { userId: { in: userIds } } },
-          ],
-        },
-      }),
-      this.prisma.reviewPost.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.ticket.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.userMovie.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.lobbyVisit.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.adminLoginLog.deleteMany({
-        where: { userId: { in: userIds } },
-      }),
-      this.prisma.cafeMessage.deleteMany({
-        where: { userId: { in: userIds } },
-      }),
-      this.prisma.cafeTableSeat.deleteMany({
         where: { userId: { in: userIds } },
       }),
       this.prisma.movieProviderOverride.deleteMany({
@@ -169,7 +165,6 @@ export class DemoSeedService {
     const returnCount = Math.max(0, DEMO_TOTAL_ACTIVITY - DEMO_NEW_PER_DAY);
     let createdUsers = 0;
     let activities = 0;
-    let quotePosts = 0;
     let sequence = 1;
     const users: DemoUser[] = [];
 
@@ -212,9 +207,11 @@ export class DemoSeedService {
     if (movies.length === 0) {
       throw new Error('MoviePool이 비어 있어 demo 뽑기를 만들 수 없습니다.');
     }
-    const upcomingMovies = movies.filter(
-      (movie) => movie.releaseDate && movie.releaseDate >= kstDateKey(now),
-    ).sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
+    const upcomingMovies = movies
+      .filter(
+        (movie) => movie.releaseDate && movie.releaseDate >= kstDateKey(now),
+      )
+      .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
     const featuredUpcomingMovie = upcomingMovies[0];
 
     for (let index = 0; index < users.length; index += 1) {
@@ -336,197 +333,158 @@ export class DemoSeedService {
         });
       }
 
-      const review = await this.prisma.reviewPost.findFirst({
-        where: {
-          userId: user.id,
-          createdAt: {
-            gte: kstDayRange(dateKey).start,
-            lt: kstDayRange(dateKey).end,
-          },
-        },
-      });
-      if (!review) {
-        await this.prisma.reviewPost.create({
-          data: {
-            userId: user.id,
-            tmdbId,
-            body: reviewTemplate.body,
-            rating: reviewTemplate.rating,
-            createdAt: eventAt,
-            updatedAt: eventAt,
-          },
-        });
-        await this.adminService.countIncrement('reviews', eventAt);
-        activities += 1;
-      }
-
-      if (
-        await this.seedQuote(
-          user,
-          tmdbId,
-          movieTitle,
-          dateKey,
-          index,
-          personas,
-          eventAt,
-        )
-      ) {
-        quotePosts += 1;
-      }
+      activities += 1;
     }
 
-    const cafeMessages =
-      dateKey === kstDateKey(now) ? await this.seedCafe(users, now) : 0;
-    const reviewLikes = await seedDemoReviewLikes(
-      this.prisma,
-      dateKey,
-      users.map((user) => user.id),
-    );
+    const createdPostcards = await this.seedPostcardCommunity(users);
 
     return {
       date: dateKey,
       activities,
       createdUsers,
-      cafeMessages,
-      reviewLikes,
-      quotePosts,
+      createdPostcards,
     };
   }
 
-  private async seedQuote(
-    user: DemoUser,
-    tmdbId: number,
-    movieTitle: string,
-    dateKey: string,
-    index: number,
-    personas: DemoPersonas,
-    createdAt: Date,
-  ) {
-    const template = this.pick(personas.quotes, dateKey, index);
-    if (!template) return false;
+  private async seedPostcardCommunity(users: DemoUser[]) {
+    if (users.length === 0) return 0;
 
-    const existing = await this.prisma.quotePost.findFirst({
-      where: { userId: user.id, tmdbId, text: template.text },
-      select: { id: true },
-    });
-    if (existing) return false;
-
-    const quote = await this.prisma.quotePost.create({
-      data: {
-        userId: user.id,
-        tmdbId,
-        movieTitle,
-        text: template.text,
-        usePosterBackground: true,
-        createdAt,
+    const movies = await this.prisma.moviePool.findMany({
+      orderBy: { syncedAt: 'desc' },
+      take: Math.max(users.length, POSTCARD_SAMPLES.length),
+      select: {
+        tmdbId: true,
+        title: true,
+        posterPath: true,
       },
     });
-    await this.prisma.quotePostBookmark.create({
-      data: { userId: user.id, quotePostId: quote.id },
-    });
-    return true;
-  }
 
-  private async seedCafe(users: DemoUser[], now: Date): Promise<number> {
-    await this.prisma.cafeTableSession.createMany({
-      data: CAFE_TABLE_SLOTS.map((tableId) => ({ tableId })),
-      skipDuplicates: true,
-    });
+    if (movies.length === 0) return 0;
 
-    const ids = users.map((user) => user.id);
-    const existingSeats = await this.prisma.cafeTableSeat.findMany({
-      where: { userId: { in: ids } },
-      select: { userId: true, tableId: true },
-    });
-    const seatByUser = new Map(
-      existingSeats.map((seat) => [seat.userId, seat.tableId]),
-    );
-    let created = 0;
+    let createdPostcards = 0;
 
     for (let index = 0; index < users.length; index += 1) {
-      const user = users[index];
-      const tableId = CAFE_TABLE_SLOTS[index % CAFE_TABLE_SLOTS.length];
-      const currentTable = seatByUser.get(user.id);
-      if (currentTable && currentTable !== tableId) continue;
+      const owner = users[index]!;
+      const movie = movies[index % movies.length]!;
+      const sample = POSTCARD_SAMPLES[index % POSTCARD_SAMPLES.length]!;
+      const posterPath = movie.posterPath
+        ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
+        : null;
 
-      if (!currentTable) {
-        await this.prisma.cafeTableSeat.create({
+      const existingPostcard = await this.prisma.postcard.findFirst({
+        where: {
+          userId: owner.id,
+          tmdbId: movie.tmdbId,
+          text: sample.text,
+        },
+      });
+
+      const postcard =
+        existingPostcard ??
+        (await this.prisma.postcard.create({
           data: {
-            tableId,
-            userId: user.id,
-            joinedAt: new Date(
-              now.getTime() - (users.length - index) * 180_000,
-            ),
+            userId: owner.id,
+            tmdbId: movie.tmdbId,
+            movieTitle: movie.title,
+            originalText: sample.originalText,
+            text: sample.text,
+            posterPath,
+            isPublic: true,
+          },
+        }));
+
+      if (!existingPostcard) createdPostcards += 1;
+
+      const commenterIds = Array.from(
+        new Set(
+          [1, 2, 3]
+            .map((offset) => users[(index + offset) % users.length]?.id)
+            .filter((userId): userId is string => userId !== owner.id),
+        ),
+      );
+
+      let firstCommentId: string | null = null;
+      for (
+        let commentIndex = 0;
+        commentIndex < commenterIds.length;
+        commentIndex += 1
+      ) {
+        const commenterId = commenterIds[commentIndex]!;
+        const commentText =
+          POSTCARD_COMMENT_SAMPLES[
+            (index + commentIndex) % POSTCARD_COMMENT_SAMPLES.length
+          ]!;
+        const existingComment = await this.prisma.postcardComment.findFirst({
+          where: {
+            postcardId: postcard.id,
+            userId: commenterId,
+            parentId: null,
+            text: commentText,
           },
         });
-        seatByUser.set(user.id, tableId);
+        const comment =
+          existingComment ??
+          (await this.prisma.postcardComment.create({
+            data: {
+              postcardId: postcard.id,
+              userId: commenterId,
+              text: commentText,
+            },
+          }));
+
+        if (!firstCommentId) firstCommentId = comment.id;
       }
 
-      const createdAt = new Date(
-        now.getTime() - (users.length - index) * 120_000,
-      );
-      const body = CAFE_MESSAGES[index % CAFE_MESSAGES.length];
-      const cafeRange = cafeDayRange(now);
-      const duplicate = await this.prisma.cafeMessage.findFirst({
-        where: {
-          tableId,
-          userId: user.id,
-          body,
-          createdAt: { gte: cafeRange.start, lt: cafeRange.end },
-        },
-      });
-      if (duplicate) continue;
+      const replyAuthorId = users[(index + 3) % users.length]?.id;
+      if (firstCommentId && replyAuthorId && replyAuthorId !== owner.id) {
+        const replyText =
+          POSTCARD_REPLY_SAMPLES[index % POSTCARD_REPLY_SAMPLES.length]!;
+        const existingReply = await this.prisma.postcardComment.findFirst({
+          where: {
+            postcardId: postcard.id,
+            userId: replyAuthorId,
+            parentId: firstCommentId,
+            text: replyText,
+          },
+        });
 
-      await this.prisma.cafeMessage.create({
-        data: {
-          tableId,
-          userId: user.id,
-          body,
-          createdAt,
-          updatedAt: createdAt,
-        },
-      });
-      await this.adminService.countIncrement('cafeMessages', createdAt);
-      created += 1;
+        if (!existingReply) {
+          await this.prisma.postcardComment.create({
+            data: {
+              postcardId: postcard.id,
+              userId: replyAuthorId,
+              parentId: firstCommentId,
+              text: replyText,
+            },
+          });
+        }
+      }
     }
 
-    return created;
+    return createdPostcards;
   }
 
   private async rebuildStats(dateKey: string) {
     const date = toKstDate(this.atKstStart(dateKey));
     const range = kstDayRange(dateKey);
     const userFilter = { user: { role: 'user' as const } };
-    const [visits, logins, ticketsIssued, ticketsUsed, reviews, cafeMessages] =
-      await Promise.all([
-        this.prisma.lobbyVisit.count({
-          where: { visitDate: date, ...userFilter },
-        }),
-        this.prisma.adminLoginLog.count({
-          where: {
-            loggedAt: { gte: range.start, lt: range.end },
-            ...userFilter,
-          },
-        }),
-        this.prisma.ticket.count({
-          where: { ticketDate: date, ...userFilter },
-        }),
-        this.prisma.ticket.count({
-          where: { ticketDate: date, status: 'used', ...userFilter },
-        }),
-        this.prisma.reviewPost.count({
-          where: {
-            createdAt: { gte: range.start, lt: range.end },
-            ...userFilter,
-          },
-        }),
-        this.prisma.cafeMessage.count({
-          where: {
-            createdAt: { gte: range.start, lt: range.end },
-            ...userFilter,
-          },
-        }),
-      ]);
+    const [visits, logins, ticketsIssued, ticketsUsed] = await Promise.all([
+      this.prisma.lobbyVisit.count({
+        where: { visitDate: date, ...userFilter },
+      }),
+      this.prisma.adminLoginLog.count({
+        where: {
+          loggedAt: { gte: range.start, lt: range.end },
+          ...userFilter,
+        },
+      }),
+      this.prisma.ticket.count({
+        where: { ticketDate: date, ...userFilter },
+      }),
+      this.prisma.ticket.count({
+        where: { ticketDate: date, status: 'used', ...userFilter },
+      }),
+    ]);
 
     await this.prisma.adminDailyStat.upsert({
       where: { date },
@@ -536,20 +494,16 @@ export class DemoSeedService {
         logins,
         ticketsIssued,
         ticketsUsed,
-        reviews,
-        cafeMessages,
       },
       update: {
         visits,
         logins,
         ticketsIssued,
         ticketsUsed,
-        reviews,
-        cafeMessages,
       },
     });
 
-    const [visitRows, loginRows, cafeRows] = await Promise.all([
+    const [visitRows, loginRows] = await Promise.all([
       this.prisma.lobbyVisit.findMany({
         where: { visitDate: date, ...userFilter },
         select: { visitedAt: true },
@@ -558,26 +512,15 @@ export class DemoSeedService {
         where: { loggedAt: { gte: range.start, lt: range.end }, ...userFilter },
         select: { loggedAt: true },
       }),
-      this.prisma.cafeMessage.findMany({
-        where: {
-          createdAt: { gte: range.start, lt: range.end },
-          ...userFilter,
-        },
-        select: { createdAt: true },
-      }),
     ]);
-    const hourly = new Map<
-      number,
-      { visits: number; logins: number; cafeMessages: number }
-    >();
-    const add = (hour: number, field: 'visits' | 'logins' | 'cafeMessages') => {
-      const row = hourly.get(hour) ?? { visits: 0, logins: 0, cafeMessages: 0 };
+    const hourly = new Map<number, { visits: number; logins: number }>();
+    const add = (hour: number, field: 'visits' | 'logins') => {
+      const row = hourly.get(hour) ?? { visits: 0, logins: 0 };
       row[field] += 1;
       hourly.set(hour, row);
     };
     for (const row of visitRows) add(this.hourOf(row.visitedAt), 'visits');
     for (const row of loginRows) add(this.hourOf(row.loggedAt), 'logins');
-    for (const row of cafeRows) add(this.hourOf(row.createdAt), 'cafeMessages');
 
     await this.prisma.$transaction([
       this.prisma.adminHourlyStat.deleteMany({ where: { date } }),
@@ -608,8 +551,9 @@ export class DemoSeedService {
       where: {
         email: { endsWith: `@${DEMO_EMAIL_DOMAIN}` },
         createdAt: { lt: this.atKstStart(dateKey) },
-        reviewPosts: {
+        userMovies: {
           none: {
+            kind: 'watched',
             createdAt: {
               gte: kstDayRange(dateKey).start,
               lt: kstDayRange(dateKey).end,

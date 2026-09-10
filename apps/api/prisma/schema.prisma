@@ -13,6 +13,10 @@ datasource db {
     provider = "postgresql"
 }
 
+// ─────────────────────────────────────────────
+// 인증·사용자
+// ─────────────────────────────────────────────
+
 enum UserRole {
     user
     admin
@@ -24,6 +28,13 @@ enum LoginProvider {
     naver
     kakao
     apple
+}
+
+enum AuthProvider {
+    google
+    naver
+    apple
+    kakao
 }
 
 model User {
@@ -40,30 +51,22 @@ model User {
     isTestAccount             Boolean                    @default(false) @map("is_test_account")
     createdAt                 DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
     updatedAt                 DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
-    tickets                   Ticket[]
-    userMovies                UserMovie[]
-    reviewPosts               ReviewPost[]
-    reviewPostLikes           ReviewPostLike[]
-    lobbyVisits               LobbyVisit[]
-    cafeMessages              CafeMessage[]
-    cafeTableSeats            CafeTableSeat[]
-    loginLogs                 AdminLoginLog[]
-    movieProviderOverrides    MovieProviderOverride[]
-    quotePosts                QuotePost[]
-    quotePostBookmarks        QuotePostBookmark[]
     socialAccounts            SocialAccount[]
     oauthLoginCodes           OAuthLoginCode[]
     passwordResetTokens       PasswordResetToken[]
+    tickets                   Ticket[]
+    userMovies                UserMovie[]
     movieReleaseNotifications MovieReleaseNotification[]
+    lobbyVisits               LobbyVisit[]
+    loginLogs                 AdminLoginLog[]
+    movieProviderOverrides    MovieProviderOverride[]
+    postcards                 Postcard[]
+    postcardBookmarks         PostcardBookmark[]
+    postcardReactions         PostcardReaction[]
+    postcardComments          PostcardComment[]
+    postcardCommentReactions  PostcardCommentReaction[]
 
     @@map("users")
-}
-
-enum AuthProvider {
-    google
-    naver
-    apple
-    kakao
 }
 
 model SocialAccount {
@@ -111,6 +114,10 @@ model PasswordResetToken {
     @@map("password_reset_tokens")
 }
 
+// ─────────────────────────────────────────────
+// 영화·사용자 영화 활동
+// ─────────────────────────────────────────────
+
 enum UserMovieKind {
     wish
     watched
@@ -120,6 +127,27 @@ enum UserMovieViewingType {
     theater
     home
     other
+}
+
+enum TicketStatus {
+    issued
+    used
+}
+
+model MoviePool {
+    id              String   @id @default(uuid(7)) @db.Uuid
+    tmdbId          Int      @unique @map("tmdb_id")
+    title           String
+    overview        String   @db.Text
+    posterPath      String?  @map("poster_path")
+    releaseDate     String   @default("") @map("release_date")
+    director        String?
+    genreIds        Int[]    @default([]) @map("genre_ids")
+    originCountries String[] @default([]) @map("origin_countries")
+    providers       Json     @default("[]")
+    syncedAt        DateTime @default(now()) @map("synced_at") @db.Timestamptz(3)
+
+    @@map("movie_pool")
 }
 
 model UserMovie {
@@ -146,11 +174,6 @@ model UserMovie {
     @@map("user_movies")
 }
 
-enum TicketStatus {
-    issued
-    used
-}
-
 model Ticket {
     id         String       @id @default(uuid(7)) @db.Uuid
     userId     String       @map("user_id") @db.Uuid
@@ -169,50 +192,124 @@ model Ticket {
     @@map("tickets")
 }
 
-model MoviePool {
-    id              String   @id @default(uuid(7)) @db.Uuid
-    tmdbId          Int      @unique @map("tmdb_id")
-    title           String
-    overview        String   @db.Text
-    posterPath      String?  @map("poster_path")
-    releaseDate     String   @default("") @map("release_date")
-    director        String?
-    genreIds        Int[]    @default([]) @map("genre_ids")
-    originCountries String[] @default([]) @map("origin_countries")
-    providers       Json     @default("[]")
-    syncedAt        DateTime @default(now()) @map("synced_at") @db.Timestamptz(3)
+model MovieReleaseNotification {
+    id          String    @id @default(uuid(7)) @db.Uuid
+    userId      String    @map("user_id") @db.Uuid
+    tmdbId      Int       @map("tmdb_id")
+    releaseDate DateTime  @map("release_date") @db.Date
+    enabled     Boolean   @default(true)
+    sentAt      DateTime? @map("sent_at") @db.Timestamptz(3)
+    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-    @@map("movie_pool")
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, tmdbId])
+    @@index([enabled, releaseDate, sentAt])
+    @@map("movie_release_notifications")
 }
 
-model ReviewPost {
+// ─────────────────────────────────────────────
+// 영화·사용자 콘텐츠
+// ─────────────────────────────────────────────
+
+model Postcard {
+    id           String   @id @default(uuid(7)) @db.Uuid
+    userId       String   @map("user_id") @db.Uuid
+    tmdbId       Int      @map("tmdb_id")
+    movieTitle   String?  @map("movie_title")
+    originalText String?  @map("original_text") @db.Text
+    text         String   @db.Text
+    posterPath   String?  @map("poster_path")
+    isPublic     Boolean  @default(true) @map("is_public")
+    isPinned     Boolean  @default(false) @map("is_pinned")
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+    postcardBookmarks PostcardBookmark[]
+    postcardReactions PostcardReaction[]
+    postcardComments  PostcardComment[]
+
+    @@index([userId, createdAt(sort: Desc)])
+    @@index([tmdbId])
+    @@index([isPublic, createdAt(sort: Desc)])
+    @@map("postercards")
+}
+
+model PostcardBookmark {
+    id         String   @id @default(uuid(7)) @db.Uuid
+    postcardId String   @map("postcard_id") @db.Uuid
+    userId     String   @map("user_id") @db.Uuid
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+    postcard Postcard @relation(fields: [postcardId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([postcardId, userId])
+    @@index([userId, createdAt(sort: Desc)])
+    @@index([postcardId])
+    @@map("postcard_bookmarks")
+}
+
+model PostcardReaction {
+    id         String   @id @default(uuid(7)) @db.Uuid
+    postcardId String   @map("postcard_id") @db.Uuid
+    userId     String   @map("user_id") @db.Uuid
+    emoji      String   @db.VarChar(32)
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+    postcard Postcard @relation(fields: [postcardId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([postcardId, userId, emoji])
+    @@index([postcardId, emoji])
+    @@index([emoji, postcardId])
+    @@index([userId, createdAt(sort: Desc)])
+    @@map("postcard_reactions")
+}
+
+model PostcardComment {
+    id         String   @id @default(uuid(7)) @db.Uuid
+    postcardId String   @map("postcard_id") @db.Uuid
+    userId     String   @map("user_id") @db.Uuid
+    parentId   String?  @map("parent_id") @db.Uuid
+    text       String   @db.Text
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    postcard Postcard @relation(fields: [postcardId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    parent    PostcardComment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies   PostcardComment[]         @relation("CommentReplies")
+    reactions PostcardCommentReaction[]
+
+    @@index([postcardId, createdAt(sort: Desc)])
+    @@index([parentId, createdAt(sort: Desc)])
+    @@index([userId, createdAt(sort: Desc)])
+    @@map("postcard_comments")
+}
+
+model PostcardCommentReaction {
     id        String   @id @default(uuid(7)) @db.Uuid
+    commentId String   @map("comment_id") @db.Uuid
     userId    String   @map("user_id") @db.Uuid
-    tmdbId    Int      @map("tmdb_id")
-    body      String   @db.Text
-    rating    Float
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    user            User             @relation(fields: [userId], references: [id])
-    reviewPostLikes ReviewPostLike[]
-
-    @@index([createdAt(sort: Desc)])
-    @@map("review_posts")
-}
-
-model ReviewPostLike {
-    id        String   @id @default(uuid(7)) @db.Uuid
-    postId    String   @map("post_id") @db.Uuid
-    userId    String   @map("user_id") @db.Uuid
+    emoji     String   @db.VarChar(32)
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-    post ReviewPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-    user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    comment PostcardComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([postId, userId])
-    @@map("review_post_likes")
+    @@unique([commentId, userId, emoji])
+    @@index([commentId, emoji])
+    @@index([userId, createdAt(sort: Desc)])
+    @@map("postcard_comment_reactions")
 }
+
+// ─────────────────────────────────────────────
+// 로비
+// ─────────────────────────────────────────────
 
 model LobbyVisit {
     id        String   @id @default(uuid(7)) @db.Uuid
@@ -228,61 +325,9 @@ model LobbyVisit {
     @@map("lobby_visits")
 }
 
-model AnonVisit {
-    id         String   @id @default(uuid(7)) @db.Uuid
-    visitorKey String   @map("visitor_key") @db.VarChar(36)
-    place      String   @db.VarChar(16)
-    visitDate  DateTime @map("visit_date") @db.Date
-    visitedAt  DateTime @default(now()) @map("visited_at") @db.Timestamptz(3)
-
-    @@unique([visitorKey, place, visitDate])
-    @@index([visitDate, place])
-    @@map("anon_visits")
-}
-
-enum CafeTableAccess {
-    open
-    locked
-}
-
-model CafeTableSession {
-    tableId   String          @id @map("table_id") @db.VarChar(1)
-    label     String?
-    access    CafeTableAccess @default(open)
-    updatedAt DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    messages CafeMessage[]
-    seats    CafeTableSeat[]
-
-    @@map("cafe_table_sessions")
-}
-
-model CafeTableSeat {
-    tableId  String           @map("table_id") @db.VarChar(1)
-    userId   String           @map("user_id") @db.Uuid
-    joinedAt DateTime         @default(now()) @map("joined_at") @db.Timestamptz(3)
-    session  CafeTableSession @relation(fields: [tableId], references: [tableId], onDelete: Cascade)
-    user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@id([tableId, userId])
-    @@index([tableId])
-    @@map("cafe_table_seats")
-}
-
-model CafeMessage {
-    id        String   @id @default(uuid(7)) @db.Uuid
-    tableId   String   @map("table_id") @db.VarChar(1)
-    userId    String   @map("user_id") @db.Uuid
-    body      String   @db.Text
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    session CafeTableSession @relation(fields: [tableId], references: [tableId], onDelete: Cascade)
-    user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([tableId, createdAt(sort: Desc)])
-    @@map("cafe_messages")
-}
+// ─────────────────────────────────────────────
+// 관리자·운영
+// ─────────────────────────────────────────────
 
 model AdminLoginLog {
     id       String   @id @default(uuid(7)) @db.Uuid
@@ -302,20 +347,17 @@ model AdminDailyStat {
     logins        Int      @default(0)
     ticketsIssued Int      @default(0) @map("tickets_issued")
     ticketsUsed   Int      @default(0) @map("tickets_used")
-    reviews       Int      @default(0)
-    cafeMessages  Int      @default(0) @map("cafe_messages")
     updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
     @@map("admin_daily_stats")
 }
 
 model AdminHourlyStat {
-    date         DateTime @db.Date
-    hour         Int
-    visits       Int      @default(0)
-    logins       Int      @default(0)
-    cafeMessages Int      @default(0) @map("cafe_messages")
-    updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+    date      DateTime @db.Date
+    hour      Int
+    visits    Int      @default(0)
+    logins    Int      @default(0)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
     @@id([date, hour])
     @@map("admin_hourly_stats")
@@ -343,18 +385,6 @@ model MovieProviderOverride {
     @@unique([tmdbId, providerId, action])
     @@index([tmdbId])
     @@map("movie_provider_overrides")
-}
-
-model CafeNotice {
-    id        String   @id @default(uuid(7)) @db.Uuid
-    key       String   @unique @default("cafe") @db.VarChar(16)
-    kicker    String   @default("CINEMO SNACK BAR") @db.VarChar(64)
-    title     String   @default("주의사항") @db.VarChar(128)
-    rules     String[] @default([])
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    @@map("cafe_notices")
 }
 
 model LobbyGuide {
@@ -422,57 +452,4 @@ model AdminDailyReport {
 
     @@index([startedAt(sort: Desc)])
     @@map("admin_daily_reports")
-}
-
-model QuotePost {
-    id                  String   @id @default(uuid(7)) @db.Uuid
-    userId              String   @map("user_id") @db.Uuid
-    tmdbId              Int      @map("tmdb_id")
-    movieTitle          String?  @map("movie_title")
-    text                String   @db.Text
-    originalText        String?  @map("original_text") @db.Text
-    originalLanguage    String?  @map("original_language") @db.Text
-    usePosterBackground Boolean  @default(true) @map("use_poster_background")
-    createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-    updaatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-    quotePostBookmarks QuotePostBookmark[]
-
-    @@unique([userId, tmdbId, text])
-    @@index([tmdbId])
-    @@index([createdAt(sort: Desc)])
-    @@map("quote_posts")
-}
-
-model QuotePostBookmark {
-    id          String   @id @default(uuid(7)) @db.Uuid
-    userId      String   @map("user_id") @db.Uuid
-    quotePostId String   @map("quote_post_id") @db.Uuid
-    createdAt   DateTime @default(now()) @map("create_at") @db.Timestamptz(3)
-
-    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    quotePost QuotePost @relation(fields: [quotePostId], references: [id], onDelete: Cascade)
-
-    @@unique([userId, quotePostId])
-    @@index([userId, createdAt(sort: Desc)])
-    @@index([quotePostId])
-    @@map("quote_post_bookmarks")
-}
-
-model MovieReleaseNotification {
-    id          String    @id @default(uuid(7)) @db.Uuid
-    userId      String    @map("user_id") @db.Uuid
-    tmdbId      Int       @map("tmdb_id")
-    releaseDate DateTime  @map("release_date") @db.Date
-    enabled     Boolean   @default(true)
-    sentAt      DateTime? @map("sent_at") @db.Timestamptz(3)
-    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([userId, tmdbId])
-    @@index([enabled, releaseDate, sentAt])
-    @@map("movie_release_notifications")
 }

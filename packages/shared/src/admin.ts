@@ -1,19 +1,12 @@
-import type { CafeTableSnapshot } from "./cafe";
-
 export type AdminOverview = {
   userCount: number;
   todaySignupCount: number;
   todayLoginCount: number;
   todayVisitCount: number;
-  todayAnonReviewCount: number;
   weekSignupCount: number;
   weekLoginCount: number;
   weekVisitCount: number;
-  weekAnonReviewCount: number;
-  reviewCount: number;
   todayTicketIssuedCount: number;
-  cafeSeatedCount: number;
-  tables: CafeTableSnapshot[];
 };
 
 export type AdminAnalyticsPoint = {
@@ -23,15 +16,12 @@ export type AdminAnalyticsPoint = {
   signups: number;
   ticketsIssued: number;
   ticketsUsed: number;
-  reviews: number;
-  cafeMessages: number;
 };
 export type AdminHourlyPoint = {
   date: string;
   hour: number;
   visits: number;
   logins: number;
-  cafeMessages: number;
 };
 export type AdminAnalytics = {
   from: string;

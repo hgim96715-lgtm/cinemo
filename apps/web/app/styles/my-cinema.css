@@ -540,16 +540,7 @@
   line-height: 1;
 }
 
-/* ── 04. 방 메뉴·선반 공통 내비게이션 ── */
-
-.my-cinema-shelf-nav,
-.my-cinema-dashboard-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: min(100%, 60rem);
-  min-height: 2.2rem;
-}
+/* ── 04. 방 메뉴·선반 보조 링크 ── */
 
 .my-cinema-top-nav-link {
   display: inline-flex;
@@ -598,8 +589,7 @@
   gap: 0.2rem;
 }
 
-.my-cinema-shelf-title,
-.saved-quote-title .quote-reel-heading h1 {
+.my-cinema-shelf-title {
   margin: 0;
   display: inline-flex;
   align-items: center;
@@ -1352,7 +1342,7 @@
   }
 }
 
-/* ── 06. 관람 기록·찜·명대사 선반 ── */
+/* ── 06. 관람 기록·찜 선반 ── */
 .my-cinema--shelf {
   min-height: 100svh;
   overflow: visible;
@@ -1657,131 +1647,6 @@
   }
 }
 
-/* ── 08. 컬렉션 이동·명대사방 보조 UI ── */
-.my-cinema-object--collection {
-  gap: 0.3rem;
-  border-color: transparent;
-  border-radius: 1.8rem 1.8rem 0.8rem 0.8rem;
-  background: transparent;
-  box-shadow: none;
-}
-
-.my-cinema-collection-icon {
-  display: grid;
-  place-items: center;
-  width: 3.3rem;
-  height: 3.3rem;
-  border: 1px solid rgb(212 181 106 / 0.5);
-  border-radius: 50%;
-  background: linear-gradient(160deg, #4d3b34, #19171b);
-  color: #e0bc68;
-  filter: drop-shadow(0 0 0.35rem rgb(212 181 106 / 0.2));
-}
-
-.my-cinema-object--collection .my-cinema-object-label {
-  color: rgb(243 239 230 / 0.82);
-  font-size: clamp(0.56rem, 1.5vw, 0.76rem);
-}
-
-.my-cinema-object--collection .my-cinema-object-count {
-  color: #e0bc68;
-  font-size: clamp(0.76rem, 1.8vw, 0.98rem);
-}
-
-.my-cinema-object--collection:hover:not(:disabled) {
-  border-color: transparent;
-  background: transparent;
-  filter: brightness(1.16);
-}
-
-@media (max-width: 40rem) {
-  .my-cinema-collection-icon {
-    width: 2.7rem;
-    height: 2.7rem;
-  }
-
-  .my-cinema-collection-icon > svg {
-    width: 1.35rem;
-    height: 1.35rem;
-  }
-
-  .my-cinema-object--collection .my-cinema-object-label {
-    font-size: 0.56rem;
-  }
-
-  .my-cinema-object--collection .my-cinema-object-count {
-    font-size: 0.78rem;
-  }
-}
-
-/* 명대사방과 MY CINEMA 사이 이동 */
-.my-cinema-quotes-page-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  width: 100%;
-  margin: 3rem auto 0;
-  padding: 0 1rem 2rem;
-}
-
-.my-cinema-quotes-page-nav-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 8.5rem;
-  min-height: 3.25rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid rgba(202, 164, 78, 0.72);
-  border-radius: 1rem;
-  background: linear-gradient(
-    180deg,
-    rgba(77, 57, 27, 0.9),
-    rgba(24, 19, 14, 0.96)
-  );
-  color: #f0e8dc;
-  font-size: 1rem;
-  line-height: 1;
-  text-decoration: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 8px 18px rgba(0, 0, 0, 0.18);
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    background 0.18s ease;
-}
-
-.my-cinema-quotes-page-nav-link:hover,
-.my-cinema-quotes-page-nav-link:focus-visible {
-  border-color: #d9b45f;
-  background: linear-gradient(
-    180deg,
-    rgba(101, 76, 36, 0.96),
-    rgba(35, 27, 18, 0.98)
-  );
-  transform: translateY(-2px);
-}
-
-.my-cinema-quotes-page-nav-link:focus-visible {
-  outline: 2px solid #f0d486;
-  outline-offset: 3px;
-}
-
-@media (max-width: 560px) {
-  .my-cinema-quotes-page-nav {
-    gap: 0.75rem;
-    margin-top: 2rem;
-  }
-
-  .my-cinema-quotes-page-nav-link {
-    flex: 1 1 0;
-    min-width: 0;
-    min-height: 3rem;
-    padding-inline: 1rem;
-  }
-}
-
 /* ── 09. 방 장면 내부 배치 ── */
 .my-cinema-scene-layout {
   position: relative;
@@ -1901,21 +1766,9 @@
   grid-row: 3;
 }
 
-.my-cinema-scene-layout > .my-cinema-object--quotes {
-  grid-column: 2;
-  grid-row: 3;
-}
-
 .my-cinema-scene-layout > .my-cinema-object--wish {
   grid-column: 3;
   grid-row: 3;
-}
-
-.my-cinema-scene-layout > .my-cinema-object--collection {
-  align-self: center;
-  width: 100%;
-  min-height: 0;
-  padding: 0.2rem;
 }
 
 @media (max-width: 60rem) {
@@ -1964,11 +1817,6 @@
 
   .my-cinema-scene-layout > .my-cinema-object--watched {
     grid-column: 1;
-    grid-row: 4;
-  }
-
-  .my-cinema-scene-layout > .my-cinema-object--quotes {
-    grid-column: 2;
     grid-row: 4;
   }
 

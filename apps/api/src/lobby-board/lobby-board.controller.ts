@@ -23,12 +23,6 @@ export class LobbyBoardController {
   }
 
   @Public()
-  @Get('weekly-reveal')
-  getWeeklyRevealWinner() {
-    return this.lobbyBoardService.getWeeklyRevealWinner();
-  }
-
-  @Public()
   @Get('upcoming')
   getUpcomingMovies(
     @Query('month') month: string | undefined,

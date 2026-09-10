@@ -17,73 +17,23 @@
   padding: 1.5rem 1rem 3rem;
 }
 
-/* 상단 이동 메뉴 */
-.upcoming-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 42rem;
-  margin: 0 auto;
+.upcoming-page > .cinemo-nav {
+  margin-bottom: 1rem;
 }
 
-.upcoming-nav-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 2.3rem;
-  padding: 0.45rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: var(--lobby-muted);
-  font-size: 0.76rem;
-  text-decoration: none;
-  transition:
-    border-color 180ms ease,
-    color 180ms ease,
-    background 180ms ease,
-    transform 180ms ease;
-}
-
-.upcoming-nav-link:hover {
-  color: var(--lobby-fg);
-  border-color: rgb(212 181 106 / 0.42);
-  background: rgb(212 181 106 / 0.08);
-  transform: translateY(-1px);
-}
-
-.upcoming-nav-link:focus-visible,
+/* 제목과 개봉 시기 필터 */
 .upcoming-period-tabs button:focus-visible,
 .upcoming-movie-card button:focus-visible,
 .upcoming-load-more:focus-visible {
   outline: 2px solid var(--lobby-gold);
   outline-offset: 3px;
 }
-
-.upcoming-nav-link svg {
-  flex: 0 0 auto;
-  color: var(--lobby-gold);
-}
-
-.upcoming-nav-link--wish {
-  color: #f1dfb0;
-  border-color: rgb(212 181 106 / 0.28);
-  background: rgb(212 181 106 / 0.08);
-}
-
-.upcoming-nav-link--wish:hover {
-  border-color: var(--lobby-gold);
-  background: rgb(212 181 106 / 0.16);
-}
-
-/* 제목과 개봉 시기 필터 */
 .upcoming-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.45rem;
-  margin: 3rem 0 1.8rem;
+  margin: 0 0 1.8rem;
   text-align: center;
 }
 
@@ -327,16 +277,6 @@
 @media (max-width: 560px) {
   .upcoming-page {
     padding-inline: 0;
-  }
-
-  .upcoming-nav {
-    padding-inline: 0.25rem;
-  }
-
-  .upcoming-nav-link {
-    gap: 0.35rem;
-    padding-inline: 0.55rem;
-    font-size: 0.7rem;
   }
 
   .upcoming-movie-card {

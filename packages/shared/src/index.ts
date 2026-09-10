@@ -1,10 +1,7 @@
 /** 로비 방 ID — api/web 공통 */
 export const LOBBY_ROOMS = {
-  QUOTE_FILM: "quote-film",
   BOX_OFFICE: "box-office",
   GACHA: "gacha",
-  REVIEW: "review",
-  CAFETERIA: "cafeteria",
 } as const;
 
 export type LobbyRoomId = (typeof LOBBY_ROOMS)[keyof typeof LOBBY_ROOMS];
@@ -14,11 +11,9 @@ export type TicketStatus = "none" | "issued" | "used";
 
 export * from "./gacha";
 export * from "./user-movie";
-export * from "./review-post";
 export * from "./lobby-board";
-export * from "./cafe";
 export * from "./admin";
 export * from "./avatar";
 export * from "./profile";
 export * from "./guide";
-export * from "./quote-post";
+export * from "./postcard";

@@ -115,9 +115,7 @@ export default function AdminPage() {
     <main className="admin-main">
       <h1 className="admin-title">{formatKstDateKey(kstDateKey())}</h1>
 
-      <p className="admin-sub">
-        로비 = 로그인 손님 입장 하루 1회 · 구경 = 비로그인 후기방
-      </p>
+      <p className="admin-sub">로비 = 로그인 손님 입장 하루 1회</p>
 
       {error ? <p className="admin-error">{error}</p> : null}
 
@@ -143,20 +141,8 @@ export default function AdminPage() {
               <strong>{overview.todayVisitCount}</strong>
             </li>
             <li>
-              구경
-              <strong>{overview.todayAnonReviewCount}</strong>
-            </li>
-            <li>
-              후기
-              <strong>{overview.reviewCount}</strong>
-            </li>
-            <li>
               티켓
               <strong>{overview.todayTicketIssuedCount}</strong>
-            </li>
-            <li>
-              카페
-              <strong>{overview.cafeSeatedCount}</strong>
             </li>
           </ul>
 
@@ -174,20 +160,8 @@ export default function AdminPage() {
                 <td>{overview?.todayVisitCount ?? 0}명</td>
               </tr>
               <tr>
-                <th scope="row">작성된 후기</th>
-                <td>{overview?.reviewCount ?? 0}개</td>
-              </tr>
-              <tr>
-                <th scope="row">익명 후기방 방문</th>
-                <td>{overview?.todayAnonReviewCount ?? 0}명</td>
-              </tr>
-              <tr>
                 <th scope="row">티켓 발급</th>
                 <td>{overview?.todayTicketIssuedCount ?? 0}장</td>
-              </tr>
-              <tr>
-                <th scope="row">카페 이용</th>
-                <td>{overview?.cafeSeatedCount ?? 0}명</td>
               </tr>
             </tbody>
           </table>
@@ -203,10 +177,6 @@ export default function AdminPage() {
             <li>
               로비
               <strong>{overview.weekVisitCount}</strong>
-            </li>
-            <li>
-              구경
-              <strong>{overview.weekAnonReviewCount}</strong>
             </li>
           </ul>
         </>

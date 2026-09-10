@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
   CalendarDays,
   ChevronDown,
   MapPin,
@@ -22,6 +21,7 @@ import {
 } from '@/lib/user-movie-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { MovieDetailModal } from './MovieDetailModal';
+import { CinemoNav } from '@/components/common/CinemoNav';
 
 const PAGE_SIZE = 24;
 
@@ -400,15 +400,11 @@ export function MovieShelf({ kind, title }: Props) {
 
   return (
     <main className="my-cinema my-cinema--shelf">
-      <nav className="my-cinema-shelf-nav" aria-label="페이지 이동">
-        <Link href="/" className="my-cinema-top-nav-link">
-          <ArrowLeft size={15} strokeWidth={1.7} aria-hidden />
-          CINEMO LOBBY
-        </Link>
-        <Link href="/my-cinema" className="my-cinema-top-nav-link">
-          MY CINEMA
-        </Link>
-      </nav>
+      <CinemoNav
+        rightHref="/my-cinema"
+        rightLabel="MY CINEMA"
+        rightAriaLabel="MY CINEMA로 이동"
+      />
 
       <header className="my-cinema-shelf-header">
         <div className="my-cinema-shelf-heading">

@@ -7,12 +7,13 @@ type GuideState = {
   pending: boolean;
   pendingUserId: string | null;
   requestGuide: () => void;
+  previewGuide: () => void;
   finishGuide: () => void;
   shouldShowGuide: () => boolean;
 };
 
 function getUserGuideKey(userId: string) {
-  return `${GUIDE_STORAGE_KEY}:${userId}`;
+  return `${GUIDE_STORAGE_KEY}:v2:${userId}`;
 }
 
 function isGuideDone(userId: string): boolean {
@@ -27,6 +28,11 @@ export const useGuideStore = create<GuideState>((set, get) => ({
   requestGuide: () => {
     const userId = useAuthStore.getState().user?.id;
     if (!userId || isGuideDone(userId)) return;
+    set({ pending: true, pendingUserId: userId });
+  },
+  previewGuide: () => {
+    const userId = useAuthStore.getState().user?.id;
+    if (!userId) return;
     set({ pending: true, pendingUserId: userId });
   },
   finishGuide: () => {

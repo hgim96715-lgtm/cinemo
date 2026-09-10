@@ -9,7 +9,7 @@ export function staffSpeech(
   if (!nickname) return '어서 오세요~ 입장하시면 티켓 드릴게요';
   if (status === 'issued') return `${nickname}님, 뽑기방 문이 열려 있어요~`;
   if (status === 'used') return `${nickname}님, 오늘도 즐거우셨나요~`;
-  return `${nickname}님, 오늘 뽑기권 받아가세요~`;
+  return `${nickname}님, 오늘의 티켓 받아가세요~`;
 }
 
 export function guestTicketLabel(status: TicketStatus | null) {

@@ -1,0 +1,922 @@
+.postcard-page {
+  --postcard-paper: #f3efe6;
+  --postcard-ink: #17171a;
+  --postcard-muted: #958d82;
+  --postcard-gold: #d4b56a;
+  --postcard-line: rgb(243 239 230 / 0.14);
+
+  min-height: 100dvh;
+  padding: clamp(2.5rem, 7vw, 5.5rem) clamp(1.1rem, 5vw, 4rem) 4rem;
+  color: var(--postcard-paper);
+  background:
+    radial-gradient(circle at 50% 0%, rgb(212 181 106 / 0.12), transparent 34rem),
+    linear-gradient(145deg, #0b0c10 0%, #15171d 52%, #0d0e12 100%);
+  font-family: var(--font-ui), sans-serif;
+}
+
+.postcard-page-header {
+  width: min(100%, 72rem);
+  margin: 0 auto clamp(2rem, 5vw, 3.75rem);
+  text-align: center;
+}
+
+.postcard-page-eyebrow {
+  margin: 0 0 0.75rem;
+  color: rgb(212 181 106 / 0.8);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+}
+
+.postcard-page-header h1 {
+  margin: 0;
+  color: var(--postcard-paper);
+  font-family: var(--font-display-kr), serif;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.postcard-page-header > p:last-child {
+  margin: 1rem 0 0;
+  color: var(--postcard-muted);
+  font-size: 0.92rem;
+  letter-spacing: -0.02em;
+}
+
+.postcard-empty {
+  width: min(100%, 36rem);
+  margin: 0 auto;
+  padding: 4.5rem 1.5rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.035);
+  color: var(--postcard-muted);
+  text-align: center;
+  box-shadow: inset 0 1px rgb(255 255 255 / 0.04);
+}
+
+.postcard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  width: min(100%, 72rem);
+  margin: 0 auto;
+}
+
+.postcard-load-more {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: min(100%, 10rem);
+  margin-top: 0.15rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgb(212 181 106 / 0.28);
+  border-radius: 0.35rem;
+  color: var(--postcard-gold);
+  background: rgb(212 181 106 / 0.06);
+  font: 500 0.82rem/1.2 var(--font-ui), sans-serif;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.postcard-load-more:hover {
+  border-color: rgb(212 181 106 / 0.5);
+  background: rgb(212 181 106 / 0.12);
+}
+
+.postcard-load-more:focus-visible {
+  outline: 1px solid rgb(212 181 106 / 0.55);
+  outline-offset: 3px;
+}
+
+.postcard-card {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: rgb(18 19 24 / 0.92);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.postcard-card-group {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.85rem;
+  background: rgb(18 19 24 / 0.92);
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 0.18);
+}
+
+.my-postcard-page .postcard-card {
+  grid-template-columns: 11rem minmax(0, 1fr);
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.85rem;
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 0.18);
+}
+
+.my-postcard-page .postcard-card-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.my-postcard-page .postcard-card-meta {
+  margin-top: auto;
+}
+
+.postcard-card-poster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  aspect-ratio: auto;
+  overflow: hidden;
+  min-height: 0;
+  border-right: 1px solid var(--postcard-line);
+  background-color: #0d0f13;
+}
+
+.postcard-card-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.postcard-card-content {
+  min-width: 0;
+  padding: 1.1rem 1.15rem 1.2rem;
+}
+
+.postcard-card-movie {
+  margin: 0 0 0.65rem;
+  color: var(--postcard-gold);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+}
+
+.postcard-card-text {
+  min-height: calc(1.65em * 2);
+  max-height: calc(1.65em * 2);
+  margin: 0;
+  color: var(--postcard-paper);
+  font-family: var(--font-display-kr), serif;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.postcard-card-original-text {
+  min-height: calc(1.5em * 2);
+  max-height: calc(1.5em * 2);
+  margin: 0.85rem 0 0;
+  color: var(--postcard-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.postcard-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--postcard-line);
+  color: var(--postcard-muted);
+  font-size: 0.68rem;
+  line-height: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.postcard-card-meta > span,
+.postcard-card-meta-author > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
+.postcard-card-meta-author {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  line-height: 1.5rem;
+}
+
+.postcard-bookmark-tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  z-index: 2;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(212 181 106 / 0.3);
+  border-radius: 0.3rem;
+  color: var(--postcard-paper);
+  background: #17191f;
+  box-shadow: 0 0.45rem 1rem rgb(0 0 0 / 0.25);
+  font-size: 0.64rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.postcard-card-interactions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--postcard-line);
+}
+
+.postcard-reaction-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.postcard-reaction-bar {
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.15rem 0.3rem;
+  scroll-padding-inline: 0.3rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.postcard-reaction-bar::-webkit-scrollbar {
+  display: none;
+}
+
+  .postcard-reaction-button {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 3.25rem;
+    justify-content: center;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid rgb(243 239 230 / 0.14);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.035);
+    color: var(--postcard-muted);
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .postcard-reaction-button:hover {
+    border-color: rgb(243 239 230 / 0.14);
+    background: rgb(212 181 106 / 0.1);
+    color: var(--postcard-paper);
+  }
+
+  .postcard-reaction-button.is-selected {
+    border-color: var(--postcard-gold);
+    background: rgb(212 181 106 / 0.14);
+    color: var(--postcard-paper);
+  }
+
+  .postcard-reaction-button:disabled {
+    cursor: wait;
+    opacity: 0.58;
+  }
+
+  .postcard-reaction-button > span:first-child {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+.postcard-reaction-add {
+  display: inline-grid;
+  flex: 0 0 2.2rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgb(243 239 230 / 0.18);
+  border-radius: 50%;
+  color: var(--postcard-muted);
+  background: rgb(255 255 255 / 0.035);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.postcard-reaction-add:hover,
+.postcard-reaction-add[aria-expanded='true'] {
+  border-color: rgb(212 181 106 / 0.55);
+  color: var(--postcard-gold);
+  background: rgb(212 181 106 / 0.08);
+}
+
+.postcard-reaction-add:focus-visible {
+  outline: 1px solid rgb(212 181 106 / 0.55);
+  outline-offset: 3px;
+}
+
+.postcard-reaction-picker {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.55rem);
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(4, 2.35rem);
+  gap: 0.35rem;
+  width: max-content;
+  max-width: calc(100vw - 2.5rem);
+  padding: 0.55rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.55rem;
+  background: #17191f;
+  box-shadow: 0 0.8rem 2rem rgb(0 0 0 / 0.35);
+}
+
+.postcard-reaction-picker-button {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.postcard-reaction-picker-button:hover {
+  background: rgb(212 181 106 / 0.12);
+}
+
+.postcard-reaction-picker-button.is-selected {
+  color: var(--postcard-gold);
+  background: rgb(212 181 106 / 0.12);
+}
+
+.postcard-reaction-picker-button small {
+  color: inherit;
+  font-size: 0.58rem;
+  line-height: 1;
+}
+
+.postcard-bookmark-button {
+  display: inline-grid;
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--postcard-muted);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.postcard-bookmark-button.is-bookmarked {
+  color: var(--postcard-gold);
+  background: transparent;
+}
+
+.postcard-bookmark-button:hover {
+  color: var(--postcard-gold);
+  background: rgb(212 181 106 / 0.08);
+}
+
+.postcard-bookmark-button.is-bookmarked:hover {
+  color: var(--postcard-gold);
+  background: rgb(212 181 106 / 0.1);
+}
+
+.postcard-bookmark-button:focus-visible {
+  outline: 1px solid var(--postcard-gold);
+  outline-offset: 2px;
+}
+
+.postcard-comment-section {
+  padding: 0.8rem 1.15rem 0.9rem;
+  border-top: 1px solid var(--postcard-line);
+  background: transparent;
+}
+
+.postcard-comment-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 1.4rem;
+  padding: 0;
+  border: 0;
+  color: var(--postcard-gold);
+  background: transparent;
+  font: 500 0.72rem/1.4 var(--font-ui), sans-serif;
+  cursor: pointer;
+}
+
+.postcard-comment-toggle:hover {
+  color: var(--postcard-paper);
+}
+
+.postcard-comment-toggle:focus-visible {
+  outline: 2px solid var(--postcard-gold);
+  outline-offset: 3px;
+}
+
+.postcard-comment-panel {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgb(243 239 230 / 0.08);
+}
+
+.postcard-comment-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.postcard-comment-heading h3 {
+  margin: 0;
+  color: var(--postcard-paper);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.postcard-comment-heading span {
+  color: var(--postcard-gold);
+  font-size: 0.7rem;
+}
+
+.postcard-comment-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.postcard-comment-form textarea {
+  width: 100%;
+  min-height: 2.4rem;
+  max-height: 7rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.45rem;
+  outline: none;
+  resize: vertical;
+  color: var(--postcard-paper);
+  background: rgb(255 255 255 / 0.035);
+  font: inherit;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.postcard-comment-form textarea::placeholder {
+  color: var(--postcard-muted);
+}
+
+.postcard-comment-form textarea:focus {
+  border-color: rgb(212 181 106 / 0.55);
+}
+
+.postcard-comment-form button {
+  min-height: 2.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgb(212 181 106 / 0.32);
+  border-radius: 0.45rem;
+  color: var(--postcard-gold);
+  background: rgb(212 181 106 / 0.06);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.postcard-comment-form button:hover:not(:disabled) {
+  border-color: rgb(212 181 106 / 0.58);
+  background: rgb(212 181 106 / 0.1);
+}
+
+.postcard-comment-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.postcard-comment-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.postcard-comment-empty {
+  margin: 0.75rem 0 0;
+  color: var(--postcard-muted);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.postcard-comment {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgb(243 239 230 / 0.08);
+  border-radius: 0.45rem;
+  background: rgb(255 255 255 / 0.025);
+}
+
+.postcard-comment-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.postcard-comment-meta strong {
+  color: var(--postcard-gold);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.postcard-comment-meta time {
+  color: var(--postcard-muted);
+  font-size: 0.64rem;
+}
+
+.postcard-comment p,
+.postcard-comment-error {
+  margin: 0.35rem 0 0;
+  color: var(--postcard-paper);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.postcard-comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.55rem;
+  min-height: 1.25rem;
+}
+
+.postcard-comment-actions .postcard-comment-reply-button {
+  margin-top: 0;
+}
+
+.postcard-comment-heart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  min-height: 1.25rem;
+  color: var(--postcard-muted);
+  background: transparent;
+  font: 500 0.66rem/1.4 var(--font-ui), sans-serif;
+  cursor: pointer;
+}
+
+.postcard-comment-heart:hover,
+.postcard-comment-heart.is-reacted {
+  color: var(--postcard-gold);
+}
+
+.postcard-comment-heart:focus-visible,
+.postcard-comment-reply-button:focus-visible,
+.postcard-comment-replies-toggle:focus-visible,
+.postcard-comment-text-button:focus-visible,
+.postcard-comment-edit-form button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(212 181 106 / 0.24);
+}
+
+.postcard-comment-text-button {
+  padding: 0;
+  border: 0;
+  color: var(--postcard-muted);
+  background: transparent;
+  font: 500 0.66rem/1.4 var(--font-ui), sans-serif;
+  cursor: pointer;
+}
+
+.postcard-comment-text-button:hover {
+  color: var(--postcard-paper);
+}
+
+.postcard-comment-text-button.is-danger:hover {
+  color: #e5aaa0;
+}
+
+.postcard-comment-edit-form {
+  margin-top: 0.45rem;
+}
+
+.postcard-comment-edit-form textarea {
+  width: 100%;
+  min-height: 4rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.35rem;
+  outline: none;
+  resize: vertical;
+  color: var(--postcard-paper);
+  background: rgb(255 255 255 / 0.03);
+  font: inherit;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.postcard-comment-edit-form textarea:focus {
+  border-color: rgb(212 181 106 / 0.45);
+}
+
+.postcard-comment-edit-actions,
+.postcard-comment-reply-actions {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.4rem;
+}
+
+.postcard-comment-edit-actions button:first-child {
+  color: var(--postcard-gold);
+}
+
+.postcard-comment-error {
+  color: #e5aaa0;
+}
+
+@media (max-width: 48rem) {
+  .postcard-page {
+    padding-top: 2.25rem;
+  }
+
+  .postcard-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+  }
+
+  .postcard-card-content {
+    padding: 0.9rem;
+  }
+
+  .postcard-card {
+    display: block;
+    grid-template-columns: 1fr;
+  }
+
+  .postcard-card-poster {
+    width: 100%;
+    height: 15rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--postcard-line);
+    background: #0d0f13;
+  }
+
+  .postcard-card-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .my-postcard-page .postcard-card {
+    display: block;
+    grid-template-columns: 1fr;
+  }
+
+  .my-postcard-page .postcard-card-poster {
+    width: 100%;
+    height: 15rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--postcard-line);
+    background: #0d0f13;
+  }
+
+  .my-postcard-page .postcard-card-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .postcard-card-text {
+    min-height: calc(1.65em * 2);
+    max-height: calc(1.65em * 2);
+    font-size: 0.98rem;
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (max-width: 40rem) {
+  .postcard-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .postcard-card-interactions {
+    align-items: flex-end;
+    gap: 0.35rem;
+  }
+
+  .my-postcard-page .postcard-card-content {
+    display: block;
+    min-height: 0;
+  }
+
+  .my-postcard-page .postcard-card-meta {
+    margin-top: 1.1rem;
+  }
+
+  .postcard-reaction-bar {
+    gap: 0.35rem;
+  }
+
+  .postcard-reaction-button {
+    flex: 0 0 auto;
+    min-width: 2.75rem;
+    gap: 0.22rem;
+    padding-inline: 0.35rem;
+    font-size: 0.74rem;
+  }
+
+  .postcard-reaction-button > span:first-child {
+    font-size: 0.95rem;
+  }
+
+  .postcard-comment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .postcard-comment-form button {
+    width: 100%;
+  }
+}
+
+.postcard-comment-replies {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.65rem 0 0 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgb(212 181 106 / 0.28);
+}
+
+.postcard-comment-reply {
+  color: var(--postcard-muted);
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.postcard-comment-reply strong {
+  color: var(--postcard-muted);
+  font-size: 0.66rem;
+  font-weight: 500;
+}
+
+.postcard-comment-reply p {
+  margin: 0.15rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.postcard-comment-replies-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.45rem;
+  margin-left: 0.1rem;
+  padding: 0;
+  border: 0;
+  color: var(--postcard-muted);
+  background: transparent;
+  font: 500 0.66rem/1.4 var(--font-ui), sans-serif;
+  cursor: pointer;
+}
+
+.postcard-comment-reply .postcard-comment-heart {
+  margin-top: 0.35rem;
+}
+
+.postcard-comment-replies-toggle:hover {
+  color: var(--postcard-gold);
+}
+
+.postcard-comment-more,
+.postcard-comment-reply-button {
+  display: block;
+  margin-top: 0.55rem;
+  padding: 0;
+  border: 0;
+  color: var(--postcard-muted);
+  background: transparent;
+  font: 500 0.68rem/1.4 var(--font-ui), sans-serif;
+  cursor: pointer;
+}
+
+.postcard-comment-more {
+  margin-inline: auto;
+  color: var(--postcard-gold);
+}
+
+.postcard-comment-more:hover,
+.postcard-comment-reply-button:hover {
+  color: var(--postcard-gold);
+}
+
+.postcard-comment-reply-form {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+
+.postcard-comment-reply-form input {
+  min-width: 0;
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.3rem;
+  color: var(--postcard-paper);
+  background: rgb(255 255 255 / 0.03);
+  font: 0.68rem/1.4 var(--font-ui), sans-serif;
+}
+
+.postcard-comment-reply-form input:focus-visible {
+  outline: none;
+  border-color: rgb(212 181 106 / 0.45);
+  box-shadow: inset 0 0 0 1px rgb(212 181 106 / 0.16);
+}
+
+.postcard-comment-reply-form button {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 0.3rem;
+  color: var(--postcard-gold);
+  background: transparent;
+  font: 500 0.66rem/1.4 var(--font-ui), sans-serif;
+  cursor: pointer;
+}
+
+.postcard-comment-reply-form button:hover:not(:disabled) {
+  border-color: rgb(212 181 106 / 0.5);
+  color: var(--postcard-paper);
+}
+
+.postcard-comment-reply-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 40rem) {
+  .postcard-comment-reply-form {
+    align-items: stretch;
+  }
+
+  .postcard-comment-reply-form button {
+    flex: 0 0 auto;
+  }
+}

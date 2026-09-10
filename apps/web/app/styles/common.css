@@ -1,0 +1,105 @@
+:root {
+  --cinemo-fg: #f3efe6;
+  --cinemo-muted: #958d82;
+  --cinemo-gold: #d4b56a;
+  --cinemo-ink: #17171a;
+}
+
+.cinemo-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(100%, 72rem);
+  margin: 0 auto clamp(2.25rem, 6vw, 4.5rem);
+}
+
+.cinemo-nav--single {
+  justify-content: flex-start;
+}
+
+.cinemo-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.15rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  color: #958d82;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.cinemo-nav-link:hover,
+.cinemo-nav-link:focus-visible {
+  border-color: rgb(212 181 106 / 0.4);
+  color: #f3efe6;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.cinemo-nav-link--primary {
+  border-color: rgb(212 181 106 / 0.38);
+  background: rgb(212 181 106 / 0.08);
+  color: #d4b56a;
+}
+
+.cinemo-nav-link--primary:hover,
+.cinemo-nav-link--primary:focus-visible,
+.cinemo-nav-link--primary.is-active {
+  border-color: rgb(212 181 106 / 0.7);
+  background: rgb(212 181 106 / 0.14);
+  color: #f3d98f;
+}
+
+@media (max-width: 30rem) {
+  .cinemo-nav {
+    margin-bottom: 2.75rem;
+  }
+
+  .cinemo-nav-link {
+    padding-inline: 0.45rem;
+    font-size: 0.6rem;
+  }
+}
+/* 모든 모달 닫기 버튼 공통 인터랙션 */
+button[class*="-modal-close"],
+button[class*="-close"] {
+  cursor: pointer;
+}
+
+button[class*="-modal-close"]:disabled,
+button[class*="-close"]:disabled {
+  cursor: not-allowed;
+}
+
+.cinemo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  min-height: 2.1rem;
+  padding: 0.32rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 0.35rem;
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.cinemo-button:focus-visible {
+  outline: 2px solid #d4b56a;
+  outline-offset: 3px;
+}

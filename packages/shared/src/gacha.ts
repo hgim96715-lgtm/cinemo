@@ -63,6 +63,8 @@ export type WatchProvider = {
 export type GachaMovie = {
   id: number;
   title: string;
+  original_title?: string;
+  original_language?: string;
   overview: string;
   poster_path: string | null;
   release_date: string;

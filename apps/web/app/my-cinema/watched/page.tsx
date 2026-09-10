@@ -4,6 +4,7 @@ import { MovieShelf } from '@/components/my-cinema/MovieShelf';
 import '../../styles/my-cinema.css';
 import '../../styles/movie-detail-modal.css';
 import '../../styles/lobby.css';
+import '../../styles/common.css';
 
 export default function WatchedShelfPage() {
   return <MovieShelf kind="watched" title="관람 기록" />;

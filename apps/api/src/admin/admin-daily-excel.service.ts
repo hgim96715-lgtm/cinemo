@@ -76,8 +76,6 @@ export class AdminDailyExcelService {
           로그인: daily?.logins ?? 0,
           티켓발급: daily?.ticketsIssued ?? 0,
           티켓사용: daily?.ticketsUsed ?? 0,
-          후기: daily?.reviews ?? 0,
-          카페메시지: daily?.cafeMessages ?? 0,
         },
       ]);
       const hourlySheet = XLSX.utils.json_to_sheet(
@@ -86,7 +84,6 @@ export class AdminDailyExcelService {
           시간: `${String(row.hour).padStart(2, '0')}:00`,
           방문: row.visits,
           로그인: row.logins,
-          카페메시지: row.cafeMessages,
         })),
       );
       const visitSheet = XLSX.utils.json_to_sheet(

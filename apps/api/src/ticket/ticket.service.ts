@@ -61,13 +61,8 @@ export class TicketService {
     return { id: ticket.id };
   }
 
-  private async pickFromReviews(userId: string): Promise<GachaMovie> {
-    const [reviewed, watched, alreadyPulled] = await Promise.all([
-      this.prisma.reviewPost.findMany({
-        distinct: ['tmdbId'],
-        select: { tmdbId: true },
-      }),
-
+  private async pickFromPool(userId: string): Promise<GachaMovie> {
+    const [watched, alreadyPulled] = await Promise.all([
       this.prisma.userMovie.findMany({
         where: { userId, kind: 'watched' },
         select: { tmdbId: true },
@@ -85,17 +80,7 @@ export class TicketService {
         .filter((id): id is number => id != null),
     ]);
 
-    const pool = reviewed
-      .map((row) => row.tmdbId)
-      .filter((id) => !excludeSet.has(id));
-
-    if (pool.length === 0) {
-      throw new NotFoundException(
-        '뽑을 수 있는 영화가 없어요. 후기가 더 쌓이면 다시 도전해보세요!',
-      );
-    }
-    const tmdbId = pool[Math.floor(Math.random() * pool.length)];
-    return this.tmdbService.getMovieCached(tmdbId);
+    return this.tmdbService.pickRandomMovie({}, [...excludeSet]);
   }
 
   async useToday(userId: string, machineId: string) {
@@ -113,7 +98,7 @@ export class TicketService {
     let movie: GachaMovie;
 
     if (machineId === 'picks') {
-      movie = await this.pickFromReviews(userId);
+      movie = await this.pickFromPool(userId);
     } else {
       const watched = await this.prisma.userMovie.findMany({
         where: { userId, kind: 'watched' },

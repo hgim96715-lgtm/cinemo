@@ -1,5 +1,3 @@
-import { GachaMovie } from "./gacha";
-
 export type BoardBoxOfficeMovie = {
   rank: number;
   title: string;
@@ -17,25 +15,7 @@ export type BoardUpcomingInterestMovie = {
   posterPath: string | null;
 };
 
-export type BoardWeekTopMovie = {
-  tmdbId: number;
-  title: string;
-  count: number;
-};
-
-/** 전광판 막대 시리즈  */
 export type LobbyBoardResponse = {
-  weekReviewCount: number;
-  weekTopMovies: BoardWeekTopMovie[];
-
   boxOfficeMovies: BoardBoxOfficeMovie[];
   upcomingInterestMovies: BoardUpcomingInterestMovie[];
-};
-
-export type WeeklyRevealWinner = {
-  tmdbId: number;
-  title: string;
-  count: number;
-  sampleBody: string | null;
-  movie: GachaMovie;
 };

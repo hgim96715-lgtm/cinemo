@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { DEFAULT_LOBBY_GUIDE_STEPS, type LobbyGuideStep } from '@cinemo/shared';
 import { getLobbyGuideRequest } from '@/lib/guide-api';
 import { useGuideStore } from '@/lib/guide-store';
@@ -43,6 +43,7 @@ export function LobbyGuideModal({ onClose }: Props) {
     finishGuide();
     onClose();
   }
+
   function goPreviousStep() {
     setStepIndex((current) => Math.max(0, current - 1));
   }
@@ -84,30 +85,28 @@ export function LobbyGuideModal({ onClose }: Props) {
           <p className="guide-step-body">{step.body}</p>
         </div>
 
-        <div className="guide-dots" aria-hidden>
-          {steps.map((guideStep, index) => (
-            <span
-              key={`${guideStep.id}-${index}`}
-              className={`guide-dot${index === stepIndex ? ' is-active' : ''}`}
-            />
-          ))}
-        </div>
-
         <p className="guide-progress">
-          {stepIndex + 1} / {steps.length}
+          {String(stepIndex + 1).padStart(2, '0')} /{' '}
+          {String(steps.length).padStart(2, '0')}
         </p>
 
         <div className="guide-actions">
           <button
             type="button"
-            className="lobby-btn"
+            className="lobby-btn guide-previous-btn"
             onClick={goPreviousStep}
             disabled={isFirst}
+            aria-label="이전 단계"
+            title="이전 단계"
           >
-            이전
+            <ArrowLeft size={16} aria-hidden />
           </button>
 
-          <button type="button" className="lobby-btn" onClick={closeGuide}>
+          <button
+            type="button"
+            className="lobby-btn guide-skip-btn"
+            onClick={closeGuide}
+          >
             건너뛰기
           </button>
 

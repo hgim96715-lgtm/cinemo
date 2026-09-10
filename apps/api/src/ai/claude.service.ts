@@ -8,6 +8,61 @@ import type {
   RecommendMovieQuotesInput,
 } from './ai.interface';
 
+type MovieQuoteResponse = {
+  quotes?: unknown;
+};
+
+function parseMovieQuoteResponse(text: string): MovieQuoteSuggestion[] {
+  const normalized = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+
+  const firstObject = normalized.indexOf('{');
+  const lastObject = normalized.lastIndexOf('}');
+  const jsonText =
+    firstObject >= 0 && lastObject > firstObject
+      ? normalized.slice(firstObject, lastObject + 1)
+      : normalized;
+
+  const parsed = JSON.parse(jsonText) as MovieQuoteResponse;
+
+  if (!Array.isArray(parsed.quotes)) {
+    return [];
+  }
+
+  return parsed.quotes.flatMap((quote): MovieQuoteSuggestion[] => {
+    if (!quote || typeof quote !== 'object') {
+      return [];
+    }
+
+    const candidate = quote as Partial<MovieQuoteSuggestion>;
+
+    if (
+      typeof candidate.originalText !== 'string' ||
+      !candidate.originalText.trim() ||
+      typeof candidate.koreanText !== 'string' ||
+      !candidate.koreanText.trim()
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        originalText: candidate.originalText.trim(),
+        koreanText: candidate.koreanText.trim(),
+        originalLanguage:
+          typeof candidate.originalLanguage === 'string'
+            ? candidate.originalLanguage
+            : 'unknown',
+        isPopular: candidate.isPopular === true,
+        source: typeof candidate.source === 'string' ? candidate.source : null,
+      },
+    ];
+  });
+}
+
 @Injectable()
 export class ClaudeService implements IAiProvider {
   private readonly logger = new Logger(ClaudeService.name);
@@ -104,9 +159,9 @@ export class ClaudeService implements IAiProvider {
         return null;
       }
       return text;
-    } catch (err) {
+    } catch (error) {
       this.logger.warn(
-        `koreanDirector 실패 (${name}): ${(err as Error).message}`,
+        `koreanDirector 실패 (${name}): ${(error as Error).message}`,
       );
       return null;
     }
@@ -115,66 +170,85 @@ export class ClaudeService implements IAiProvider {
   async recommendMovieQuotes(
     input: RecommendMovieQuotesInput,
   ): Promise<MovieQuoteSuggestion[]> {
-    const message = await this.claudeClient.messages.create({
-      model: this.model,
-      max_tokens: 1200,
-      messages: [
-        {
-          role: 'user',
-          content: `
-          영화에 실제로 등장한 짧은 명대사만 반환함.
-
-          영화 제목: ${input.title}
-          개봉 연도: ${input.releaseYear ?? '알 수 없음'}
-          줄거리: ${input.overview ?? '없음'}
-
-          반드시 지킬 규칙:
-          - 영화 속 실제 대사라고 확신할 수 있는 문장만 작성함
-          - 영화의 주제나 분위기를 요약한 문장은 작성하지 않음
-          - 대사를 새로 만들거나 감성적으로 각색하지 않음
-          - originalText는 실제 영화 대사의 원문을 작성함
-          - koreanText는 originalText의 자연스러운 번역만 작성함
-          - originalText와 koreanText의 의미가 달라지면 안 됨
-          - "인생이 아름답다", "다시 시작할 수 있다"처럼 주제를 요약한 문장은 제외함
-          - 실제 대사를 확인할 수 없으면 추측하지 말고 quotes를 빈 배열로 반환함
-          - 출처를 확인하지 못했으면 source는 null로 작성함
-          - 인기 여부를 확인하지 못했으면 isPopular는 false로 작성함
-          - 최대 3개까지만 반환함
-
-          반드시 아래 JSON만 반환함:
+    try {
+      const message = await this.claudeClient.messages.create({
+        model: this.model,
+        max_tokens: 2400,
+        temperature: 0.4,
+        system:
+          '너는 CINEMO의 영화 엽서 문구 추천 도우미다. ' +
+          '응답은 반드시 유효한 JSON 객체 하나만 반환한다. ' +
+          '설명, 인사말, 마크다운 코드 블록, 사과 문구를 JSON 바깥에 작성하지 않는다.',
+        messages: [
           {
-            "quotes": [
-              {
-                "originalText": "영화 속 실제 원문",
-                "koreanText": "원문의 자연스러운 한국어 번역",
-                "originalLanguage": "English",
-                "isPopular": false,
-                "source": null
-              }
-            ]
-          }
-          `,
-        },
-      ],
-    });
+            role: 'user',
+            content: `
+아래에 지정한 영화의 POSTCARD에 사용할 짧고 인상적인 대사 후보를 최대 6개 추천한다.
+후보는 영화와의 연결성, 대사의 완결성, 엽서 문구로서의 적합성을 기준으로 좋은 순서부터 정렬한다.
+각 originalText는 90자 이내의 짧은 발췌로 작성한다.
 
-    const textBlock = message.content.find(
-      (content) => content.type === 'text',
-    );
+영화 제목: ${input.title}
+영화 원제: ${input.originalTitle ?? '알 수 없음'}
+TMDB 영화 ID: ${input.tmdbId}
+원문 언어 코드: ${input.originalLanguage ?? '알 수 없음'}
+개봉 연도: ${input.releaseYear ?? '알 수 없음'}
+줄거리: ${input.overview ?? '없음'}
 
-    if (!textBlock || textBlock.type !== 'text') {
+반드시 지킬 규칙:
+- 반드시 위에 지정한 영화의 대사만 작성한다.
+- 제목이 같은 영화가 여러 편일 수 있으므로 TMDB 영화 ID, 개봉 연도, 원제, 줄거리를 함께 기준으로 삼는다.
+- 제목이 모호하다는 이유만으로 quotes를 빈 배열로 반환하지 말고, 위 메타데이터로 특정되는 작품의 후보만 추천한다.
+- 다른 영화의 대사, 배우의 다른 작품 대사, 인터넷에서 유명하지만 영화가 불확실한 대사는 절대 포함하지 않는다.
+- 해당 영화와 연결이 분명한 대표 대사나 짧은 대사 발췌를 우선 추천한다.
+- 실시간 검색으로 출처를 확인할 수 없다는 이유만으로 quotes를 빈 배열로 반환하지 않는다.
+- 긴 대사는 엽서에 넣을 수 있는 짧은 완결 구절로 발췌한다.
+- originalText에는 영화의 원문 언어로 된 짧은 대사 발췌를 작성한다.
+- originalText는 반드시 영화의 원문 언어로 작성한다. 영어로 임의 번역하거나 영어 대사로 바꾸지 않는다.
+- 원문 언어 코드가 ja면 일본어, ko면 한국어, fr면 프랑스어 등 해당 언어를 유지한다.
+- koreanText에는 originalText 전체의 자연스러운 한국어 번역을 작성한다.
+- originalText와 koreanText의 문장 범위와 의미가 일치해야 한다.
+- 영화에서 실제 대사로 알려졌거나, 모델의 지식상 해당 영화와 연결이 충분히 분명한 대사만 추천한다.
+- 영화 분위기만으로 새로 창작하지 않는다.
+- 출처를 확인하기 어려우면 source는 null로 반환한다.
+- 영화와 전혀 연결되지 않는 경우에만 설명 없이 quotes를 빈 배열로 반환한다.
+- 다른 영화 제목이나 다른 작품의 설명을 응답에 포함하지 않는다.
+
+아래 JSON 형식만 반환한다. 키 이름을 바꾸거나 누락하지 않는다.
+{
+  "quotes": [
+    {
+      "originalText": "영화 속 원문 전체",
+      "koreanText": "원문 전체의 한국어 번역",
+      "originalLanguage": "원문의 언어",
+      "isPopular": false,
+      "source": null
+    }
+  ]
+}
+            `,
+          },
+        ],
+      });
+
+      const textBlock = message.content.find(
+        (content) => content.type === 'text',
+      );
+
+      if (!textBlock || textBlock.type !== 'text') {
+        return [];
+      }
+
+      try {
+        return parseMovieQuoteResponse(textBlock.text);
+      } catch {
+        this.logger.warn('AI 응답에서 유효한 영화 대사 JSON을 추출하지 못함');
+        return [];
+      }
+    } catch (error) {
+      this.logger.warn(
+        `recommendMovieQuotes 실패 (${input.title}): ${(error as Error).message}`,
+      );
       return [];
     }
-    const jsonText = textBlock.text
-      .trim()
-      .replace(/^```(?:json)?\s*/i, '')
-      .replace(/\s*```$/i, '')
-      .trim();
-
-    const parsed = JSON.parse(jsonText) as {
-      quotes: MovieQuoteSuggestion[];
-    };
-
-    return parsed.quotes;
   }
 }

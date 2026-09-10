@@ -26,6 +26,8 @@ type TmdbDiscoverMovie = {
   id: number;
   adult: boolean;
   title: string;
+  original_title: string;
+  original_language: string;
   overview: string;
   poster_path: string | null;
   release_date: string;
@@ -712,6 +714,8 @@ export class TmdbService {
       results: data.results.map((m) => ({
         id: m.id,
         title: m.title,
+        original_title: m.original_title,
+        original_language: m.original_language,
         overview: m.overview,
         poster_path: m.poster_path,
         release_date: m.release_date ?? '',

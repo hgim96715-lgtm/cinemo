@@ -51,7 +51,7 @@
   gap: 1.25rem;
 }
 
-/* ── 02. 전광판 — 조명 → CINEMO → 날짜 → 주간 TOP 3 ── */
+/* ── 02. 전광판 — 조명 → CINEMO → 날짜 → 통계 탭 ── */
 .lobby-board-block {
   width: 100%;
   display: flex;
@@ -68,7 +68,8 @@
 }
 
 .lobby-board-loading {
-  min-height: 8.65rem;
+  min-height: 11.4rem;
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   gap: 0.5rem;
@@ -162,18 +163,18 @@
 
 .lobby-board {
   width: 100%;
-  padding: 0.8rem 0.8rem 0.9rem;
-  border: 1px solid rgb(243 239 230 / 0.12);
-  background: rgb(0 0 0 / 0.4);
+  min-height: 12rem;
+  box-sizing: border-box;
+  padding: 0.6rem 0 0;
+  border: 0;
+  background: transparent;
   text-align: center;
   opacity: 0.48;
-  transition: opacity 900ms ease, border-color 900ms ease, box-shadow 900ms ease;
+  transition: opacity 900ms ease;
 }
 
 .lobby--lit .lobby-board {
   opacity: 1;
-  border-color: rgb(212 181 106 / 0.3);
-  box-shadow: 0 8px 28px rgb(212 181 106 / 0.08);
 }
 
 .lobby-board-slots {
@@ -182,7 +183,7 @@
 
 .lobby-board-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.34rem;
   margin-bottom: 0.7rem;
   padding: 0.26rem;
@@ -201,7 +202,7 @@
   color: rgb(243 239 230 / 0.48);
   cursor: pointer;
   font: inherit;
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   letter-spacing: 0.02em;
   line-height: 1.15;
   transition:
@@ -227,7 +228,6 @@
 .lobby-chart {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
   min-width: 0;
   padding: 0;
   border: none;
@@ -236,39 +236,14 @@
 }
 
 .lobby-chart-viz {
-  height: 8rem;
-  padding: 0.7rem 0.65rem;
+  height: 6.5rem;
+  padding: 0.55rem 0.65rem;
   border: 1px solid rgb(243 239 230 / 0.12);
   border-radius: 0.55rem;
   background: rgb(0 0 0 / 0.28);
 }
 
-.lobby-chart-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1rem;
-  min-width: 0;
-  padding: 0.38rem 0.55rem;
-  border: 1px solid rgb(243 239 230 / 0.12);
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.28);
-  text-align: center;
-}
-
-.lobby-chart-label {
-  margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  color: var(--lobby-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.lobby--lit .lobby-chart-viz,
-.lobby--lit .lobby-chart-meta {
+.lobby--lit .lobby-chart-viz {
   border-color: rgb(212 181 106 / 0.28);
   background: rgb(0 0 0 / 0.35);
 }
@@ -315,11 +290,12 @@
   color: rgb(212 181 106 / 0.58);
 }
 
-/* ── 04. 주간 TOP 3 리스트 ── */
+/* ── 04. 통계 목록 ── */
 .lobby-chart-list {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 100%;
   gap: 0.42rem;
   height: 100%;
   margin: 0;
@@ -329,14 +305,27 @@
 
 .lobby-chart-row {
   display: grid;
-  grid-template-columns: 0.7rem minmax(0, 1fr) 2.4rem 3rem;
+  grid-template-columns:
+    0.8rem
+    minmax(0, 1fr)
+    clamp(3.5rem, 14vw, 4.5rem)
+    4.8rem;
   align-items: center;
-  gap: 0.28rem;
+  column-gap: 0.5rem;
+  width: 100%;
+  padding-right: 1.5rem;
+  box-sizing: border-box;
   min-width: 0;
 }
 
 .lobby-chart-row--with-change {
-  grid-template-columns: 0.7rem minmax(0, 1fr) 2rem 3rem 2.2rem;
+  grid-template-columns:
+    0.8rem
+    minmax(0, 1fr)
+    clamp(3.5rem, 14vw, 4.5rem)
+    4.8rem
+    1.8rem;
+  column-gap: 0.5rem;
 }
 
 .lobby-chart-row--empty {
@@ -344,7 +333,7 @@
 }
 
 .lobby-chart-row-rank {
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: rgb(212 181 106 / 0.75);
@@ -352,7 +341,7 @@
 
 .lobby-chart-row-title {
   min-width: 0;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
   color: rgb(243 239 230 / 0.82);
   white-space: nowrap;
@@ -362,6 +351,8 @@
 
 .lobby-chart-row-bar {
   display: block;
+  width: 100%;
+  min-width: 0;
   height: 0.32rem;
   border-radius: 999px;
   background: rgb(243 239 230 / 0.08);
@@ -381,7 +372,7 @@
 
 .lobby-chart-row-count {
   min-width: 0;
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-align: right;
@@ -399,7 +390,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.1rem;
+  gap: 0.2rem;
   min-width: 0;
   font-size: 0.58rem;
   white-space: nowrap;
@@ -1149,11 +1140,6 @@
   animation: lobby-speech-pop 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.lobby-speech--muted {
-  opacity: 0.85;
-  font-weight: 500;
-}
-
 .lobby-speech::after {
   content: '';
   position: absolute;
@@ -1283,13 +1269,6 @@
   border-color: rgb(212 181 106 / 0.42);
 }
 
-.lobby-guest-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding-bottom: 0.1rem;
-}
-
 .lobby-guest-name {
   margin: 0;
   color: var(--lobby-fg);
@@ -1322,7 +1301,66 @@
   .lobby-board-tabs button {
     min-height: 2.5rem;
     padding-inline: 0.1rem;
-    font-size: 0.56rem;
+    font-size: 0.66rem;
+  }
+
+  .lobby-board {
+    min-height: 13.2rem;
+  }
+
+  .lobby-board-loading {
+    min-height: 12.6rem;
+  }
+
+  .lobby-chart-viz {
+    height: auto;
+    min-height: 8.8rem;
+    padding: 1rem 0.85rem;
+  }
+
+  .lobby-chart-list {
+    gap: 0.88rem;
+  }
+
+  .lobby-chart-row,
+  .lobby-chart-row--with-change {
+    grid-template-columns: 1rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'rank title count'
+      '. bar change';
+    row-gap: 0.3rem;
+    column-gap: 0.4rem;
+    padding-right: 0;
+  }
+
+  .lobby-chart-row-rank {
+    grid-area: rank;
+  }
+
+  .lobby-chart-row-title {
+    grid-area: title;
+    font-size: 0.78rem;
+  }
+
+  .lobby-chart-row-bar {
+    grid-area: bar;
+  }
+
+  .lobby-chart-row-count {
+    grid-area: count;
+    font-size: 0.72rem;
+  }
+
+  .lobby-rank-up,
+  .lobby-rank-down,
+  .lobby-rank-same,
+  .lobby-rank-new {
+    grid-area: change;
+    justify-self: end;
+  }
+
+  .lobby-rank-same {
+    display: none;
   }
 
   .lobby-chart-row-title {
@@ -1478,505 +1516,5 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1) rotate(0deg);
-  }
-}
-
-/* ── 09. Weekly Reveal 모달 ── */
-.weekly-reveal {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  padding: 1.25rem;
-}
-
-.weekly-reveal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgb(6 7 10 / 0.78);
-  backdrop-filter: blur(6px);
-}
-
-.weekly-reveal-content {
-  position: relative;
-  z-index: 1;
-  width: min(22rem, 100%);
-  padding: 1.5rem 1.25rem 1.25rem;
-  border-radius: 1rem;
-  background: #14131a;
-  color: #f3efe6;
-  text-align: center;
-  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
-  animation: weekly-reveal-in 280ms ease both;
-}
-
-.weekly-reveal-content--teaser {
-  padding-block: 2rem 1.4rem;
-}
-
-.weekly-reveal-eyebrow {
-  margin: 0 0 0.85rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgb(243 239 230 / 0.55);
-}
-
-.weekly-reveal-teaser-copy {
-  margin: 0 0 1.4rem;
-  font-size: 1.05rem;
-  line-height: 1.55;
-  font-weight: 600;
-}
-
-.weekly-reveal-open {
-  appearance: none;
-  width: 100%;
-  border: 0;
-  border-radius: 0.75rem;
-  padding: 0.85rem 1rem;
-  background: linear-gradient(135deg, #f0d48a, #d4a84b);
-  color: #2c271f;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.weekly-reveal-open:hover {
-  filter: brightness(1.05);
-}
-
-.weekly-reveal-skip {
-  appearance: none;
-  margin-top: 0.75rem;
-  border: 0;
-  background: transparent;
-  color: rgb(243 239 230 / 0.45);
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.weekly-reveal-skip:hover {
-  color: rgb(243 239 230 / 0.75);
-}
-
-.weekly-reveal-gate {
-  position: relative;
-  z-index: 1;
-  width: min(22rem, 100%);
-  animation: weekly-reveal-gate-in 1200ms ease both;
-}
-
-.weekly-reveal-gate-frame {
-  position: relative;
-  overflow: hidden;
-  padding: 1.1rem 1rem 1.25rem;
-  border: 1px solid rgb(212 181 106 / 0.45);
-  border-radius: 0.65rem;
-  background:
-    linear-gradient(180deg, rgb(0 0 0 / 0.72) 0%, rgb(18 14 10 / 0.95) 100%);
-  box-shadow:
-    inset 0 0 0 1px rgb(212 181 106 / 0.12),
-    0 0 32px rgb(212 181 106 / 0.14),
-    0 18px 40px rgb(0 0 0 / 0.45);
-}
-
-.weekly-reveal-gate-frame::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgb(212 181 106 / 0.85) 45%,
-    rgb(255 235 180 / 0.95) 50%,
-    rgb(212 181 106 / 0.85) 55%,
-    transparent 100%
-  );
-  background-size: 220% 100%;
-  animation: weekly-reveal-border-chase 900ms linear both;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.weekly-reveal-gate-screen {
-  position: relative;
-  z-index: 1;
-  min-height: 9.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-  text-align: center;
-}
-
-.weekly-reveal-gate-kicker {
-  margin: 0;
-  font-size: 0.62rem;
-  letter-spacing: 0.32em;
-  color: rgb(212 181 106 / 0.72);
-}
-
-.weekly-reveal-gate-beats {
-  display: flex;
-  gap: 0.45rem;
-}
-
-.weekly-reveal-gate-beats span {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 999px;
-  background: rgb(212 181 106 / 0.18);
-  box-shadow: inset 0 0 0 1px rgb(212 181 106 / 0.25);
-}
-
-.weekly-reveal-gate-beats span:nth-child(1) {
-  animation: weekly-reveal-beat 1200ms ease both;
-}
-
-.weekly-reveal-gate-beats span:nth-child(2) {
-  animation: weekly-reveal-beat 1200ms ease 180ms both;
-}
-
-.weekly-reveal-gate-beats span:nth-child(3) {
-  animation: weekly-reveal-beat 1200ms ease 360ms both;
-}
-
-.weekly-reveal-gate-title {
-  margin: 0;
-  max-width: 100%;
-  font-family: var(--font-noto-serif-kr), 'Noto Serif KR', serif;
-  font-size: 1.15rem;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
-  color: rgb(243 232 200 / 0.15);
-  text-shadow: none;
-  animation: weekly-reveal-title-flicker 1200ms steps(1, end) both;
-}
-
-.weekly-reveal-gate-scan {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgb(212 181 106 / 0.08) 48%,
-    rgb(255 240 190 / 0.22) 50%,
-    rgb(212 181 106 / 0.08) 52%,
-    transparent 100%
-  );
-  background-size: 100% 28%;
-  background-repeat: no-repeat;
-  animation: weekly-reveal-scan 1200ms ease-in-out both;
-  mix-blend-mode: screen;
-}
-
-.weekly-reveal-gate-shutter {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: grid;
-  grid-template-rows: repeat(8, 1fr);
-  pointer-events: none;
-}
-
-.weekly-reveal-gate-shutter span {
-  background: rgb(8 7 10 / 0.92);
-  transform-origin: center;
-  animation: weekly-reveal-shutter 1200ms ease-in both;
-}
-
-.weekly-reveal-gate-shutter span:nth-child(odd) {
-  animation-delay: calc(720ms + (var(--i, 0) * 12ms));
-}
-
-.weekly-reveal-gate-shutter span:nth-child(even) {
-  animation-delay: calc(760ms + (var(--i, 0) * 12ms));
-}
-
-.weekly-reveal-gate-shutter span:nth-child(1) {
-  --i: 0;
-}
-.weekly-reveal-gate-shutter span:nth-child(2) {
-  --i: 1;
-}
-.weekly-reveal-gate-shutter span:nth-child(3) {
-  --i: 2;
-}
-.weekly-reveal-gate-shutter span:nth-child(4) {
-  --i: 3;
-}
-.weekly-reveal-gate-shutter span:nth-child(5) {
-  --i: 4;
-}
-.weekly-reveal-gate-shutter span:nth-child(6) {
-  --i: 5;
-}
-.weekly-reveal-gate-shutter span:nth-child(7) {
-  --i: 6;
-}
-.weekly-reveal-gate-shutter span:nth-child(8) {
-  --i: 7;
-}
-
-.weekly-reveal-poster {
-  margin: 0 auto 1rem;
-  width: 10rem;
-  aspect-ratio: 2 / 3;
-  overflow: hidden;
-  border-radius: 0.6rem;
-  background: rgb(243 239 230 / 0.06);
-  display: grid;
-  place-items: center;
-}
-
-.weekly-reveal-poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.weekly-reveal-poster-empty {
-  font-size: 0.75rem;
-  color: rgb(243 239 230 / 0.35);
-}
-
-.weekly-reveal-title {
-  margin: 0 0 0.35rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.weekly-reveal-count {
-  margin: 0 0 0.85rem;
-  font-size: 0.85rem;
-  color: rgb(243 239 230 / 0.65);
-}
-
-.weekly-reveal-spoiler {
-  margin-bottom: 1rem;
-}
-
-.weekly-reveal-spoiler-btn {
-  appearance: none;
-  border: 1px dashed rgb(243 239 230 / 0.25);
-  border-radius: 0.55rem;
-  background: transparent;
-  color: rgb(243 239 230 / 0.7);
-  padding: 0.55rem 0.8rem;
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-
-.weekly-reveal-quote {
-  margin: 0;
-  padding: 0.75rem 0.85rem;
-  border-left: 2px solid rgb(243 239 230 / 0.2);
-  text-align: left;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: rgb(243 239 230 / 0.8);
-}
-
-.weekly-reveal-cta {
-  margin-bottom: 0.4rem;
-}
-
-.weekly-reveal-cta-copy {
-  margin: 0 0 0.75rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
-  color: rgb(243 239 230 / 0.8);
-}
-
-.weekly-reveal-providers {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.85rem;
-}
-
-.weekly-reveal-provider-logo {
-  width: 1.85rem;
-  height: 1.85rem;
-  border-radius: 0.35rem;
-  object-fit: cover;
-  background: transparent;
-}
-
-.weekly-reveal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.weekly-reveal-btn {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  border: 1px solid rgb(243 239 230 / 0.18);
-  border-radius: 0.65rem;
-  background: rgb(243 239 230 / 0.06);
-  color: #f3efe6;
-  padding: 0.6rem 1rem;
-  font-size: 0.85rem;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.weekly-reveal-btn--primary {
-  border-color: transparent;
-  background: linear-gradient(135deg, #f0d48a, #d4a84b);
-  color: #2c271f;
-  font-weight: 700;
-}
-
-.weekly-reveal-btn.is-on {
-  border-color: rgb(240 180 120 / 0.55);
-  color: #f0b478;
-}
-
-@keyframes weekly-reveal-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.6rem) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes weekly-reveal-gate-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes weekly-reveal-border-chase {
-  0% {
-    background-position: 120% 0;
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  100% {
-    background-position: -120% 0;
-    opacity: 0.35;
-  }
-}
-
-@keyframes weekly-reveal-beat {
-  0%,
-  12% {
-    background: rgb(212 181 106 / 0.18);
-    box-shadow: inset 0 0 0 1px rgb(212 181 106 / 0.25);
-    transform: scale(1);
-  }
-  18%,
-  28% {
-    background: rgb(255 220 150 / 0.95);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 235 190 / 0.8),
-      0 0 12px rgb(212 181 106 / 0.55);
-    transform: scale(1.15);
-  }
-  35%,
-  100% {
-    background: rgb(212 181 106 / 0.35);
-    box-shadow: inset 0 0 0 1px rgb(212 181 106 / 0.45);
-    transform: scale(1);
-  }
-}
-
-@keyframes weekly-reveal-title-flicker {
-  0%,
-  44% {
-    opacity: 0;
-    color: rgb(243 232 200 / 0.1);
-  }
-  45% {
-    opacity: 1;
-    color: rgb(243 232 200 / 0.35);
-    text-shadow: 0 0 8px rgb(212 181 106 / 0.2);
-  }
-  48% {
-    opacity: 0.2;
-  }
-  52% {
-    opacity: 1;
-    color: rgb(243 232 200 / 0.7);
-  }
-  56% {
-    opacity: 0.45;
-  }
-  60%,
-  68% {
-    opacity: 1;
-    color: rgb(247 239 216 / 0.92);
-    text-shadow: 0 0 16px rgb(212 181 106 / 0.35);
-  }
-  72% {
-    opacity: 0.55;
-  }
-  78%,
-  100% {
-    opacity: 1;
-    color: #f7efd8;
-    text-shadow: 0 0 20px rgb(212 181 106 / 0.42);
-  }
-}
-
-@keyframes weekly-reveal-scan {
-  0%,
-  38% {
-    background-position: 0 -30%;
-    opacity: 0;
-  }
-  42% {
-    opacity: 1;
-  }
-  72% {
-    background-position: 0 130%;
-    opacity: 0.85;
-  }
-  100% {
-    background-position: 0 130%;
-    opacity: 0;
-  }
-}
-
-@keyframes weekly-reveal-shutter {
-  0%,
-  58% {
-    transform: scaleY(1);
-  }
-  78% {
-    transform: scaleY(0.04);
-  }
-  100% {
-    transform: scaleY(0);
-    opacity: 0;
   }
 }

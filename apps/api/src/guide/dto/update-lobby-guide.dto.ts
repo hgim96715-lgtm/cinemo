@@ -12,26 +12,28 @@ import {
 } from 'class-validator';
 
 export class UpdateLobbyGuideStepDto {
-  @ApiProperty({ example: 'gacha' })
+  @ApiProperty({ example: 'upcoming' })
   @IsString()
   @IsNotEmpty()
   @MinLength(1)
   @MaxLength(32)
   id!: string;
 
-  @ApiProperty({ example: 'GACHA' })
+  @ApiProperty({ example: 'SCREEN' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)
   kicker!: string;
 
-  @ApiProperty({ example: '뽑기방에서 한 편' })
+  @ApiProperty({ example: '스크린에서 만날 영화를 저장해요' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(128)
   title!: string;
 
-  @ApiProperty({ example: '장르·국적·추천 머신으로 오늘의 영화를 뽑아요.' })
+  @ApiProperty({
+    example: '개봉 예정작 중 마음에 드는 영화는 ‘보고 싶어요’로 저장해요.',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)

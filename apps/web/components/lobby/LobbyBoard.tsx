@@ -122,19 +122,10 @@ function WeekListViz({ movies }: { movies: ChartMovie[] }) {
   );
 }
 
-function ChartShell({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function ChartShell({ children }: { children: ReactNode }) {
   return (
     <article className="lobby-chart">
       <div className="lobby-chart-viz">{children}</div>
-      <div className="lobby-chart-meta">
-        <p className="lobby-chart-label">{label}</p>
-      </div>
     </article>
   );
 }
@@ -146,9 +137,9 @@ export function LobbyBoard() {
   const [error, setError] = useState<string | null>(null);
   const [dateLabel, setDateLabel] = useState(kstLobbyDateLabel);
   const [loading, setLoading] = useState(true);
-  const [boardMode, setBoardMode] = useState<
-    'box-office' | 'upcoming' | 'weekly'
-  >('weekly');
+  const [boardMode, setBoardMode] = useState<'box-office' | 'upcoming'>(
+    'box-office',
+  );
 
   const chartMovies =
     boardMode === 'box-office'
@@ -164,18 +155,7 @@ export function LobbyBoard() {
             title: movie.title,
             count: movie.interestCount,
           }))
-        : (board?.weekTopMovies ?? []).map((movie) => ({
-            tmdbId: movie.tmdbId,
-            title: movie.title,
-            count: movie.count,
-          }));
-  const chartLabel =
-    boardMode === 'box-office'
-      ? 'BOX OFFICE NOW'
-      : boardMode === 'upcoming'
-        ? 'UPCOMING INTEREST'
-        : 'WEEKLY TOP 3';
-
+        : [];
   useEffect(() => {
     if (!hydrated) return;
 
@@ -278,18 +258,9 @@ export function LobbyBoard() {
                 UPCOMING INTEREST
               </button>
 
-              <button
-                type="button"
-                role="tab"
-                aria-selected={boardMode === 'weekly'}
-                className={boardMode === 'weekly' ? 'is-active' : ''}
-                onClick={() => setBoardMode('weekly')}
-              >
-                WEEKLY TOP 3
-              </button>
             </div>
 
-            <ChartShell label={chartLabel}>
+            <ChartShell>
               {chartMovies.length > 0 ? (
                 <WeekListViz movies={chartMovies} />
               ) : (

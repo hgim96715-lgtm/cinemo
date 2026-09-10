@@ -3,8 +3,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { BoardBoxOfficeMovie, LobbyBoardResponse } from '@cinemo/shared';
 import {
   kstDateKey,
-  kstPreviousWeekRange,
-  kstWeekRange,
   todayKstDate,
 } from '../lib/date-kst';
 import { TmdbService } from '../tmdb/tmdb.service';
@@ -111,42 +109,6 @@ export class LobbyBoardService {
     }
   }
 
-  private async weekTopMovies(start: Date, end: Date) {
-    const rows = await this.prisma.reviewPost.groupBy({
-      by: ['tmdbId'],
-      where: { createdAt: { gte: start, lt: end } },
-      _count: { tmdbId: true },
-      orderBy: { _count: { tmdbId: 'desc' } },
-      take: 3,
-    });
-
-    const cachedMovies = await this.prisma.moviePool.findMany({
-      where: { tmdbId: { in: rows.map((row) => row.tmdbId) } },
-      select: { tmdbId: true, title: true },
-    });
-
-    const titleMap = new Map(
-      cachedMovies.map((movie) => [movie.tmdbId, movie.title]),
-    );
-
-    return Promise.all(
-      rows.map(async (row) => {
-        const cachedTitle = titleMap.get(row.tmdbId);
-
-        const title =
-          cachedTitle && !cachedTitle.includes('정보를 찾을 수 없습니다.')
-            ? cachedTitle
-            : (await this.tmdbService.getMovieCached(row.tmdbId)).title;
-
-        return {
-          tmdbId: row.tmdbId,
-          title,
-          count: row._count.tmdbId,
-        };
-      }),
-    );
-  }
-
   async recordVisit(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -166,10 +128,7 @@ export class LobbyBoardService {
   }
 
   async getBoard(): Promise<LobbyBoardResponse> {
-    const week = kstWeekRange();
-
-    const [weekTopMovies, upcomingResult, boxOfficeMovies] = await Promise.all([
-      this.weekTopMovies(week.start, week.end),
+    const [upcomingResult, boxOfficeMovies] = await Promise.all([
       this.getUpcomingMovies(undefined, 1, 30),
       this.getBoxOfficeMovies(),
     ]);
@@ -186,33 +145,9 @@ export class LobbyBoardService {
         ...movie,
       }));
 
-    const weekReviewCount = weekTopMovies.reduce(
-      (total, movie) => total + movie.count,
-      0,
-    );
-
     return {
-      weekReviewCount,
-      weekTopMovies,
       boxOfficeMovies,
       upcomingInterestMovies,
-    };
-  }
-
-  async getWeeklyRevealWinner() {
-    const { start, end } = kstPreviousWeekRange();
-    const [winner] = await this.weekTopMovies(start, end);
-    if (!winner) return null;
-
-    const sample = await this.prisma.reviewPost.findFirst({
-      where: { tmdbId: winner.tmdbId, createdAt: { gte: start, lt: end } },
-      orderBy: { createdAt: 'desc' },
-      select: { body: true },
-    });
-    return {
-      ...winner,
-      sampleBody: sample?.body ?? null,
-      movie: await this.tmdbService.getMovieCached(winner.tmdbId),
     };
   }
 

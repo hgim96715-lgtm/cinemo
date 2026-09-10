@@ -62,19 +62,6 @@ export function kstDayKeys(from: string, to: string): string[] {
   return keys;
 }
 
-/** KST 02:00 마감 — 0~1시는 전날 수다로 취급 */
-export function cafeDayKey(now = new Date()): string {
-  const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-  if (kst.getHours() < 2) kst.setDate(kst.getDate() - 1);
-  return kstDateKey(kst);
-}
-
-/** 카페 하루 `[start, end)` — 02:00 */
-export function cafeDayRange(now = new Date()): { start: Date; end: Date } {
-  const start = new Date(`${cafeDayKey(now)}T02:00:00+09:00`);
-  return { start, end: new Date(start.getTime() + DAY_MS) };
-}
-
 /** KST 시간 (0~23) */
 export function kstHour(now = new Date()): number {
   return Number(
@@ -84,18 +71,6 @@ export function kstHour(now = new Date()): number {
       hourCycle: 'h23',
     }).format(now),
   );
-}
-
-/** KST 지난주 월요일 00:00 ~ 이번 주 월요일 00:00 */
-export function kstPreviousWeekRange(now = new Date()): {
-  start: Date;
-  end: Date;
-} {
-  const { start, end } = kstWeekRange(now);
-  return {
-    start: new Date(start.getTime() - 7 * DAY_MS),
-    end: start,
-  };
 }
 
 export function formatKst(value: Date): string {

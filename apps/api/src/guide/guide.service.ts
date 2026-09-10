@@ -52,16 +52,23 @@ export class GuideService {
       update: {},
     });
 
-    if (this.parseSteps(guide.steps).length > 0) {
-      return guide;
-    }
+    const steps = this.parseSteps(guide.steps);
+    const stepIds = new Set(steps.map((step) => step.id));
 
-    return this.prisma.lobbyGuide.update({
-      where: { id: guide.id },
-      data: {
-        steps: DEFAULT_LOBBY_GUIDE_STEPS as unknown as Prisma.InputJsonValue,
-      },
-    });
+    const isLegacyGuide =
+      stepIds.size === 3 &&
+      stepIds.has('ticket') &&
+      stepIds.has('gacha');
+
+    if (steps.length === 0 || isLegacyGuide) {
+      return this.prisma.lobbyGuide.update({
+        where: { id: guide.id },
+        data: {
+          steps: DEFAULT_LOBBY_GUIDE_STEPS as unknown as Prisma.InputJsonValue,
+        },
+      });
+    }
+    return guide;
   }
 
   async getGuide(): Promise<LobbyGuide> {

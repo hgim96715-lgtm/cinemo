@@ -28,6 +28,8 @@ import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { providerLogoUrl } from '@/lib/watch-providers';
 import '../styles/gacha.css';
 import '../styles/lobby.css';
+import '../styles/common.css';
+import { CinemoNav } from '@/components/common/CinemoNav';
 
 export default function GachaPage() {
   const router = useRouter();
@@ -159,12 +161,12 @@ export default function GachaPage() {
       <main className="gacha">
         <header className="gacha-header">
           <div className="gacha-header-nav">
-            <Link
-              href={user?.role === 'admin' ? '/admin' : '/'}
-              className="gacha-header-link"
-            >
-              {user?.role === 'admin' ? '관리자 화면으로' : 'CINEMO LOBBY'}
-            </Link>
+            {user?.role === 'admin' ? (
+              <Link href="/admin" className="gacha-header-link">
+                관리자 화면으로
+              </Link>
+            ) : null}
+            <CinemoNav showRightLink={false} />
           </div>
           <p className="gacha-kicker">GACHA</p>
           <h1 className="gacha-title">뽑기방</h1>
@@ -264,19 +266,12 @@ export default function GachaPage() {
       <header className="gacha-header">
         <div className="gacha-header-nav">
           {user?.role === 'admin' ? (
-            <>
-              <Link href="/admin" className="gacha-header-link">
-                관리자 화면으로
-              </Link>
-              <Link href="/?lobby=1" className="gacha-header-link">
-                CINEMO LOBBY
-              </Link>
-            </>
-          ) : (
-            <Link href="/" className="gacha-header-link">
-              CINEMO LOBBY
+            <Link href="/admin" className="gacha-header-link">
+              관리자 화면으로
             </Link>
-          )}
+          ) : null}
+
+          <CinemoNav showRightLink={false} />
 
           {isTestUser ? (
             <button

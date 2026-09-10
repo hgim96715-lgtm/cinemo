@@ -41,18 +41,10 @@ async function main() {
     const ids = users.map((u) => u.id);
 
     await prisma.$transaction([
-      prisma.reviewPostLike.deleteMany({
-        where: {
-          OR: [{ userId: { in: ids } }, { post: { userId: { in: ids } } }],
-        },
-      }),
-      prisma.reviewPost.deleteMany({ where: { userId: { in: ids } } }),
       prisma.ticket.deleteMany({ where: { userId: { in: ids } } }),
       prisma.userMovie.deleteMany({ where: { userId: { in: ids } } }),
       prisma.lobbyVisit.deleteMany({ where: { userId: { in: ids } } }),
       prisma.adminLoginLog.deleteMany({ where: { userId: { in: ids } } }),
-      prisma.cafeMessage.deleteMany({ where: { userId: { in: ids } } }),
-      prisma.cafeTableSeat.deleteMany({ where: { userId: { in: ids } } }),
       prisma.movieProviderOverride.deleteMany({
         where: { createdBy: { in: ids } },
       }),

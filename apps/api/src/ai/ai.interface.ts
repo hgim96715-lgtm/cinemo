@@ -7,7 +7,10 @@ export type MovieQuoteSuggestion = {
 };
 
 export type RecommendMovieQuotesInput = {
+  tmdbId: number;
   title: string;
+  originalTitle: string | null;
+  originalLanguage: string | null;
   releaseYear: number | null;
   overview: string | null;
 };

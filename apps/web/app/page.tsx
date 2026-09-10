@@ -3,16 +3,14 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ADMIN_AVATAR, LOBBY_ROOMS, type TicketStatus } from '@cinemo/shared';
-import { Clapperboard, Coffee, Film, CalendarClock } from 'lucide-react';
+import { ADMIN_AVATAR, type TicketStatus } from '@cinemo/shared';
+import { CalendarClock, Images, Volleyball } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TicketBooth } from '@/components/lobby/TicketBooth';
 import './styles/lobby.css';
 import './styles/avatar.css';
 import './styles/guide.css';
 import { LobbyBoard } from '@/components/lobby/LobbyBoard';
-import { WeeklyRevealModal } from '@/components/lobby/WeeklyRevealModal';
-import { useWeeklyReveal } from '@/hooks/useWeeklyReveal';
 import { AvatarFigure } from '@/components/my-cinema/AvatarFigure';
 import { useGuideStore } from '@/lib/guide-store';
 import { LobbyGuideModal } from '@/components/lobby/LobbyGuideModal';
@@ -23,10 +21,10 @@ function HomeContent() {
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
   const guidePending = useGuideStore((s) => s.pending);
+  const previewGuide = useGuideStore((s) => s.previewGuide);
   const lit = Boolean(user);
   const [, setTicketStatus] = useState<TicketStatus | null>(null);
   const stayLobby = searchParams.get('lobby') === '1';
-  const { winner, dismiss } = useWeeklyReveal(user?.id);
 
   const hydrated = useAuthStore((s) => s.hydrated);
 
@@ -40,6 +38,17 @@ function HomeContent() {
     }
   }, [isAdminEntry, router]);
 
+  useEffect(() => {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      hydrated &&
+      user &&
+      searchParams.get('guide') === 'preview'
+    ) {
+      previewGuide();
+    }
+  }, [hydrated, previewGuide, searchParams, user]);
+
   if (shouldWaitForAuth || isAdminEntry) {
     return null;
   }
@@ -49,14 +58,6 @@ function HomeContent() {
       <div className="lobby-atmosphere" aria-hidden />
 
       {guidePending ? <LobbyGuideModal onClose={() => undefined} /> : null}
-
-      {winner ? (
-        <WeeklyRevealModal
-          winner={winner}
-          accessToken={accessToken}
-          onClose={dismiss}
-        />
-      ) : null}
 
       <div className="lobby-stage">
         <LobbyBoard />
@@ -132,25 +133,14 @@ function HomeContent() {
 
           <nav className="lobby-destinations" aria-label="CINEMO 공간">
             <Link href="/gacha" className="lobby-destination">
-              <Clapperboard className="lobby-destination-icon" aria-hidden />
+              <Volleyball className="lobby-destination-icon" aria-hidden />
               <span className="lobby-destination-kicker">TICKET BOOTH</span>
               <span className="lobby-destination-label">뽑기방</span>
             </Link>
-
-            <Link
-              href="/quote"
-              className="lobby-destination"
-              data-room-id={LOBBY_ROOMS.QUOTE_FILM}
-            >
-              <Film className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">QUOTE FILM</span>
-              <span className="lobby-destination-label">명대사방</span>
-            </Link>
-
-            <Link href="/cafe" className="lobby-destination">
-              <Coffee className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">CINEMO CAFE</span>
-              <span className="lobby-destination-label">영화 카페</span>
+            <Link href="/postcard" className="lobby-destination">
+              <Images className="lobby-destination-icon" aria-hidden="true" />
+              <span className="lobby-destination-kicker">POSTCARD</span>
+              <span className="lobby-destination-label">CINEMO 엽서</span>
             </Link>
           </nav>
         </div>

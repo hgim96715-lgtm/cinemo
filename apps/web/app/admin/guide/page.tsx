@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, Check, Plus, Trash2 } from 'lucide-react';
-import {
-  DEFAULT_LOBBY_GUIDE_RULES,
-  DEFAULT_LOBBY_GUIDE_STEPS,
-  LobbyGuideStep,
-} from '@cinemo/shared';
+import { AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { DEFAULT_LOBBY_GUIDE_STEPS, LobbyGuideStep } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
 import { getLobbyGuideRequest, updateLobbyGuideRequest } from '@/lib/guide-api';
+
+import { ConfirmModal } from '@/components/common/ConfirmModal';
+import '../../styles/admin-guide.css';
 
 export default function AdminGuidePage() {
   const token = useAuthStore((s) => s.accessToken);
@@ -18,17 +17,20 @@ export default function AdminGuidePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'save' | 'reset' | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
     async function loadGuide() {
       try {
         const guide = await getLobbyGuideRequest();
-        if (!cancelled && guide.steps.length > 0) {
-          setSteps(guide.steps);
+        const isLegacyGuide = guide.steps.some((step) => step.id === 'gacha');
+        if (!cancelled) {
+          setSteps(isLegacyGuide ? DEFAULT_LOBBY_GUIDE_STEPS : guide.steps);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         if (!cancelled) {
           setError(
             error instanceof Error
@@ -80,6 +82,28 @@ export default function AdminGuidePage() {
     );
   }
 
+  async function resetGuideToDefault() {
+    if (!token) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const guide = await updateLobbyGuideRequest(token, {
+        steps: DEFAULT_LOBBY_GUIDE_STEPS,
+      });
+      setSteps(guide.steps);
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : '기본 가이드 적용에 실패했습니다.',
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function saveGuide() {
     if (!token) return;
 
@@ -101,17 +125,16 @@ export default function AdminGuidePage() {
     const ids = normalizedSteps.map((step) => step.id);
     if (new Set(ids).size !== ids.length) {
       setError('가이드의 ID는 중복될 수 없습니다.');
+      return;
     }
 
     setSaving(true);
     setError(null);
-    setSuccess(false);
     try {
       const guide = await updateLobbyGuideRequest(token, {
         steps: normalizedSteps,
       });
       setSteps(guide.steps);
-      setSuccess(true);
     } catch (error) {
       setError(
         error instanceof Error
@@ -200,7 +223,7 @@ export default function AdminGuidePage() {
               </article>
             ))}
 
-            <div className="admin-ops-toolbar">
+            <div className="admin-ops-toolbar admin-guide-actions">
               <button
                 type="button"
                 className="admin-ops-btn"
@@ -211,14 +234,25 @@ export default function AdminGuidePage() {
                 단계 추가
               </button>
 
-              <button
-                type="button"
-                className="admin-ops-btn admin-ops-btn--primary"
-                onClick={() => void saveGuide()}
-                disabled={saving || !token}
-              >
-                {saving ? '저장 중…' : '저장'}
-              </button>
+              <div className="admin-guide-actions-primary">
+                <button
+                  type="button"
+                  className="admin-ops-btn admin-guide-reset-btn"
+                  onClick={() => setConfirmAction('reset')}
+                  disabled={saving || !token}
+                >
+                  기본값으로 되돌리기
+                </button>
+
+                <button
+                  type="button"
+                  className="admin-ops-btn admin-ops-btn--primary admin-guide-save-btn"
+                  onClick={() => setConfirmAction('save')}
+                  disabled={saving || !token}
+                >
+                  {saving ? '저장 중…' : '저장'}
+                </button>
+              </div>
             </div>
 
             {error ? (
@@ -227,16 +261,35 @@ export default function AdminGuidePage() {
                 {error}
               </div>
             ) : null}
-
-            {success ? (
-              <div className="admin-ops-result">
-                <Check size={14} className="admin-ops-icon--ok" />
-                저장됨
-              </div>
-            ) : null}
           </>
         )}
       </section>
+      <ConfirmModal
+        open={confirmAction !== null}
+        title={
+          confirmAction === 'reset' ? '기본값으로 되돌리기' : '가이드 저장'
+        }
+        description={
+          confirmAction === 'reset'
+            ? '현재 가이드 내용을 기본값으로 되돌리겠습니까?'
+            : '현재 가이드 내용을 저장하시겠습니까?'
+        }
+        confirmLabel={confirmAction === 'reset' ? '되돌리기' : '저장'}
+        cancelLabel="취소"
+        onClose={() => setConfirmAction(null)}
+        onConfirm={() => {
+          const action = confirmAction;
+          setConfirmAction(null);
+
+          if (action === 'reset') {
+            void resetGuideToDefault();
+          }
+
+          if (action === 'save') {
+            void saveGuide();
+          }
+        }}
+      />
     </main>
   );
 }

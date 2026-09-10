@@ -11,26 +11,19 @@ import { AppModule } from '../app.module';
 import { AdminService } from '../admin/admin.service';
 import { AuthService } from '../auth/auth.service';
 import { TicketService } from '../ticket/ticket.service';
-import { ReviewPostService } from '../review-post/review-post.service';
 import { LobbyBoardService } from '../lobby-board/lobby-board.service';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  kstDateKey,
-  kstTodayRange,
-  todayKstDate,
-} from '../lib/date-kst';
+import { kstDateKey, kstTodayRange, todayKstDate } from '../lib/date-kst';
 import {
   DEMO_SEED,
   demoEmail,
   disposableDemoSeedDir,
   isDemoEmail,
 } from './demo-seed-config';
-import { seedDemoReviewLikes } from '../lib/demo-review-likes';
 
 type Personas = {
   nicknames: string[];
   reviews: { body: string; rating: number }[];
-  quotes: { text: string }[];
   profiles: {
     bio: string | null;
     tags: string[];
@@ -39,8 +32,46 @@ type Personas = {
 };
 
 type ReviewTemplate = { body: string; rating: number };
-type QuoteTemplate = { text: string };
 type ProfileTemplate = Personas['profiles'][number];
+
+const POSTCARD_SAMPLES = [
+  {
+    text: '좋은 장면은 영화가 끝난 뒤에도 오래 남는다.',
+    originalText: 'The best scenes stay with you long after the movie ends.',
+  },
+  {
+    text: '오늘의 한 편을 조용히 기억해두자.',
+    originalText: null,
+  },
+  {
+    text: '괜찮아, 천천히 가도 돼.',
+    originalText: 'It is okay. You can take your time.',
+  },
+  {
+    text: '끝난 뒤에도 마음에 남는 영화였다.',
+    originalText: null,
+  },
+  {
+    text: '생각보다 오래 마음에 머무는 장면.',
+    originalText: 'A scene that stays in your heart longer than expected.',
+  },
+] as const;
+
+const POSTCARD_COMMENT_SAMPLES = [
+  '이 장면 정말 좋았어요. 영화 보고 나서도 계속 생각났어요.',
+  '저도 이 문장 마음에 남았어요. 다시 보고 싶네요.',
+  '엽서 분위기와 문장이 잘 어울려요.',
+  '이 영화 아직 못 봤는데 궁금해졌어요.',
+  '좋은 문장 남겨줘서 고마워요.',
+] as const;
+
+const POSTCARD_REPLY_SAMPLES = [
+  '맞아요. 저도 그 여운이 오래 갔어요.',
+  '그쵸? 다음에 같이 이야기해보고 싶어요.',
+  '좋게 봐줘서 고마워요!',
+  '시간 나면 꼭 봐보세요.',
+  '저도 다음에 다시 보려고요.',
+] as const;
 
 function loadPersonas(): Personas {
   const path = join(disposableDemoSeedDir(), 'personas.json');
@@ -71,10 +102,6 @@ function pickMachine(): GachaMachineId {
 
 function pickReview(personas: Personas): ReviewTemplate {
   return personas.reviews[Math.floor(Math.random() * personas.reviews.length)]!;
-}
-
-function pickQuote(personas: Personas): QuoteTemplate | undefined {
-  return personas.quotes[Math.floor(Math.random() * personas.quotes.length)];
 }
 
 function pickProfile(personas: Personas): ProfileTemplate {
@@ -123,7 +150,6 @@ type SeedResult =
       nickname: string;
       movieTitle: string;
       tmdbId: number;
-      quoteCreated: boolean;
     }
   | { ok: false; nickname: string; reason: string };
 
@@ -133,19 +159,10 @@ async function runUserActivity(
   personas: Personas,
   deps: {
     ticket: TicketService;
-    review: ReviewPostService;
     lobby: LobbyBoardService;
     prisma: PrismaService;
   },
 ): Promise<SeedResult> {
-  const { start, end } = kstTodayRange();
-  const postedToday = await deps.prisma.reviewPost.findFirst({
-    where: { userId, createdAt: { gte: start, lt: end } },
-  });
-  if (postedToday) {
-    return { ok: false, nickname, reason: '오늘 후기 이미 작성' };
-  }
-
   await deps.lobby.recordVisit(userId);
 
   const ticketDate = todayKstDate();
@@ -226,39 +243,125 @@ async function runUserActivity(
     });
   }
 
-  await deps.review.create(userId, {
-    tmdbId,
-    body: template.body,
-    rating: template.rating,
+  return { ok: true, nickname, movieTitle, tmdbId };
+}
+
+async function seedPostcardCommunity(prisma: PrismaService, userIds: string[]) {
+  if (userIds.length === 0) return 0;
+
+  const movies = await prisma.moviePool.findMany({
+    orderBy: { syncedAt: 'desc' },
+    take: Math.max(userIds.length, POSTCARD_SAMPLES.length),
+    select: {
+      tmdbId: true,
+      title: true,
+      posterPath: true,
+    },
   });
 
-  const quoteTemplate = pickQuote(personas);
-  if (!quoteTemplate) {
-    return { ok: true, nickname, movieTitle, tmdbId, quoteCreated: false };
-  }
+  if (movies.length === 0) return 0;
 
-  const existingQuote = await deps.prisma.quotePost.findFirst({
-    where: { userId, tmdbId, text: quoteTemplate.text },
-    select: { id: true },
-  });
-  let quoteCreated = false;
-  if (!existingQuote) {
-    const quote = await deps.prisma.quotePost.create({
-      data: {
-        userId,
-        tmdbId,
-        movieTitle,
-        text: quoteTemplate.text,
-        usePosterBackground: true,
+  let createdPostcards = 0;
+
+  for (let index = 0; index < userIds.length; index += 1) {
+    const ownerId = userIds[index]!;
+    const movie = movies[index % movies.length]!;
+    const sample = POSTCARD_SAMPLES[index % POSTCARD_SAMPLES.length]!;
+    const posterPath = movie.posterPath
+      ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
+      : null;
+
+    const existingPostcard = await prisma.postcard.findFirst({
+      where: {
+        userId: ownerId,
+        tmdbId: movie.tmdbId,
+        text: sample.text,
       },
     });
-    await deps.prisma.quotePostBookmark.create({
-      data: { userId, quotePostId: quote.id },
-    });
-    quoteCreated = true;
+
+    const postcard =
+      existingPostcard ??
+      (await prisma.postcard.create({
+        data: {
+          userId: ownerId,
+          tmdbId: movie.tmdbId,
+          movieTitle: movie.title,
+          originalText: sample.originalText,
+          text: sample.text,
+          posterPath,
+          isPublic: true,
+        },
+      }));
+
+    if (!existingPostcard) createdPostcards += 1;
+
+    const commenterIds = Array.from(
+      new Set(
+        [1, 2, 3]
+          .map((offset) => userIds[(index + offset) % userIds.length])
+          .filter((userId): userId is string => userId !== ownerId),
+      ),
+    );
+
+    let firstCommentId: string | null = null;
+    for (
+      let commentIndex = 0;
+      commentIndex < commenterIds.length;
+      commentIndex += 1
+    ) {
+      const commenterId = commenterIds[commentIndex]!;
+      const commentText =
+        POSTCARD_COMMENT_SAMPLES[
+          (index + commentIndex) % POSTCARD_COMMENT_SAMPLES.length
+        ]!;
+      const existingComment = await prisma.postcardComment.findFirst({
+        where: {
+          postcardId: postcard.id,
+          userId: commenterId,
+          parentId: null,
+          text: commentText,
+        },
+      });
+      const comment =
+        existingComment ??
+        (await prisma.postcardComment.create({
+          data: {
+            postcardId: postcard.id,
+            userId: commenterId,
+            text: commentText,
+          },
+        }));
+
+      if (!firstCommentId) firstCommentId = comment.id;
+    }
+
+    const replyAuthorId = userIds[(index + 3) % userIds.length];
+    if (firstCommentId && replyAuthorId && replyAuthorId !== ownerId) {
+      const replyText =
+        POSTCARD_REPLY_SAMPLES[index % POSTCARD_REPLY_SAMPLES.length]!;
+      const existingReply = await prisma.postcardComment.findFirst({
+        where: {
+          postcardId: postcard.id,
+          userId: replyAuthorId,
+          parentId: firstCommentId,
+          text: replyText,
+        },
+      });
+
+      if (!existingReply) {
+        await prisma.postcardComment.create({
+          data: {
+            postcardId: postcard.id,
+            userId: replyAuthorId,
+            parentId: firstCommentId,
+            text: replyText,
+          },
+        });
+      }
+    }
   }
 
-  return { ok: true, nickname, movieTitle, tmdbId, quoteCreated };
+  return createdPostcards;
 }
 
 async function nextRegisterSeq(
@@ -287,7 +390,7 @@ async function findReturningUsers(
     where: {
       email: { endsWith: `@${DEMO_SEED.emailDomain}` },
       NOT: {
-        reviewPosts: {
+        userMovies: {
           some: { createdAt: { gte: start, lt: end } },
         },
       },
@@ -303,7 +406,10 @@ async function main() {
   const password = assertEnv();
   const personas = loadPersonas();
   const dateKey = kstDateKey();
-  const returnCount = Math.max(0, DEMO_SEED.totalActivity - DEMO_SEED.newPerDay);
+  const returnCount = Math.max(
+    0,
+    DEMO_SEED.totalActivity - DEMO_SEED.newPerDay,
+  );
 
   console.log(
     `[demo-seed] KST ${dateKey} · 신규 ${DEMO_SEED.newPerDay} · 재방 ${returnCount}`,
@@ -316,10 +422,9 @@ async function main() {
   const auth = app.get(AuthService);
   const admin = app.get(AdminService);
   const ticket = app.get(TicketService);
-  const review = app.get(ReviewPostService);
   const lobby = app.get(LobbyBoardService);
   const prisma = app.get(PrismaService);
-  const deps = { ticket, review, lobby, prisma };
+  const deps = { ticket, lobby, prisma };
 
   const results: SeedResult[] = [];
   const demoUserIds: string[] = [];
@@ -367,15 +472,11 @@ async function main() {
       await sleep(DEMO_SEED.staggerMs);
     }
 
+    const createdPostcards = await seedPostcardCommunity(prisma, demoUserIds);
+    console.log(`  엽서 ${createdPostcards}건 · 댓글 작성자 시드 완료`);
+
     const ok = results.filter((r) => r.ok);
     const fail = results.filter((r) => !r.ok);
-    const reviewLikes = await seedDemoReviewLikes(
-      prisma,
-      dateKey,
-      demoUserIds,
-    );
-    const quotePosts = ok.filter((r) => r.quoteCreated).length;
-
     console.log('\n[demo-seed] 완료');
     for (const r of ok) {
       if (r.ok) {
@@ -385,9 +486,7 @@ async function main() {
     for (const r of fail) {
       console.log(`  − ${r.nickname} · ${r.reason}`);
     }
-    console.log(`  후기 ${ok.length}건 / 스킵 ${fail.length}건`);
-    console.log(`  명대사 ${quotePosts}건`);
-    console.log(`  좋아요 ${reviewLikes}건`);
+    console.log(`  활동 ${ok.length}건 / 스킵 ${fail.length}건`);
   } finally {
     await app.close();
   }

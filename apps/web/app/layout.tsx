@@ -47,7 +47,7 @@ const notoSansKr = Noto_Sans_KR({
 
 export const metadata: Metadata = {
   title: 'CINEMO',
-  description: '영화관 로비 소셜 — 매표소 · 뽑기 · 후기방',
+  description: '영화관 로비 — 매표소 · 뽑기 · MY CINEMA',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

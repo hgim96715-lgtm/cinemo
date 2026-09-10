@@ -28,25 +28,26 @@ import '../styles/my-cinema.css';
 import '../styles/lobby.css';
 import '../styles/avatar.css';
 import '../styles/profile.css';
+import '../styles/common.css';
 import {
   CalendarDays,
   Clapperboard,
-  Film,
   Heart,
-  NotebookPen,
   Phone,
   Popcorn,
   Plus,
   Shirt,
   ArrowUpRight,
-  ArrowLeft,
+  Mail,
 } from 'lucide-react';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { PosterPickerModal } from '@/components/my-cinema/PosterPickerModal';
 import { MovieCalendarModal } from '@/components/my-cinema/MovieCalendarModal';
 import { WatchedDateEditModal } from '@/components/my-cinema/WatchedDateEditModal';
-import QuoteActionModal from '@/components/quote/QuoteActionModal';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { MovieStatsPanel } from '@/components/my-cinema/MovieStatsPanel';
+import '../styles/confirm-modal.css';
+import { CinemoNav } from '@/components/common/CinemoNav';
 
 export default function MyCinemaPage() {
   const router = useRouter();
@@ -383,12 +384,7 @@ export default function MyCinemaPage() {
 
   return (
     <main className="my-cinema my-cinema--dashboard">
-      <nav className="my-cinema-dashboard-nav" aria-label="페이지 이동">
-        <Link href="/" className="my-cinema-top-nav-link">
-          <ArrowLeft size={15} strokeWidth={1.7} aria-hidden />
-          CINEMO LOBBY
-        </Link>
-      </nav>
+      <CinemoNav />
 
       <header className="my-cinema-header my-cinema-dashboard-header">
         <p className="my-cinema-kicker">MY CINEMA</p>
@@ -575,10 +571,10 @@ export default function MyCinemaPage() {
             <span>보고 싶은 영화</span>
             <small>다음 영화 찾기</small>
           </Link>
-          <Link href="/my-cinema/quotes" className="my-cinema-tool-card">
-            <Film size={21} strokeWidth={1.4} aria-hidden />
-            <span>명대사 모음집</span>
-            <small>마음에 남은 문장</small>
+          <Link href="/my-cinema/postcard" className="my-cinema-tool-card">
+            <Mail size={21} strokeWidth={1.4} aria-hidden />
+            <span>MY POSTCARD</span>
+            <small>내 엽서 보관</small>
           </Link>
           <button
             type="button"
@@ -590,11 +586,6 @@ export default function MyCinemaPage() {
             <span>고객센터</span>
             <small>준비 중</small>
           </button>
-          <div className="my-cinema-tool-card is-disabled">
-            <NotebookPen size={21} strokeWidth={1.4} aria-hidden />
-            <span>명대사 화이트보드</span>
-            <small>곧 만나요</small>
-          </div>
         </nav>
       </div>
 
@@ -667,25 +658,28 @@ export default function MyCinemaPage() {
       ) : null}
 
       {calendarAddError ? (
-        <QuoteActionModal
-          isOpen
-          mode="error"
+        <ConfirmModal
+          open
           title="관람 기록 처리 실패"
-          message={calendarAddError}
+          description={calendarAddError}
           onClose={() => setCalendarAddError(null)}
+          onConfirm={() => setCalendarAddError(null)}
+          confirmLabel="닫기"
+          cancelLabel=""
         />
       ) : null}
       {calendarDeleteTarget !== null ? (
-        <QuoteActionModal
-          isOpen
-          mode="confirm"
+        <ConfirmModal
+          open
           title="관람 기록 삭제"
-          message="이 관람 기록을 삭제할까요?"
+          description="이 관람 기록을 삭제할까요?"
           onClose={() => setCalendarDeleteTarget(null)}
           onConfirm={async () => {
             await handleCalendarMovieDelete(calendarDeleteTarget);
             setCalendarDeleteTarget(null);
           }}
+          confirmLabel="삭제하기"
+          tone="danger"
         />
       ) : null}
     </main>

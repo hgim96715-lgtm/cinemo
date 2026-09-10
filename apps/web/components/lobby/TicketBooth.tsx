@@ -126,7 +126,7 @@ export function TicketBooth({ onStatusChange }: Props) {
               onClick={(e) => e.stopPropagation()}
             >
               <p className="ticket-stub-kicker">CINEMO</p>
-              <p className="ticket-stub-title">오늘 뽑기권</p>
+              <p className="ticket-stub-title">오늘의 티켓</p>
               <p className="ticket-stub-meta">{user.nickname}</p>
               <span className="ticket-stub-perforation" aria-hidden />
               <Link

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Heart, Sparkles } from 'lucide-react';
+import { Heart, Sparkles } from 'lucide-react';
 import {
   getUpcomingMoviesRequest,
   type UpcomingMovie,
@@ -22,10 +22,12 @@ import '../styles/upcoming.css';
 import '../styles/my-cinema.css';
 import '../styles/movie-detail-modal.css';
 import '../styles/confirm-modal.css';
+import '../styles/common.css';
 
 import { GachaMovie } from '@cinemo/shared';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
+import { CinemoNav } from '@/components/common/CinemoNav';
 
 type UpcomingPeriod = {
   key: string;
@@ -338,20 +340,11 @@ export default function UpcomingPage() {
   return (
     <main className="lobby upcoming-lobby lobby--lit">
       <section className="lobby-stage upcoming-page">
-        <nav className="upcoming-nav" aria-label="개봉 예정 영화 메뉴">
-          <Link href="/" className="upcoming-nav-link upcoming-nav-link--lobby">
-            <ArrowLeft size={17} aria-hidden />
-            <span>CINEMO LOBBY</span>
-          </Link>
-
-          <Link
-            href="/my-cinema/wish"
-            className="upcoming-nav-link upcoming-nav-link--wish"
-          >
-            <Heart size={17} aria-hidden />
-            <span>찜한 영화</span>
-          </Link>
-        </nav>
+        <CinemoNav
+          rightHref="/my-cinema/wish"
+          rightLabel="찜한 영화"
+          rightAriaLabel="찜한 영화로 이동"
+        />
 
         <header className="upcoming-header">
           <Sparkles size={28} strokeWidth={1.8} aria-hidden />

@@ -13,6 +13,7 @@ coverage
 apps/api/src/generated
 apps/api/generated
 docs/
+old_docs/
 apps/api/.agents/
 apps/api/.claude/
 apps/api/.windsurf/

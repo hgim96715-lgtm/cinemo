@@ -5,8 +5,6 @@ import type {
   AdminPeople,
   AdminPeopleFeed,
   AdminPeopleFeedItem,
-  CafeTableId,
-  CafeTableSnapshot,
 } from '@cinemo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -24,9 +22,7 @@ type CountField =
   | 'visits'
   | 'logins'
   | 'ticketsIssued'
-  | 'ticketsUsed'
-  | 'reviews'
-  | 'cafeMessages';
+  | 'ticketsUsed';
 
 @Injectable()
 export class AdminService {
@@ -55,9 +51,7 @@ export class AdminService {
     });
 
     const hourly =
-      field === 'ticketsIssued' ||
-      field === 'ticketsUsed' ||
-      field === 'reviews'
+      field === 'ticketsIssued' || field === 'ticketsUsed'
         ? null
         : this.prisma.adminHourlyStat.upsert({
             where: { date_hour: { date, hour } },
@@ -92,15 +86,10 @@ export class AdminService {
       todaySignupCount,
       todayLogins,
       todayVisitCount,
-      todayAnonReviewCount,
       weekSignupCount,
       weekLoginSum,
       weekVisitCount,
-      weekAnonReviewCount,
-      reviewCount,
       todayTicketIssuedCount,
-      cafeSeatedCount,
-      rows,
     ] = await Promise.all([
       this.prisma.user.count({ where: this.guestWhere() }),
       this.prisma.user.count({
@@ -115,9 +104,6 @@ export class AdminService {
       }),
       this.prisma.lobbyVisit.count({
         where: { visitDate, user: this.guestWhere() },
-      }),
-      this.prisma.anonVisit.count({
-        where: { visitDate, place: 'review' },
       }),
       this.prisma.user.count({
         where: {
@@ -143,54 +129,20 @@ export class AdminService {
           },
         },
       }),
-      this.prisma.anonVisit.count({
-        where: {
-          place: 'review',
-          visitDate: {
-            gte: toKstDate(week.start),
-            lt: toKstDate(week.end),
-          },
-        },
-      }),
-      this.prisma.reviewPost.count({
-        where: {
-          createdAt: { gte: today.start, lt: today.end },
-          user: this.guestWhere(),
-        },
-      }),
       this.prisma.ticket.count({
         where: { ticketDate: visitDate, user: this.guestWhere() },
       }),
-      this.prisma.cafeTableSeat.count({
-        where: { user: this.guestWhere() },
-      }),
-      this.prisma.cafeTableSession.findMany({
-        include: { _count: { select: { seats: true } } },
-        orderBy: { tableId: 'asc' },
-      }),
     ]);
-
-    const tables: CafeTableSnapshot[] = rows.map((row) => ({
-      tableId: row.tableId as CafeTableId,
-      label: row.label,
-      access: row.access,
-      seatedCount: row._count.seats,
-    }));
 
     return {
       userCount,
       todaySignupCount,
       todayLoginCount: todayLogins?.logins ?? 0,
       todayVisitCount,
-      todayAnonReviewCount,
       weekSignupCount,
       weekLoginCount: weekLoginSum._sum.logins ?? 0,
       weekVisitCount,
-      weekAnonReviewCount,
-      reviewCount,
       todayTicketIssuedCount,
-      cafeSeatedCount,
-      tables,
     };
   }
 
@@ -246,8 +198,6 @@ export class AdminService {
         signups: signupByDay.get(date) ?? 0,
         ticketsIssued: row?.ticketsIssued ?? 0,
         ticketsUsed: row?.ticketsUsed ?? 0,
-        reviews: row?.reviews ?? 0,
-        cafeMessages: row?.cafeMessages ?? 0,
       };
     });
 
@@ -256,7 +206,6 @@ export class AdminService {
       hour: row.hour,
       visits: row.visits,
       logins: row.logins,
-      cafeMessages: row.cafeMessages,
     }));
 
     return { from: start, to: end, series, hours };
