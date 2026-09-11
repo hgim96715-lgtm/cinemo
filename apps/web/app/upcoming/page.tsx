@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -67,7 +67,7 @@ function getUpcomingPeriods(): UpcomingPeriod[] {
   ];
 }
 
-export default function UpcomingPage() {
+function UpcomingPageContent() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
 
@@ -483,5 +483,13 @@ export default function UpcomingPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+export default function UpcomingPage() {
+  return (
+    <Suspense fallback={null}>
+      <UpcomingPageContent />
+    </Suspense>
   );
 }

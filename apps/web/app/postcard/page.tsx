@@ -1,6 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from 'react';
 import Image from 'next/image';
 import type { PostcardItem } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
@@ -19,7 +25,7 @@ import { Bookmark } from 'lucide-react';
 import { PostcardCommentSection } from '@/components/postcard/PostcardCommentSection';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
 
-export default function PostcardPage() {
+function PostcardPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -271,5 +277,13 @@ export default function PostcardPage() {
         onClose={() => setLoginRequiredOpen(false)}
       />
     </main>
+  );
+}
+
+export default function PostcardPage() {
+  return (
+    <Suspense fallback={null}>
+      <PostcardPageContent />
+    </Suspense>
   );
 }
