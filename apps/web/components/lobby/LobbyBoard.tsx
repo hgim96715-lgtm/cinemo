@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import {
-  ArrowDown,
-  ArrowUp,
-  Calendar,
-  LoaderCircle,
-  Minus,
-} from 'lucide-react';
+import { ArrowDown, ArrowUp, Calendar, Minus } from 'lucide-react';
 import type { LobbyBoardResponse } from '@cinemo/shared';
 import {
   getLobbyBoardRequest,
@@ -15,6 +9,9 @@ import {
 } from '@/lib/lobby-board-api';
 import { kstLobbyDateLabel } from '@/lib/date-kst';
 import { useAuthStore } from '@/lib/auth-store';
+import { tmdbPosterUrl } from '@/lib/tmdb-image';
+import Image from 'next/image';
+import { LobbyBoardSkeleton } from './LobbyBoardSkeleton';
 
 const chartNumberFormatter = new Intl.NumberFormat('ko-KR', {
   notation: 'compact',
@@ -37,6 +34,7 @@ type ChartMovie = {
   tmdbId: number;
   title: string;
   count: number;
+  posterPath?: string | null;
   rankChange?: number | null;
 };
 
@@ -72,59 +70,67 @@ function RankChange({ value }: { value?: number | null }) {
   );
 }
 
-function StatViz({
-  primary,
-  secondary,
-}: {
-  primary: string;
-  secondary: string;
-}) {
-  return (
-    <div className="lobby-chart-stat">
-      <p className="lobby-chart-stat-primary">{primary}</p>
-      <p className="lobby-chart-stat-secondary">{secondary}</p>
-    </div>
-  );
-}
 function WeekListViz({ movies }: { movies: ChartMovie[] }) {
-  const slots = [0, 1, 2].map((i) => movies[i] ?? null);
-  const max = Math.max(1, ...slots.map((movie) => movie?.count ?? 0));
+  const slots = [0, 1, 2].map((index) => movies[index] ?? null);
 
   return (
     <ul className="lobby-chart-list">
       {slots.map((movie, index) => (
         <li
           key={movie?.tmdbId ?? index}
-          className={`lobby-chart-row${movie ? '' : ' lobby-chart-row--empty'}${movie?.rankChange !== undefined ? ' lobby-chart-row--with-change' : ''}`}
+          className={`lobby-chart-row${movie ? '' : ' lobby-chart-row--empty'}`}
         >
-          <span className="lobby-chart-row-rank">{index + 1}</span>
+          <div className="lobby-chart-row-header">
+            <span className="lobby-chart-row-rank">{index + 1}</span>
+            <RankChange value={movie?.rankChange} />
+          </div>
 
-          <span className="lobby-chart-row-title">{movie?.title ?? '—'}</span>
+          <div className="lobby-chart-row-content">
+            {movie?.posterPath && tmdbPosterUrl(movie.posterPath, 'w185') ? (
+              <Image
+                className="lobby-chart-row-poster"
+                src={tmdbPosterUrl(movie.posterPath, 'w185')!}
+                alt={`${movie.title} 포스터`}
+                width={42}
+                height={62}
+                sizes="42px"
+                priority={index === 0}
+              />
+            ) : (
+              <span
+                className="lobby-chart-row-poster lobby-chart-row-poster--empty"
+                aria-hidden
+              />
+            )}
 
-          <span className="lobby-chart-row-bar" aria-hidden>
-            <i
-              style={{
-                width: movie
-                  ? `${Math.max(18, (movie.count / max) * 100)}%`
-                  : '0%',
-              }}
-            />
-          </span>
+            <span className="lobby-chart-row-info">
+              <span className="lobby-chart-row-title">
+                {movie?.title ?? '—'}
+              </span>
 
-          <span className="lobby-chart-row-count">
-            {movie ? formatChartCount(movie.count) : ''}
-          </span>
-
-          <RankChange value={movie?.rankChange} />
+              <span className="lobby-chart-row-count">
+                {movie ? `${formatChartCount(movie.count)}명` : ''}
+              </span>
+            </span>
+          </div>
         </li>
       ))}
     </ul>
   );
 }
 
-function ChartShell({ children }: { children: ReactNode }) {
+function ChartShell({
+  children,
+  label,
+}: {
+  children: ReactNode;
+  label: string;
+}) {
   return (
     <article className="lobby-chart">
+      <div className="lobby-chart-heading">
+        <span className="lobby-chart-label">{label}</span>
+      </div>
       <div className="lobby-chart-viz">{children}</div>
     </article>
   );
@@ -147,6 +153,7 @@ export function LobbyBoard() {
           tmdbId: movie.rank,
           title: movie.title,
           count: movie.audienceCount,
+          posterPath: movie.posterPath,
           rankChange: movie.rankChange,
         }))
       : boardMode === 'upcoming'
@@ -154,6 +161,7 @@ export function LobbyBoard() {
             tmdbId: movie.tmdbId,
             title: movie.title,
             count: movie.interestCount,
+            posterPath: movie.posterPath,
           }))
         : [];
   useEffect(() => {
@@ -225,50 +233,39 @@ export function LobbyBoard() {
       </p>
       {error ? <p className="lobby-board-date">{error}</p> : null}
       <div className="lobby-board" aria-label="전광판">
-        {loading ? (
-          <p className="lobby-board-loading" role="status">
-            <LoaderCircle
-              className="lobby-board-loading-icon"
-              size={22}
-              strokeWidth={1.6}
-              aria-hidden
-            />
-            <span>통계를 불러오는 중</span>
-          </p>
-        ) : (
-          <div className="lobby-board-slots">
-            <div className="lobby-board-tabs" role="tablist">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={boardMode === 'box-office'}
-                className={boardMode === 'box-office' ? 'is-active' : ''}
-                onClick={() => setBoardMode('box-office')}
-              >
-                BOX OFFICE NOW
-              </button>
+        <div className="lobby-board-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={boardMode === 'box-office'}
+            className={boardMode === 'box-office' ? 'is-active' : ''}
+            onClick={() => setBoardMode('box-office')}
+          >
+            BOX OFFICE NOW
+          </button>
 
-              <button
-                type="button"
-                role="tab"
-                aria-selected={boardMode === 'upcoming'}
-                className={boardMode === 'upcoming' ? 'is-active' : ''}
-                onClick={() => setBoardMode('upcoming')}
-              >
-                UPCOMING INTEREST
-              </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={boardMode === 'upcoming'}
+            className={boardMode === 'upcoming' ? 'is-active' : ''}
+            onClick={() => setBoardMode('upcoming')}
+          >
+            UPCOMING INTEREST
+          </button>
+        </div>
 
-            </div>
-
-            <ChartShell>
-              {chartMovies.length > 0 ? (
-                <WeekListViz movies={chartMovies} />
-              ) : (
-                <StatViz primary="—" secondary="아직 기록 없음" />
-              )}
-            </ChartShell>
-          </div>
-        )}
+        <div className="lobby-board-slots">
+          <ChartShell
+            label={boardMode === 'box-office' ? '누적 관객수' : '관심 등록수'}
+          >
+            {loading ? (
+              <LobbyBoardSkeleton />
+            ) : (
+              <WeekListViz movies={chartMovies} />
+            )}
+          </ChartShell>
+        </div>
       </div>
     </section>
   );

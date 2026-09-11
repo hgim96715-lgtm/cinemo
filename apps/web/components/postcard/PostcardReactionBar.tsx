@@ -5,7 +5,7 @@ import { Plus, X } from 'lucide-react';
 import type { PostcardReactionSummary } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
 import { togglePostcardReactionRequest } from '@/lib/postcard-api';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const DEFAULT_EMOJIS = ['❤️', '😊', '😭', '👏'];
 const ADDITIONAL_EMOJIS = [
@@ -32,6 +32,8 @@ export function PostcardReactionBar({
   onChange,
 }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
 
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
@@ -55,7 +57,8 @@ export function PostcardReactionBar({
 
   async function handleReaction(emoji: string) {
     if (!accessToken) {
-      const nextPath = `${window.location.pathname}${window.location.search}`;
+      const query = searchParams.toString();
+      const nextPath = query ? `${pathname}?${query}` : pathname;
       router.push(`/login?next=${encodeURIComponent(nextPath)}`);
       return;
     }

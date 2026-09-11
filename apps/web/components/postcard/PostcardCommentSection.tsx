@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronUp, Heart } from 'lucide-react';
 import type { PostcardCommentItem } from '@cinemo/shared';
 import { useAuthStore } from '@/lib/auth-store';
@@ -20,6 +20,8 @@ type Props = {
 
 export function PostcardCommentSection({ postcardId }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -610,7 +612,8 @@ export function PostcardCommentSection({ postcardId }: Props) {
         confirmLabel="로그인하기"
         cancelLabel="취소"
         onConfirm={() => {
-          const nextPath = `${window.location.pathname}${window.location.search}`;
+          const query = searchParams.toString();
+          const nextPath = query ? `${pathname}?${query}` : pathname;
           router.push(`/login?next=${encodeURIComponent(nextPath)}`);
           setLoginRequiredOpen(false);
         }}

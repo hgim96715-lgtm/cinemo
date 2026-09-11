@@ -25,6 +25,7 @@ import '../../styles/postcard-create-modal.css';
 import '../../styles/confirm-modal.css';
 import { PostcardCreateModal } from '@/components/postcard/PostcardCreateModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
 
 type Tab = 'mine' | 'bookmarked';
 
@@ -260,7 +261,7 @@ export default function MyPostcardPage() {
       </div>
 
       {loading ? (
-        <p className="postcard-empty">엽서를 불러오는 중...</p>
+        <PostcardListSkeleton />
       ) : error ? (
         <p className="postcard-empty">{error}</p>
       ) : postcards.length === 0 ? (

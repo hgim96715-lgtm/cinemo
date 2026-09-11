@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Heart, Sparkles } from 'lucide-react';
 import {
   getUpcomingMoviesRequest,
@@ -28,6 +28,7 @@ import { GachaMovie } from '@cinemo/shared';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { UpcomingMovieListSkeleton } from '@/components/upcoming/UpcomingMovieListSkeleton';
 
 type UpcomingPeriod = {
   key: string;
@@ -40,6 +41,7 @@ function getUpcomingPeriods(): UpcomingPeriod[] {
     year: 'numeric',
     month: 'numeric',
   }).formatToParts(new Date());
+
   const year = Number(parts.find((part) => part.type === 'year')?.value);
   const month = Number(parts.find((part) => part.type === 'month')?.value);
   const currentMonth = new Date(Date.UTC(year, month - 1, 1));
@@ -90,13 +92,15 @@ export default function UpcomingPage() {
     Record<number, boolean>
   >({});
 
+  const searchParams = useSearchParams();
+
   useEffect(() => {
-    const month = new URLSearchParams(window.location.search).get('month');
+    const month = searchParams.get('month');
 
     setSelectedPeriod(
       month && periods.some((period) => period.key === month) ? month : 'all',
     );
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -258,7 +262,7 @@ export default function UpcomingPage() {
   function handlePeriodChange(period: string) {
     setSelectedPeriod(period);
 
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
 
     if (period === 'all') {
       params.delete('month');
@@ -268,11 +272,7 @@ export default function UpcomingPage() {
 
     const query = params.toString();
 
-    window.history.replaceState(
-      null,
-      '',
-      query ? `/upcoming?${query}` : '/upcoming',
-    );
+    router.replace(query ? `/upcoming?${query}` : '/upcoming');
   }
 
   async function handleDetailClick(tmdbId: number) {
@@ -377,13 +377,13 @@ export default function UpcomingPage() {
           aria-label="앞으로 극장에서 만날 영화"
         >
           {loading ? (
-            <p>개봉 예정작을 불러오는 중이에요.</p>
+            <UpcomingMovieListSkeleton />
           ) : error ? (
             <p>{error}</p>
           ) : movies.length === 0 ? (
             <p>현재 개봉 예정작이 없어요.</p>
           ) : (
-            movies.map((movie) => {
+            movies.map((movie, index) => {
               const poster = tmdbPosterUrl(movie.posterPath, 'w185');
               const interested = interestedIds.includes(movie.tmdbId);
               const toggling = togglingInterestId === movie.tmdbId;
@@ -396,6 +396,7 @@ export default function UpcomingPage() {
                       alt={`${movie.title} 포스터`}
                       width={72}
                       height={108}
+                      priority={index === 0}
                     />
                   ) : null}
 
@@ -446,6 +447,7 @@ export default function UpcomingPage() {
               );
             })
           )}
+          {loadingMore ? <UpcomingMovieListSkeleton count={2} /> : null}
           {hasNext ? (
             <button
               type="button"

@@ -14,12 +14,15 @@ import '../styles/postcard.css';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { PostcardReactionBar } from '@/components/postcard/PostcardReactionBar';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Bookmark } from 'lucide-react';
 import { PostcardCommentSection } from '@/components/postcard/PostcardCommentSection';
+import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
 
 export default function PostcardPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
   const hydrated = useAuthStore((s) => s.hydrated);
 
@@ -110,13 +113,30 @@ export default function PostcardPage() {
   }
 
   function handleLoginConfirm() {
-    const nextPath = `${window.location.pathname}${window.location.search}`;
+    const query = searchParams.toString();
+    const nextPath = query ? `${pathname}?${query}` : pathname;
     router.push(`/login?next=${encodeURIComponent(nextPath)}`);
     setLoginRequiredOpen(false);
   }
 
   if (loading) {
-    return <main className="postcard-page">엽서를 불러오는 중...</main>;
+    return (
+      <main className="postcard-page postcard-public-page">
+        <CinemoNav
+          showRightLink={true}
+          rightHref="/my-cinema/postcard"
+          rightLabel="MY POSTCARD"
+          rightAriaLabel="MY POSTCARD로 이동"
+          rightOnClick={handleMyPostcardClick}
+        />
+        <header className="postcard-page-header">
+          <p className="postcard-page-eyebrow">CINEMO POSTCARD</p>
+          <h1>CINEMO 엽서</h1>
+          <p>영화에서 기억할 문장을 한 장의 엽서로 남겨보세요.</p>
+        </header>
+        <PostcardListSkeleton />
+      </main>
+    );
   }
 
   if (error) {

@@ -58,6 +58,101 @@
   box-shadow: inset 0 1px rgb(255 255 255 / 0.04);
 }
 
+.postcard-skeleton-grid {
+  pointer-events: none;
+}
+
+.postcard-skeleton-card {
+  min-height: 18rem;
+}
+
+.postcard-skeleton-poster,
+.postcard-skeleton-line,
+.postcard-skeleton-reactions span {
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0.05) 25%,
+    rgb(255 255 255 / 0.12) 50%,
+    rgb(255 255 255 / 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: postcard-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.postcard-skeleton-poster {
+  min-height: 18rem;
+}
+
+.postcard-skeleton-line {
+  display: block;
+  height: 0.8rem;
+  border-radius: 0.2rem;
+}
+
+.postcard-skeleton-movie {
+  width: 28%;
+  margin-bottom: 1.2rem;
+}
+
+.postcard-skeleton-title {
+  width: 72%;
+  height: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.postcard-skeleton-text {
+  width: 88%;
+  margin-bottom: 0.5rem;
+}
+
+.postcard-skeleton-text.short {
+  width: 62%;
+}
+
+.postcard-skeleton-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--postcard-line);
+}
+
+.postcard-skeleton-meta .postcard-skeleton-line {
+  width: 18%;
+}
+
+.postcard-skeleton-reactions {
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 1.2rem;
+}
+
+.postcard-skeleton-reactions span {
+  width: 4.8rem;
+  height: 2.4rem;
+  border: 1px solid var(--postcard-line);
+  border-radius: 999px;
+}
+
+@keyframes postcard-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard-skeleton-poster,
+  .postcard-skeleton-line,
+  .postcard-skeleton-reactions span {
+    animation: none;
+  }
+}
+
 .postcard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -718,6 +813,11 @@
     border-right: 0;
     border-bottom: 1px solid var(--postcard-line);
     background: #0d0f13;
+  }
+
+  .postcard-skeleton-poster {
+    min-height: 0;
+    height: 15rem;
   }
 
   .postcard-card-poster img {
