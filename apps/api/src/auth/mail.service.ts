@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { render } from '@react-email/render';
 import { Resend } from 'resend';
 import { PasswordResetEmail } from './emails/password-reset-email';
-import { EnvKeys } from '../config/env.keys';
 import { ReleaseNotificationEmail } from './emails/release-notification-email';
 
 @Injectable()
@@ -13,9 +12,9 @@ export class MailService {
 
   constructor(private readonly configService: ConfigService) {
     this.resend = new Resend(
-      this.configService.getOrThrow<string>(EnvKeys.RESEND_API_KEY),
+      this.configService.getOrThrow<string>('mail.resendApiKey'),
     );
-    this.from = configService.getOrThrow<string>(EnvKeys.RESEND_FROM);
+    this.from = configService.getOrThrow<string>('mail.resendFrom');
   }
   async sendPasswordResetEmail(input: {
     to: string;

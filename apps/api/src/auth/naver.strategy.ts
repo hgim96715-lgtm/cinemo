@@ -2,18 +2,17 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-naver-v2';
-import { EnvKeys } from '../config/env.keys';
 import type { SocialProfile } from './types/social-profile.type';
 
 @Injectable()
 export class NaverStrategy extends PassportStrategy(Strategy as any, 'naver') {
   constructor(configService: ConfigService) {
     super({
-      clientID: configService.getOrThrow<string>(EnvKeys.NAVER_CLIENT_ID),
+      clientID: configService.getOrThrow<string>('oauth.naver.clientId'),
       clientSecret: configService.getOrThrow<string>(
-        EnvKeys.NAVER_CLIENT_SECRET,
+        'oauth.naver.clientSecret',
       ),
-      callbackURL: configService.getOrThrow<string>(EnvKeys.NAVER_CALLBACK_URL),
+      callbackURL: configService.getOrThrow<string>('oauth.naver.callbackUrl'),
     });
   }
 

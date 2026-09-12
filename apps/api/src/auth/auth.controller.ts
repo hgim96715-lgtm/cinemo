@@ -21,7 +21,6 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ExchangeOAuthCodeDto } from './dto/exchange-oauth-code.dto';
 import { AuthGuard } from '@nestjs/passport';
 import type { SocialProfile } from './types/social-profile.type';
-import { EnvKeys } from '../config/env.keys';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -75,9 +74,8 @@ export class AuthController {
     const user = await this.authService.loginWithSocial(profile);
     const code = await this.authService.createOAuthLoginCode(user.id);
 
-    const frontendUrl = this.configService.getOrThrow<string>(
-      EnvKeys.FRONTEND_URL,
-    );
+    const frontendUrl =
+      this.configService.getOrThrow<string>('auth.frontendUrl');
 
     const callbackUrl = new URL('/auth/callback', frontendUrl);
     callbackUrl.searchParams.set('code', code);
@@ -108,9 +106,8 @@ export class AuthController {
     const user = await this.authService.loginWithSocial(profile);
     const code = await this.authService.createOAuthLoginCode(user.id);
 
-    const frontendUrl = this.configService.getOrThrow<string>(
-      EnvKeys.FRONTEND_URL,
-    );
+    const frontendUrl =
+      this.configService.getOrThrow<string>('auth.frontendUrl');
 
     const callbackUrl = new URL('/auth/callback', frontendUrl);
     callbackUrl.searchParams.set('code', code);
@@ -135,9 +132,8 @@ export class AuthController {
     const user = await this.authService.loginWithSocial(profile);
     const code = await this.authService.createOAuthLoginCode(user.id);
 
-    const frontendUrl = this.configService.getOrThrow<string>(
-      EnvKeys.FRONTEND_URL,
-    );
+    const frontendUrl =
+      this.configService.getOrThrow<string>('auth.frontendUrl');
 
     const callbackUrl = new URL('/auth/callback', frontendUrl);
     callbackUrl.searchParams.set('code', code);
@@ -148,9 +144,8 @@ export class AuthController {
   @Public()
   @Post('password-reset/request')
   requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
-    const frontendUrl = this.configService.getOrThrow<string>(
-      EnvKeys.FRONTEND_URL,
-    );
+    const frontendUrl =
+      this.configService.getOrThrow<string>('auth.frontendUrl');
 
     return this.authService.requestPasswordReset(dto, frontendUrl);
   }

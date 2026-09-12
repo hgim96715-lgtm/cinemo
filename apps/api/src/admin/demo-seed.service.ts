@@ -1,4 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +7,7 @@ import { GACHA_MACHINES } from '@cinemo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminService } from './admin.service';
 import { kstDateKey, kstDayRange, toKstDate } from '../lib/date-kst';
+import { clamp } from '../lib/clamp';
 
 type DemoPersonas = {
   nicknames: string[];
@@ -80,6 +82,7 @@ export class DemoSeedService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly adminService: AdminService,
+    private readonly configService: ConfigService,
   ) {}
 
   async seedRecentDays(days: number, now = new Date()) {
@@ -89,7 +92,7 @@ export class DemoSeedService {
     this.running = true;
 
     try {
-      const count = Math.min(Math.max(Math.trunc(days), 1), 7);
+      const count = clamp(Math.trunc(days), 1, 7);
       const todayKey = kstDateKey(now);
       const dates = Array.from({ length: count }, (_, index) =>
         this.shiftDateKey(todayKey, index - count + 1),
@@ -580,7 +583,7 @@ export class DemoSeedService {
 
   private async getPasswordHash(): Promise<string> {
     if (this.passwordHash) return this.passwordHash;
-    const password = process.env.DEMO_SEED_PASSWORD;
+    const password = this.configService.get<string>('demo.password');
     if (!password || password.length < 8) {
       throw new Error('DEMO_SEED_PASSWORD가 8자 이상 필요합니다.');
     }

@@ -6,7 +6,6 @@ import type {
   MovieQuoteSuggestion,
   RecommendMovieQuotesInput,
 } from './ai.interface';
-import { EnvKeys } from '../config/env.keys';
 
 const movieQuoteSchema = {
   type: 'object',
@@ -55,10 +54,9 @@ export class OpenAiService implements IAiProvider {
 
   constructor(private readonly configService: ConfigService) {
     this.openai = new OpenAI({
-      apiKey: this.configService.getOrThrow<string>(EnvKeys.OPENAI_KEY),
+      apiKey: this.configService.getOrThrow<string>('ai.openaiKey'),
     });
-    this.model =
-      this.configService.get<string>(EnvKeys.OPENAI_MODEL) ?? 'gpt-5-mini';
+    this.model = this.configService.getOrThrow<string>('ai.openaiModel');
   }
   private getOutputText(response: { output_text?: string }): string | null {
     const text = response.output_text?.trim();

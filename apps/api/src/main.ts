@@ -12,7 +12,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const port = configService.get<number>(EnvKeys.PORT) ?? 3050;
-  const frontendUrl = configService.get<string>(EnvKeys.FRONTEND_URL);
+  const frontendUrl = configService.getOrThrow<string>('auth.frontendUrl');
   const frontendOrigin = frontendUrl ? new URL(frontendUrl).origin : undefined;
 
   app.enableCors({

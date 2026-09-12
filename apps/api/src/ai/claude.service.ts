@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Anthropic from '@anthropic-ai/sdk';
-import { EnvKeys } from '../config/env.keys';
 import type {
   IAiProvider,
   MovieQuoteSuggestion,
@@ -71,11 +70,9 @@ export class ClaudeService implements IAiProvider {
 
   constructor(private readonly configService: ConfigService) {
     this.claudeClient = new Anthropic({
-      apiKey: this.configService.getOrThrow(EnvKeys.CLAUDE_KEY),
+      apiKey: this.configService.getOrThrow<string>('ai.claudeKey'),
     });
-    this.model =
-      this.configService.get<string>(EnvKeys.CLAUDE_MODEL) ??
-      'claude-haiku-4-5';
+    this.model = this.configService.getOrThrow<string>('ai.claudeModel');
   }
 
   async translateOverview(

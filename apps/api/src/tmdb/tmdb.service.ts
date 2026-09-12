@@ -5,7 +5,6 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EnvKeys } from '../config/env.keys';
 import { PrismaService } from '../prisma/prisma.service';
 import type { MoviePool } from '../generated/prisma/client';
 import {
@@ -63,8 +62,8 @@ export class TmdbService {
     path: string,
     query: Record<string, string> = {},
   ): Promise<T> {
-    const baseUrl = this.configService.getOrThrow(EnvKeys.TMDB_BASE_URL);
-    const token = this.configService.getOrThrow(EnvKeys.TMDB_ACCESS_TOKEN);
+    const baseUrl = this.configService.getOrThrow<string>('tmdb.baseUrl');
+    const token = this.configService.getOrThrow<string>('tmdb.accessToken');
     const url = new URL(`${baseUrl}${path}`);
     for (const [key, value] of Object.entries(query)) {
       url.searchParams.set(key, value);
@@ -185,10 +184,10 @@ export class TmdbService {
   ): Promise<{ title: string; overview: string; director: string | null }> {
     const needsOverview = this.isInsufficientOverview(overview);
     const needsTitle =
-      !/[\uAC00-\uD7AF]/.test(title) && /[^\u0020-\u007E]/.test(title);
+      !/\p{Script=Hangul}/u.test(title) && /[^\u0020-\u007E]/.test(title);
     const needsDirector =
       !!director &&
-      !/[\uAC00-\uD7AF]/.test(director) &&
+      !/\p{Script=Hangul}/u.test(director) &&
       /[^\u0020-\u007E]/.test(director);
     if (!needsOverview && !needsTitle && !needsDirector)
       return { title, overview, director };

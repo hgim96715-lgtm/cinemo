@@ -1,6 +1,5 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EnvKeys } from '../config/env.keys';
 
 type KakaoPlaceDocument = {
   id: string;
@@ -38,7 +37,7 @@ export class PlacesService {
       return [];
     }
 
-    const apiKey = this.configService.get<string>(EnvKeys.KAKAO_REST_API_KEY);
+    const apiKey = this.configService.get<string>('oauth.kakao.restApiKey');
 
     if (!apiKey) {
       throw new ServiceUnavailableException(

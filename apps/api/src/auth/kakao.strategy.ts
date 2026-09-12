@@ -2,17 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-kakao';
-import { EnvKeys } from '../config/env.keys';
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor(configService: ConfigService) {
     super({
-      clientID: configService.getOrThrow<string>(EnvKeys.KAKAO_REST_API_KEY),
-      clientSecret: configService.get<string>(
-        EnvKeys.KAKAO_OAUTH_CLIENT_SECRET,
-      ),
-      callbackURL: configService.getOrThrow<string>(EnvKeys.KAKAO_CALLBACK_URL),
+      clientID: configService.getOrThrow<string>('oauth.kakao.restApiKey'),
+      clientSecret: configService.get<string>('oauth.kakao.clientSecret'),
+      callbackURL: configService.getOrThrow<string>('oauth.kakao.callbackUrl'),
     });
   }
 

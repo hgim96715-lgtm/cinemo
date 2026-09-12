@@ -3,6 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { envValidationSchema } from './config/env.validation';
+import aiConfig from './config/ai.config';
+import authConfig from './config/auth.config';
+import databaseConfig from './config/database.config';
+import demoConfig from './config/demo.config';
+import mailConfig from './config/mail.config';
+import oauthConfig from './config/oauth.config';
+import tmdbConfig from './config/tmdb.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
@@ -25,6 +32,15 @@ import { PostcardModule } from './postcard/postcard.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [
+        databaseConfig,
+        authConfig,
+        tmdbConfig,
+        aiConfig,
+        oauthConfig,
+        mailConfig,
+        demoConfig,
+      ],
       validationSchema: envValidationSchema,
       validationOptions: { convert: true },
     }),
