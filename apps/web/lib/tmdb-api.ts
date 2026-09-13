@@ -3,7 +3,7 @@ import type {
   MoviePoolSeedRun,
   MovieWithTags,
 } from '@cinemo/shared';
-import { apiFetch } from './api';
+import { apiFetch } from './api-fetch';
 import { normalizeSearchQuery } from './search-query';
 
 export type TmdbSearchResponse = {

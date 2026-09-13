@@ -1,7 +1,7 @@
 // apps/web/lib/postcard-api.ts
 
 import type { PostcardCommentItem, PostcardItem } from '@cinemo/shared';
-import { apiFetch } from './api';
+import { apiFetch } from './api-fetch';
 
 export type PostcardSummary = Pick<
   PostcardItem,

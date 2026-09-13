@@ -4,7 +4,7 @@ import type {
   AdminPeople,
   AdminPeopleFeed,
 } from '@cinemo/shared';
-import { apiFetch } from './api';
+import { apiFetch } from './api-fetch';
 
 export function getAdminOverviewRequest(token: string) {
   return apiFetch<AdminOverview>('/admin/overview', { token });

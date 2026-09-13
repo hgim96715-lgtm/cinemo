@@ -3,7 +3,7 @@ import type {
   TodayTicket,
   UseTicketResult,
 } from '@cinemo/shared';
-import { apiFetch } from './api';
+import { apiFetch } from './api-fetch';
 
 export function getTodayTicketRequest(token: string) {
   return apiFetch<TodayTicket>('/tickets/today', { token });

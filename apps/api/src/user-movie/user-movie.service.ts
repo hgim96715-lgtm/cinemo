@@ -16,6 +16,7 @@ import {
 } from '../lib/date-kst';
 import { UpdateViewingDetailsDto } from './dto/update-viewing-details.dto';
 import { UpdateReleaseNotificationDto } from './dto/update-release-notification.dto';
+import { clamp } from '../lib/clamp';
 
 type UserMovieListFilters = {
   search?: string;
@@ -183,7 +184,7 @@ export class UserMovieService {
     limit = 24,
     filters: UserMovieListFilters = {},
   ) {
-    const take = Math.min(Math.max(limit, 1), 48);
+    const take = clamp(limit, 1, 48);
     const safePage = Math.max(page, 1);
     const skip = (safePage - 1) * take;
     const search = filters.search?.trim().toLocaleLowerCase();
