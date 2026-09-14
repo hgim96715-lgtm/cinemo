@@ -1,35 +1,43 @@
 .movie-chart-page {
-  width: min(calc(100% - 2rem), 68rem);
+  width: min(calc(100% - 2rem), 72rem);
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 2rem 0 5rem;
+  padding: clamp(2.5rem, 7vw, 5.5rem) clamp(1.1rem, 5vw, 4rem) 4rem;
   color: var(--cinemo-fg);
+  font-family: var(--font-ui), sans-serif;
 }
 
 .movie-chart-header {
-  margin: 0 auto 2.4rem;
+  width: min(100%, 72rem);
+  margin: 0 auto clamp(2rem, 5vw, 3.75rem);
   text-align: center;
 }
 
 .movie-chart-kicker {
+  display: block;
+  margin: 0 0 0.75rem;
   color: var(--cinemo-gold);
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
 }
 
 .movie-chart-header h1 {
-  margin: 0.8rem 0 0.55rem;
+  margin: 0;
   color: var(--cinemo-fg);
-  font-family: var(--cinemo-display-font, inherit);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display-kr), serif;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
 }
 
 .movie-chart-header p {
-  margin: 0;
+  margin: 1rem 0 0;
   color: var(--cinemo-muted);
-  font-size: 0.86rem;
+  font-size: 0.92rem;
+  letter-spacing: -0.02em;
 }
 
 .movie-chart-page > p {
@@ -139,19 +147,19 @@
 @media (max-width: 40rem) {
   .movie-chart-page {
     width: min(calc(100% - 1.25rem), 58rem);
-    padding-top: 1.25rem;
+    padding-top: 2.25rem;
   }
 
   .movie-chart-header {
-    margin-bottom: 1.8rem;
+    margin-bottom: 2rem;
   }
 
   .movie-chart-header h1 {
-    font-size: 1.65rem;
+    font-size: 2rem;
   }
 
   .movie-chart-header p {
-    font-size: 0.78rem;
+    font-size: 0.86rem;
   }
 
   .movie-chart-item {

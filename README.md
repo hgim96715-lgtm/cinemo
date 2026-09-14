@@ -5,9 +5,9 @@ Cinema in Motion — 영화가 움직이고, 사람들이 움직이고, 이야�
 
 Cinema는 그리스어 *kínēma*(κίνημα, 움직임)에서 온 말.  
 Movie가 “한 편의 영상”에 가깝다면, Cinema는 영화라는 매체·공간·문화 쪽 뉘앙스.  
-로비 → 뽑기 → 후기 → 명대사처럼 **사람이 움직이며 이야기가 이어지는** 구조라서 이 이름을 씀.
+로비 → 뽑기 → 후기 → 명대사처럼 **사람이 움직이며 이야기가 이어지는** 구조라서 이 이름을 채택했습니다.
 
-NestJS + Next.js 모노레포. 현재는 웹 서비스에 집중하고 있다.
+NestJS + Next.js 모노레포.
 
 ## 배포
 
@@ -19,7 +19,7 @@ NestJS + Next.js 모노레포. 현재는 웹 서비스에 집중하고 있다.
 
 로비 → 박스오피스·관심 순위·MOVIE CHART 확인 → 하루 티켓 → 영화 뽑기 → MY CINEMA 관람 기록 → 명대사·엽서
 
-관리자는 `/admin`에서 통계·시드·로비 가이드를 관리한다.
+관리자는 `/admin`에서 통계·시드·로비 가이드를 관리합니다.
 
 ## 구조
 
@@ -39,22 +39,24 @@ pnpm dev:api   # http://localhost:3050
 pnpm dev:web   # http://localhost:3051
 ```
 
-Swagger UI: http://localhost:3050/api
+Swagger UI: [http://localhost:3050/api](http://localhost:3050/api)
 
 공유 패키지:
 
 - `@cinemo/shared`: API와 Web이 함께 사용하는 순수 도메인 타입·상수·유틸
 - `@cinemo/api-contract`: OpenAPI에서 생성한 HTTP 요청·응답 계약 타입
 
-`MOVIE CHART`는 KOBIS 현재 박스오피스와 TMDB 영화 정보를 조합한다.
-과거 월별·주별 흐름은 `MovieChartSnapshot`을 매일 저장한 뒤 확장할 예정.
+`MOVIE CHART`는 KOBIS 현재 박스오피스와 TMDB 영화 정보를 조합
+
+과거 월별·주별 흐름은 `MovieChartSnapshot`을 매일 저장한 뒤 확장할 예정 입니다.
 
 
-| | 포트 |
-|--|--|
-| API | 3050 |
-| Web | 3051 |
+|          | 포트   |
+| -------- | ---- |
+| API      | 3050 |
+| Web      | 3051 |
 | Postgres | 5445 |
+
 
 ```bash
 docker compose up -d   # Postgres
