@@ -6,6 +6,7 @@ import type { UserMovieCalendarItem, UserMovieCalendar } from '@cinemo/shared';
 import { getUserMovieCalendarRequest } from '@/lib/user-movie-api';
 import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { kstDateKey, kstYearMonth } from '@/lib/date-kst';
 
 type Props = {
   token: string;
@@ -34,21 +35,9 @@ function getDateKey(year: number, month: number, day: number) {
   )}`;
 }
 
-function getKstYearMonth(date = new Date()) {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: 'numeric',
-  }).formatToParts(date);
-  return {
-    year: Number(parts.find((part) => part.type === 'year')?.value),
-    month: Number(parts.find((part) => part.type === 'month')?.value),
-  };
-}
-
 function moveKstMonth(year: number, month: number, amount: number) {
   const movedDate = new Date(Date.UTC(year, month - 1 + amount, 1, 12));
-  return getKstYearMonth(movedDate);
+  return kstYearMonth(movedDate);
 }
 
 type CalendarPeriodSelectProps = {
@@ -126,7 +115,7 @@ function CalendarPeriodSelect({
   );
 }
 
-const initialKstMonth = getKstYearMonth();
+const initialKstMonth = kstYearMonth();
 
 export function MovieCalendarModal({
   token,
@@ -159,7 +148,7 @@ export function MovieCalendarModal({
   const selectedMovies = selectedDate
     ? (moviesByDate.get(selectedDate) ?? [])
     : [];
-  const currentKstYear = getKstYearMonth().year;
+  const currentKstYear = kstYearMonth().year;
   const yearOptions = Array.from(
     { length: currentKstYear - 1999 },
     (_, index) => currentKstYear - index,
@@ -274,7 +263,7 @@ export function MovieCalendarModal({
             type="button"
             className="movie-calendar-today"
             onClick={() => {
-              const current = getKstYearMonth();
+              const current = kstYearMonth();
               changeCalendarPeriod(current.year, current.month);
             }}
           >
@@ -307,9 +296,7 @@ export function MovieCalendarModal({
             const dayMovies = moviesByDate.get(dateKey) ?? [];
             const selected = selectedDate === dateKey;
 
-            const todayDateKey = new Intl.DateTimeFormat('sv-SE', {
-              timeZone: 'Asia/Seoul',
-            }).format(new Date());
+            const todayDateKey = kstDateKey();
 
             const canAddMovie = dateKey <= todayDateKey;
 

@@ -28,6 +28,7 @@ import { PostcardCreateModal } from '@/components/postcard/PostcardCreateModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { formatKstDate } from '@/lib/date-kst';
 
 type Tab = 'mine' | 'bookmarked';
 
@@ -305,7 +306,7 @@ export default function MyPostcardPage() {
 
                 <div className="postcard-card-meta">
                   <span>
-                    {new Date(postcard.createdAt).toLocaleDateString('ko-KR')}
+                    {formatKstDate(postcard.createdAt)}
                   </span>
 
                   {activeTab === 'mine' ? (

@@ -7,22 +7,10 @@ import {
   getAdminPeopleRequest,
 } from '@/lib/admin-api';
 import { useAuthStore } from '@/lib/auth-store';
+import { formatKstDayTime } from '@/lib/date-kst';
 
 function kstStamp(iso: string) {
-  const date = new Date(iso);
-  const day = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul',
-  })
-    .format(date)
-    .slice(5)
-    .replace('-', '/');
-  const time = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Seoul',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(date);
-  return `${day} ${time}`;
+  return formatKstDayTime(iso);
 }
 
 export default function AdminUsersPage() {

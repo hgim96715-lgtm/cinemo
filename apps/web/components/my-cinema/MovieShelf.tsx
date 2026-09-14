@@ -5,12 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import {
-  CalendarDays,
-  ChevronDown,
-  MapPin,
-  Search,
-} from 'lucide-react';
+import { CalendarDays, ChevronDown, MapPin, Search } from 'lucide-react';
 import {
   type UserMovieKind,
   type UserMovieListItem,
@@ -24,6 +19,7 @@ import {
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { MovieDetailModal } from './MovieDetailModal';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { formatKstDateDots, kstYear } from '@/lib/date-kst';
 
 const PAGE_SIZE = 24;
 
@@ -146,14 +142,7 @@ export function MovieShelf({ kind, title }: Props) {
 
   function formatWatchedAt(value: string | null) {
     if (!value) return null;
-    return new Intl.DateTimeFormat('sv-SE', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-      .format(new Date(value))
-      .replaceAll('-', '.');
+    return formatKstDateDots(value);
   }
 
   const seedMarks = useCallback(
@@ -379,12 +368,7 @@ export function MovieShelf({ kind, title }: Props) {
         ? '찜한 영화가 없어요.'
         : '본 작품이 없어요.';
 
-  const currentKstYear = Number(
-    new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-    }).format(new Date()),
-  );
+  const currentKstYear = kstYear();
   const yearOptions: MovieShelfFilterOption[] = [
     { value: '', label: '전체 연도' },
     ...Array.from(
@@ -589,7 +573,6 @@ export function MovieShelf({ kind, title }: Props) {
         />
         {loadingMore ? <p className="my-cinema-copy">더 불러오는 중…</p> : null}
       </div>
-
     </main>
   );
 }

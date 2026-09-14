@@ -4,6 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Check, CircleAlert, X } from 'lucide-react';
 import type { MoviePoolSeedRun } from '@cinemo/shared';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { formatKstDateTime } from '@/lib/date-kst';
 
 type Props = {
   run: MoviePoolSeedRun;
@@ -16,13 +17,6 @@ const STATUS_LABEL = {
   partial: '부분 성공',
   failed: '실패',
 } as const;
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('ko-KR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 export function AdminSeedRunModal({ run, onClose }: Props) {
   const { handleOpenAutoFocus, handleCloseAutoFocus } =
@@ -71,7 +65,7 @@ export function AdminSeedRunModal({ run, onClose }: Props) {
         <p className="admin-seed-modal-meta">
           {run.trigger === 'cron' ? '새벽 자동 실행' : '관리자 수동 실행'}
           {' · '}
-          {formatDate(run.startedAt)}
+          {formatKstDateTime(run.startedAt)}
         </p>
 
         <dl className="admin-seed-stats">

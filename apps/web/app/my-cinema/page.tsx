@@ -43,6 +43,12 @@ import {
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { PosterPickerModal } from '@/components/my-cinema/PosterPickerModal';
 import { MovieCalendarModal } from '@/components/my-cinema/MovieCalendarModal';
+import {
+  formatKstDateKey,
+  formatKstMonthDay,
+  kstDateKey,
+  kstYear,
+} from '@/lib/date-kst';
 import { WatchedDateEditModal } from '@/components/my-cinema/WatchedDateEditModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { MovieStatsPanel } from '@/components/my-cinema/MovieStatsPanel';
@@ -123,15 +129,7 @@ export default function MyCinemaPage() {
 
         if (!cancelled) {
           setLatestScreeningDay(
-            watchedAt
-              ? new Intl.DateTimeFormat('en-CA', {
-                  timeZone: 'Asia/Seoul',
-                  month: '2-digit',
-                  day: '2-digit',
-                })
-                  .format(new Date(watchedAt))
-                  .replace('-', '.')
-              : null,
+            watchedAt ? formatKstMonthDay(watchedAt) : null,
           );
         }
       } catch {
@@ -222,25 +220,9 @@ export default function MyCinemaPage() {
     );
   }
 
-  const todayLabel = new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long',
-  }).format(new Date());
-  const todayShortLabel = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul',
-    month: '2-digit',
-    day: '2-digit',
-  })
-    .format(new Date())
-    .replace('-', '.');
-  const currentKstYear = Number(
-    new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-    }).format(new Date()),
-  );
+  const todayLabel = formatKstDateKey(kstDateKey());
+  const todayShortLabel = formatKstMonthDay(new Date());
+  const currentKstYear = kstYear();
   const showLatestScreeningDay =
     latestScreeningDay && latestScreeningDay !== todayShortLabel;
   function openPosterPicker(wallSlot: number) {

@@ -13,6 +13,7 @@ import {
   togglePostcardCommentReactionRequest,
   updatePostcardCommentRequest,
 } from '@/lib/postcard-api';
+import { formatKstDate } from '@/lib/date-kst';
 
 type Props = {
   postcardId: string;
@@ -336,7 +337,7 @@ export function PostcardCommentSection({ postcardId }: Props) {
                   <div className="postcard-comment-meta">
                     <strong>{comment.user.nickname}</strong>
                     <time dateTime={comment.createdAt}>
-                      {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+                      {formatKstDate(comment.createdAt)}
                     </time>
                   </div>
 

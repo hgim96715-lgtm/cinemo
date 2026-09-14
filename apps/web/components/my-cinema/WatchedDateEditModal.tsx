@@ -4,6 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { kstDateKey } from '@/lib/date-kst';
 
 type Props = {
   initialDate: string;
@@ -11,12 +12,6 @@ type Props = {
   onClose: () => void;
   onSave: (watchedAt: string) => void;
 };
-
-function getKstTodayDate() {
-  return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Asia/Seoul',
-  }).format(new Date());
-}
 
 export function WatchedDateEditModal({
   initialDate,
@@ -68,7 +63,7 @@ export function WatchedDateEditModal({
           id="watched-date-input"
           type="date"
           value={watchedAt}
-          max={getKstTodayDate()}
+              max={kstDateKey()}
           onChange={(event) => setWatchedAt(event.target.value)}
           disabled={isPending}
         />

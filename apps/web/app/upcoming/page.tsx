@@ -32,6 +32,7 @@ import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { MovieDetailModalSkeleton } from '@/components/my-cinema/MovieDetailModalSkeleton';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { UpcomingMovieListSkeleton } from '@/components/upcoming/UpcomingMovieListSkeleton';
+import { kstDateKey, kstYearMonth } from '@/lib/date-kst';
 
 type UpcomingPeriod = {
   key: string;
@@ -39,14 +40,7 @@ type UpcomingPeriod = {
 };
 
 function getUpcomingPeriods(): UpcomingPeriod[] {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: 'numeric',
-  }).formatToParts(new Date());
-
-  const year = Number(parts.find((part) => part.type === 'year')?.value);
-  const month = Number(parts.find((part) => part.type === 'month')?.value);
+  const { year, month } = kstYearMonth();
   const currentMonth = new Date(Date.UTC(year, month - 1, 1));
 
   const monthPeriods = [0, 1, 2, 3].map((offset) => {
@@ -234,29 +228,14 @@ function UpcomingPageContent() {
   }
 
   function isTodayKst(releaseDate: string) {
-    const today = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Seoul',
-    }).format(new Date());
-
-    return releaseDate === today;
+    return releaseDate === kstDateKey();
   }
 
   function formatReleaseDate(releaseDate: string) {
     const [year, month, day] = releaseDate.split('-');
     if (!year || !month || !day) return '개봉일 미정';
 
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).formatToParts(new Date());
-
-    const today = [
-      parts.find((part) => part.type === 'year')?.value,
-      parts.find((part) => part.type === 'month')?.value,
-      parts.find((part) => part.type === 'day')?.value,
-    ].join('-');
+    const today = kstDateKey();
 
     if (releaseDate === today) return '오늘 개봉';
 

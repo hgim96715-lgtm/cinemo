@@ -20,6 +20,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Bookmark } from 'lucide-react';
 import { PostcardCommentSection } from '@/components/postcard/PostcardCommentSection';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
+import { formatKstDate } from '@/lib/date-kst';
 
 export function PostcardPageContent() {
   const router = useRouter();
@@ -198,7 +199,7 @@ export function PostcardPageContent() {
 
                   <div className="postcard-card-meta">
                     <span>
-                      {new Date(postcard.createdAt).toLocaleDateString('ko-KR')}
+                      {formatKstDate(postcard.createdAt)}
                     </span>
                     <span className="postcard-card-meta-author">
                       <span>by {postcard.nickname}</span>

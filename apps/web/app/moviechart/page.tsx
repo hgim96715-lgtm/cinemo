@@ -12,16 +12,10 @@ import {
 } from '@/lib/lobby-board-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { formatAudienceCount } from '@/lib/format-audience';
+import { formatKstLongDate } from '@/lib/date-kst';
 import '../styles/common.css';
 import '../styles/moviechart.css';
 import '../styles/moviechart-modal.css';
-
-function formatTargetDate(date: string) {
-  return new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul',
-    dateStyle: 'long',
-  }).format(new Date(`${date}T00:00:00+09:00`));
-}
 
 function RankChange({ value }: { value: number | null }) {
   if (value === null) {
@@ -114,7 +108,7 @@ export default function MovieChartPage() {
           <span aria-hidden="true">·</span>
           <span>누적 관객 수 · 순위 변동</span>
           {targetDate ? (
-            <span>기준일 {formatTargetDate(targetDate)}</span>
+            <span>기준일 {formatKstLongDate(targetDate)}</span>
           ) : null}
         </div>
       </header>
