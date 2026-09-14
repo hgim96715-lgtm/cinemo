@@ -1,5 +1,5 @@
 import type { LobbyBoardResponse } from '@cinemo/shared';
-import { apiFetch } from './api';
+import { apiFetch } from './api-fetch';
 
 export function getLobbyBoardRequest() {
   return apiFetch<LobbyBoardResponse>('/lobby/board');
