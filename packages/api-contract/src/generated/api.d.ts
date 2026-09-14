@@ -1347,6 +1347,11 @@ export interface components {
         };
         MovieChartResponseDto: {
             items: components["schemas"]["MovieChartItemDto"][];
+            /**
+             * @description KOBIS 박스오피스 기준일
+             * @example 2026-09-13
+             */
+            targetDate: string;
             /** @example 10 */
             total: number;
         };

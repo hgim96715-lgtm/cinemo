@@ -40,6 +40,22 @@
   letter-spacing: -0.02em;
 }
 
+.movie-chart-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.15rem;
+  color: var(--cinemo-muted);
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+}
+
+.movie-chart-meta span[aria-hidden='true'] {
+  color: rgb(212 181 106 / 0.55);
+}
+
 .movie-chart-page > p {
   width: min(100%, 58rem);
   margin: 2rem auto;
@@ -57,6 +73,73 @@
   border-bottom: 1px solid rgb(212 181 106 / 0.2);
   list-style: none;
   background: rgb(23 23 26 / 0.42);
+}
+
+.movie-chart-list-skeleton {
+  pointer-events: none;
+}
+
+.movie-chart-item--skeleton {
+  background: rgb(23 23 26 / 0.24);
+}
+
+.movie-chart-skeleton {
+  display: block;
+  border-radius: 0.3rem;
+  background: linear-gradient(
+    100deg,
+    rgb(243 239 230 / 0.05) 20%,
+    rgb(243 239 230 / 0.13) 45%,
+    rgb(243 239 230 / 0.05) 70%
+  );
+  background-size: 220% 100%;
+  animation: movie-chart-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.movie-chart-skeleton-rank {
+  width: 1.25rem;
+  height: 1.5rem;
+  justify-self: center;
+}
+
+.movie-chart-skeleton-poster {
+  width: 6rem;
+  height: 9rem;
+  border-radius: 0.45rem;
+}
+
+.movie-chart-skeleton-title {
+  width: min(70%, 14rem);
+  height: 1.35rem;
+  margin-bottom: 1rem;
+}
+
+.movie-chart-skeleton-stat {
+  width: 5.5rem;
+  height: 2.15rem;
+}
+
+.movie-chart-skeleton-change {
+  width: 4.5rem;
+  height: 0.9rem;
+  margin-top: 0.8rem;
+}
+
+.movie-chart-skeleton-button {
+  width: 4.5rem;
+  height: 1.8rem;
+  margin-top: 0.85rem;
+  border-radius: 999px;
+}
+
+@keyframes movie-chart-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
 }
 
 .movie-chart-item {
@@ -111,6 +194,45 @@
   margin: 0.35rem 0;
   color: var(--cinemo-muted);
   font-size: 0.82rem;
+}
+
+.movie-chart-audience {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.movie-chart-audience div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.movie-chart-audience span,
+.movie-chart-rank-change > span:first-child {
+  color: var(--cinemo-muted);
+  font-size: 0.68rem;
+}
+
+.movie-chart-audience-label-mobile {
+  display: none;
+}
+
+.movie-chart-audience strong {
+  overflow: hidden;
+  color: var(--cinemo-fg);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movie-chart-rank-change {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
 }
 
 .movie-chart-up,
@@ -180,6 +302,11 @@
     height: 6.75rem;
   }
 
+  .movie-chart-skeleton-poster {
+    width: 4.5rem;
+    height: 6.75rem;
+  }
+
   .movie-chart-info h2 {
     margin-bottom: 0.65rem;
     font-size: 0.94rem;
@@ -187,6 +314,51 @@
 
   .movie-chart-info p {
     font-size: 0.7rem;
+  }
+
+  .movie-chart-audience {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .movie-chart-audience div {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .movie-chart-audience span,
+  .movie-chart-audience strong,
+  .movie-chart-rank-change > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .movie-chart-audience span,
+  .movie-chart-rank-change > span:first-child {
+    font-size: 0.62rem;
+  }
+
+  .movie-chart-audience-label {
+    display: none;
+  }
+
+  .movie-chart-audience-label-mobile {
+    display: inline;
+  }
+
+  .movie-chart-audience strong {
+    max-width: 72%;
+    font-size: 0.7rem;
+    text-align: right;
+  }
+
+  .movie-chart-rank-change {
+    gap: 0.35rem;
+    margin-top: 0.85rem;
+    white-space: nowrap;
   }
 
   .movie-chart-up,

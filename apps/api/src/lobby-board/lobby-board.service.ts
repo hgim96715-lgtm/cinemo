@@ -310,8 +310,15 @@ export class LobbyBoardService {
 
   async getMovieChart() {
     const movies = await this.getBoxOfficeMovies();
+    const targetDt = this.boxOfficeCache?.targetDt;
+
+    const targetDate = targetDt
+      ? `${targetDt.slice(0, 4)}-${targetDt.slice(4, 6)}-${targetDt.slice(6, 8)}`
+      : kstDateKey(new Date(Date.now() - 24 * 60 * 60 * 1000));
+
     return {
       items: movies,
+      targetDate,
       total: movies.length,
     };
   }

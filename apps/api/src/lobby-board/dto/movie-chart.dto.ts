@@ -45,6 +45,12 @@ export class MovieChartResponseDto {
   @ApiProperty({ type: [MovieChartItemDto] })
   items!: MovieChartItemDto[];
 
+  @ApiProperty({
+    example: '2026-09-13',
+    description: 'KOBIS 박스오피스 기준일',
+  })
+  targetDate!: string;
+
   @ApiProperty({ example: 10 })
   total!: number;
 }

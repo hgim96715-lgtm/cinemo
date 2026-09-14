@@ -64,6 +64,7 @@ export function MovieVideoModal({
         aria-describedby={undefined}
         onOpenAutoFocus={handleOpenAutoFocus}
         onCloseAutoFocus={handleCloseAutoFocus}
+        onPointerDownOutside={(event) => event.preventDefault()}
       >
         <Dialog.Close asChild>
           <button

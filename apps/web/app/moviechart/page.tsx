@@ -5,23 +5,22 @@ import Image from 'next/image';
 import { ArrowDown, ArrowUp, Minus, Play } from 'lucide-react';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { MovieChartTrailerModal } from '@/components/moviechart/MovieChartTrailerModal';
+import { MovieChartListSkeleton } from '@/components/moviechart/MovieChartListSkeleton';
 import {
   getMovieChartRequest,
   type MovieChartItem,
 } from '@/lib/lobby-board-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
+import { formatAudienceCount } from '@/lib/format-audience';
 import '../styles/common.css';
 import '../styles/moviechart.css';
 import '../styles/moviechart-modal.css';
 
-function formatAudience(count: number) {
-  if (count >= 10_000) {
-    return `${(count / 10_000).toLocaleString('ko-KR', {
-      maximumFractionDigits: 1,
-    })}만 명`;
-  }
-
-  return `${count.toLocaleString('ko-KR')}명`;
+function formatTargetDate(date: string) {
+  return new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    dateStyle: 'long',
+  }).format(new Date(`${date}T00:00:00+09:00`));
 }
 
 function RankChange({ value }: { value: number | null }) {
@@ -61,6 +60,7 @@ export default function MovieChartPage() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [targetDate, setTargetDate] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +71,7 @@ export default function MovieChartPage() {
 
         if (!cancelled) {
           setMovies(response.items);
+          setTargetDate(response.targetDate);
         }
       } catch (error) {
         if (!cancelled) {
@@ -106,10 +107,19 @@ export default function MovieChartPage() {
       <header className="movie-chart-header">
         <span className="movie-chart-kicker">MOVIE CHART</span>
         <h1>오늘의 영화 순위</h1>
-        <p>누적 관객수와 전일 대비 순위를 확인해보세요.</p>
+        <p>누적 관객 수와 전일 대비 순위를 확인해보세요.</p>
+
+        <div className="movie-chart-meta" aria-label="영화 차트 기준 정보">
+          <span>KOBIS 일일 박스오피스</span>
+          <span aria-hidden="true">·</span>
+          <span>누적 관객 수 · 순위 변동</span>
+          {targetDate ? (
+            <span>기준일 {formatTargetDate(targetDate)}</span>
+          ) : null}
+        </div>
       </header>
 
-      {loading ? <p>영화 차트를 불러오는 중...</p> : null}
+      {loading ? <MovieChartListSkeleton /> : null}
       {error ? <p>{error}</p> : null}
 
       {!loading && !error ? (
@@ -136,8 +146,36 @@ export default function MovieChartPage() {
 
                 <div className="movie-chart-info">
                   <h2>{movie.title}</h2>
-                  <p>누적 관객수 {formatAudience(movie.audienceCount)}</p>
-                  <p>일일 관객수 {formatAudience(movie.dailyAudienceCount)}</p>
+
+                  <div className="movie-chart-audience">
+                    <div>
+                      <span className="movie-chart-audience-label">
+                        누적 관객 수
+                      </span>
+                      <span className="movie-chart-audience-label-mobile">
+                        누적
+                      </span>
+                      <strong>
+                        {formatAudienceCount(movie.audienceCount)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="movie-chart-audience-label">
+                        일일 관객 수
+                      </span>
+                      <span className="movie-chart-audience-label-mobile">
+                        일일
+                      </span>
+                      <strong>
+                        {formatAudienceCount(movie.dailyAudienceCount)}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="movie-chart-rank-change">
+                    <span>전일 대비</span>
+                    <RankChange value={movie.rankChange} />
+                  </div>
 
                   {movie.trailerUrl ? (
                     <button
@@ -150,8 +188,6 @@ export default function MovieChartPage() {
                     </button>
                   ) : null}
                 </div>
-
-                <RankChange value={movie.rankChange} />
               </li>
             );
           })}

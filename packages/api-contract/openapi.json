@@ -2455,6 +2455,11 @@
               "$ref": "#/components/schemas/MovieChartItemDto"
             }
           },
+          "targetDate": {
+            "type": "string",
+            "example": "2026-09-13",
+            "description": "KOBIS 박스오피스 기준일"
+          },
           "total": {
             "type": "number",
             "example": 10
@@ -2462,6 +2467,7 @@
         },
         "required": [
           "items",
+          "targetDate",
           "total"
         ]
       },

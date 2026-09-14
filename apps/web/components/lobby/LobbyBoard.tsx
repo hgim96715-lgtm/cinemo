@@ -8,27 +8,11 @@ import {
   recordLobbyVisitRequest,
 } from '@/lib/lobby-board-api';
 import { kstLobbyDateLabel } from '@/lib/date-kst';
+import { formatAudienceCount } from '@/lib/format-audience';
 import { useAuthStore } from '@/lib/auth-store';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import Image from 'next/image';
 import { LobbyBoardSkeleton } from './LobbyBoardSkeleton';
-
-const chartNumberFormatter = new Intl.NumberFormat('ko-KR', {
-  notation: 'compact',
-  maximumFractionDigits: 1,
-});
-
-function formatChartCount(count: number) {
-  if (count < 10_000) {
-    return chartNumberFormatter.format(count);
-  }
-
-  const value = Math.floor((count / 10_000) * 10) / 10;
-
-  return `${value.toLocaleString('ko-KR', {
-    maximumFractionDigits: 1,
-  })}만`;
-}
 
 type ChartMovie = {
   tmdbId: number;
@@ -109,7 +93,7 @@ function WeekListViz({ movies }: { movies: ChartMovie[] }) {
               </span>
 
               <span className="lobby-chart-row-count">
-                {movie ? `${formatChartCount(movie.count)}명` : ''}
+                {movie ? formatAudienceCount(movie.count) : ''}
               </span>
             </span>
           </div>
