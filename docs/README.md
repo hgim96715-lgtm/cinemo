@@ -51,6 +51,7 @@ docs/
 ├── lobby/
 │   ├── README.md
 │   ├── board.md
+│   ├── moviechart.md
 │   └── upcoming.md
 ├── external-api/
 ├── ai/
@@ -80,7 +81,7 @@ Swagger  http://localhost:3050/api
 
 ### API 설정 관리
 
-NestJS 환경 설정은 원시 환경변수를 기능 코드에서 직접 읽지 않고, `registerAs`로 도메인별 namespace를 구성한 뒤 `ConfigService`로 조회함.
+NestJS 환경 설정은 원시 환경변수를 기능 코드에서 직접 읽지 않고, `registerAs`로 도메인별 namespace를 구성한 뒤 `ConfigService`로 조회한다.
 
 ```txt
 Railway Variables 또는 .env
@@ -101,9 +102,9 @@ apps/api/src/config/
 └─ demo.config.ts
 ```
 
-예를 들어 `OPENAI_KEY`는 서비스에서 직접 읽지 않고 `ai.config.ts`에 등록한 뒤 `ai.openaiKey`로 조회함. 상세 규칙은 [NestJS 환경 설정 문서](./concepts/nest-config.md) 참고.
+예를 들어 `OPENAI_KEY`는 서비스에서 직접 읽지 않고 `ai.config.ts`에 등록한 뒤 `ai.openaiKey`로 조회한다. 상세 규칙은 [NestJS 환경 설정 문서](./concepts/nest-config.md)를 참고한다.
 
-공유 코드의 위치는 실행 여부가 아니라 의존성으로 판단함.
+공유 코드의 위치는 실행 여부가 아니라 의존성으로 판단한다.
 
 ```txt
 제품 공통 개념·순수 타입·상수·유틸
@@ -116,15 +117,15 @@ fetch·axios·React Query 등 실제 통신
   → packages/api-client 또는 앱 내부
 ```
 
-현재 `MOVIE CHART`는 `api-contract`로 먼저 전환했고, 기존 `Postcard` 등 타입은 사용처 호환성을 위해 `shared`에 유지 중임. 이는 최종 분류가 끝났다는 뜻이 아니라 점진적 migration 상태임.
+`MOVIE CHART` 응답 타입은 `api-contract`의 OpenAPI 생성 타입을 사용한다. 제품 공통 개념 타입과 기존 기능 타입은 사용처에 따라 `shared`에 유지한다.
 
 - 인증: 이메일·Google·Naver 로그인
 - 보류: Kakao 이메일 권한 문제, Apple Developer Program 비용·설정
 - 비밀번호 재설정: Resend + SHA-256 해시 일회용 토큰
 - 개봉일 알림: `MovieReleaseNotification` + NestJS Cron + React Email + Resend
-- 캘린더: 서버 iCalendar(`.ics`) 응답. 브라우저에서 Apple Calendar를 강제로 바로 여는 기능은 제공하지 않음
+- 캘린더: 서버 iCalendar(`.ics`) 응답. 브라우저에서 Apple Calendar를 강제로 바로 여는 기능은 제공하지 않는다
 - 이미지: 포스터 원본을 저장하지 않고 TMDB 경로와 `tmdbId`를 사용
-- 문서: `docs/` 로컬 전용, Git 추적 제외
+- 문서: `docs/`에 현재 구조·기능·운영 기준을 기록하고 Git으로 함께 관리한다
 
 
 
