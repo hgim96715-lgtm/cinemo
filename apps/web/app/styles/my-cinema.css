@@ -1529,6 +1529,7 @@
 }
 
 .my-cinema--shelf .my-cinema-movie-card {
+  width: 100%;
   display: block;
   aspect-ratio: 2 / 3;
   overflow: hidden;
