@@ -60,6 +60,8 @@ export type WatchProvider = {
   logo_path: string;
 };
 
+export type MovieVideoType = "trailer" | "teaser";
+
 export type GachaMovie = {
   id: number;
   title: string;
@@ -72,6 +74,7 @@ export type GachaMovie = {
   cast?: string[];
   providers: WatchProvider[];
   trailerUrl?: string | null;
+  videoType?: MovieVideoType | null;
 };
 
 export type UseTicketResult = {

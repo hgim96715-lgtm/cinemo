@@ -10,8 +10,11 @@
   }
 
   .postcard-create-modal {
-    position: relative;
-    width: min(100%, 30rem);
+    position: fixed;
+    z-index: 1001;
+    top: 50%;
+    left: 50%;
+    width: min(calc(100% - 2rem), 30rem);
     max-height: min(42rem, calc(100dvh - 2rem));
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
@@ -27,6 +30,7 @@
       );
     color: var(--postcard-paper);
     box-shadow: 0 2rem 5rem rgb(0 0 0 / 0.4);
+    transform: translate(-50%, -50%);
   }
 
   .postcard-create-modal-header {

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>김한경 · AI 도구 활용 개선 사례</title>
+  <style>
+    :root { --ink:#171717; --body:#444; --muted:#777; --line:#ddd; --paper:#fff; --bg:#f4f4f1; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--body); font-family:Arial, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif; font-size:13px; line-height:1.75; }
+    .page { width:min(100% - 32px, 794px); margin:32px auto; padding:54px 60px 64px; background:var(--paper); box-shadow:0 6px 24px rgba(0,0,0,.06); }
+    header { padding-bottom:25px; border-bottom:2px solid var(--ink); }
+    .eyebrow { margin:0 0 14px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:0; color:var(--ink); font-size:29px; line-height:1.2; letter-spacing:-.07em; }
+    .subtitle { margin:9px 0 0; color:var(--muted); font-size:12px; }
+    .section { margin-top:30px; }
+    h2 { margin:0 0 12px; color:var(--ink); font-size:15px; letter-spacing:-.04em; }
+    .summary { margin:0; padding:16px 18px; border:1px solid var(--line); background:#fafaf8; line-height:1.85; }
+    dl { display:grid; grid-template-columns:92px 1fr; gap:0; margin:0; border-top:1px solid var(--line); }
+    dt, dd { margin:0; padding:16px 0; border-bottom:1px solid var(--line); }
+    dt { color:var(--muted); font-size:11px; font-weight:700; }
+    dd { color:var(--body); font-size:12.5px; }
+    .result { padding:17px 18px; border-left:3px solid var(--ink); background:#fafaf8; }
+    .result p { margin:0; }
+    .note { margin:24px 0 0; color:var(--muted); font-size:11px; }
+    @media (max-width:650px) {
+      body { background:var(--paper); }
+      .page { width:100%; margin:0; padding:33px 22px 48px; box-shadow:none; }
+      dl { grid-template-columns:1fr; }
+      dt { padding-bottom:3px; border-bottom:0; }
+      dd { padding-top:0; }
+    }
+    @media print {
+      body { background:#fff; font-size:12px; }
+      .page { width:auto; margin:0; padding:25px 32px 35px; box-shadow:none; }
+      .section, dl, .summary, .result { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="eyebrow">Optional Submission · AI 활용 개선 사례</p>
+      <h1>CINEMO POSTCARD의<br>AI 문구 추천 개선 사례</h1>
+      <p class="subtitle">김한경 · 영화 기록 서비스 개발</p>
+    </header>
+
+    <section class="section">
+      <h2>개요</h2>
+      <p class="summary">CINEMO의 POSTCARD 작성 흐름에 AI 문구 추천을 연결한 사례입니다. 사용자가 영화를 선택하면 영화 정보와 원문 언어를 AI에 전달하고, 추천 후보를 검토한 뒤 직접 수정하거나 선택해 엽서에 저장할 수 있도록 설계했습니다. AI 결과를 자동 확정하지 않는 것이 핵심입니다.</p>
+    </section>
+
+    <section class="section">
+      <h2>개선 과정</h2>
+      <dl>
+        <dt>사용 도구</dt>
+        <dd>Codex, Claude API, AI Provider 추상화, TMDB API, NestJS, Next.js, Prisma</dd>
+        <dt>기존 문제</dt>
+        <dd>사용자가 영화 문구를 직접 찾아 입력해야 했고, 한국 영화와 외국 영화의 원문 표시를 같은 방식으로 다루기 쉬웠습니다. 원문과 한국어 문구를 함께 보존하면서도 작성자가 결과를 확인하고 고칠 수 있는 입력 흐름이 필요했습니다.</dd>
+        <dt>AI 적용 과정</dt>
+        <dd>선택한 영화의 제목·원제·원문 언어·개봉 연도·줄거리를 <code>POST /v1/ai/quote-suggestions</code>로 전달했습니다. Claude는 최대 6개의 후보를 JSON으로 반환하고, 화면에는 우선순위가 높은 3개만 보여줍니다. 사용자가 후보를 선택하면 원문과 한국어 문구 입력란에 채워지고, 이후 직접 수정할 수 있습니다.</dd>
+        <dt>구조 개선</dt>
+        <dd>특정 모델에 기능 코드가 직접 묶이지 않도록 <code>IAiProvider</code>와 <code>AI_PROVIDER</code> 토큰을 두었습니다. 현재는 Claude Provider를 사용하고, 다른 Provider로 교체해도 AI 호출부와 POSTCARD 작성 흐름은 유지되도록 구성했습니다.</dd>
+        <dt>직접 검토한 부분</dt>
+        <dd>AI가 실제 대사가 아닌 문장이나 영화의 분위기만 요약한 문장을 반환할 수 있음을 전제로 했습니다. 따라서 추천 결과는 저장 가능한 정답이 아니라 사용자가 확인하는 후보 목록으로 제한했고, 원문 언어·원문 전체·한국어 번역을 함께 검증하도록 프롬프트와 응답 구조를 조정했습니다.</dd>
+      </dl>
+    </section>
+
+    <section class="section">
+      <h2>발생한 문제와 개선</h2>
+      <dl>
+        <dt>JSON 파싱 오류</dt>
+        <dd>Claude가 JSON 앞뒤에 <code>```json</code> 코드블록을 붙여 반환할 수 있어 <code>JSON.parse()</code> 전에 코드블록과 JSON 앞뒤 텍스트를 정리했습니다. 이후 <code>quotes</code> 배열과 각 필드의 타입을 확인해 유효하지 않은 후보는 제외했습니다.</dd>
+        <dt>AI 결과의 신뢰성</dt>
+        <dd>AI가 실제 대사가 아닌 그럴듯한 문장을 생성할 수 있었습니다. AI 추천은 공식 대사의 대체물이 아니라 사용자가 확인하는 후보 목록으로 제한하고, 추천이 비어 있거나 실패해도 직접 입력으로 작성할 수 있게 했습니다.</dd>
+        <dt>원문 언어 처리</dt>
+        <dd><code>originalLanguage</code>를 함께 전달하고, 한국 영화는 영화 원문으로, 외국 영화는 외국어 원문으로 표시하도록 구분했습니다. <code>originalText</code>는 임의로 영어로 번역하지 않고 영화의 원문 언어를 유지합니다.</dd>
+        <dt>Provider 오류</dt>
+        <dd>API 키와 모델은 서버 환경 변수로 분리했습니다. Provider 오류는 서버에서 기록하고 추천 결과를 빈 배열로 처리해 영화 목록 전체 장애로 번지지 않게 했으며, 화면에서는 오류 안내와 직접 입력 경로를 제공합니다.</dd>
+      </dl>
+
+      <section class="section">
+        <h2>결과</h2>
+        <div class="result"><p>POSTCARD 작성에서 영화 문구를 찾고 입력하는 반복 작업을 줄였고, 원문 언어를 보존한 채 한국어 문구를 함께 기록할 수 있게 되었습니다. AI 추천을 사용자 검토 단계 뒤에 두고 Provider를 분리해 정확성·교체 가능성·장애 대응을 함께 고려했습니다.</p></div>
+      </section>
+    </section>
+
+
+  </main>
+</body>
+</html>

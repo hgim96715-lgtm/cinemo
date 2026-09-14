@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BoardBoxOfficeMovie, LobbyBoardResponse } from '@cinemo/shared';
-import {
-  kstDateKey,
-  todayKstDate,
-} from '../lib/date-kst';
+import { kstDateKey, todayKstDate } from '../lib/date-kst';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { AdminService } from '../admin/admin.service';
 import { ConfigService } from '@nestjs/config';
-import { EnvKeys } from '../config/env.keys';
+import { clamp } from '../lib/clamp';
+
+type KobisUpcomingMovie = {
+  titles: string[];
+  openDate: string;
+};
 
 @Injectable()
 export class LobbyBoardService {
@@ -25,13 +27,128 @@ export class LobbyBoardService {
     movies: BoardBoxOfficeMovie[];
   } | null = null;
 
+  private normalizeMovieTitle(title: string) {
+    return title
+      .trim()
+      .toLocaleLowerCase('ko-KR')
+      .replace(/[\s\p{P}\p{S}]+/gu, '');
+  }
+
+  private normalizeExternalMovieTitle(title: string) {
+    return title
+      .trim()
+      .toLocaleLowerCase('en-US')
+      .replace(/[\s\p{P}\p{S}]+/gu, '');
+  }
+
+  private getMovieTitleVariants(title: string) {
+    const normalized = this.normalizeExternalMovieTitle(title);
+    const withoutPartMarker = normalized.replace(
+      /(part|파트|chapter|챕터|volume|vol|편|권)/g,
+      '',
+    );
+
+    return [...new Set([normalized, withoutPartMarker])].filter(Boolean);
+  }
+
+  private isKobisMovieMatch(
+    movie: {
+      title: string;
+      original_title: string;
+      release_date: string;
+    },
+    kobisMovies: KobisUpcomingMovie[],
+  ) {
+    const tmdbTitles = [movie.title, movie.original_title].flatMap((title) =>
+      this.getMovieTitleVariants(title),
+    );
+
+    return kobisMovies.some((kobisMovie) => {
+      const kobisTitles = kobisMovie.titles.flatMap((title) =>
+        this.getMovieTitleVariants(title),
+      );
+
+      if (kobisTitles.some((title) => tmdbTitles.includes(title))) {
+        return true;
+      }
+
+      if (kobisMovie.openDate !== movie.release_date) {
+        return false;
+      }
+
+      return kobisTitles.some((kobisTitle) =>
+        tmdbTitles.some(
+          (tmdbTitle) =>
+            Math.min(kobisTitle.length, tmdbTitle.length) >= 4 &&
+            (kobisTitle.startsWith(tmdbTitle) ||
+              tmdbTitle.startsWith(kobisTitle)),
+        ),
+      );
+    });
+  }
+
+  private isExcludedUpcomingTitle(title: string) {
+    return (
+      this.normalizeMovieTitle(title) === this.normalizeMovieTitle('클로저')
+    );
+  }
+
+  private async getKobisUpcomingMovies(
+    fromDate: string,
+    untilDate: string,
+  ): Promise<KobisUpcomingMovie[] | null> {
+    const apiKey = this.configService.get<string>('tmdb.kobisApiKey')?.trim();
+    if (!apiKey) return null;
+
+    const url = new URL(
+      'https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json',
+    );
+    url.searchParams.set('key', apiKey);
+    url.searchParams.set('openStartDt', fromDate.replaceAll('-', ''));
+    url.searchParams.set('openEndDt', untilDate.replaceAll('-', ''));
+    url.searchParams.set('itemPerPage', '100');
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return null;
+
+      const data = (await response.json()) as {
+        movieListResult?: {
+          movieList?: Array<{
+            movieNm: string;
+            movieNmEn?: string;
+            typeNm?: string;
+            openDt?: string;
+          }>;
+        };
+      };
+
+      const movies = (data.movieListResult?.movieList ?? [])
+        .filter(
+          (movie) =>
+            movie.typeNm !== '단편' &&
+            Boolean(movie.openDt) &&
+            movie.openDt! >= fromDate.replaceAll('-', '') &&
+            movie.openDt! <= untilDate.replaceAll('-', ''),
+        )
+        .map((movie) => ({
+          titles: [movie.movieNm, movie.movieNmEn]
+            .filter((title): title is string => Boolean(title?.trim()))
+            .map((title) => this.normalizeExternalMovieTitle(title)),
+          openDate: `${movie.openDt!.slice(0, 4)}-${movie.openDt!.slice(4, 6)}-${movie.openDt!.slice(6, 8)}`,
+        }));
+
+      return movies.length > 0 ? movies : null;
+    } catch {
+      return null;
+    }
+  }
+
   private async getBoxOfficeMovies(): Promise<BoardBoxOfficeMovie[]> {
     const KOBIS_DAILY_BOX_OFFICE_URL =
       'https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json';
 
-    const apikey = this.configService
-      .get<string>(EnvKeys.KOBIS_API_KEY)
-      ?.trim();
+    const apikey = this.configService.get<string>('tmdb.kobisApiKey')?.trim();
 
     if (!apikey) return [];
 
@@ -61,6 +178,7 @@ export class LobbyBoardService {
       const data = (await response.json()) as {
         boxOfficeResult?: {
           dailyBoxOfficeList?: Array<{
+            movieCd: string;
             rank: string;
             movieNm: string;
             audiCnt: string;
@@ -80,22 +198,61 @@ export class LobbyBoardService {
         },
         select: {
           title: true,
+          tmdbId: true,
           posterPath: true,
         },
       });
 
-      const posterMap = new Map(
-        moviePool.map((movie) => [movie.title, movie.posterPath]),
-      );
+      const movieMap = new Map(moviePool.map((movie) => [movie.title, movie]));
 
-      const movies = list.slice(0, 5).map((movie) => ({
-        rank: Number(movie.rank),
-        title: movie.movieNm,
-        audienceCount: Number(movie.audiAcc),
-        rankChange:
-          movie.rankOldAndNew === 'NEW' ? null : Number(movie.rankInten) || 0,
-        posterPath: posterMap.get(movie.movieNm) ?? null,
-      }));
+      const movies = await Promise.all(
+        list.map(async (movie) => {
+          const pooledMovie = movieMap.get(movie.movieNm);
+          let tmdbId = pooledMovie?.tmdbId ?? null;
+          let searchedMovie:
+            { id: number; poster_path: string | null } | undefined;
+
+          if (!tmdbId) {
+            try {
+              const result = await this.tmdbService.searchMovies(movie.movieNm);
+              searchedMovie =
+                result.results.find((item) => item.poster_path) ??
+                result.results[0];
+              tmdbId = searchedMovie.id ?? null;
+            } catch {
+              searchedMovie = undefined;
+            }
+          }
+          const posterPath =
+            pooledMovie?.posterPath ?? searchedMovie?.poster_path ?? null;
+          let trailerUrl: string | null = null;
+          let videoType: 'trailer' | 'teaser' | null = null;
+          if (tmdbId) {
+            try {
+              const video = await this.tmdbService.getMovieVideo(tmdbId);
+              trailerUrl = video?.url ?? null;
+              videoType = video?.videoType ?? null;
+            } catch {
+              trailerUrl = null;
+              videoType = null;
+            }
+          }
+          return {
+            kobisMovieCd: movie.movieCd,
+            rank: Number(movie.rank),
+            title: movie.movieNm,
+            dailyAudienceCount: Number(movie.audiCnt),
+            audienceCount: Number(movie.audiAcc),
+            rankChange:
+              movie.rankOldAndNew === 'NEW'
+                ? null
+                : Number(movie.rankInten) || 0,
+            posterPath,
+            trailerUrl,
+            videoType,
+          };
+        }),
+      );
 
       this.boxOfficeCache = {
         targetDt,
@@ -146,8 +303,16 @@ export class LobbyBoardService {
       }));
 
     return {
-      boxOfficeMovies,
+      boxOfficeMovies: boxOfficeMovies.slice(0, 3),
       upcomingInterestMovies,
+    };
+  }
+
+  async getMovieChart() {
+    const movies = await this.getBoxOfficeMovies();
+    return {
+      items: movies,
+      total: movies.length,
     };
   }
 
@@ -195,13 +360,15 @@ export class LobbyBoardService {
     const hasKoreanTitle = (title: string) =>
       title.trim() !== '' &&
       !title.includes('정보가 없습니다.') &&
-      /[\uAC00-\uD7A3]/.test(title);
+      /\p{Script=Hangul}/u.test(title);
 
     const responses = await Promise.all(
       [1, 2, 3].map((page) =>
         this.tmdbService.discoverMovies(filters, page, 'ko-KR'),
       ),
     );
+
+    const kobisMovies = await this.getKobisUpcomingMovies(fromDate, untilDate);
 
     const movies = responses
       .flatMap((response) => response.results)
@@ -211,23 +378,10 @@ export class LobbyBoardService {
           movie.release_date <= untilDate &&
           hasKoreanTitle(movie.title) &&
           Boolean(movie.poster_path) &&
-          movie.release_date !== '',
+          movie.release_date !== '' &&
+          !this.isExcludedUpcomingTitle(movie.title),
       )
       .sort((a, b) => a.release_date.localeCompare(b.release_date));
-
-    const pooledMovies = await this.prisma.moviePool.findMany({
-      where: {
-        releaseDate: { gte: fromDate, lte: untilDate },
-        title: { not: '' },
-        posterPath: { not: null },
-      },
-      select: {
-        tmdbId: true,
-        title: true,
-        releaseDate: true,
-        posterPath: true,
-      },
-    });
 
     const movieMap = new Map(
       movies.map((movie) => [
@@ -237,20 +391,27 @@ export class LobbyBoardService {
           title: movie.title,
           releaseDate: movie.release_date,
           posterPath: movie.poster_path,
+          isKobisBacked:
+            kobisMovies !== null && this.isKobisMovieMatch(movie, kobisMovies),
         },
       ]),
     );
 
-    for (const movie of pooledMovies) {
-      if (!hasKoreanTitle(movie.title) || !movie.posterPath) continue;
-      if (!movieMap.has(movie.tmdbId)) {
-        movieMap.set(movie.tmdbId, movie);
-      }
-    }
-
-    const upcomingMovies = [...movieMap.values()].sort((a, b) =>
-      a.releaseDate.localeCompare(b.releaseDate),
+    const verifiedMovies = await Promise.all(
+      [...movieMap.values()].map(async (movie) =>
+        (await this.tmdbService.isValidMovieRecord(movie.tmdbId))
+          ? movie
+          : null,
+      ),
     );
+
+    const upcomingMovies = verifiedMovies
+      .filter((movie): movie is NonNullable<typeof movie> => movie !== null)
+      .sort(
+        (a, b) =>
+          a.releaseDate.localeCompare(b.releaseDate) ||
+          Number(b.isKobisBacked) - Number(a.isKobisBacked),
+      );
     const tmdbIds = upcomingMovies.map((movie) => movie.tmdbId);
 
     const wishCounts = tmdbIds.length
@@ -271,7 +432,7 @@ export class LobbyBoardService {
     );
 
     const safePage = Math.max(1, page);
-    const safeLimit = Math.min(Math.max(1, limit), 30);
+    const safeLimit = clamp(limit, 1, 30);
     const total = upcomingMovies.length;
     const start = (safePage - 1) * safeLimit;
 

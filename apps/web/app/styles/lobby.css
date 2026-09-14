@@ -1268,6 +1268,106 @@
   }
 }
 
+/* 로비 주요 이동 공간 */
+.lobby-feature-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  width: 100%;
+  margin: 0.8rem auto 0;
+}
+
+.lobby-feature-card {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  gap: 0.18rem 0.8rem;
+  align-items: center;
+  min-width: 0;
+  min-height: 7.1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgb(212 181 106 / 0.34);
+  border-radius: 0.8rem;
+  color: var(--lobby-fg);
+  background:
+    linear-gradient(135deg, rgb(212 181 106 / 0.1), rgb(20 19 18 / 0.72)),
+    rgb(20 19 18 / 0.78);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.lobby-feature-card:hover,
+.lobby-feature-card:focus-visible {
+  border-color: var(--lobby-gold);
+  background:
+    linear-gradient(135deg, rgb(212 181 106 / 0.18), rgb(20 19 18 / 0.82)),
+    rgb(20 19 18 / 0.82);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.lobby-feature-kicker {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  overflow: hidden;
+  color: var(--lobby-gold);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-feature-card strong {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-feature-description {
+  grid-column: 1;
+  grid-row: 3;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--lobby-muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-feature-icon {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  align-self: center;
+  justify-self: end;
+  color: var(--lobby-gold);
+}
+
+@media (max-width: 620px) {
+  .lobby-feature-links {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    margin-top: 0.65rem;
+  }
+
+  .lobby-feature-card {
+    min-height: 6.25rem;
+    padding: 0.8rem 0.9rem;
+  }
+}
+
 /* ── 06. 손님 정보와 MY CINEMA ── */
 .lobby-guest {
   position: relative;

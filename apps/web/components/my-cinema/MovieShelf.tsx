@@ -1,7 +1,9 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   CalendarDays,
@@ -467,67 +469,113 @@ export function MovieShelf({ kind, title }: Props) {
             {visibleItems.map((item) => {
               const movie = item.movie;
               const poster = tmdbPosterUrl(movie.poster_path, 'w342');
+              const isDetailOpen = selectedScreening?.tmdbId === item.tmdbId;
+
               return (
                 <li
                   key={`${item.tmdbId}-${item.updatedAt}`}
                   className="my-cinema-movie"
                 >
-                  <div className="my-cinema-movie-card-wrap">
-                    <button
-                      type="button"
-                      className="my-cinema-movie-card"
-                      onClick={() => setSelectedScreening(item)}
-                      aria-label={`${movie.title} 상세 보기`}
-                    >
-                      <div className="my-cinema-movie-poster">
-                        {poster ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={poster} alt={movie.title} />
-                        ) : (
-                          <span className="my-cinema-movie-poster-empty">
-                            No Poster
-                          </span>
-                        )}
-                      </div>
-                    </button>
-
-                    <div className="my-cinema-movie-info">
-                      <div className="my-cinema-movie-meta">
-                        <span className="my-cinema-movie-title">{movie.title}</span>
-                        {kind === 'watched' ? (
-                          <div className="my-cinema-movie-screening-details">
-                            {item.watchedAt ? (
-                              <span className="my-cinema-movie-detail-chip is-date">
-                                <CalendarDays
-                                  size={12}
-                                  strokeWidth={1.7}
-                                  aria-hidden
-                                />
-                                관람 {formatWatchedAt(item.watchedAt)}
+                  <Dialog.Root
+                    open={isDetailOpen}
+                    onOpenChange={(open) => {
+                      if (!open && isDetailOpen) {
+                        setSelectedScreening(null);
+                      }
+                    }}
+                  >
+                    <div className="my-cinema-movie-card-wrap">
+                      <Dialog.Trigger asChild>
+                        <button
+                          type="button"
+                          className="my-cinema-movie-card"
+                          onClick={() => setSelectedScreening(item)}
+                          aria-label={`${movie.title} 상세 보기`}
+                        >
+                          <div className="my-cinema-movie-poster">
+                            {poster ? (
+                              <Image
+                                src={poster}
+                                alt={`${movie.title} 포스터`}
+                                fill
+                                sizes="(max-width: 720px) 42vw, (max-width: 1100px) 24vw, 180px"
+                              />
+                            ) : (
+                              <span className="my-cinema-movie-poster-empty">
+                                No Poster
                               </span>
-                            ) : null}
-                            {item.viewingLocation ? (
-                              <span className="my-cinema-movie-detail-chip">
-                                <MapPin
-                                  size={12}
-                                  strokeWidth={1.7}
-                                  aria-hidden
-                                />
-                                {item.viewingLocation}
-                              </span>
-                            ) : null}
+                            )}
                           </div>
-                        ) : (
-                          <span className="my-cinema-movie-facts">
-                            <span className="my-cinema-movie-release-year">
-                              개봉{' '}
-                              {movie.release_date?.slice(0, 4) || '연도 없음'}
-                            </span>
+                        </button>
+                      </Dialog.Trigger>
+
+                      <div className="my-cinema-movie-info">
+                        <div className="my-cinema-movie-meta">
+                          <span className="my-cinema-movie-title">
+                            {movie.title}
                           </span>
-                        )}
+                          {kind === 'watched' ? (
+                            <div className="my-cinema-movie-screening-details">
+                              {item.watchedAt ? (
+                                <span className="my-cinema-movie-detail-chip is-date">
+                                  <CalendarDays
+                                    size={12}
+                                    strokeWidth={1.7}
+                                    aria-hidden
+                                  />
+                                  관람 {formatWatchedAt(item.watchedAt)}
+                                </span>
+                              ) : null}
+                              {item.viewingLocation ? (
+                                <span className="my-cinema-movie-detail-chip">
+                                  <MapPin
+                                    size={12}
+                                    strokeWidth={1.7}
+                                    aria-hidden
+                                  />
+                                  {item.viewingLocation}
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="my-cinema-movie-facts">
+                              <span className="my-cinema-movie-release-year">
+                                개봉{' '}
+                                {movie.release_date?.slice(0, 4) || '연도 없음'}
+                              </span>
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+
+                    {isDetailOpen && selectedScreening ? (
+                      <MovieDetailModal
+                        movie={selectedScreening.movie}
+                        screening={selectedScreening}
+                        marks={marksByTmdbId[selectedScreening.tmdbId]}
+                        onToggleMark={(markKind) => {
+                          void toggleMark(selectedScreening.tmdbId, markKind);
+                        }}
+                        onClose={() => setSelectedScreening(null)}
+                        onSaved={(details) => {
+                          setItems((currentItems) =>
+                            currentItems.map((item) =>
+                              item.tmdbId === selectedScreening.tmdbId
+                                ? { ...item, ...details }
+                                : item,
+                            ),
+                          );
+
+                          setSelectedScreening((currentScreening) =>
+                            currentScreening
+                              ? { ...currentScreening, ...details }
+                              : currentScreening,
+                          );
+                        }}
+                      />
+                    ) : null}
+                  </Dialog.Root>
                 </li>
               );
             })}
@@ -542,32 +590,6 @@ export function MovieShelf({ kind, title }: Props) {
         {loadingMore ? <p className="my-cinema-copy">더 불러오는 중…</p> : null}
       </div>
 
-      {selectedScreening ? (
-        <MovieDetailModal
-          movie={selectedScreening.movie}
-          screening={selectedScreening}
-          marks={marksByTmdbId[selectedScreening.tmdbId]}
-          onToggleMark={(markKind) => {
-            void toggleMark(selectedScreening.tmdbId, markKind);
-          }}
-          onClose={() => setSelectedScreening(null)}
-          onSaved={(details) => {
-            setItems((currentItems) =>
-              currentItems.map((item) =>
-                item.tmdbId === selectedScreening.tmdbId
-                  ? { ...item, ...details }
-                  : item,
-              ),
-            );
-
-            setSelectedScreening((currentScreening) =>
-              currentScreening
-                ? { ...currentScreening, ...details }
-                : currentScreening,
-            );
-          }}
-        />
-      ) : null}
     </main>
   );
 }

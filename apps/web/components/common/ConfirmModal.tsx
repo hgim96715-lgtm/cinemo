@@ -1,9 +1,9 @@
-// apps/web/components/common/ConfirmModal.tsx
-
 'use client';
 
-import { useEffect, useId, type ReactNode } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type ConfirmModalProps = {
   open: boolean;
@@ -30,85 +30,75 @@ export function ConfirmModal({
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
-  const titleId = useId();
-  const descriptionId = useId();
-
-  useEffect(() => {
-    if (!open) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open, onClose]);
-
-  if (!open) return null;
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
 
   return (
-    <div
-      className="confirm-modal-backdrop"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+    <Dialog.Root
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
           onClose();
         }
       }}
     >
-      <section
-        className={`confirm-modal confirm-modal--${tone}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button
-          type="button"
-          className="confirm-modal-close"
-          aria-label="모달 닫기"
-          onClick={onClose}
+      <Dialog.Portal>
+        <Dialog.Overlay className="confirm-modal-backdrop" />
+
+        <Dialog.Content
+          className={`confirm-modal confirm-modal--${tone}`}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
         >
-          <X size={18} aria-hidden />
-        </button>
-
-        <div className={`confirm-modal-heading${icon ? ' has-icon' : ''}`}>
-          {icon ? (
-            <div className="confirm-modal-icon" aria-hidden="true">
-              {icon}
-            </div>
-          ) : null}
-          <div className="confirm-modal-heading-copy">
-            {eyebrow ? (
-              <p className="confirm-modal-eyebrow">{eyebrow}</p>
-            ) : null}
-            <h2 id={titleId}>{title}</h2>
-          </div>
-        </div>
-        <p id={descriptionId}>{description}</p>
-
-        <div className="confirm-modal-actions">
-          <button
-            type="button"
-            className="confirm-modal-confirm"
-            onClick={onConfirm}
-          >
-            {confirmLabel}
-          </button>
-
-          {cancelLabel ? (
-            <button type="button" onClick={onClose}>
-              {cancelLabel}
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="confirm-modal-close"
+              aria-label="모달 닫기"
+            >
+              <X size={18} aria-hidden />
             </button>
-          ) : null}
-        </div>
-      </section>
-    </div>
+          </Dialog.Close>
+
+          <div className={`confirm-modal-heading${icon ? ' has-icon' : ''}`}>
+            {icon ? (
+              <div className="confirm-modal-icon" aria-hidden="true">
+                {icon}
+              </div>
+            ) : null}
+
+            <div className="confirm-modal-heading-copy">
+              {eyebrow ? (
+                <p className="confirm-modal-eyebrow">{eyebrow}</p>
+              ) : null}
+
+              <Dialog.Title asChild>
+                <h2>{title}</h2>
+              </Dialog.Title>
+            </div>
+          </div>
+
+          <Dialog.Description asChild>
+            <p>{description}</p>
+          </Dialog.Description>
+
+          <div className="confirm-modal-actions">
+            <button
+              type="button"
+              className="confirm-modal-confirm"
+              onClick={onConfirm}
+            >
+              {confirmLabel}
+            </button>
+
+            {cancelLabel ? (
+              <Dialog.Close asChild>
+                <button type="button">{cancelLabel}</button>
+              </Dialog.Close>
+            ) : null}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

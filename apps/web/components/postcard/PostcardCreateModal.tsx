@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useId, useState } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,6 +15,7 @@ import {
 import { searchMoviesRequest } from '@/lib/tmdb-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { useAuthStore } from '@/lib/auth-store';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 const postcardSchema = z.object({
   originalText: z
@@ -43,8 +45,8 @@ export function PostcardCreateModal({
   onSubmit,
   postcardToEdit,
 }: Props) {
-  const titleId = useId();
-  const descriptionId = useId();
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const accessToken = useAuthStore((state) => state.accessToken);
 
   const [query, setQuery] = useState('');
@@ -85,22 +87,6 @@ export function PostcardCreateModal({
       isPublic: postcardToEdit?.isPublic ?? true,
     });
   }, [open, reset, postcardToEdit]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && !isSubmitting) {
-        onClose();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open, isSubmitting, onClose]);
 
   if (!open) return null;
 
@@ -235,46 +221,54 @@ export function PostcardCreateModal({
       : null;
 
   return (
-    <div
-      className="postcard-create-modal-backdrop"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (
-          event.target === event.currentTarget &&
-          !isSubmitting &&
-          !loadingMovies &&
-          !loadingSuggestions
-        ) {
-          onClose();
-        }
+    <Dialog.Root
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
       }}
     >
-      <section
-        className="postcard-create-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
+      <Dialog.Portal>
+        <Dialog.Overlay
+          className="postcard-create-modal-backdrop"
+        />
+        <Dialog.Content
+          className="postcard-create-modal"
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
+          onPointerDownOutside={(event) => {
+            if (isSubmitting || loadingMovies || loadingSuggestions) {
+              event.preventDefault();
+            }
+          }}
+          onEscapeKeyDown={(event) => {
+            if (isSubmitting || loadingMovies || loadingSuggestions) {
+              event.preventDefault();
+            }
+          }}
+        >
         <header className="postcard-create-modal-header">
-          <button
-            type="button"
-            className="postcard-create-modal-close"
-            aria-label="엽서 만들기 닫기"
-            disabled={isSubmitting}
-            onClick={onClose}
-          >
-            <X size={19} aria-hidden />
-          </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="postcard-create-modal-close"
+              aria-label="엽서 만들기 닫기"
+              disabled={isSubmitting}
+            >
+              <X size={19} aria-hidden />
+            </button>
+          </Dialog.Close>
 
           <p className="postcard-create-modal-eyebrow">CINEMO POSTCARD</p>
 
-          <h2 id={titleId}>기억할 문장을 적어보세요</h2>
+          <Dialog.Title asChild>
+            <h2>기억할 문장을 적어보세요</h2>
+          </Dialog.Title>
 
-          <p id={descriptionId}>
+          <Dialog.Description asChild>
+            <p>
             영화에서 오래 남은 문장을 한 장의 엽서로 기록해요.
-          </p>
+            </p>
+          </Dialog.Description>
         </header>
 
         <div className="postcard-create-modal-body">
@@ -474,7 +468,8 @@ export function PostcardCreateModal({
             </div>
           </form>
         </div>
-      </section>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

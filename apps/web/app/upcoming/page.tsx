@@ -1,5 +1,6 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -21,12 +22,14 @@ import '../styles/lobby.css';
 import '../styles/upcoming.css';
 import '../styles/my-cinema.css';
 import '../styles/movie-detail-modal.css';
+import '../styles/moviechart-modal.css';
 import '../styles/confirm-modal.css';
 import '../styles/common.css';
 
 import { GachaMovie } from '@cinemo/shared';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
+import { MovieDetailModalSkeleton } from '@/components/my-cinema/MovieDetailModalSkeleton';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { UpcomingMovieListSkeleton } from '@/components/upcoming/UpcomingMovieListSkeleton';
 
@@ -86,6 +89,7 @@ function UpcomingPageContent() {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const [detailMovie, setDetailMovie] = useState<GachaMovie | null>(null);
+  const [detailMovieId, setDetailMovieId] = useState<number | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
 
   const [releaseNotificationById, setReleaseNotificationById] = useState<
@@ -276,35 +280,43 @@ function UpcomingPageContent() {
   }
 
   async function handleDetailClick(tmdbId: number) {
+    setDetailMovieId(tmdbId);
+    setDetailMovie(null);
     setLoadingDetailId(tmdbId);
+
+    const upcomingMovie = movies.find((item) => item.tmdbId === tmdbId);
+
+    const notificationPromise = accessToken
+      ? (async () => {
+          try {
+            return await getMovieReleaseNotificationRequest(
+              accessToken,
+              tmdbId,
+            );
+          } catch {
+            return null;
+          }
+        })()
+      : null;
 
     try {
       const movie = await getMovieDetailRequest(tmdbId);
-      const upcomingMovie = movies.find((item) => item.tmdbId === tmdbId);
-
-      if (accessToken) {
-        try {
-          const notification = await getMovieReleaseNotificationRequest(
-            accessToken,
-            tmdbId,
-          );
-
-          setReleaseNotificationById((current) => ({
-            ...current,
-            [tmdbId]: notification.enabled,
-          }));
-        } catch {
-          setReleaseNotificationById((current) => ({
-            ...current,
-            [tmdbId]: false,
-          }));
-        }
-      }
 
       setDetailMovie({
         ...movie,
         release_date: upcomingMovie?.releaseDate ?? movie.release_date,
       });
+
+      if (notificationPromise) {
+        void (async () => {
+          const notification = await notificationPromise;
+
+          setReleaseNotificationById((current) => ({
+            ...current,
+            [tmdbId]: notification?.enabled ?? false,
+          }));
+        })();
+      }
     } finally {
       setLoadingDetailId(null);
     }
@@ -387,63 +399,106 @@ function UpcomingPageContent() {
               const poster = tmdbPosterUrl(movie.posterPath, 'w185');
               const interested = interestedIds.includes(movie.tmdbId);
               const toggling = togglingInterestId === movie.tmdbId;
+              const isDetailOpen = detailMovieId === movie.tmdbId;
+              const selectedDetailMovie = isDetailOpen ? detailMovie : null;
 
               return (
-                <article className="upcoming-movie-card" key={movie.tmdbId}>
-                  {poster ? (
-                    <Image
-                      src={poster}
-                      alt={`${movie.title} 포스터`}
-                      width={72}
-                      height={108}
-                      priority={index === 0}
-                    />
-                  ) : null}
-
-                  <div>
-                    <h2>{movie.title}</h2>
-                    <p
-                      className={
-                        isTodayKst(movie.releaseDate)
-                          ? 'upcoming-release-date is-today'
-                          : 'upcoming-release-date'
-                      }
-                    >
-                      {formatReleaseDate(movie.releaseDate)}
-                    </p>
-                    <p>관심 등록 {movie.interestCount}명</p>
-                  </div>
-
-                  <div className="upcoming-card-actions">
-                    <button
-                      type="button"
-                      className="upcoming-interest-button"
-                      aria-pressed={interested}
-                      disabled={toggling}
-                      onClick={() => void handleInterestClick(movie.tmdbId)}
-                    >
-                      <Heart
-                        width={18}
-                        height={18}
-                        strokeWidth={2}
-                        fill={interested ? 'currentColor' : 'none'}
-                        aria-hidden
+                <Dialog.Root
+                  key={movie.tmdbId}
+                  open={isDetailOpen}
+                  onOpenChange={(open) => {
+                    if (!open && isDetailOpen) {
+                      setDetailMovieId(null);
+                      setDetailMovie(null);
+                    }
+                  }}
+                >
+                  <article className="upcoming-movie-card">
+                    {poster ? (
+                      <Image
+                        src={poster}
+                        alt={`${movie.title} 포스터`}
+                        width={72}
+                        height={108}
+                        priority={index === 0}
                       />
-                      {interested ? '관심 등록됨' : '보고 싶어요'}
-                    </button>
+                    ) : null}
 
-                    <button
-                      type="button"
-                      className="upcoming-detail-button"
-                      onClick={() => void handleDetailClick(movie.tmdbId)}
-                      disabled={loadingDetailId === movie.tmdbId}
-                    >
-                      {loadingDetailId === movie.tmdbId
-                        ? '불러오는 중...'
-                        : '상세 보기'}
-                    </button>
-                  </div>
-                </article>
+                    <div>
+                      <h2>{movie.title}</h2>
+                      <p
+                        className={
+                          isTodayKst(movie.releaseDate)
+                            ? 'upcoming-release-date is-today'
+                            : 'upcoming-release-date'
+                        }
+                      >
+                        {formatReleaseDate(movie.releaseDate)}
+                      </p>
+                      <p>관심 등록 {movie.interestCount}명</p>
+                    </div>
+
+                    <div className="upcoming-card-actions">
+                      <button
+                        type="button"
+                        className="upcoming-interest-button"
+                        aria-pressed={interested}
+                        disabled={toggling}
+                        onClick={() => void handleInterestClick(movie.tmdbId)}
+                      >
+                        <Heart
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          fill={interested ? 'currentColor' : 'none'}
+                          aria-hidden
+                        />
+                        {interested ? '관심 등록됨' : '보고 싶어요'}
+                      </button>
+
+                      <Dialog.Trigger asChild>
+                        <button
+                          type="button"
+                          className="upcoming-detail-button"
+                          onClick={() => void handleDetailClick(movie.tmdbId)}
+                          disabled={loadingDetailId === movie.tmdbId}
+                        >
+                          {loadingDetailId === movie.tmdbId
+                            ? '불러오는 중...'
+                            : '상세 보기'}
+                        </button>
+                      </Dialog.Trigger>
+                    </div>
+                  </article>
+
+                  {selectedDetailMovie ? (
+                    <MovieDetailModal
+                      movie={selectedDetailMovie}
+                      marks={{
+                        wish: interestedIds.includes(selectedDetailMovie.id),
+                        watched: false,
+                      }}
+                      showWatchedMark={false}
+                      releaseNotificationEnabled={
+                        releaseNotificationById[selectedDetailMovie.id] ?? false
+                      }
+                      onToggleReleaseNotification={() => {
+                        void handleReleaseNotificationToggle();
+                      }}
+                      onToggleMark={(kind) => {
+                        if (kind === 'wish') {
+                          void handleInterestClick(selectedDetailMovie.id);
+                        }
+                      }}
+                      onClose={() => {
+                        setDetailMovieId(null);
+                        setDetailMovie(null);
+                      }}
+                    />
+                  ) : isDetailOpen ? (
+                    <MovieDetailModalSkeleton />
+                  ) : null}
+                </Dialog.Root>
               );
             })
           )}
@@ -457,28 +512,6 @@ function UpcomingPageContent() {
             >
               {loadingMore ? '불러오는 중...' : '더 보기'}
             </button>
-          ) : null}
-          {detailMovie ? (
-            <MovieDetailModal
-              movie={detailMovie}
-              marks={{
-                wish: interestedIds.includes(detailMovie.id),
-                watched: false,
-              }}
-              showWatchedMark={false}
-              releaseNotificationEnabled={
-                releaseNotificationById[detailMovie.id] ?? false
-              }
-              onToggleReleaseNotification={() => {
-                void handleReleaseNotificationToggle();
-              }}
-              onToggleMark={(kind) => {
-                if (kind === 'wish') {
-                  void handleInterestClick(detailMovie.id);
-                }
-              }}
-              onClose={() => setDetailMovie(null)}
-            />
           ) : null}
         </section>
       </section>

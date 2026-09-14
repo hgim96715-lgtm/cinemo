@@ -753,12 +753,16 @@ select.admin-ops-input {
 }
 
 .admin-seed-modal {
-  position: relative;
-  width: min(100%, 30rem);
+  position: fixed;
+  z-index: 101;
+  top: 50%;
+  left: 50%;
+  width: min(calc(100% - 2rem), 30rem);
   padding: 1.5rem;
   border: 1px solid var(--admin-line);
   border-radius: 0.7rem;
   background: #15171c;
+  transform: translate(-50%, -50%);
   box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.45);
 }
 

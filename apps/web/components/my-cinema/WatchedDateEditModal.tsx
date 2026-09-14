@@ -1,7 +1,9 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type Props = {
   initialDate: string;
@@ -22,31 +24,43 @@ export function WatchedDateEditModal({
   onClose,
   onSave,
 }: Props) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const [watchedAt, setWatchedAt] = useState(initialDate);
 
   return (
-    <div className="movie-calendar-modal-backdrop">
-      <section
-        className="movie-calendar-modal movie-calendar-edit-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="watched-date-edit-title"
-      >
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="movie-calendar-modal-backdrop" />
+        <Dialog.Content
+          className="movie-calendar-modal movie-calendar-edit-modal"
+          aria-describedby={undefined}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
+        >
         <header className="movie-calendar-header">
           <div>
             <p className="movie-calendar-kicker">EDIT SCREENING DATE</p>
-            <h2 id="watched-date-edit-title">관람일 수정</h2>
+            <Dialog.Title asChild>
+              <h2>관람일 수정</h2>
+            </Dialog.Title>
           </div>
 
-          <button
-            type="button"
-            className="movie-calendar-close"
-            onClick={onClose}
-            disabled={isPending}
-            aria-label="관람일 수정 닫기"
-          >
-            <X size={22} strokeWidth={1.6} aria-hidden="true" />
-          </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="movie-calendar-close"
+              disabled={isPending}
+              aria-label="관람일 수정 닫기"
+            >
+              <X size={22} strokeWidth={1.6} aria-hidden="true" />
+            </button>
+          </Dialog.Close>
         </header>
 
         <label htmlFor="watched-date-input">새로운 관람일</label>
@@ -69,7 +83,8 @@ export function WatchedDateEditModal({
             {isPending ? '저장 중…' : '저장'}
           </button>
         </div>
-      </section>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

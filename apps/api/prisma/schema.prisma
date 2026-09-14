@@ -326,6 +326,27 @@ model LobbyVisit {
 }
 
 // ─────────────────────────────────────────────
+// 영화 차트
+// ─────────────────────────────────────────────
+
+model MovieChartSnapshot {
+    id                 String   @id @default(uuid(7)) @db.Uuid
+    chartDate          DateTime @map("chart_date") @db.Date
+    kobisMovieCd       String   @map("kobis_movie_cd") @db.VarChar(20)
+    tmdbId             Int?     @map("tmdb_id")
+    rank               Int
+    title              String
+    dailyAudienceCount Int      @map("daily_audience_count")
+    audienceCount      Int      @map("audience_count")
+    createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    @@unique([chartDate, kobisMovieCd])
+    @@index([chartDate, rank])
+    @@map("movie_chart_snapshots")
+}
+
+// ─────────────────────────────────────────────
 // 관리자·운영
 // ─────────────────────────────────────────────
 

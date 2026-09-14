@@ -900,8 +900,11 @@
   }
 
   .poster-picker-modal {
-    position: relative;
-    width: min(100%, 34rem);
+    position: fixed;
+    z-index: 61;
+    top: 50%;
+    left: 50%;
+    width: min(calc(100% - 2rem), 34rem);
     max-height: min(90dvh, 42rem);
     overflow-y: auto;
     padding: 2rem 1.25rem 1.35rem;
@@ -914,6 +917,7 @@
     box-shadow:
       0 1.5rem 4rem rgb(0 0 0 / 0.5),
       inset 0 0 0 1px rgb(255 255 255 / 0.04);
+    transform: translate(-50%, -50%);
   }
 
   .poster-picker-modal h2 {
@@ -1878,9 +1882,24 @@
   backdrop-filter: blur(0.35rem);
 }
 
+.movie-calendar-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .movie-calendar-modal {
-  position: relative;
-  width: min(100%, 38rem);
+  position: fixed;
+  z-index: 51;
+  top: 50%;
+  left: 50%;
+  width: min(calc(100% - 2rem), 38rem);
   max-height: min(90dvh, 48rem);
   overflow-y: auto;
   padding: 1.5rem;
@@ -1894,6 +1913,7 @@
   box-shadow:
     0 1.5rem 4rem rgb(0 0 0 / 0.5),
     inset 0 0 0 1px rgb(255 234 177 / 0.04);
+  transform: translate(-50%, -50%);
 }
 
 .movie-calendar-edit-modal {
@@ -2356,6 +2376,7 @@
 
 @media (max-width: 30rem) {
   .movie-calendar-modal {
+    width: calc(100% - 1.5rem);
     padding: 1rem 0.75rem;
     border-radius: 0.9rem;
   }

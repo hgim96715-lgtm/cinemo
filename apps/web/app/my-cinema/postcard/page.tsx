@@ -1,5 +1,6 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -26,10 +27,13 @@ import '../../styles/confirm-modal.css';
 import { PostcardCreateModal } from '@/components/postcard/PostcardCreateModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type Tab = 'mine' | 'bookmarked';
 
 export default function MyPostcardPage() {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
   const hydrated = useAuthStore((state) => state.hydrated);
@@ -82,22 +86,6 @@ export default function MyPostcardPage() {
       cancelled = true;
     };
   }, [accessToken, activeTab]);
-
-  useEffect(() => {
-    if (!detailPostcard) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setDetailPostcard(null);
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [detailPostcard]);
 
   if (!hydrated) {
     return null;
@@ -383,37 +371,36 @@ export default function MyPostcardPage() {
         </section>
       )}
       {detailPostcard ? (
-        <div
-          className="confirm-modal-backdrop"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setDetailPostcard(null);
-            }
+        <Dialog.Root
+          open
+          onOpenChange={(open) => {
+            if (!open) setDetailPostcard(null);
           }}
         >
-          <section
+          <Dialog.Portal>
+            <Dialog.Overlay className="confirm-modal-backdrop" />
+            <Dialog.Content
             className="confirm-modal postcard-detail-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="postcard-detail-title"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="confirm-modal-close"
-              aria-label="문구 상세 모달 닫기"
-              onClick={() => setDetailPostcard(null)}
+              aria-describedby={undefined}
+              onOpenAutoFocus={handleOpenAutoFocus}
+              onCloseAutoFocus={handleCloseAutoFocus}
             >
-              <X size={18} aria-hidden />
-            </button>
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  className="confirm-modal-close"
+                  aria-label="문구 상세 모달 닫기"
+                >
+                  <X size={18} aria-hidden />
+                </button>
+              </Dialog.Close>
 
-            <div className="postcard-detail-heading">
-              <p className="postcard-detail-eyebrow">POSTCARD</p>
-              <h2 id="postcard-detail-title">
-                {detailPostcard.movieTitle ?? '제목 없는 영화'}
-              </h2>
-            </div>
+              <div className="postcard-detail-heading">
+                <p className="postcard-detail-eyebrow">POSTCARD</p>
+                <Dialog.Title asChild>
+                  <h2>{detailPostcard.movieTitle ?? '제목 없는 영화'}</h2>
+                </Dialog.Title>
+              </div>
 
             <div className="postcard-detail-body">
               {detailPostcard.posterPath ? (
@@ -436,8 +423,9 @@ export default function MyPostcardPage() {
                 ) : null}
               </div>
             </div>
-          </section>
-        </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       ) : null}
       <PostcardCreateModal
         open={createModalOpen || editingPostcard !== null}

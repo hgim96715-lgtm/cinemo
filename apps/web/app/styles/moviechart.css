@@ -1,0 +1,222 @@
+.movie-chart-page {
+  width: min(calc(100% - 2rem), 68rem);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 2rem 0 5rem;
+  color: var(--cinemo-fg);
+}
+
+.movie-chart-header {
+  margin: 0 auto 2.4rem;
+  text-align: center;
+}
+
+.movie-chart-kicker {
+  color: var(--cinemo-gold);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+}
+
+.movie-chart-header h1 {
+  margin: 0.8rem 0 0.55rem;
+  color: var(--cinemo-fg);
+  font-family: var(--cinemo-display-font, inherit);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.movie-chart-header p {
+  margin: 0;
+  color: var(--cinemo-muted);
+  font-size: 0.86rem;
+}
+
+.movie-chart-page > p {
+  width: min(100%, 58rem);
+  margin: 2rem auto;
+  color: var(--cinemo-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.movie-chart-list {
+  width: min(100%, 58rem);
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  border-top: 1px solid rgb(212 181 106 / 0.34);
+  border-bottom: 1px solid rgb(212 181 106 / 0.2);
+  list-style: none;
+  background: rgb(23 23 26 / 0.42);
+}
+
+.movie-chart-item {
+  display: grid;
+  grid-template-columns: 3rem 6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  min-height: 9rem;
+  padding: 1.15rem 1.4rem;
+  border-bottom: 1px solid rgb(243 239 230 / 0.1);
+}
+
+.movie-chart-item:last-child {
+  border-bottom: 0;
+}
+
+.movie-chart-rank {
+  color: var(--cinemo-gold);
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.movie-chart-poster {
+  width: 6rem;
+  height: 9rem;
+  border-radius: 0.45rem;
+  object-fit: cover;
+  box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 0.24);
+}
+
+.movie-chart-poster--empty {
+  background: rgb(243 239 230 / 0.06);
+}
+
+.movie-chart-info {
+  min-width: 0;
+}
+
+.movie-chart-info h2 {
+  margin: 0 0 0.85rem;
+  overflow: hidden;
+  color: var(--cinemo-fg);
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movie-chart-info p {
+  margin: 0.35rem 0;
+  color: var(--cinemo-muted);
+  font-size: 0.82rem;
+}
+
+.movie-chart-up,
+.movie-chart-down,
+.movie-chart-same,
+.movie-chart-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 3rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.movie-chart-up {
+  color: #d88989;
+}
+
+.movie-chart-down {
+  color: #82a9d4;
+}
+
+.movie-chart-same {
+  color: var(--cinemo-muted);
+}
+
+.movie-chart-new {
+  color: var(--cinemo-gold);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 40rem) {
+  .movie-chart-page {
+    width: min(calc(100% - 1.25rem), 58rem);
+    padding-top: 1.25rem;
+  }
+
+  .movie-chart-header {
+    margin-bottom: 1.8rem;
+  }
+
+  .movie-chart-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .movie-chart-header p {
+    font-size: 0.78rem;
+  }
+
+  .movie-chart-item {
+    grid-template-columns: 2rem 4.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.8rem;
+    min-height: 6.75rem;
+    padding: 0.9rem 0.75rem;
+  }
+
+  .movie-chart-rank {
+    padding-top: 0.15rem;
+    font-size: 1.05rem;
+  }
+
+  .movie-chart-poster {
+    width: 4.5rem;
+    height: 6.75rem;
+  }
+
+  .movie-chart-info h2 {
+    margin-bottom: 0.65rem;
+    font-size: 0.94rem;
+  }
+
+  .movie-chart-info p {
+    font-size: 0.7rem;
+  }
+
+  .movie-chart-up,
+  .movie-chart-down,
+  .movie-chart-same,
+  .movie-chart-new {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 0.1rem;
+  }
+}
+
+
+.movie-chart-trailer-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.85rem;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid rgb(212 181 106 / 0.45);
+    border-radius: 999px;
+    color: var(--cinemo-gold);
+    background: transparent;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+  
+  .movie-chart-trailer-button:hover {
+    color: var(--cinemo-ink);
+    background: var(--cinemo-gold);
+  }
+
+@media (max-width: 40rem) {
+  .movie-chart-trailer-button {
+    margin-top: 0.65rem;
+  }
+}

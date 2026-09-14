@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import * as Dialog from '@radix-ui/react-dialog';
 import type { GachaMovie } from '@cinemo/shared';
 import { searchMoviesRequest } from '@/lib/tmdb-api';
 import { normalizeSearchQuery } from '@/lib/search-query';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { LoaderCircle, X } from 'lucide-react';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type PosterPickerModalProps = {
   token: string;
@@ -23,6 +25,8 @@ export function PosterPickerModal({
   onRemove,
   isPending = false,
 }: PosterPickerModalProps) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GachaMovie[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,31 +66,38 @@ export function PosterPickerModal({
   }
 
   return (
-    <div
-      className="poster-picker-overlay"
-      onClick={onClose}
-      role="presentation"
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
-      <section
+      <Dialog.Portal>
+        <Dialog.Overlay className="poster-picker-overlay" />
+        <Dialog.Content
         className="poster-picker-modal"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="poster-picker-title"
         aria-busy={isPending}
-      >
-        <button
-          type="button"
-          className="poster-picker-close"
-          onClick={onClose}
-          disabled={isPending}
-          aria-label="포스터 검색 닫기"
+        onOpenAutoFocus={handleOpenAutoFocus}
+        onCloseAutoFocus={handleCloseAutoFocus}
+        onEscapeKeyDown={(event) => {
+            if (isPending) event.preventDefault();
+          }}
         >
-          <X size={22} />
-        </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="poster-picker-close"
+              disabled={isPending}
+              aria-label="포스터 검색 닫기"
+            >
+              <X size={22} />
+            </button>
+          </Dialog.Close>
 
-        <p className="my-cinema-kicker">POSTER WALL</p>
-        <h2 id="poster-picker-title">영화 포스터 고르기</h2>
+          <p className="my-cinema-kicker">POSTER WALL</p>
+          <Dialog.Title asChild>
+            <h2>영화 포스터 고르기</h2>
+          </Dialog.Title>
 
         <input
           type="search"
@@ -163,7 +174,8 @@ export function PosterPickerModal({
             이 포스터 전시 해제
           </button>
         ) : null}
-      </section>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

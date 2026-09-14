@@ -7,6 +7,7 @@
     "dev:web": "pnpm --filter web dev",
     "build:api": "pnpm --filter api build",
     "build:shared": "pnpm --filter @cinemo/shared build",
+    "generate:api": "pnpm --filter api openapi:generate && pnpm --filter @cinemo/api-contract generate:types",
     "migrate": "pnpm --filter api exec prisma migrate dev"
   }
 }

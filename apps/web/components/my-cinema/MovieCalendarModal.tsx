@@ -1,9 +1,11 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { UserMovieCalendarItem, UserMovieCalendar } from '@cinemo/shared';
 import { getUserMovieCalendarRequest } from '@/lib/user-movie-api';
 import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type Props = {
   token: string;
@@ -133,6 +135,8 @@ export function MovieCalendarModal({
   onDelete,
   onEdit,
 }: Props) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const [year, setYear] = useState(initialKstMonth.year);
   const [month, setMonth] = useState(initialKstMonth.month);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -204,19 +208,28 @@ export function MovieCalendarModal({
   }
 
   return (
-    <div className="movie-calendar-modal-backdrop">
-      <section
-        className="movie-calendar-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="movie-calendar-title"
-      >
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="movie-calendar-modal-backdrop" />
+        <Dialog.Content
+          className="movie-calendar-modal"
+          aria-describedby={undefined}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
+        >
         <header className="movie-calendar-header">
           <div>
             <p className="movie-calendar-kicker">MOVIE CALENDAR</p>
+            <Dialog.Title className="movie-calendar-sr-only">
+              관람 기록 달력
+            </Dialog.Title>
             <div
               className="movie-calendar-period-picker"
-              id="movie-calendar-title"
             >
               <CalendarPeriodSelect
                 value={year}
@@ -236,14 +249,15 @@ export function MovieCalendarModal({
             </div>
           </div>
 
-          <button
-            type="button"
-            className="movie-calendar-close"
-            onClick={onClose}
-            aria-label="달력 닫기"
-          >
-            <X size={22} strokeWidth={1.6} aria-hidden="true" />
-          </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="movie-calendar-close"
+              aria-label="달력 닫기"
+            >
+              <X size={22} strokeWidth={1.6} aria-hidden="true" />
+            </button>
+          </Dialog.Close>
         </header>
 
         <div className="movie-calendar-controls">
@@ -419,7 +433,8 @@ export function MovieCalendarModal({
             </>
           )}
         </section>
-      </section>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

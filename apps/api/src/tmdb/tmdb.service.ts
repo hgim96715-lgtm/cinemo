@@ -11,6 +11,7 @@ import {
   GACHA_MACHINES,
   GACHA_TMDB_FILTERS,
   type GachaMovie,
+  type MovieVideoType,
   type MovieWithTags,
   type WatchProvider,
 } from '@cinemo/shared';
@@ -49,6 +50,13 @@ type TmdbWatchProvidersResponse = {
   };
 };
 
+type TmdbVideo = {
+  key: string;
+  site: string;
+  type: string;
+  official: boolean;
+};
+
 @Injectable()
 export class TmdbService {
   private readonly logger = new Logger(TmdbService.name);
@@ -81,6 +89,28 @@ export class TmdbService {
       );
     }
     return response.json();
+  }
+
+  private pickPreferredVideo(videos: TmdbVideo[]) {
+    const pick = (type: MovieVideoType) => {
+      const tmdbType = type === 'trailer' ? 'Trailer' : 'Teaser';
+
+      return [...videos]
+        .filter(
+          (video) =>
+            video.key.trim() &&
+            video.site.trim().toLocaleLowerCase('en-US') === 'youtube' &&
+            video.type.trim().toLocaleLowerCase('en-US') ===
+              tmdbType.toLocaleLowerCase('en-US'),
+        )
+        .sort((a, b) => Number(b.official) - Number(a.official))[0];
+    };
+
+    const trailer = pick('trailer');
+    if (trailer) return { key: trailer.key, type: 'trailer' as const };
+
+    const teaser = pick('teaser');
+    return teaser ? { key: teaser.key, type: 'teaser' as const } : null;
   }
 
   private seedProgress: {
@@ -202,9 +232,13 @@ export class TmdbService {
     let newDirector = director;
 
     if (needsOverview && overviewEn) {
-      newOverview =
-        (await this.aiService.translateOverview(titleEn, overviewEn)) ??
-        overview;
+      const translatedOverview = await this.aiService.translateOverview(
+        titleEn,
+        overviewEn,
+      );
+      if (this.isUsableTranslatedOverview(translatedOverview)) {
+        newOverview = translatedOverview;
+      }
     }
     if (needsTitle) {
       newTitle = (await this.aiService.koreanTitle(titleEn, year)) ?? titleEn;
@@ -556,11 +590,14 @@ export class TmdbService {
     try {
       const englishDetail = await this.getMovieDetail(movieId, 'en-US');
       if (!englishDetail.overview?.trim()) return '';
-      const translatedOverview =
-        (await this.aiService.translateOverview(
-          englishDetail.title || title,
-          englishDetail.overview,
-        )) || englishDetail.overview;
+      const translatedOverview = await this.aiService.translateOverview(
+        englishDetail.title || title,
+        englishDetail.overview,
+      );
+
+      if (!this.isUsableTranslatedOverview(translatedOverview)) {
+        return overview;
+      }
 
       await this.prismaService.moviePool.updateMany({
         where: {
@@ -574,6 +611,15 @@ export class TmdbService {
     } catch {
       return '';
     }
+  }
+
+  private isUsableTranslatedOverview(value: string | null): value is string {
+    const text = value?.trim();
+    if (!text) return false;
+
+    return !/I don't have access|I cannot|I can't|정보를 찾을 수 없|번역할 수 없|죄송|알 수 없/i.test(
+      text,
+    );
   }
 
   private isInsufficientOverview(overview: string): boolean {
@@ -608,12 +654,10 @@ export class TmdbService {
       detail.title,
       detail.overview,
     );
-    const trailer = [...(detail.videos?.results ?? [])]
-      .filter((video) => video.site === 'YouTube' && video.type === 'Trailer')
-      .sort((a, b) => Number(b.official) - Number(a.official))[0];
+    const video = this.pickPreferredVideo(detail.videos?.results ?? []);
 
-    const trailerUrl = trailer
-      ? `https://www.youtube.com/watch?v=${trailer.key}`
+    const trailerUrl = video
+      ? `https://www.youtube.com/watch?v=${video.key}`
       : null;
 
     return {
@@ -627,8 +671,18 @@ export class TmdbService {
       providers,
       genre_ids,
       trailerUrl,
+      videoType: video?.type ?? null,
       origin_countries,
     };
+  }
+
+  async isValidMovieRecord(movieId: number): Promise<boolean> {
+    try {
+      const detail = await this.getMovieDetail(movieId);
+      return Boolean(detail.title?.trim() && detail.release_date?.trim());
+    } catch {
+      return false;
+    }
   }
 
   /** 동일 서비스의 하위 티어 id → 대표 id 매핑 */
@@ -735,5 +789,22 @@ export class TmdbService {
     }
 
     return result;
+  }
+
+  async getMovieTrailer(movieId: number): Promise<string | null> {
+    const video = await this.getMovieVideo(movieId);
+    return video?.url ?? null;
+  }
+
+  async getMovieVideo(movieId: number) {
+    const detail = await this.getMovieDetail(movieId);
+    const video = this.pickPreferredVideo(detail.videos?.results ?? []);
+
+    return video
+      ? {
+          url: `https://www.youtube.com/watch?v=${video.key}`,
+          videoType: video.type,
+        }
+      : null;
   }
 }

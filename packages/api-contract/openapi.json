@@ -1,0 +1,2633 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1": {
+      "get": {
+        "operationId": "AppController_getHello_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/v1/ai/quote-suggestions": {
+      "post": {
+        "operationId": "AiController_recommendMovieQuotes_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendMovieQuotesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/v1/auth/check-email": {
+      "get": {
+        "operationId": "AuthController_checkEmail_v1",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/check-nickname": {
+      "get": {
+        "operationId": "AuthController_checkNickname_v1",
+        "parameters": [
+          {
+            "name": "nickname",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/google": {
+      "get": {
+        "operationId": "AuthController_googleLogin_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/google/callback": {
+      "get": {
+        "operationId": "AuthController_googleCallback_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/google/exchange": {
+      "post": {
+        "operationId": "AuthController_exchangeGoogleCode_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeOAuthCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/kakao": {
+      "get": {
+        "operationId": "AuthController_kakaoLogin_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/kakao/callback": {
+      "get": {
+        "operationId": "AuthController_kakaoCallback_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/naver": {
+      "get": {
+        "operationId": "AuthController_naverLogin_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/naver/callback": {
+      "get": {
+        "operationId": "AuthController_naverCallback_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/password-reset/request": {
+      "post": {
+        "operationId": "AuthController_requestPasswordReset_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "AuthController_resetPassword_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_getMe_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/avatar": {
+      "patch": {
+        "operationId": "AuthController_updateAvatar_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAvatarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/profile": {
+      "patch": {
+        "operationId": "AuthController_updateProfile_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/admin/overview": {
+      "get": {
+        "operationId": "AdminController_getOverview_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/people/feed": {
+      "get": {
+        "operationId": "AdminController_getPeopleFeed_v1",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/people": {
+      "get": {
+        "operationId": "AdminController_getPeople_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/analytics": {
+      "get": {
+        "operationId": "AdminController_getAnalytics_v1",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/reports/daily-excel": {
+      "get": {
+        "operationId": "AdminReportController_downloadYesterdayExcel_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin-reports"
+        ]
+      }
+    },
+    "/v1/admin/reports/daily-excel/status": {
+      "get": {
+        "operationId": "AdminReportController_getYesterdayExcelStatus_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin-reports"
+        ]
+      }
+    },
+    "/v1/admin/reports/daily-excel/cron": {
+      "post": {
+        "operationId": "AdminReportController_downloadYesterdayExcelForCron_v1",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin-reports"
+        ]
+      }
+    },
+    "/v1/admin/demo-seed": {
+      "post": {
+        "operationId": "AdminDemoSeedController_run_v1",
+        "parameters": [
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin-demo-seed"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminDemoSeedController_purge_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "admin-demo-seed"
+        ]
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "operationId": "HealthController_healthCheck_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/v1/tickets/today": {
+      "get": {
+        "operationId": "TicketController_getToday_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/v1/tickets/issue": {
+      "post": {
+        "operationId": "TicketController_issueToday_v1",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/v1/tickets/use": {
+      "post": {
+        "operationId": "TicketController_useToday_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UseTicketDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/v1/tickets/reset-today": {
+      "post": {
+        "operationId": "TicketController_resetToday_v1",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/v1/tmdb/movie/{movieId}": {
+      "get": {
+        "operationId": "TmdbController_getMovie_v1",
+        "parameters": [
+          {
+            "name": "movieId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/genres": {
+      "get": {
+        "operationId": "TmdbController_getMovieGenres_v1",
+        "parameters": [
+          {
+            "name": "language",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "ko",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/discover": {
+      "get": {
+        "operationId": "TmdbController_discover_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "machineId",
+            "required": false,
+            "in": "query",
+            "description": "genre: random|thriller|action|comedy|romance|horror|sf|drama · country: kr|jp|us|fr|gb|cn|de|in",
+            "schema": {
+              "example": "thriller"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/search": {
+      "get": {
+        "operationId": "TmdbController_search_v1",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "인셉션",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool/latest": {
+      "get": {
+        "operationId": "TmdbController_getLatestSeedPool_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool/progress": {
+      "get": {
+        "operationId": "TmdbController_getSeedPoolProgress_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool": {
+      "post": {
+        "operationId": "TmdbController_seedPool_v1",
+        "parameters": [
+          {
+            "name": "pages",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 3,
+              "type": "number"
+            }
+          },
+          {
+            "name": "machineId",
+            "required": false,
+            "in": "query",
+            "description": "genre: random|thriller|action|comedy|romance|horror|sf|drama · country: kr|jp|us|fr|gb|cn|de|in",
+            "schema": {
+              "example": "thriller"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool/all": {
+      "post": {
+        "operationId": "TmdbController_seedPoolAll_v1",
+        "parameters": [
+          {
+            "name": "pages",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool/cron": {
+      "post": {
+        "operationId": "TmdbController_seedPoolCron_v1",
+        "parameters": [
+          {
+            "name": "pages",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 3,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool/cron/status": {
+      "get": {
+        "operationId": "TmdbController_getSeedPoolCronStatus_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/seed-pool/cancel": {
+      "post": {
+        "operationId": "TmdbController_cancelSeedPool_v1",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/provider-overrides": {
+      "get": {
+        "operationId": "TmdbController_listProviderOverrides_v1",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      },
+      "post": {
+        "operationId": "TmdbController_upsertProviderOverride_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertProviderOverrideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/user-movies/toggle": {
+      "post": {
+        "operationId": "UserMovieController_toggle_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertUserMovieDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/watched-at": {
+      "post": {
+        "operationId": "UserMovieController_addWatchedMovie_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddWatchedMovieDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      },
+      "patch": {
+        "operationId": "UserMovieController_updateWatchedAt_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWatchedAtDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/viewing-details": {
+      "patch": {
+        "operationId": "UserMovieController_updateViewingDetails_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateViewingDetailsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/watched-at/{tmdbId}": {
+      "delete": {
+        "operationId": "UserMovieController_removeWatchedMovie_v1",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/marks": {
+      "get": {
+        "operationId": "UserMovieController_getMarks_v1",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/counts": {
+      "get": {
+        "operationId": "UserMovieController_getCounts_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/calendar": {
+      "get": {
+        "operationId": "UserMovieController_getCalendar_v1",
+        "parameters": [
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "month",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/stats": {
+      "get": {
+        "operationId": "UserMovieController_getStats_v1",
+        "parameters": [
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies": {
+      "get": {
+        "operationId": "UserMovieController_listByKind_v1",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/display": {
+      "post": {
+        "operationId": "UserMovieController_updateDisplay_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDisplayDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/displayed": {
+      "get": {
+        "operationId": "UserMovieController_listDisplayed_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/release-notification": {
+      "get": {
+        "operationId": "UserMovieController_getReleaseNotification_v1",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      },
+      "patch": {
+        "operationId": "UserMovieController_updateReleaseNotification_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReleaseNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/release-notifications/cron": {
+      "post": {
+        "operationId": "ReleaseNotificationController_runForTest_v1",
+        "parameters": [
+          {
+            "name": "x-cron-secret",
+            "in": "header",
+            "description": "apps/api/.env의 CRON_SECRET 값",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "release-notifications"
+        ]
+      }
+    },
+    "/v1/lobby/board": {
+      "get": {
+        "operationId": "LobbyBoardController_getBoard_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
+    "/v1/lobby/movie-chart": {
+      "get": {
+        "operationId": "LobbyBoardController_getMovieChart_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieChartResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
+    "/v1/lobby/upcoming": {
+      "get": {
+        "operationId": "LobbyBoardController_getUpcomingMovies_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
+    "/v1/lobby/visit": {
+      "post": {
+        "operationId": "LobbyBoardController_recordVisit_v1",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
+    "/v1/profiles/{nickname}": {
+      "get": {
+        "operationId": "ProfilesController_getProfile_v1",
+        "parameters": [
+          {
+            "name": "nickname",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/v1/guide": {
+      "get": {
+        "operationId": "GuideController_getGuide_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "guide"
+        ]
+      },
+      "patch": {
+        "operationId": "GuideController_updateGuide_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLobbyGuideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "guide"
+        ]
+      }
+    },
+    "/v1/places/search": {
+      "get": {
+        "operationId": "PlacesController_search_v1",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "CGV 압구정",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "places"
+        ]
+      }
+    },
+    "/v1/postcards": {
+      "get": {
+        "operationId": "PostcardController_findPublic_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "공개 엽서 목록 조회",
+        "tags": [
+          "postcards"
+        ]
+      },
+      "post": {
+        "operationId": "PostcardController_create_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostcardDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "엽서 작성",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/mine": {
+      "get": {
+        "operationId": "PostcardController_findMine_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내가 만든 엽서 목록 조회",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/bookmarked": {
+      "get": {
+        "operationId": "PostcardController_findBookmarked_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "보관한 엽서 목록 조회",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{id}/pin": {
+      "post": {
+        "operationId": "PostcardController_togglePinned_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "대표 엽서 고정·고정 해제",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{id}/bookmark": {
+      "post": {
+        "operationId": "PostcardController_toggleBookmark_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "엽서 보관·보관 취소",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{id}/reaction": {
+      "post": {
+        "operationId": "PostcardController_toggleReaction_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TogglePostcardReactionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "엽서 이모지 반응 추가·변경·취소",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{id}": {
+      "patch": {
+        "operationId": "PostcardController_update_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePostcardDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 엽서 수정",
+        "tags": [
+          "postcards"
+        ]
+      },
+      "delete": {
+        "operationId": "PostcardController_remove_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 엽서 삭제",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{id}/comments": {
+      "get": {
+        "operationId": "PostcardController_findComments_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "엽서 댓글·대댓글 조회",
+        "tags": [
+          "postcards"
+        ]
+      },
+      "post": {
+        "operationId": "PostcardController_createComment_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostcardCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "엽서 댓글 작성",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{postcardId}/comments/{commentId}": {
+      "patch": {
+        "operationId": "PostcardController_updateComment_v1",
+        "parameters": [
+          {
+            "name": "commentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePostcardCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 댓글 수정",
+        "tags": [
+          "postcards"
+        ]
+      },
+      "delete": {
+        "operationId": "PostcardController_removeComment_v1",
+        "parameters": [
+          {
+            "name": "commentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "내 댓글 삭제",
+        "tags": [
+          "postcards"
+        ]
+      }
+    },
+    "/v1/postcards/{postcardId}/comments/{commentId}/reaction": {
+      "post": {
+        "operationId": "PostcardController_toggleCommentReaction_v1",
+        "parameters": [
+          {
+            "name": "commentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TogglePostcardCommentReactionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "댓글 이모지 반응 추가·취소",
+        "tags": [
+          "postcards"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "CINEMO API",
+    "description": "Cinema in Motion — 영화관 로비 API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RecommendMovieQuotesDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "이메일",
+            "example": "test@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "비밀번호",
+            "example": "password123"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "닉네임",
+            "example": "test"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "nickname"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "이메일",
+            "example": "test@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "비밀번호",
+            "example": "password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ExchangeOAuthCodeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Google OAuth 일회용 code"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "RequestPasswordResetDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "비밀번호 재설정 링크를 받을 이메일",
+            "example": "user@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateAvatarDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UseTicketDto": {
+        "type": "object",
+        "properties": {
+          "machineId": {
+            "type": "string",
+            "description": "뽑기 머신 ID",
+            "example": "thriller"
+          }
+        },
+        "required": [
+          "machineId"
+        ]
+      },
+      "UpsertProviderOverrideDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 496243
+          },
+          "providerId": {
+            "type": "number",
+            "example": 356,
+            "description": "TMDB provider_id (Wavve=356)"
+          },
+          "providerName": {
+            "type": "string",
+            "example": "Wavve"
+          },
+          "logoPath": {
+            "type": "string",
+            "example": "/xxx.jpg"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "add",
+              "remove"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "example": "웨이브 앱에서 확인"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "providerId",
+          "providerName",
+          "action"
+        ]
+      },
+      "UpsertUserMovieDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "wish",
+              "watched"
+            ],
+            "example": "wish"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "kind"
+        ]
+      },
+      "AddWatchedMovieDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "watchedAt": {
+            "type": "string",
+            "example": "2026-09-02"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "watchedAt"
+        ]
+      },
+      "UpdateWatchedAtDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "watchedAt": {
+            "type": "string",
+            "example": "2026-09-02"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "watchedAt"
+        ]
+      },
+      "UpdateViewingDetailsDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "watchedAt": {
+            "type": "object",
+            "example": "2026-09-02",
+            "nullable": true
+          },
+          "viewingType": {
+            "type": "string",
+            "enum": [
+              "theater",
+              "home",
+              "other"
+            ],
+            "nullable": true,
+            "example": "home"
+          },
+          "viewingTypeCustom": {
+            "type": "object",
+            "nullable": true,
+            "example": "친구 집"
+          },
+          "viewingPlatform": {
+            "type": "object",
+            "nullable": true,
+            "example": "Netflix"
+          },
+          "viewingLocation": {
+            "type": "object",
+            "nullable": true,
+            "example": "집"
+          },
+          "review": {
+            "type": "object",
+            "nullable": true,
+            "example": "영상미가 인상 깊었던 영화"
+          },
+          "rating": {
+            "type": "object",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 10,
+            "example": 8
+          }
+        },
+        "required": [
+          "tmdbId"
+        ]
+      },
+      "UpdateDisplayDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "wish",
+              "watched"
+            ],
+            "example": "watched"
+          },
+          "isDisplayed": {
+            "type": "boolean",
+            "example": true
+          },
+          "wallSlot": {
+            "type": "number",
+            "example": 1,
+            "description": "포스터 위치 순서 1~3"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "kind",
+          "isDisplayed",
+          "wallSlot"
+        ]
+      },
+      "UpdateReleaseNotificationDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "tmdbId",
+          "enabled"
+        ]
+      },
+      "MovieChartItemDto": {
+        "type": "object",
+        "properties": {
+          "kobisMovieCd": {
+            "type": "string",
+            "example": "20251234"
+          },
+          "rank": {
+            "type": "number",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "오디세이"
+          },
+          "dailyAudienceCount": {
+            "type": "number",
+            "example": 65000
+          },
+          "audienceCount": {
+            "type": "number",
+            "example": 10333000
+          },
+          "rankChange": {
+            "type": "number",
+            "nullable": true,
+            "example": 1
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster-path.jpg"
+          },
+          "trailerUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://www.youtube.com/watch?v=example"
+          },
+          "videoType": {
+            "type": "string",
+            "enum": [
+              "trailer",
+              "teaser"
+            ],
+            "nullable": true,
+            "example": "trailer"
+          }
+        },
+        "required": [
+          "kobisMovieCd",
+          "rank",
+          "title",
+          "dailyAudienceCount",
+          "audienceCount",
+          "rankChange",
+          "posterPath",
+          "trailerUrl",
+          "videoType"
+        ]
+      },
+      "MovieChartResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieChartItemDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "example": 10
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "UpdateLobbyGuideStepDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "upcoming"
+          },
+          "kicker": {
+            "type": "string",
+            "example": "SCREEN"
+          },
+          "title": {
+            "type": "string",
+            "example": "스크린에서 만날 영화를 저장해요"
+          },
+          "body": {
+            "type": "string",
+            "example": "개봉 예정작 중 마음에 드는 영화는 ‘보고 싶어요’로 저장해요."
+          }
+        },
+        "required": [
+          "id",
+          "kicker",
+          "title",
+          "body"
+        ]
+      },
+      "UpdateLobbyGuideDto": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "minItems": 1,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateLobbyGuideStepDto"
+            }
+          }
+        },
+        "required": [
+          "steps"
+        ]
+      },
+      "TogglePostcardReactionDto": {
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string",
+            "example": "❤️",
+            "description": "엽서에 추가할 이모지"
+          }
+        },
+        "required": [
+          "emoji"
+        ]
+      },
+      "CreatePostcardDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "movieTitle": {
+            "type": "object",
+            "example": "파이트 클럽",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "example": "우리가 반복해서 하는 일이 곧 우리다."
+          },
+          "originalText": {
+            "type": "object",
+            "example": "What we do repeatedly is what we are.",
+            "nullable": true,
+            "description": "엽서 문구의 외국어 원문"
+          },
+          "posterPath": {
+            "type": "object",
+            "example": "/poster-path.jpg",
+            "nullable": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "default": true,
+            "description": "공개 엽서 여부"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "text"
+        ]
+      },
+      "UpdatePostcardDto": {
+        "type": "object",
+        "properties": {
+          "movieTitle": {
+            "type": "object",
+            "example": "파이트 클럽",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "example": "우리가 반복해서 하는 일이 곧 우리다."
+          },
+          "originalText": {
+            "type": "object",
+            "example": "What we do repeatedly is what we are.",
+            "nullable": true,
+            "description": "엽서 문구의 외국어 원문"
+          },
+          "posterPath": {
+            "type": "object",
+            "example": "/poster-path.jpg",
+            "nullable": true
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "공개 엽서 여부"
+          }
+        }
+      },
+      "CreatePostcardCommentDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "example": "이 장면의 분위기가 정말 좋았어요."
+          },
+          "parentId": {
+            "type": "object",
+            "example": "01912345-aaaa-7bbb-8ccc-123456789012",
+            "nullable": true,
+            "description": "대댓글 작성 시 답글 대상 댓글 ID"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "UpdatePostcardCommentDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "example": "이 장면의 분위기가 정말 좋았어요."
+          }
+        }
+      },
+      "TogglePostcardCommentReactionDto": {
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string",
+            "example": "😊",
+            "description": "댓글에 추가할 이모지"
+          }
+        },
+        "required": [
+          "emoji"
+        ]
+      }
+    }
+  }
+}

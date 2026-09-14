@@ -1,0 +1,21 @@
+{
+  "name": "@cinemo/api-contract",
+  "version": "0.0.1",
+  "private": true,
+  "files": [
+    "openapi.json",
+    "src/generated"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/generated/api.d.ts",
+      "default": "./src/generated/api.d.ts"
+    }
+  },
+  "scripts": {
+    "generate:types": "openapi-typescript openapi.json -o src/generated/api.d.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0"
+  }
+}

@@ -1,5 +1,6 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { Hash, X } from 'lucide-react';
 import {
@@ -11,6 +12,7 @@ import {
 } from '@cinemo/shared';
 import { checkNicknameRequest } from '@/lib/auth-api';
 import type { UpdateProfileInput } from '@/lib/auth-store';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type ProfileForm = {
   nickname: string;
@@ -33,6 +35,8 @@ function addTagToList(tags: string[], raw: string): string[] {
 }
 
 export function ProfileModal({ initial, onSave, onClose }: Props) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const [form, setForm] = useState<ProfileForm>(initial);
   const [tagInput, setTagInput] = useState('');
   const [tagHint, setTagHint] = useState<string | null>(null);
@@ -116,21 +120,33 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
   const tagCount = form.tags.length;
 
   return (
-    <div className="wardrobe-overlay" onClick={onClose}>
-      <div
-        className="wardrobe-panel profile-panel"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          className="wardrobe-close"
-          type="button"
-          onClick={onClose}
-          aria-label="닫기"
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="wardrobe-overlay" />
+        <Dialog.Content
+          className="wardrobe-panel profile-panel"
+          aria-describedby={undefined}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
         >
-          <X size={16} strokeWidth={2} />
-        </button>
+          <Dialog.Close asChild>
+            <button
+              className="wardrobe-close"
+              type="button"
+              aria-label="닫기"
+            >
+              <X size={16} strokeWidth={2} />
+            </button>
+          </Dialog.Close>
 
-        <p className="wardrobe-kicker">PROFILE</p>
+          <Dialog.Title asChild>
+            <p className="wardrobe-kicker">PROFILE</p>
+          </Dialog.Title>
 
         <div className="profile-preview">
           <p className="profile-preview-label">미리보기</p>
@@ -312,20 +328,23 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
           </div>
         </div>
 
-        <div className="wardrobe-actions">
-          <button type="button" className="lobby-btn" onClick={onClose}>
-            취소
-          </button>
-          <button
-            type="button"
-            className="lobby-btn lobby-btn--primary"
-            disabled={saving}
-            onClick={() => void handleSave()}
-          >
-            저장
-          </button>
-        </div>
-      </div>
-    </div>
+          <div className="wardrobe-actions">
+            <Dialog.Close asChild>
+              <button type="button" className="lobby-btn">
+                취소
+              </button>
+            </Dialog.Close>
+            <button
+              type="button"
+              className="lobby-btn lobby-btn--primary"
+              disabled={saving}
+              onClick={() => void handleSave()}
+            >
+              저장
+            </button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

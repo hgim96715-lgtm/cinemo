@@ -407,19 +407,34 @@
   justify-content: center;
   gap: 0.75rem;
   min-height: 20rem;
-  width: min(100%, 20rem);
+  width: min(calc(100% - 2rem), 20rem);
 }
 
 .gacha-modal-content {
-  position: relative;
-  z-index: 1;
+  position: fixed;
+  z-index: 41;
+  top: 50%;
+  left: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.1rem;
   width: min(100%, 20rem);
   padding: 0.35rem;
+  transform: translate(-50%, -50%);
   animation: gacha-modal-in 280ms ease both;
+}
+
+.gacha-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .gacha-result {
@@ -656,8 +671,9 @@
 }
 
 .gacha-modal-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 40;
   background: rgb(6 7 10 / 0.72);
   backdrop-filter: blur(6px);
 }
@@ -987,11 +1003,11 @@
 @keyframes gacha-modal-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.96);
+    transform: translate(-50%, calc(-50% + 10px)) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 

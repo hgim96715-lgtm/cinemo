@@ -1,7 +1,9 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { Check, CircleAlert, X } from 'lucide-react';
 import type { MoviePoolSeedRun } from '@cinemo/shared';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type Props = {
   run: MoviePoolSeedRun;
@@ -23,32 +25,43 @@ function formatDate(value: string) {
 }
 
 export function AdminSeedRunModal({ run, onClose }: Props) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const isSuccess = run.status === 'succeeded';
   const isRunning = run.status === 'running';
 
   return (
-    <div className="admin-seed-modal-overlay" onClick={onClose}>
-      <section
-        className="admin-seed-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="admin-seed-modal-title"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <button
-          type="button"
-          className="admin-seed-modal-close"
-          onClick={onClose}
-          aria-label="닫기"
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="admin-seed-modal-overlay" />
+        <Dialog.Content
+          className="admin-seed-modal"
+          aria-describedby={undefined}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
         >
-          <X size={18} />
-        </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="admin-seed-modal-close"
+              aria-label="닫기"
+            >
+              <X size={18} />
+            </button>
+          </Dialog.Close>
 
-        <p className="admin-kicker">MOVIEPOOL SEED</p>
+          <p className="admin-kicker">MOVIEPOOL SEED</p>
 
-        <h2 id="admin-seed-modal-title" className="admin-seed-modal-title">
-          {isRunning ? 'MoviePool 시드 실행 중' : 'MoviePool 시드 결과'}
-        </h2>
+          <Dialog.Title asChild>
+            <h2 className="admin-seed-modal-title">
+              {isRunning ? 'MoviePool 시드 실행 중' : 'MoviePool 시드 결과'}
+            </h2>
+          </Dialog.Title>
 
         <div className={`admin-seed-status admin-seed-status--${run.status}`}>
           {isSuccess ? <Check size={16} /> : <CircleAlert size={16} />}
@@ -94,14 +107,16 @@ export function AdminSeedRunModal({ run, onClose }: Props) {
           <p className="admin-seed-error">{run.errorMessage}</p>
         ) : null}
 
-        <button
-          type="button"
-          className="admin-ops-btn admin-ops-btn--primary admin-seed-modal-action"
-          onClick={onClose}
-        >
-          확인
-        </button>
-      </section>
-    </div>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="admin-ops-btn admin-ops-btn--primary admin-seed-modal-action"
+            >
+              확인
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

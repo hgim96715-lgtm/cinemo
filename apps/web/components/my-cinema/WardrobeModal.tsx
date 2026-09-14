@@ -1,9 +1,11 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { AvatarConfig } from '@cinemo/shared';
 import { AvatarFigure } from './AvatarFigure';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 import {
   BLUSH_COLORS,
   EYE_OPTIONS,
@@ -36,6 +38,8 @@ function normalizeAvatarForSave(avatar: AvatarConfig): AvatarConfig {
 }
 
 export function WardrobeModal({ initial, onSave, onClose }: Props) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const [tempAvatar, setTempAvatar] = useState<AvatarConfig>(initial);
   const [tab, setTab] = useState<'hat' | 'face' | 'outfit'>('hat');
 
@@ -72,18 +76,29 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
   }
 
   return (
-    <div className="wardrobe-overlay" onClick={onClose}>
-      <div className="wardrobe-panel" onClick={(e) => e.stopPropagation()}>
-        <button
-          className="wardrobe-close"
-          type="button"
-          onClick={onClose}
-          aria-label="닫기"
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="wardrobe-overlay" />
+        <Dialog.Content
+          className="wardrobe-panel"
+          aria-describedby={undefined}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
         >
-          <X size={16} strokeWidth={2} />
-        </button>
+          <Dialog.Close asChild>
+            <button className="wardrobe-close" type="button" aria-label="닫기">
+              <X size={16} strokeWidth={2} />
+            </button>
+          </Dialog.Close>
 
-        <p className="wardrobe-kicker">WARDROBE</p>
+          <Dialog.Title asChild>
+            <p className="wardrobe-kicker">WARDROBE</p>
+          </Dialog.Title>
 
         <div className="wardrobe-preview">
           <AvatarFigure config={tempAvatar} />
@@ -413,21 +428,24 @@ export function WardrobeModal({ initial, onSave, onClose }: Props) {
           )}
         </div>
 
-        <div className="wardrobe-actions">
-          <button type="button" className="lobby-btn" onClick={onClose}>
-            취소
-          </button>
-          <button
-            type="button"
-            className="lobby-btn lobby-btn--primary"
-            onClick={() => {
-              onSave(normalizeAvatarForSave(tempAvatar));
-            }}
-          >
-            저장
-          </button>
-        </div>
-      </div>
-    </div>
+          <div className="wardrobe-actions">
+            <Dialog.Close asChild>
+              <button type="button" className="lobby-btn">
+                취소
+              </button>
+            </Dialog.Close>
+            <button
+              type="button"
+              className="lobby-btn lobby-btn--primary"
+              onClick={() => {
+                onSave(normalizeAvatarForSave(tempAvatar));
+              }}
+            >
+              저장
+            </button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

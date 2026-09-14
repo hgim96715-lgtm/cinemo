@@ -1,5 +1,6 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -30,8 +31,11 @@ import '../styles/gacha.css';
 import '../styles/lobby.css';
 import '../styles/common.css';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 export default function GachaPage() {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -355,14 +359,19 @@ export default function GachaPage() {
       )}
 
       {capsulePhase !== 'hidden' ? (
-        <div
-          className="gacha-modal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="뽑기 결과"
-        >
-          <div className="gacha-modal-backdrop" aria-hidden />
-          <div className="gacha-modal-content">
+        <Dialog.Root open onOpenChange={() => undefined}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="gacha-modal-backdrop" />
+            <Dialog.Content
+              className="gacha-modal-content"
+              aria-describedby={undefined}
+              onOpenAutoFocus={handleOpenAutoFocus}
+              onCloseAutoFocus={handleCloseAutoFocus}
+              onEscapeKeyDown={(event) => event.preventDefault()}
+            >
+              <Dialog.Title className="gacha-sr-only">
+                뽑기 결과
+              </Dialog.Title>
             {capsulePhase === 'open' && gachaMovie ? (
               <div className="gacha-result">
                 <p className="gacha-result-kicker">{usedLabel}</p>
@@ -520,8 +529,9 @@ export default function GachaPage() {
                 ) : null}
               </div>
             </div>
-          </div>
-        </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       ) : null}
 
       {error ? <p className="gacha-copy">{error}</p> : null}

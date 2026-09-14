@@ -1,12 +1,13 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 import {
   Bell,
   CalendarPlus,
   Check,
-  ExternalLink,
   Heart,
+  Play,
   X,
   ZoomIn,
   ZoomOut,
@@ -42,6 +43,7 @@ import {
   readRecentLocations,
 } from './movie-detail-location';
 import { ConfirmModal } from '../common/ConfirmModal';
+import { MovieVideoModal } from '../common/MovieVideoModal';
 
 const TMDB_GENRE_LABELS: Record<number, string> = {
   28: '액션',
@@ -106,6 +108,7 @@ export function MovieDetailModal({
   const [isLocationFocused, setIsLocationFocused] = useState(false);
 
   const [showNotificationGuide, setShowNotificationGuide] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   const [searchingPlacesQuery, setSearchingPlacesQuery] = useState('');
   const calendarParams = new URLSearchParams({
@@ -313,21 +316,6 @@ export function MovieDetailModal({
     },
   );
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-    };
-  }, [onClose]);
-
   function handleNotificationClick() {
     if (!marks?.wish) {
       setShowNotificationGuide(true);
@@ -339,239 +327,266 @@ export function MovieDetailModal({
 
   return (
     <>
-      <div className="movie-detail-overlay" role="presentation" onClick={onClose}>
-        <section
+      <Dialog.Portal>
+        <Dialog.Overlay className="movie-detail-overlay" />
+        <Dialog.Content
           className={`movie-detail-modal${largeText ? ' is-large-text' : ''}`}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="movie-detail-title"
-          onClick={(event) => event.stopPropagation()}
+          aria-describedby={undefined}
         >
-        <button
-          type="button"
-          className="movie-detail-close"
-          onClick={onClose}
-          aria-label="상세 설명 닫기"
-        >
-          <X size={22} strokeWidth={1.5} aria-hidden />
-        </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="movie-detail-close"
+              aria-label="상세 설명 닫기"
+            >
+              <X size={22} strokeWidth={1.5} aria-hidden />
+            </button>
+          </Dialog.Close>
 
-        <div className="movie-detail-content">
-          <div className="movie-detail-poster">
-            {poster ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={poster} alt={`${movie.title} 포스터`} />
-            ) : (
-              <span>포스터 없음</span>
-            )}
-          </div>
+          <div className="movie-detail-content">
+            <div className="movie-detail-poster">
+              {poster ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={poster} alt={`${movie.title} 포스터`} />
+              ) : (
+                <span>포스터 없음</span>
+              )}
+            </div>
 
-          <div className="movie-detail-info">
-            <p className="movie-detail-kicker">MOVIE DETAIL</p>
+            <div className="movie-detail-info">
+              <p className="movie-detail-kicker">MOVIE DETAIL</p>
 
-            <h2 id="movie-detail-title">{movie.title}</h2>
-            {movie.genre_ids?.length ? (
-              <div className="movie-detail-genres" aria-label="영화 장르">
-                {movie.genre_ids
-                  .map((genreId) => TMDB_GENRE_LABELS[genreId])
-                  .filter(Boolean)
-                  .map((genre) => (
-                    <span key={genre}>{genre}</span>
-                  ))}
-              </div>
-            ) : null}
-
-            <dl className="movie-detail-facts">
-              {movie.release_date ? (
-                <div>
-                  <dt>개봉일</dt>
-                  <dd>{movie.release_date.replaceAll('-', '.')}</dd>
+              <Dialog.Title asChild>
+                <h2>{movie.title}</h2>
+              </Dialog.Title>
+              {movie.genre_ids?.length ? (
+                <div className="movie-detail-genres" aria-label="영화 장르">
+                  {movie.genre_ids
+                    .map((genreId) => TMDB_GENRE_LABELS[genreId])
+                    .filter(Boolean)
+                    .map((genre) => (
+                      <span key={genre}>{genre}</span>
+                    ))}
                 </div>
               ) : null}
-              {movie.director ? (
-                <div>
-                  <dt>감독</dt>
-                  <dd>{movie.director}</dd>
-                </div>
-              ) : null}
-              {movie.cast && movie.cast.length > 0 ? (
-                <div>
-                  <dt>주요 배우</dt>
-                  <dd>{movie.cast.slice(0, 5).join(', ')}</dd>
-                </div>
-              ) : null}
-            </dl>
 
-            {onToggleMark && showWatchedMark ? (
-              <div className="movie-detail-mark-actions" aria-label="영화 상태">
-                <button
-                  type="button"
-                  className={`my-cinema-mark movie-detail-interest-icon${
-                    marks?.wish ? ' is-on' : ''
-                  }`}
-                  aria-pressed={marks?.wish ?? false}
-                  aria-label={marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'}
-                  onClick={() => onToggleMark('wish')}
+              <dl className="movie-detail-facts">
+                {movie.release_date ? (
+                  <div>
+                    <dt>개봉일</dt>
+                    <dd>{movie.release_date.replaceAll('-', '.')}</dd>
+                  </div>
+                ) : null}
+                {movie.director ? (
+                  <div>
+                    <dt>감독</dt>
+                    <dd>{movie.director}</dd>
+                  </div>
+                ) : null}
+                {movie.cast && movie.cast.length > 0 ? (
+                  <div>
+                    <dt>주요 배우</dt>
+                    <dd>{movie.cast.slice(0, 5).join(', ')}</dd>
+                  </div>
+                ) : null}
+              </dl>
+
+              {onToggleMark && showWatchedMark ? (
+                <div
+                  className="movie-detail-mark-actions"
+                  aria-label="영화 상태"
                 >
-                  <Heart
-                    size={22}
-                    strokeWidth={1.8}
-                    fill={marks?.wish ? 'currentColor' : 'none'}
-                    aria-hidden
-                  />
-                </button>
-                {showWatchedMark ? (
                   <button
                     type="button"
-                    className={`my-cinema-mark${marks?.watched ? ' is-on' : ''}`}
-                    aria-pressed={marks?.watched ?? false}
-                    aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
-                    onClick={() => onToggleMark('watched')}
-                  >
-                    <Check size={17} strokeWidth={2} aria-hidden />
-                    <span>{marks?.watched ? '관람 기록' : '봤어요'}</span>
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-
-            <p className="movie-detail-overview">
-              {movie.overview?.trim() || '줄거리 정보가 없어요.'}
-            </p>
-            {movie.trailerUrl || calendarUrl || onToggleReleaseNotification ? (
-              <div className="movie-detail-actions" aria-label="영화 관련 링크">
-                {movie.trailerUrl ? (
-                  <a
-                    className="movie-detail-trailer-link"
-                    href={movie.trailerUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    예고편 보기
-                    <ExternalLink size={15} aria-hidden />
-                  </a>
-                ) : null}
-                {calendarUrl ? (
-                  <a
-                    className="movie-detail-calendar-button"
-                    href={calendarUrl}
-                    aria-label={`${movie.title} 캘린더에 추가`}
-                    aria-describedby={`movie-calendar-tooltip-${movie.id}`}
-                  >
-                    <CalendarPlus size={17} aria-hidden />
-                    <span className="movie-detail-sr-only">캘린더에 추가</span>
-                    <span
-                      id={`movie-calendar-tooltip-${movie.id}`}
-                      className="movie-detail-tooltip"
-                      role="tooltip"
-                    >
-                      캘린더에 추가
-                    </span>
-                  </a>
-                ) : null}
-                {onToggleReleaseNotification ? (
-                  <button
-                    type="button"
-                    className={`movie-detail-notification-button${
-                      releaseNotificationEnabled ? ' is-on' : ''
+                    className={`my-cinema-mark movie-detail-interest-icon${
+                      marks?.wish ? ' is-on' : ''
                     }`}
-                    aria-pressed={releaseNotificationEnabled}
+                    aria-pressed={marks?.wish ?? false}
                     aria-label={
-                      releaseNotificationEnabled
-                        ? '개봉일 알림 해제'
-                        : '개봉일 알림 설정'
+                      marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'
                     }
-                    onClick={handleNotificationClick}
+                    onClick={() => onToggleMark('wish')}
                   >
-                    <Bell size={17} aria-hidden />
-                    <span className="movie-detail-sr-only">
-                      {releaseNotificationEnabled
-                        ? '개봉일 알림 해제'
-                        : '개봉일 알림 설정'}
-                    </span>
-                    <span
-                      id={`movie-notification-tooltip-${movie.id}`}
-                      className="movie-detail-tooltip"
-                      role="tooltip"
+                    <Heart
+                      size={22}
+                      strokeWidth={1.8}
+                      fill={marks?.wish ? 'currentColor' : 'none'}
+                      aria-hidden
+                    />
+                  </button>
+                  {showWatchedMark ? (
+                    <button
+                      type="button"
+                      className={`my-cinema-mark${marks?.watched ? ' is-on' : ''}`}
+                      aria-pressed={marks?.watched ?? false}
+                      aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
+                      onClick={() => onToggleMark('watched')}
                     >
-                      {releaseNotificationEnabled
-                        ? '개봉일 알림 해제'
-                        : '개봉일 알림 설정'}
-                    </span>
+                      <Check size={17} strokeWidth={2} aria-hidden />
+                      <span>{marks?.watched ? '관람 기록' : '봤어요'}</span>
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <p className="movie-detail-overview">
+                {movie.overview?.trim() || '줄거리 정보가 없어요.'}
+              </p>
+              {movie.trailerUrl ||
+              calendarUrl ||
+              onToggleReleaseNotification ? (
+                <div
+                  className="movie-detail-actions"
+                  aria-label="영화 관련 링크"
+                >
+                  {movie.trailerUrl ? (
+                    <Dialog.Root
+                      open={isVideoOpen}
+                      onOpenChange={setIsVideoOpen}
+                    >
+                      <Dialog.Trigger asChild>
+                        <button
+                          type="button"
+                          className="movie-detail-trailer-link"
+                        >
+                          {movie.videoType === 'teaser'
+                            ? '티저 보기'
+                            : '예고편 보기'}
+                          <Play size={15} aria-hidden />
+                        </button>
+                      </Dialog.Trigger>
+                      <MovieVideoModal
+                        title={movie.title}
+                        videoUrl={movie.trailerUrl}
+                        videoType={movie.videoType}
+                      />
+                    </Dialog.Root>
+                  ) : null}
+                  {calendarUrl ? (
+                    <a
+                      className="movie-detail-calendar-button"
+                      href={calendarUrl}
+                      aria-label={`${movie.title} 캘린더에 추가`}
+                      aria-describedby={`movie-calendar-tooltip-${movie.id}`}
+                    >
+                      <CalendarPlus size={17} aria-hidden />
+                      <span className="movie-detail-sr-only">
+                        캘린더에 추가
+                      </span>
+                      <span
+                        id={`movie-calendar-tooltip-${movie.id}`}
+                        className="movie-detail-tooltip"
+                        role="tooltip"
+                      >
+                        캘린더에 추가
+                      </span>
+                    </a>
+                  ) : null}
+                  {onToggleReleaseNotification ? (
+                    <button
+                      type="button"
+                      className={`movie-detail-notification-button${
+                        releaseNotificationEnabled ? ' is-on' : ''
+                      }`}
+                      aria-pressed={releaseNotificationEnabled}
+                      aria-label={
+                        releaseNotificationEnabled
+                          ? '개봉일 알림 해제'
+                          : '개봉일 알림 설정'
+                      }
+                      onClick={handleNotificationClick}
+                    >
+                      <Bell size={17} aria-hidden />
+                      <span className="movie-detail-sr-only">
+                        {releaseNotificationEnabled
+                          ? '개봉일 알림 해제'
+                          : '개봉일 알림 설정'}
+                      </span>
+                      <span
+                        id={`movie-notification-tooltip-${movie.id}`}
+                        className="movie-detail-tooltip"
+                        role="tooltip"
+                      >
+                        {releaseNotificationEnabled
+                          ? '개봉일 알림 해제'
+                          : '개봉일 알림 설정'}
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <div className="movie-detail-text-controls">
+                <span>설명 글자 크기</span>
+
+                <button
+                  type="button"
+                  onClick={() => setLargeText(false)}
+                  aria-label="설명 글자 작게"
+                  aria-pressed={!largeText}
+                >
+                  <ZoomOut size={16} strokeWidth={1.5} aria-hidden />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLargeText(true)}
+                  aria-label="설명 글자 크게"
+                  aria-pressed={largeText}
+                >
+                  <ZoomIn size={16} strokeWidth={1.5} aria-hidden />
+                </button>
+
+                {onToggleMark && !showWatchedMark ? (
+                  <button
+                    type="button"
+                    className={
+                      marks?.wish
+                        ? 'movie-detail-interest-inline is-on'
+                        : 'movie-detail-interest-inline'
+                    }
+                    aria-pressed={marks?.wish ?? false}
+                    aria-label={
+                      marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'
+                    }
+                    onClick={() => onToggleMark('wish')}
+                  >
+                    <Heart
+                      size={19}
+                      strokeWidth={1.8}
+                      fill={marks?.wish ? 'currentColor' : 'none'}
+                      aria-hidden
+                    />
                   </button>
                 ) : null}
               </div>
-            ) : null}
-
-            <div className="movie-detail-text-controls">
-              <span>설명 글자 크기</span>
-
-              <button
-                type="button"
-                onClick={() => setLargeText(false)}
-                aria-label="설명 글자 작게"
-                aria-pressed={!largeText}
-              >
-                <ZoomOut size={16} strokeWidth={1.5} aria-hidden />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setLargeText(true)}
-                aria-label="설명 글자 크게"
-                aria-pressed={largeText}
-              >
-                <ZoomIn size={16} strokeWidth={1.5} aria-hidden />
-              </button>
-
-              {onToggleMark && !showWatchedMark ? (
-                <button
-                  type="button"
-                  className={
-                    marks?.wish
-                      ? 'movie-detail-interest-inline is-on'
-                      : 'movie-detail-interest-inline'
-                  }
-                  aria-pressed={marks?.wish ?? false}
-                  aria-label={marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'}
-                  onClick={() => onToggleMark('wish')}
-                >
-                  <Heart
-                    size={19}
-                    strokeWidth={1.8}
-                    fill={marks?.wish ? 'currentColor' : 'none'}
-                    aria-hidden
-                  />
-                </button>
+              {screening ? (
+                <MovieDetailScreeningForm
+                  control={control}
+                  errors={errors}
+                  register={register}
+                  setValue={setValue}
+                  onSubmit={handleSaveViewingDetails}
+                  todayKst={todayKst}
+                  isSubmitting={isSubmitting}
+                  selectedViewingType={selectedViewingType}
+                  viewingPlatformMode={viewingPlatformMode}
+                  selectedViewingPlatform={selectedViewingPlatform}
+                  viewingDetailsError={viewingDetailsError}
+                  isLocationFocused={isLocationFocused}
+                  onLocationFocus={() => setIsLocationFocused(true)}
+                  onLocationBlur={() => {
+                    window.setTimeout(() => setIsLocationFocused(false), 0);
+                  }}
+                  visibleLocationSuggestions={visibleLocationSuggestions}
+                  isSearchingPlaces={isSearchingPlaces}
+                  onLocationSelect={handleLocationSelect}
+                />
               ) : null}
             </div>
-            {screening ? (
-              <MovieDetailScreeningForm
-                control={control}
-                errors={errors}
-                register={register}
-                setValue={setValue}
-                onSubmit={handleSaveViewingDetails}
-                todayKst={todayKst}
-                isSubmitting={isSubmitting}
-                selectedViewingType={selectedViewingType}
-                viewingPlatformMode={viewingPlatformMode}
-                selectedViewingPlatform={selectedViewingPlatform}
-                viewingDetailsError={viewingDetailsError}
-                isLocationFocused={isLocationFocused}
-                onLocationFocus={() => setIsLocationFocused(true)}
-                onLocationBlur={() => {
-                  window.setTimeout(() => setIsLocationFocused(false), 0);
-                }}
-                visibleLocationSuggestions={visibleLocationSuggestions}
-                isSearchingPlaces={isSearchingPlaces}
-                onLocationSelect={handleLocationSelect}
-              />
-            ) : null}
           </div>
-        </div>
-        </section>
-      </div>
+        </Dialog.Content>
+      </Dialog.Portal>
 
       <ConfirmModal
         open={showNotificationGuide}

@@ -1,16 +1,20 @@
 'use client';
 
+import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
 import { DEFAULT_LOBBY_GUIDE_STEPS, type LobbyGuideStep } from '@cinemo/shared';
 import { getLobbyGuideRequest } from '@/lib/guide-api';
 import { useGuideStore } from '@/lib/guide-store';
+import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type Props = {
   onClose: () => void;
 };
 
 export function LobbyGuideModal({ onClose }: Props) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } =
+    useDialogFocusRestore();
   const finishGuide = useGuideStore((s) => s.finishGuide);
   const [stepIndex, setStepIndex] = useState(0);
   const [steps, setSteps] = useState<LobbyGuideStep[]>(
@@ -58,28 +62,31 @@ export function LobbyGuideModal({ onClose }: Props) {
   }
 
   return (
-    <div className="wardrobe-overlay guide-overlay" onClick={closeGuide}>
-      <div
-        className="wardrobe-panel guide-panel"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="guide-title"
-      >
-        <button
-          type="button"
-          className="wardrobe-close"
-          onClick={closeGuide}
-          aria-label="닫기"
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) closeGuide();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="wardrobe-overlay guide-overlay" />
+        <Dialog.Content
+          className="wardrobe-panel guide-panel"
+          aria-describedby={undefined}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
         >
-          <X size={16} strokeWidth={2} />
-        </button>
+          <Dialog.Close asChild>
+            <button type="button" className="wardrobe-close" aria-label="닫기">
+              <X size={16} strokeWidth={2} />
+            </button>
+          </Dialog.Close>
 
-        <p className="wardrobe-kicker">{step.kicker}</p>
+          <p className="wardrobe-kicker">{step.kicker}</p>
 
-        <h2 id="guide-title" className="guide-title">
-          {step.title}
-        </h2>
+          <Dialog.Title asChild>
+            <h2 className="guide-title">{step.title}</h2>
+          </Dialog.Title>
 
         <div className="guide-step">
           <p className="guide-step-body">{step.body}</p>
@@ -118,7 +125,8 @@ export function LobbyGuideModal({ onClose }: Props) {
             {isLast ? '시작하기' : '다음'}
           </button>
         </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

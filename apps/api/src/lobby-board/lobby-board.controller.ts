@@ -7,9 +7,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { LobbyBoardService } from './lobby-board.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { UserId } from '../auth/decorators/user-id.decorator';
+import { MovieChartResponseDto } from './dto/movie-chart.dto';
 
 @ApiTags('lobby')
 @Controller('lobby')
@@ -20,6 +21,13 @@ export class LobbyBoardController {
   @Get('board')
   getBoard() {
     return this.lobbyBoardService.getBoard();
+  }
+
+  @Public()
+  @Get('movie-chart')
+  @ApiOkResponse({ type: MovieChartResponseDto })
+  getMovieChart() {
+    return this.lobbyBoardService.getMovieChart();
   }
 
   @Public()

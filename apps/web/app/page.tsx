@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ADMIN_AVATAR, type TicketStatus } from '@cinemo/shared';
-import { CalendarClock, Images, Volleyball } from 'lucide-react';
+import { CalendarClock, Clapperboard, Images, Volleyball } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TicketBooth } from '@/components/lobby/TicketBooth';
 import './styles/lobby.css';
@@ -61,24 +61,46 @@ function HomeContent() {
 
       <div className="lobby-stage">
         <LobbyBoard />
-        <Link
-          href="/upcoming"
-          className="lobby-upcoming-card"
-          aria-label="곧 스크린에서 만날 영화"
-        >
-          <span className="lobby-upcoming-kicker">COMING SOON</span>
-          <strong>곧 스크린에서 만날 영화</strong>
-          <span className="lobby-upcoming-description">
-            개봉일을 확인하고 미리 찜해보세요
-          </span>
 
-          <CalendarClock
-            className="lobby-upcoming-icon"
-            size={30}
-            strokeWidth={1.8}
-            aria-hidden
-          />
-        </Link>
+        <div className="lobby-feature-links">
+          <Link
+            href="/moviechart"
+            className="lobby-feature-card lobby-feature-card--chart"
+            aria-label="MOVIE CHART 보기"
+          >
+            <span className="lobby-feature-kicker">MOVIE CHART</span>
+            <strong>오늘의 영화 순위</strong>
+            <span className="lobby-feature-description">
+              관객수와 순위 변화를 확인해보세요
+            </span>
+
+            <Clapperboard
+              className="lobby-feature-icon"
+              size={30}
+              strokeWidth={1.8}
+              aria-hidden
+            />
+          </Link>
+
+          <Link
+            href="/upcoming"
+            className="lobby-feature-card lobby-feature-card--upcoming"
+            aria-label="곧 스크린에서 만날 영화"
+          >
+            <span className="lobby-feature-kicker">COMING SOON</span>
+            <strong>곧 스크린에서 만날 영화</strong>
+            <span className="lobby-feature-description">
+              개봉일을 확인하고 미리 찜해보세요
+            </span>
+
+            <CalendarClock
+              className="lobby-feature-icon"
+              size={30}
+              strokeWidth={1.8}
+              aria-hidden
+            />
+          </Link>
+        </div>
 
         <div className="lobby-hall">
           <div className="lobby-counter-row">
