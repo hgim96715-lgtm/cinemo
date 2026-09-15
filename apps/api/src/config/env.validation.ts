@@ -2,6 +2,9 @@ import * as Joi from 'joi';
 import { EnvKeys } from './env.keys';
 
 export const envValidationSchema = Joi.object({
+  [EnvKeys.APP_ENV]: Joi.string()
+    .valid('local', 'staging', 'production')
+    .default('local'),
   [EnvKeys.PORT]: Joi.number().default(3050),
   [EnvKeys.FRONTEND_URL]: Joi.string().uri().required(),
   [EnvKeys.DATABASE_URL]: Joi.string().uri().required(),

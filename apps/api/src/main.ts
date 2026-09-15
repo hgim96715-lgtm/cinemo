@@ -11,6 +11,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableShutdownHooks();
   const configService = app.get(ConfigService);
+  const appEnv = configService.get<string>('app.env') ?? 'local';
 
   const port = configService.get<number>(EnvKeys.PORT) ?? 3050;
   const frontendUrl = configService.getOrThrow<string>('auth.frontendUrl');
@@ -37,13 +38,16 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const swagger = new DocumentBuilder()
-    .setTitle('CINEMO API')
-    .setDescription('Cinema in Motion — 영화관 로비 API')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  SwaggerModule.setup('api', app, SwaggerModule.createDocument(app, swagger));
+  if (appEnv !== 'production') {
+    const swagger = new DocumentBuilder()
+      .setTitle('CINEMO API')
+      .setDescription('Cinema in Motion — 영화관 로비 API')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swagger);
+    SwaggerModule.setup('api', app, document);
+  }
 
   await app.listen(port);
 }

@@ -21,15 +21,20 @@ type MovieChartPoint = {
   dailyAudienceCount: number;
 };
 
+type MovieChartDataPoint = Omit<MovieChartPoint, 'x'> & {
+  x: number;
+  chartDate: string;
+};
+
 function formatChartDate(dateKey: string) {
   return formatKstMonthDay(`${dateKey}T00:00:00+09:00`).replace('.', '/');
 }
 
-function getMaxPointY(points: readonly MovieChartPoint[]) {
+function getMaxPointY<T extends { y: number }>(points: readonly T[]) {
   return points.reduce((max, point) => Math.max(max, point.y), -Infinity);
 }
 
-function getMinPointY(points: readonly MovieChartPoint[]) {
+function getMinPointY<T extends { y: number }>(points: readonly T[]) {
   return points.reduce((min, point) => Math.min(min, point.y), Infinity);
 }
 
@@ -114,30 +119,40 @@ export function MovieChartHistoryChart({
   const rankChange = first.y - last.y;
   const isStale = last.x !== latestChartDate;
   const maxRank = Math.max(5, getMaxPointY(selectedSeries.data));
-  const chartData = {
+  const chartData: {
+    id: string;
+    data: MovieChartDataPoint[];
+  } = {
     ...selectedSeries,
-    data: selectedSeries.data.map((point) => ({
+    data: selectedSeries.data.map((point, index) => ({
       ...point,
+      x: index,
+      chartDate: point.x,
       y:
         chartMetric === 'rank' ? point.rank : point.dailyAudienceCount,
     })),
   };
   const chartMax =
     chartMetric === 'rank'
-      ? maxRank
+      ? maxRank + 0.5
       : Math.max(getMaxPointY(chartData.data), 1);
   const activePoint =
-    chartData.data.find((point) => point.x === selectedPoint?.x) ?? last;
+    chartData.data.find((point) => point.chartDate === selectedPoint?.x) ??
+    chartData.data[chartData.data.length - 1];
   const hasSelectedPoint = chartData.data.some(
-    (point) => point.x === selectedPoint?.x,
+    (point) => point.chartDate === selectedPoint?.x,
   );
-  const tickStep = Math.max(1, Math.ceil((chartData.data.length - 1) / 6));
-  const xTickValues = chartData.data
-    .filter(
-      (_, index) =>
-        index % tickStep === 0 || index === chartData.data.length - 1,
-    )
-    .map((point) => point.x);
+  const xTickCount = Math.min(chartData.data.length, 6);
+  const xTickValues = Array.from({ length: xTickCount }, (_, index) => {
+    const pointIndex =
+      xTickCount === 1
+        ? 0
+        : Math.round(
+            (index * (chartData.data.length - 1)) / (xTickCount - 1),
+          );
+
+    return chartData.data[pointIndex]?.x;
+  }).filter((value): value is number => value !== undefined);
 
   return (
     <section
@@ -210,7 +225,7 @@ export function MovieChartHistoryChart({
       </div>
 
       <div className="movie-chart-detail-heading">
-        <h3>자세한 차트</h3>
+        <h3>날짜별 흐름</h3>
         <div
           className="movie-chart-metric-tabs"
           role="tablist"
@@ -250,13 +265,17 @@ export function MovieChartHistoryChart({
           margin={{
             top: 20,
             right: 16,
-            bottom: 35,
-            left: chartMetric === 'rank' ? 44 : 56,
+            bottom: 54,
+            left: chartMetric === 'rank' ? 32 : 44,
           }}
-          xScale={{ type: 'point' }}
+          xScale={{
+            type: 'linear',
+            min: -0.5,
+            max: chartData.data.length - 0.5,
+          }}
           xFormat={(value) => {
-            const [, month, day] = String(value).split('-');
-            return `${month}/${day}`;
+            const point = chartData.data[Number(value)];
+            return point ? formatChartDate(point.chartDate) : String(value);
           }}
           yScale={{
             type: 'linear',
@@ -286,7 +305,7 @@ export function MovieChartHistoryChart({
 
             const data = point.data;
             setSelectedPoint({
-              x: String(data.x),
+              x: String(data.chartDate),
               y: Number(data.y),
               rank: Number(data.rank),
               audienceCount: Number(data.audienceCount),
@@ -330,10 +349,13 @@ export function MovieChartHistoryChart({
           useMesh
           axisBottom={{
             tickValues: xTickValues,
-            tickRotation: -35,
+            tickRotation: 0,
             tickSize: 0,
-            tickPadding: 6,
-            format: (value) => String(value).slice(5).replace('-', '/'),
+            tickPadding: 16,
+            format: (value) => {
+              const point = chartData.data[Number(value)];
+              return point ? formatChartDate(point.chartDate) : '';
+            },
           }}
           axisLeft={{
             tickValues: 5,
@@ -377,7 +399,7 @@ export function MovieChartHistoryChart({
       >
         <div className="movie-chart-mobile-detail-heading">
           <span>{hasSelectedPoint ? '선택한 날짜' : '최근 기록'}</span>
-          <strong>{formatChartDate(activePoint.x)}</strong>
+          <strong>{formatChartDate(activePoint.chartDate)}</strong>
         </div>
         <dl>
           <div>

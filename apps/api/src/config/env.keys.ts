@@ -1,4 +1,6 @@
 export const EnvKeys = {
+  NODE_ENV: 'NODE_ENV',
+  APP_ENV: 'APP_ENV',
   PORT: 'PORT',
   FRONTEND_URL: 'FRONTEND_URL',
   DATABASE_URL: 'DATABASE_URL',

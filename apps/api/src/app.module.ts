@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { envValidationSchema } from './config/env.validation';
 import aiConfig from './config/ai.config';
+import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
 import demoConfig from './config/demo.config';
@@ -33,6 +34,7 @@ import { PostcardModule } from './postcard/postcard.module';
       isGlobal: true,
       envFilePath: '.env',
       load: [
+        appConfig,
         databaseConfig,
         authConfig,
         tmdbConfig,
