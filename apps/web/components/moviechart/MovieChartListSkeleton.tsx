@@ -5,6 +5,15 @@ export function MovieChartListSkeleton() {
       role="status"
       aria-label="영화 차트를 불러오는 중"
     >
+      <div className="movie-chart-tabs movie-chart-tabs--skeleton" aria-hidden="true">
+        <span className="movie-chart-tab movie-chart-tab--skeleton movie-chart-tab--active">
+          현재 순위
+        </span>
+        <span className="movie-chart-tab movie-chart-tab--skeleton">
+          순위 흐름
+        </span>
+      </div>
+
       <ol className="movie-chart-list" aria-hidden="true">
         {Array.from({ length: 10 }, (_, index) => (
           <li

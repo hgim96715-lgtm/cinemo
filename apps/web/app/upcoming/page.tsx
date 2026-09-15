@@ -18,13 +18,13 @@ import {
 } from '@/lib/user-movie-api';
 import { useAuthStore } from '@/lib/auth-store';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
-import '../styles/lobby.css';
-import '../styles/upcoming.css';
-import '../styles/my-cinema.css';
-import '../styles/movie-detail-modal.css';
-import '../styles/moviechart-modal.css';
-import '../styles/confirm-modal.css';
-import '../styles/common.css';
+import '@/styles/lobby.css';
+import '@/styles/upcoming.css';
+import '@/styles/my-cinema.css';
+import '@/styles/movie-detail-modal.css';
+import '@/styles/moviechart-modal.css';
+import '@/styles/confirm-modal.css';
+import '@/styles/common.css';
 
 import { GachaMovie } from '@cinemo/shared';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';

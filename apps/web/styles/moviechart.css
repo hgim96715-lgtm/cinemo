@@ -64,6 +64,78 @@
   text-align: center;
 }
 
+.movie-chart-content {
+  width: min(100%, 58rem);
+  margin: 0 auto;
+}
+
+.movie-chart-tabs-root {
+  width: 100%;
+}
+
+.movie-chart-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 0.3rem;
+  border: 1px solid rgb(212 181 106 / 0.22);
+  border-radius: 0.8rem;
+  background: rgb(23 23 26 / 0.55);
+}
+
+.movie-chart-tabs--skeleton {
+  pointer-events: none;
+}
+
+.movie-chart-tab--skeleton {
+  color: var(--cinemo-muted);
+  cursor: default;
+}
+
+.movie-chart-tab--skeleton.movie-chart-tab--active {
+  color: var(--cinemo-ink);
+  background: var(--cinemo-gold);
+}
+
+.movie-chart-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  border-radius: 0.55rem;
+  color: var(--cinemo-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.movie-chart-tab:hover,
+.movie-chart-tab:focus-visible {
+  color: var(--cinemo-fg);
+  background: rgb(212 181 106 / 0.1);
+}
+
+.movie-chart-tab[data-state='active'] {
+  color: var(--cinemo-ink);
+  background: var(--cinemo-gold);
+}
+
+.movie-chart-tab:focus-visible {
+  outline: 2px solid var(--cinemo-gold);
+  outline-offset: 2px;
+}
+
+.movie-chart-tab-panel {
+  width: 100%;
+}
+
 .movie-chart-list {
   width: min(100%, 58rem);
   margin: 0 auto;
@@ -209,8 +281,17 @@
   min-width: 0;
 }
 
+.movie-chart-audience dt,
+.movie-chart-audience dd {
+  margin: 0;
+}
+
+.movie-chart-audience dt {
+  font-weight: 400;
+}
+
 .movie-chart-audience span,
-.movie-chart-rank-change > span:first-child {
+.movie-chart-rank-change dt {
   color: var(--cinemo-muted);
   font-size: 0.68rem;
 }
@@ -233,6 +314,16 @@
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.8rem;
+}
+
+.movie-chart-rank-change dt,
+.movie-chart-rank-change dd {
+  margin: 0;
+}
+
+.movie-chart-rank-change dd {
+  display: flex;
+  align-items: center;
 }
 
 .movie-chart-up,

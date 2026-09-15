@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { getLobbyGuideRequest, updateLobbyGuideRequest } from '@/lib/guide-api';
 
 import { ConfirmModal } from '@/components/common/ConfirmModal';
-import '../../styles/admin-guide.css';
+import '@/styles/admin-guide.css';
 
 export default function AdminGuidePage() {
   const token = useAuthStore((s) => s.accessToken);

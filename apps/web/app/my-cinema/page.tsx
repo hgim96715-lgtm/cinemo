@@ -24,11 +24,11 @@ import {
   updateUserMovieDisplayRequest,
   updateWatchedAtRequest,
 } from '@/lib/user-movie-api';
-import '../styles/my-cinema.css';
-import '../styles/lobby.css';
-import '../styles/avatar.css';
-import '../styles/profile.css';
-import '../styles/common.css';
+import '@/styles/my-cinema.css';
+import '@/styles/lobby.css';
+import '@/styles/avatar.css';
+import '@/styles/profile.css';
+import '@/styles/common.css';
 import {
   CalendarDays,
   Clapperboard,
@@ -52,7 +52,7 @@ import {
 import { WatchedDateEditModal } from '@/components/my-cinema/WatchedDateEditModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { MovieStatsPanel } from '@/components/my-cinema/MovieStatsPanel';
-import '../styles/confirm-modal.css';
+import '@/styles/confirm-modal.css';
 import { CinemoNav } from '@/components/common/CinemoNav';
 
 export default function MyCinemaPage() {

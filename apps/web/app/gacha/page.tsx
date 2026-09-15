@@ -27,9 +27,9 @@ import { gachaMessage, type CapsulePhase } from '@/lib/gacha-message';
 import { MACHINES, type MachineId } from '@/lib/gacha-machines';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { providerLogoUrl } from '@/lib/watch-providers';
-import '../styles/gacha.css';
-import '../styles/lobby.css';
-import '../styles/common.css';
+import '@/styles/gacha.css';
+import '@/styles/lobby.css';
+import '@/styles/common.css';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 

@@ -1503,6 +1503,133 @@
         ]
       }
     },
+    "/v1/lobby/movie-chart/history": {
+      "get": {
+        "operationId": "LobbyBoardController_getMovieChartHistory_v1",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "조회 시작일",
+            "schema": {
+              "example": "2026-09-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "조회 종료일",
+            "schema": {
+              "example": "2026-09-15",
+              "type": "string"
+            }
+          },
+          {
+            "description": "조회 시작일",
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "example": "2026-09-01",
+              "type": "string"
+            }
+          },
+          {
+            "description": "조회 종료일",
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "example": "2026-09-15",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieChartHistoryItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
+    "/v1/lobby/movie-chart/stats": {
+      "get": {
+        "operationId": "LobbyBoardController_getMovieChartStats_v1",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "조회 시작일",
+            "schema": {
+              "example": "2026-09-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "조회 종료일",
+            "schema": {
+              "example": "2026-09-15",
+              "type": "string"
+            }
+          },
+          {
+            "description": "조회 시작일",
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "example": "2026-09-01",
+              "type": "string"
+            }
+          },
+          {
+            "description": "조회 종료일",
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "example": "2026-09-15",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieChartStatsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
     "/v1/lobby/upcoming": {
       "get": {
         "operationId": "LobbyBoardController_getUpcomingMovies_v1",
@@ -1526,7 +1653,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpcomingMoviesResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1539,8 +1673,11 @@
         "operationId": "LobbyBoardController_recordVisit_v1",
         "parameters": [],
         "responses": {
-          "201": {
-            "description": ""
+          "401": {
+            "description": "로그인이 필요합니다"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다"
           }
         },
         "security": [
@@ -1548,6 +1685,53 @@
             "bearer": []
           }
         ],
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
+    "/v1/lobby/movie-chart/backfill": {
+      "post": {
+        "description": "지정한 기간의 KOBIS 데이터를 백그라운드에서 수집합니다.",
+        "operationId": "LobbyBoardController_backfillMovieChart_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillRangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "백필 작업이 시작되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "날짜 범위가 올바르지 않습니다."
+          },
+          "401": {
+            "description": "로그인이 필요합니다"
+          },
+          "403": {
+            "description": "관리자 권한이 필요합니다"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "영화 차트 과거 데이터 백필",
         "tags": [
           "lobby"
         ]
@@ -2469,6 +2653,215 @@
           "items",
           "targetDate",
           "total"
+        ]
+      },
+      "MovieChartHistoryItemDto": {
+        "type": "object",
+        "properties": {
+          "chartDate": {
+            "type": "string",
+            "example": "2026-09-01T00:00:00.000Z"
+          },
+          "kobisMovieCd": {
+            "type": "string",
+            "example": "20251234"
+          },
+          "tmdbId": {
+            "type": "number",
+            "nullable": true,
+            "example": 123456
+          },
+          "rank": {
+            "type": "number",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "오디세이"
+          },
+          "dailyAudienceCount": {
+            "type": "number",
+            "example": 65000
+          },
+          "audienceCount": {
+            "type": "number",
+            "example": 10333000
+          }
+        },
+        "required": [
+          "chartDate",
+          "kobisMovieCd",
+          "tmdbId",
+          "rank",
+          "title",
+          "dailyAudienceCount",
+          "audienceCount"
+        ]
+      },
+      "MovieChartStatsItemDto": {
+        "type": "object",
+        "properties": {
+          "kobisMovieCd": {
+            "type": "string",
+            "example": "20251234"
+          },
+          "title": {
+            "type": "string",
+            "example": "오디세이"
+          },
+          "audienceCount": {
+            "type": "number",
+            "example": 10333000
+          },
+          "audienceChange": {
+            "type": "number",
+            "example": 125000
+          },
+          "dailyAudienceTotal": {
+            "type": "number",
+            "example": 850000
+          },
+          "bestRank": {
+            "type": "number",
+            "example": 1
+          },
+          "lastRank": {
+            "type": "number",
+            "example": 2
+          },
+          "rankChange": {
+            "type": "number",
+            "example": 1,
+            "description": "양수이면 순위 상승, 음수이면 순위 하락"
+          },
+          "rankSampleCount": {
+            "type": "number",
+            "example": 14
+          }
+        },
+        "required": [
+          "kobisMovieCd",
+          "title",
+          "audienceCount",
+          "audienceChange",
+          "dailyAudienceTotal",
+          "bestRank",
+          "lastRank",
+          "rankChange",
+          "rankSampleCount"
+        ]
+      },
+      "MovieChartStatsResponseDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "2026-09-01"
+          },
+          "to": {
+            "type": "string",
+            "example": "2026-09-14"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieChartStatsItemDto"
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "items"
+        ]
+      },
+      "UpcomingMovieDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 123456
+          },
+          "title": {
+            "type": "string",
+            "example": "오디세이"
+          },
+          "releaseDate": {
+            "type": "string",
+            "example": "2026-09-25",
+            "format": "date"
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster-path.jpg"
+          },
+          "interestCount": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "tmdbId",
+          "title",
+          "releaseDate",
+          "posterPath",
+          "interestCount"
+        ]
+      },
+      "UpcomingMoviesResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpcomingMovieDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "example": 24
+          },
+          "hasNext": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "hasNext"
+        ]
+      },
+      "BackfillRangeDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "2026-09-01",
+            "description": "백필 시작일"
+          },
+          "to": {
+            "type": "string",
+            "example": "2026-09-14",
+            "description": "백필 종료일"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "BackfillResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "백필 시작: 2026-09-01 ~ 2026-09-14"
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "UpdateLobbyGuideStepDto": {

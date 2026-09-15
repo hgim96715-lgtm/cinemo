@@ -932,6 +932,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/lobby/movie-chart/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["LobbyBoardController_getMovieChartHistory_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lobby/movie-chart/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["LobbyBoardController_getMovieChartStats_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/lobby/upcoming": {
         parameters: {
             query?: never;
@@ -958,6 +990,26 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["LobbyBoardController_recordVisit_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/lobby/movie-chart/backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 영화 차트 과거 데이터 백필
+         * @description 지정한 기간의 KOBIS 데이터를 백그라운드에서 수집합니다.
+         */
+        post: operations["LobbyBoardController_backfillMovieChart_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1354,6 +1406,90 @@ export interface components {
             targetDate: string;
             /** @example 10 */
             total: number;
+        };
+        MovieChartHistoryItemDto: {
+            /** @example 2026-09-01T00:00:00.000Z */
+            chartDate: string;
+            /** @example 20251234 */
+            kobisMovieCd: string;
+            /** @example 123456 */
+            tmdbId: number | null;
+            /** @example 1 */
+            rank: number;
+            /** @example 오디세이 */
+            title: string;
+            /** @example 65000 */
+            dailyAudienceCount: number;
+            /** @example 10333000 */
+            audienceCount: number;
+        };
+        MovieChartStatsItemDto: {
+            /** @example 20251234 */
+            kobisMovieCd: string;
+            /** @example 오디세이 */
+            title: string;
+            /** @example 10333000 */
+            audienceCount: number;
+            /** @example 125000 */
+            audienceChange: number;
+            /** @example 850000 */
+            dailyAudienceTotal: number;
+            /** @example 1 */
+            bestRank: number;
+            /** @example 2 */
+            lastRank: number;
+            /**
+             * @description 양수이면 순위 상승, 음수이면 순위 하락
+             * @example 1
+             */
+            rankChange: number;
+            /** @example 14 */
+            rankSampleCount: number;
+        };
+        MovieChartStatsResponseDto: {
+            /** @example 2026-09-01 */
+            from: string;
+            /** @example 2026-09-14 */
+            to: string;
+            items: components["schemas"]["MovieChartStatsItemDto"][];
+        };
+        UpcomingMovieDto: {
+            /** @example 123456 */
+            tmdbId: number;
+            /** @example 오디세이 */
+            title: string;
+            /**
+             * Format: date
+             * @example 2026-09-25
+             */
+            releaseDate: string;
+            /** @example /poster-path.jpg */
+            posterPath: string | null;
+            /** @example 12 */
+            interestCount: number;
+        };
+        UpcomingMoviesResponseDto: {
+            items: components["schemas"]["UpcomingMovieDto"][];
+            /** @example 24 */
+            total: number;
+            /** @example true */
+            hasNext: boolean;
+        };
+        BackfillRangeDto: {
+            /**
+             * @description 백필 시작일
+             * @example 2026-09-01
+             */
+            from: string;
+            /**
+             * @description 백필 종료일
+             * @example 2026-09-14
+             */
+            to: string;
+        };
+        BackfillResponseDto: {
+            /** @example 백필 시작: 2026-09-01 ~ 2026-09-14 */
+            message: string;
         };
         UpdateLobbyGuideStepDto: {
             /** @example upcoming */
@@ -2612,6 +2748,54 @@ export interface operations {
             };
         };
     };
+    LobbyBoardController_getMovieChartHistory_v1: {
+        parameters: {
+            query: {
+                /** @description 조회 시작일 */
+                from: string;
+                /** @description 조회 종료일 */
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovieChartHistoryItemDto"][];
+                };
+            };
+        };
+    };
+    LobbyBoardController_getMovieChartStats_v1: {
+        parameters: {
+            query: {
+                /** @description 조회 시작일 */
+                from: string;
+                /** @description 조회 종료일 */
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovieChartStatsResponseDto"];
+                };
+            };
+        };
+    };
     LobbyBoardController_getUpcomingMovies_v1: {
         parameters: {
             query: {
@@ -2628,7 +2812,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UpcomingMoviesResponseDto"];
+                };
             };
         };
     };
@@ -2641,7 +2827,60 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            201: {
+            /** @description 로그인이 필요합니다 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 접근 권한이 없습니다 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    LobbyBoardController_backfillMovieChart_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BackfillRangeDto"];
+            };
+        };
+        responses: {
+            /** @description 백필 작업이 시작되었습니다. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackfillResponseDto"];
+                };
+            };
+            /** @description 날짜 범위가 올바르지 않습니다. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 로그인이 필요합니다 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 관리자 권한이 필요합니다 */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { MovieVideoModal } from '@/components/common/MovieVideoModal';
-import type { MovieChartItem } from '@/lib/lobby-board-api';
+import type { MovieChartItem } from '@cinemo/api-contract';
 
 type MovieChartTrailerModalProps = {
   movie: MovieChartItem;

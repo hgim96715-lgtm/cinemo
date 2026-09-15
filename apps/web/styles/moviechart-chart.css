@@ -1,0 +1,408 @@
+.movie-chart-stats {
+  width: min(100%, 58rem);
+  margin: 2rem auto 0;
+  padding: 1.4rem;
+  border: 1px solid rgb(212 181 106 / 0.28);
+  border-radius: 1rem;
+  background: rgb(23 23 26 / 0.42);
+}
+
+.movie-chart-stats h2 {
+  margin: 0;
+  color: var(--cinemo-fg);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.movie-chart-stats-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.movie-chart-stats-kicker {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--cinemo-muted);
+  font-size: 0.7rem;
+}
+
+.movie-chart-stats-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem 0.7rem;
+  color: var(--cinemo-muted);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.movie-chart-stats-summary strong {
+  color: var(--cinemo-fg);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.movie-chart-stats-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.movie-chart-stats-summary .is-up {
+  color: #d88989;
+}
+
+.movie-chart-stats-summary .is-down {
+  color: #82a9d4;
+}
+
+.movie-chart-stats-summary .is-same {
+  color: var(--cinemo-muted);
+}
+
+.movie-chart-period-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.movie-chart-period-summary-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid rgb(243 239 230 / 0.1);
+  border-radius: 0.7rem;
+  color: var(--cinemo-fg);
+  background: rgb(18 18 21 / 0.42);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.movie-chart-period-summary-card:hover,
+.movie-chart-period-summary-card:focus-visible {
+  border-color: rgb(212 181 106 / 0.45);
+  background: rgb(212 181 106 / 0.06);
+}
+
+.movie-chart-period-summary-card[aria-selected='true'] {
+  border-color: rgb(212 181 106 / 0.75);
+  background: rgb(212 181 106 / 0.12);
+}
+
+.movie-chart-period-summary-card:focus-visible {
+  outline: 2px solid var(--cinemo-gold);
+  outline-offset: 2px;
+}
+
+.movie-chart-period-summary-card h3 {
+  overflow: hidden;
+  margin: 0;
+  color: var(--cinemo-fg);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movie-chart-period-summary-card > span {
+  color: var(--cinemo-muted);
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+.movie-chart-detail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.movie-chart-detail-heading h3 {
+  margin: 0;
+  color: var(--cinemo-fg);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.movie-chart-metric-tabs {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border: 1px solid rgb(212 181 106 / 0.2);
+  border-radius: 0.55rem;
+  background: rgb(18 18 21 / 0.45);
+}
+
+.movie-chart-metric-tabs button {
+  min-width: 4.5rem;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: 0.35rem;
+  color: var(--cinemo-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.movie-chart-metric-tabs button:hover,
+.movie-chart-metric-tabs button:focus-visible,
+.movie-chart-metric-tabs button[aria-selected='true'] {
+  color: var(--cinemo-ink);
+  background: var(--cinemo-gold);
+}
+
+.movie-chart-metric-tabs button:focus-visible {
+  outline: 2px solid var(--cinemo-gold);
+  outline-offset: 2px;
+}
+
+.movie-chart-stats-error {
+  width: min(100%, 58rem);
+  margin: 1rem auto;
+  color: var(--cinemo-muted);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.movie-chart-stats-chart {
+  height: 20rem;
+  margin-top: 1.5rem;
+}
+
+.movie-chart-stats-empty {
+  width: min(100%, 58rem);
+  margin: 1rem auto;
+  padding: 3rem 1rem;
+  border: 1px solid rgb(212 181 106 / 0.2);
+  border-radius: 0.8rem;
+  color: var(--cinemo-muted);
+  background: rgb(23 23 26 / 0.3);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.movie-chart-chart-skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.65rem;
+  background: linear-gradient(
+    100deg,
+    rgb(243 239 230 / 0.04) 20%,
+    rgb(243 239 230 / 0.12) 45%,
+    rgb(243 239 230 / 0.04) 70%
+  );
+  background-size: 220% 100%;
+  animation: movie-chart-chart-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes movie-chart-chart-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.movie-chart-tooltip {
+  box-sizing: border-box;
+  width: min(15rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 1rem);
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgb(212 181 106 / 0.45);
+  border-radius: 0.65rem;
+  color: var(--cinemo-fg);
+  background: rgb(18 18 21 / 0.96);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.3);
+  font-size: 0.78rem;
+}
+
+.movie-chart-tooltip > strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--cinemo-gold);
+}
+
+.movie-chart-tooltip > div {
+  display: block;
+  padding: 0.2rem 0;
+}
+
+.movie-chart-tooltip-movie {
+  display: block;
+  margin-bottom: 0.55rem;
+  overflow-wrap: anywhere;
+  color: var(--cinemo-fg);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.movie-chart-tooltip dl {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.movie-chart-tooltip dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.movie-chart-tooltip dt,
+.movie-chart-tooltip dd {
+  margin: 0;
+}
+
+.movie-chart-tooltip dt {
+  color: var(--cinemo-muted);
+}
+
+.movie-chart-tooltip dd {
+  color: var(--cinemo-fg);
+  font-weight: 500;
+  text-align: right;
+}
+
+.movie-chart-mobile-detail {
+  display: none;
+}
+
+.movie-chart-tooltip b {
+  color: var(--cinemo-fg);
+  font-weight: 600;
+}
+
+@media (max-width: 40rem) {
+  .movie-chart-stats {
+    margin-top: 1.25rem;
+    padding: 1rem 0.55rem;
+  }
+
+  .movie-chart-stats-header {
+    display: block;
+  }
+
+  .movie-chart-stats-summary {
+    justify-content: flex-start;
+    margin-top: 0.8rem;
+    text-align: left;
+  }
+
+  .movie-chart-period-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .movie-chart-period-summary-card {
+    padding: 0.65rem;
+  }
+
+  .movie-chart-period-summary-card h3 {
+    font-size: 0.72rem;
+  }
+
+  .movie-chart-period-summary-card > span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .movie-chart-detail-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+
+  .movie-chart-metric-tabs button {
+    min-height: 2.5rem;
+  }
+
+  .movie-chart-stats-chart {
+    height: 18rem;
+  }
+
+  .movie-chart-tooltip {
+    width: min(14rem, calc(100vw - 2rem));
+    padding: 0.6rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .movie-chart-tooltip {
+    display: none;
+  }
+
+  .movie-chart-mobile-detail {
+    display: block;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.8rem;
+    border: 1px solid rgb(212 181 106 / 0.38);
+    border-radius: 0.7rem;
+    background: rgb(18 18 21 / 0.65);
+  }
+
+.movie-chart-mobile-detail-heading {
+  display: block;
+  margin-bottom: 0.55rem;
+}
+
+.movie-chart-mobile-detail-heading span {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--cinemo-muted);
+  font-size: 0.68rem;
+}
+
+.movie-chart-mobile-detail-heading strong {
+  display: block;
+  color: var(--cinemo-gold);
+  font-size: 0.82rem;
+}
+
+  .movie-chart-mobile-detail dl {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+  }
+
+  .movie-chart-mobile-detail dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .movie-chart-mobile-detail dt,
+  .movie-chart-mobile-detail dd {
+    margin: 0;
+    font-size: 0.72rem;
+  }
+
+  .movie-chart-mobile-detail dt {
+    color: var(--cinemo-muted);
+  }
+
+  .movie-chart-mobile-detail dd {
+    color: var(--cinemo-fg);
+    font-weight: 500;
+    text-align: right;
+  }
+}

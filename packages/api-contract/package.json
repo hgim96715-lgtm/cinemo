@@ -4,12 +4,13 @@
   "private": true,
   "files": [
     "openapi.json",
-    "src/generated"
+    "src/generated",
+    "src/index.ts"
   ],
   "exports": {
     ".": {
-      "types": "./src/generated/api.d.ts",
-      "default": "./src/generated/api.d.ts"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     }
   },
   "scripts": {

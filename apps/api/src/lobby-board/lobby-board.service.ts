@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BoardBoxOfficeMovie, LobbyBoardResponse } from '@cinemo/shared';
 import { kstDateKey, todayKstDate } from '../lib/date-kst';
@@ -6,25 +6,36 @@ import { TmdbService } from '../tmdb/tmdb.service';
 import { AdminService } from '../admin/admin.service';
 import { ConfigService } from '@nestjs/config';
 import { clamp } from '../lib/clamp';
+import { MovieChartSnapshotService } from './movie-chart-snapshot.service';
 
 type KobisUpcomingMovie = {
   titles: string[];
   openDate: string;
 };
 
+type MovieChartMovie = BoardBoxOfficeMovie & {
+  kobisMovieCd: string;
+  tmdbId: number | null;
+  dailyAudienceCount: number;
+  trailerUrl: string | null;
+  videoType: 'trailer' | 'teaser' | null;
+};
+
 @Injectable()
 export class LobbyBoardService {
+  private readonly logger = new Logger(LobbyBoardService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly tmdbService: TmdbService,
     private readonly adminService: AdminService,
     private readonly configService: ConfigService,
+    private readonly movieChartSnapshotService: MovieChartSnapshotService,
   ) {}
 
   private boxOfficeCache: {
     targetDt: string;
     expiresAt: number;
-    movies: BoardBoxOfficeMovie[];
+    movies: MovieChartMovie[];
   } | null = null;
 
   private normalizeMovieTitle(title: string) {
@@ -144,7 +155,9 @@ export class LobbyBoardService {
     }
   }
 
-  private async getBoxOfficeMovies(): Promise<BoardBoxOfficeMovie[]> {
+  private async getBoxOfficeMovies(
+    targetDate?: string,
+  ): Promise<MovieChartMovie[]> {
     const KOBIS_DAILY_BOX_OFFICE_URL =
       'https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json';
 
@@ -152,16 +165,19 @@ export class LobbyBoardService {
 
     if (!apikey) return [];
 
-    const targetDt = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Seoul',
-    })
-      .format(new Date(Date.now() - 24 * 60 * 60 * 1000))
-      .replaceAll('-', '');
+    const targetDt = targetDate
+      ? targetDate.replaceAll('-', '')
+      : new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Seoul',
+        })
+          .format(new Date(Date.now() - 24 * 60 * 60 * 1000))
+          .replaceAll('-', '');
 
     const cached = this.boxOfficeCache;
     const fallbackMovies = cached?.movies ?? [];
 
     if (
+      !targetDate &&
       cached &&
       cached.targetDt === targetDt &&
       cached.expiresAt > Date.now()
@@ -239,6 +255,7 @@ export class LobbyBoardService {
           }
           return {
             kobisMovieCd: movie.movieCd,
+            tmdbId,
             rank: Number(movie.rank),
             title: movie.movieNm,
             dailyAudienceCount: Number(movie.audiCnt),
@@ -254,15 +271,17 @@ export class LobbyBoardService {
         }),
       );
 
-      this.boxOfficeCache = {
-        targetDt,
-        expiresAt: Date.now() + 10 * 60 * 1000,
-        movies,
-      };
+      if (!targetDate) {
+        this.boxOfficeCache = {
+          targetDt,
+          expiresAt: Date.now() + 10 * 60 * 1000,
+          movies,
+        };
+      }
 
       return movies;
     } catch {
-      return fallbackMovies;
+      return targetDate ? [] : fallbackMovies;
     }
   }
 
@@ -320,6 +339,76 @@ export class LobbyBoardService {
       items: movies,
       targetDate,
       total: movies.length,
+    };
+  }
+
+  async collectDailyMovieChart(targetDate: string) {
+    const movies = await this.getBoxOfficeMovies(targetDate);
+    if (movies.length === 0) {
+      return {
+        targetDate,
+        saved: 0,
+      };
+    }
+    await this.movieChartSnapshotService.saveDailysnapshot(targetDate, movies);
+    return {
+      targetDate,
+      saved: movies.length,
+    };
+  }
+
+  async backfillMovieChart(fromDate: string, toDate: string) {
+    if (fromDate > toDate) {
+      throw new BadRequestException(
+        '백필 시작일은 종료일보다 늦을 수 없습니다.',
+      );
+    }
+
+    const cursor = new Date(`${fromDate}T00:00:00+09:00`);
+    const end = new Date(`${toDate}T00:00:00+09:00`);
+    const days =
+      Math.floor((end.getTime() - cursor.getTime()) / 86_400_000) + 1;
+
+    if (days > 90) {
+      throw new BadRequestException(
+        '한 번에 최대 90일까지 백필할 수 있습니다.',
+      );
+    }
+
+    this.logger.log(`영화 차트 백필 시작: ${fromDate} ~ ${toDate}`);
+
+    let saved = 0;
+    const failedDates: string[] = [];
+
+    while (cursor <= end) {
+      const targetDate = kstDateKey(cursor);
+
+      try {
+        const result = await this.collectDailyMovieChart(targetDate);
+
+        saved += result.saved;
+        this.logger.log(`${targetDate} 백필 완료: ${result.saved}건`);
+      } catch (error: unknown) {
+        failedDates.push(targetDate);
+
+        this.logger.error(
+          `${targetDate} 백필 실패`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    this.logger.log(
+      `영화 차트 백필 완료: 총 ${saved}건, 실패 ${failedDates.length}일`,
+    );
+
+    return {
+      fromDate,
+      toDate,
+      saved,
+      failedDates,
     };
   }
 

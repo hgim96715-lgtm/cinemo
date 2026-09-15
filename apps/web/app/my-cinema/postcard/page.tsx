@@ -19,11 +19,11 @@ import {
   togglePostcardBookmarkRequest,
 } from '@/lib/postcard-api';
 import { CinemoNav } from '@/components/common/CinemoNav';
-import '../../styles/common.css';
-import '../../styles/postcard.css';
-import '../../styles/my-postcard.css';
-import '../../styles/postcard-create-modal.css';
-import '../../styles/confirm-modal.css';
+import '@/styles/common.css';
+import '@/styles/postcard.css';
+import '@/styles/my-postcard.css';
+import '@/styles/postcard-create-modal.css';
+import '@/styles/confirm-modal.css';
 import { PostcardCreateModal } from '@/components/postcard/PostcardCreateModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
