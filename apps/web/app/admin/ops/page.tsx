@@ -141,7 +141,7 @@ export default function AdminOpsPage() {
 
   return (
     <main className="admin-main">
-      <h2 className="admin-title">운영</h2>
+      <h2 className="admin-title">콘텐츠 운영</h2>
       <p className="admin-sub">MoviePool 시드와 OTT 예외를 여기서 다룹니다.</p>
 
       <div className="admin-ops-grid">

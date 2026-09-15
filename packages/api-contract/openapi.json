@@ -473,58 +473,6 @@
         ]
       }
     },
-    "/v1/admin/reports/daily-excel": {
-      "get": {
-        "operationId": "AdminReportController_downloadYesterdayExcel_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "admin-reports"
-        ]
-      }
-    },
-    "/v1/admin/reports/daily-excel/status": {
-      "get": {
-        "operationId": "AdminReportController_getYesterdayExcelStatus_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "admin-reports"
-        ]
-      }
-    },
-    "/v1/admin/reports/daily-excel/cron": {
-      "post": {
-        "operationId": "AdminReportController_downloadYesterdayExcelForCron_v1",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin-reports"
-        ]
-      }
-    },
     "/v1/admin/demo-seed": {
       "post": {
         "operationId": "AdminDemoSeedController_run_v1",

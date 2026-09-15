@@ -1,12 +1,11 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ADMIN_AVATAR, type TicketStatus } from '@cinemo/shared';
-import { CalendarClock, Clapperboard, Images, Volleyball } from 'lucide-react';
+import { ADMIN_AVATAR } from '@cinemo/shared';
+import { CalendarClock, Clapperboard, Images } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
-import { TicketBooth } from '@/components/lobby/TicketBooth';
 import '@/styles/lobby.css';
 import '@/styles/avatar.css';
 import '@/styles/guide.css';
@@ -23,7 +22,6 @@ function HomeContent() {
   const guidePending = useGuideStore((s) => s.pending);
   const previewGuide = useGuideStore((s) => s.previewGuide);
   const lit = Boolean(user);
-  const [, setTicketStatus] = useState<TicketStatus | null>(null);
   const stayLobby = searchParams.get('lobby') === '1';
 
   const hydrated = useAuthStore((s) => s.hydrated);
@@ -100,71 +98,69 @@ function HomeContent() {
               aria-hidden
             />
           </Link>
+
+          <Link
+            href="/postcard"
+            className="lobby-feature-card lobby-feature-card--postcard"
+            aria-label="CINEMO 엽서 보기"
+          >
+            <span className="lobby-feature-kicker">POSTCARD</span>
+            <strong>영화를 한 장의 엽서로</strong>
+            <span className="lobby-feature-description">
+              마음에 남은 영화를 기록하고 공유해보세요
+            </span>
+
+            <Images
+              className="lobby-feature-icon"
+              size={30}
+              strokeWidth={1.8}
+              aria-hidden
+            />
+          </Link>
         </div>
 
         <div className="lobby-hall">
-          <div className="lobby-counter-row">
-            <section className="lobby-counter" aria-label="로비 중앙 매표소">
-              <TicketBooth onStatusChange={setTicketStatus} />
-            </section>
-
-            <div
-              className="lobby-guest"
-              aria-label={user ? user.nickname : '손님'}
-            >
-              <div className="lobby-guest-identity">
-                <AvatarFigure
-                  config={
-                    user?.role === 'admin' ? ADMIN_AVATAR : user?.avatarConfig
-                  }
-                />
-                <p className="lobby-guest-name">
-                  {user ? user.nickname : '손님'}
-                </p>
-              </div>
-
-              <Link
-                href={
-                  user?.role === 'admin'
-                    ? '/admin'
-                    : user
-                      ? '/my-cinema'
-                      : '/login'
+          <div className="lobby-guest" aria-label={user ? user.nickname : '손님'}>
+            <div className="lobby-guest-identity">
+              <AvatarFigure
+                config={
+                  user?.role === 'admin' ? ADMIN_AVATAR : user?.avatarConfig
                 }
-                className="lobby-mat lobby-mat--primary"
-                aria-label={
-                  user?.role === 'admin'
-                    ? 'CINEMO OFFICE'
-                    : user
-                      ? 'MY CINEMA'
-                      : '로그인 후 MY CINEMA 입장'
-                }
-              >
-                <span className="lobby-mat-label">
-                  {user?.role === 'admin' ? 'CINEMO OFFICE' : 'MY CINEMA'}
-                </span>
-
-                {user?.role !== 'admin' ? (
-                  <span className="lobby-mat-description">
-                    관람 기록 · 영화 달력 · 영화 통계
-                  </span>
-                ) : null}
-              </Link>
+              />
+              <p className="lobby-guest-name">
+                {user ? user.nickname : '손님'}
+              </p>
             </div>
+
+            <Link
+              href={
+                user?.role === 'admin'
+                  ? '/admin'
+                  : user
+                    ? '/my-cinema'
+                    : '/login'
+              }
+              className="lobby-mat lobby-mat--primary"
+              aria-label={
+                user?.role === 'admin'
+                  ? 'CINEMO OFFICE'
+                  : user
+                    ? 'MY CINEMA'
+                    : '로그인 후 MY CINEMA 입장'
+              }
+            >
+              <span className="lobby-mat-label">
+                {user?.role === 'admin' ? 'CINEMO OFFICE' : 'MY CINEMA'}
+              </span>
+
+              {user?.role !== 'admin' ? (
+                <span className="lobby-mat-description">
+                  관람 기록 · 영화 달력 · 영화 통계
+                </span>
+              ) : null}
+            </Link>
           </div>
 
-          <nav className="lobby-destinations" aria-label="CINEMO 공간">
-            <Link href="/gacha" className="lobby-destination">
-              <Volleyball className="lobby-destination-icon" aria-hidden />
-              <span className="lobby-destination-kicker">TICKET BOOTH</span>
-              <span className="lobby-destination-label">뽑기방</span>
-            </Link>
-            <Link href="/postcard" className="lobby-destination">
-              <Images className="lobby-destination-icon" aria-hidden="true" />
-              <span className="lobby-destination-kicker">POSTCARD</span>
-              <span className="lobby-destination-label">CINEMO 엽서</span>
-            </Link>
-          </nav>
         </div>
       </div>
     </main>

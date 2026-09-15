@@ -1,0 +1,43 @@
+name: MovieChart Daily
+
+on:
+  schedule:
+    # KST 02:05 = UTC 17:05
+    - cron: "5 17 * * *"
+  workflow_dispatch:
+    inputs:
+      targetDate:
+        description: "수집할 KST 기준일 (YYYY-MM-DD)"
+        required: false
+        type: string
+
+concurrency:
+  group: movie-chart-daily
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: MovieChart 일일 수집
+        env:
+          API_URL: ${{ secrets.CINEMO_API_URL }}
+          CRON_SECRET: ${{ secrets.CINEMO_CRON_SECRET }}
+          INPUT_DATE: ${{ inputs.targetDate || '' }}
+        run: |
+          set -euo pipefail
+
+          TARGET_DATE="$INPUT_DATE"
+
+          if [ -z "$TARGET_DATE" ]; then
+            TARGET_DATE="$(TZ=Asia/Seoul date -d 'yesterday' '+%F')"
+          fi
+
+          echo "MovieChart 수집 기준일: $TARGET_DATE"
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${API_URL}/v1/lobby/movie-chart/cron?targetDate=${TARGET_DATE}" \
+            --header "x-cron-secret: ${CRON_SECRET}"

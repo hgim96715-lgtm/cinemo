@@ -76,7 +76,7 @@ export default function AdminUsersPage() {
 
   return (
     <main className="admin-main">
-      <h1 className="admin-title">사용자</h1>
+      <h1 className="admin-title">사용자 관리</h1>
       <p className="admin-sub">가입 명단 · 이번주 기록 최근 20건</p>
       {error ? <p className="admin-error">{error}</p> : null}
       {!people && !error ? <p className="admin-status">불러오는 중…</p> : null}

@@ -9,6 +9,8 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { LobbyBoardService } from './lobby-board.service';
 import {
@@ -21,6 +23,7 @@ import {
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiOperation,
+  ApiHeader,
 } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { UserId } from '../auth/decorators/user-id.decorator';
@@ -33,6 +36,9 @@ import { BackfillResponseDto } from './dto/backfill-response.dto';
 import { MovieChartStatsResponseDto } from './dto/movie-chart-stats.dto';
 import { MovieChartHistoryItemDto } from './dto/movie-chart-history.dto';
 import { UpcomingMoviesResponseDto } from './dto/upcoming-movie.dto';
+import { kstDateKey } from '../lib/date-kst';
+import { ConfigService } from '@nestjs/config';
+import { EnvKeys } from '../config/env.keys';
 
 @ApiTags('lobby')
 @Controller('lobby')
@@ -42,6 +48,7 @@ export class LobbyBoardController {
   constructor(
     private readonly lobbyBoardService: LobbyBoardService,
     private readonly movieChartSnapshotService: MovieChartSnapshotService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Public()
@@ -119,6 +126,36 @@ export class LobbyBoardController {
 
     return {
       message: `백필 시작: ${dto.from} ~ ${dto.to}`,
+    };
+  }
+
+  @ApiHeader({
+    name: 'x-cron-secret',
+    required: true,
+    description: 'CRON_SECRET 환경변수 값',
+  })
+  @Public()
+  @Post('movie-chart/cron')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: '영화 차트 일일 수집' })
+  async collectMovieChartCron(
+    @Headers('x-cron-secret') secret: string | undefined,
+    @Query('targetDate') targetDate?: string,
+  ) {
+    const cronSecret = this.configService.getOrThrow<string>(
+      EnvKeys.CRON_SECRET,
+    );
+    if (secret !== cronSecret) {
+      throw new UnauthorizedException('잘못된 cron secret입니다.');
+    }
+
+    const date = targetDate ?? kstDateKey(new Date(Date.now() - 86_400_000));
+
+    const result = await this.lobbyBoardService.collectDailyMovieChart(date);
+
+    return {
+      message: '영화 차트 수집이 완료되었습니다.',
+      ...result,
     };
   }
 }
