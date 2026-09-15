@@ -48,6 +48,4 @@ export const EnvKeys = {
 
   RESEND_API_KEY: 'RESEND_API_KEY',
   RESEND_FROM: 'RESEND_FROM',
-
-  NEST_CRON_SECRET: 'NEST_CRON_SECRET',
 } as const;
