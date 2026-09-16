@@ -98,6 +98,9 @@ export function MovieChartHistoryChart({
         ...series,
         data: [...series.data].sort((a, b) => a.x.localeCompare(b.x)),
       }))
+      .filter(
+        (series) => series.data[series.data.length - 1]?.x === latestChartDate,
+      )
       .sort(
         (a, b) =>
           (a.data[a.data.length - 1]?.y ?? Infinity) -

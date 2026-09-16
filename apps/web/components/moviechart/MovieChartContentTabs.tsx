@@ -11,6 +11,7 @@ import { MovieChartHistoryChart } from '@/components/moviechart/MovieChartHistor
 import { MovieChartHistorySkeleton } from '@/components/moviechart/MovieChartHistorySkeleton';
 import { formatAudienceCount } from '@/lib/format-audience';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 
 type MovieChartContentTabsProps = {
   movies: MovieChartItem[];
@@ -57,15 +58,44 @@ export function MovieChartContentTabs({
   historyError,
   onSelectTrailer,
 }: MovieChartContentTabsProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const selectedTab =
+    searchParams.get('tab') === 'trend' ? 'trend' : 'rankings';
+
+  const handleTabChange = (value: string) => {
+    if (value === selectedTab) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', value);
+
+    router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  };
   return (
     <section className="movie-chart-content" aria-label="영화 차트 콘텐츠">
-      <Tabs.Root className="movie-chart-tabs-root" defaultValue="rankings">
+      <Tabs.Root
+        className="movie-chart-tabs-root"
+        onValueChange={handleTabChange}
+        value={selectedTab}
+      >
         <Tabs.List className="movie-chart-tabs" aria-label="차트 보기">
           <Tabs.Trigger className="movie-chart-tab" value="rankings">
             현재 순위
           </Tabs.Trigger>
           <Tabs.Trigger className="movie-chart-tab" value="trend">
             순위 흐름
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            className="movie-chart-tab"
+            value="monthly"
+            disabled
+            aria-label="월간 비교 준비 중"
+          >
+            월간 비교
+            <span className="movie-chart-tab-status">준비 중</span>
           </Tabs.Trigger>
         </Tabs.List>
 
@@ -166,6 +196,10 @@ export function MovieChartContentTabs({
             <MovieChartHistoryChart history={history} />
           )}
         </Tabs.Content>
+        {/* <Tabs.Content className="movie-chart-tab-panel" value="monthly">
+          <h2>월간 비교를 준비 중이에요</h2>
+          <p>일별 데이터가 충분히 쌓이면 월별 영화 흐름을 비교할 수 있어요</p>
+        </Tabs.Content> */}
       </Tabs.Root>
     </section>
   );

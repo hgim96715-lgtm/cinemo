@@ -75,7 +75,7 @@
 
 .movie-chart-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
   margin-bottom: 1rem;
   padding: 0.3rem;
@@ -114,6 +114,19 @@
   transition:
     color 160ms ease,
     background-color 160ms ease;
+}
+
+.movie-chart-tab:disabled {
+  color: rgb(157 151 139 / 0.58);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.movie-chart-tab-status {
+  margin-left: 0.3rem;
+  color: inherit;
+  font-size: 0.68rem;
+  white-space: nowrap;
 }
 
 .movie-chart-tab:hover,
@@ -373,6 +386,27 @@
 
   .movie-chart-header p {
     font-size: 0.86rem;
+  }
+
+  .movie-chart-tabs {
+    gap: 0.2rem;
+    padding: 0.25rem;
+  }
+
+  .movie-chart-tab {
+    min-width: 0;
+    min-height: 3rem;
+    padding: 0.4rem 0.25rem;
+    flex-direction: column;
+    gap: 0.12rem;
+    font-size: 0.74rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .movie-chart-tab-status {
+    margin-left: 0;
+    font-size: 0.62rem;
   }
 
   .movie-chart-item {

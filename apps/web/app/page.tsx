@@ -67,7 +67,7 @@ function HomeContent() {
             aria-label="MOVIE CHART 보기"
           >
             <span className="lobby-feature-kicker">MOVIE CHART</span>
-            <strong>오늘의 영화 순위</strong>
+            <strong>오늘의 순위와 이번 달 흐름</strong>
             <span className="lobby-feature-description">
               관객수와 순위 변화를 확인해보세요
             </span>
