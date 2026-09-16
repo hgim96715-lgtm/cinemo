@@ -34,10 +34,15 @@ export class ReleaseNotificationController {
       throw new UnauthorizedException('잘못된 cron secret입니다.');
     }
 
-    await this.releaseNotificationService.sendDueReleaseNotifications();
+    const result =
+      await this.releaseNotificationService.sendDueReleaseNotifications();
 
     return {
-      message: '개봉일 알림 크론을 실행했습니다.',
+      message:
+        result.total === 0
+          ? '발송 대상 개봉일 알림이 없습니다.'
+          : '개봉일 알림 크론을 처리했습니다.',
+      ...result,
     };
   }
 }
