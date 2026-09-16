@@ -463,8 +463,8 @@ export class UserMovieService {
         '보고 싶어요로 저장한 영화만 개봉일 알림을 설정할 수 있습니다.',
       );
     }
-    const movie = await this.tmdbService.getMovieCached(dto.tmdbId);
-    const releaseDate = movie.release_date?.trim();
+
+    const releaseDate = dto.releaseDate.trim();
     if (!releaseDate) {
       throw new BadRequestException('개봉일 정보가 없는 영화입니다.');
     }

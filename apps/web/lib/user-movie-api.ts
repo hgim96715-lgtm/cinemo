@@ -186,13 +186,18 @@ export function updateMovieReleaseNotificationRequest(
   token: string,
   tmdbId: number,
   enabled: boolean,
+  releaseDate: string,
 ) {
   return apiFetch<MovieReleaseNotificationResult>(
     '/user-movies/release-notification',
     {
       method: 'PATCH',
       token,
-      body: JSON.stringify({ tmdbId, enabled }),
+      body: JSON.stringify({
+        tmdbId,
+        enabled,
+        releaseDate,
+      }),
     },
   );
 }

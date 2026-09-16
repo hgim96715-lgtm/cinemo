@@ -494,11 +494,22 @@ export class LobbyBoardService {
     );
 
     const verifiedMovies = await Promise.all(
-      [...movieMap.values()].map(async (movie) =>
-        (await this.tmdbService.isValidMovieRecord(movie.tmdbId))
-          ? movie
-          : null,
-      ),
+      [...movieMap.values()].map(async (movie) => {
+        try {
+          const detail = await this.tmdbService.getMovieCached(movie.tmdbId);
+
+          if (!detail.title?.trim() || !detail.release_date?.trim()) {
+            return null;
+          }
+
+          return {
+            ...movie,
+            originalReleaseDate: detail.release_date,
+          };
+        } catch {
+          return null;
+        }
+      }),
     );
 
     const upcomingMovies = verifiedMovies
@@ -540,6 +551,7 @@ export class LobbyBoardService {
         releaseDate: movie.releaseDate,
         posterPath: movie.posterPath,
         interestCount: countMap.get(movie.tmdbId) ?? 0,
+        originalReleaseDate: movie.originalReleaseDate,
       }));
 
     return {

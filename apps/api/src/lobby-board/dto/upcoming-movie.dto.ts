@@ -19,6 +19,14 @@ export class UpcomingMovieDto {
 
   @ApiProperty({ example: 12 })
   interestCount!: number;
+
+  @ApiProperty({
+    type: String,
+    example: '1999-03-06',
+    nullable: true,
+    format: 'date',
+  })
+  originalReleaseDate!: string | null;
 }
 
 export class UpcomingMoviesResponseDto {

@@ -231,15 +231,40 @@ function UpcomingPageContent() {
     return releaseDate === kstDateKey();
   }
 
-  function formatReleaseDate(releaseDate: string) {
-    const [year, month, day] = releaseDate.split('-');
-    if (!year || !month || !day) return '개봉일 미정';
-
+  function getReleaseDateDisplay(
+    releaseDate: string,
+    originalReleaseDate?: string | null,
+  ) {
     const today = kstDateKey();
+    const currentDate = releaseDate.replaceAll('-', '.');
+    const originalTime = originalReleaseDate
+      ? Date.parse(`${originalReleaseDate}T00:00:00Z`)
+      : NaN;
+    const releaseTime = Date.parse(`${releaseDate}T00:00:00Z`);
+    const isLikelyReRelease =
+      Number.isFinite(originalTime) &&
+      Number.isFinite(releaseTime) &&
+      releaseTime - originalTime >= 365 * 24 * 60 * 60 * 1000;
 
-    if (releaseDate === today) return '오늘 개봉';
+    if (releaseDate === today) {
+      if (isLikelyReRelease && originalReleaseDate) {
+        return {
+          primary: '오늘 개봉 (재개봉)',
+          secondary: `원개봉 ${originalReleaseDate.replaceAll('-', '.')}`,
+        };
+      }
 
-    return `${year}.${month}.${day} 개봉 예정`;
+      return { primary: '오늘 개봉', secondary: null };
+    }
+
+    if (isLikelyReRelease && originalReleaseDate) {
+      return {
+        primary: `${currentDate} 재개봉`,
+        secondary: `원개봉 ${originalReleaseDate.replaceAll('-', '.')}`,
+      };
+    }
+
+    return { primary: `${currentDate} 개봉 예정`, secondary: null };
   }
 
   function handlePeriodChange(period: string) {
@@ -313,7 +338,12 @@ function UpcomingPageContent() {
     const enabled = !(releaseNotificationById[tmdbId] ?? false);
 
     try {
-      await updateMovieReleaseNotificationRequest(accessToken, tmdbId, enabled);
+      await updateMovieReleaseNotificationRequest(
+        accessToken,
+        tmdbId,
+        enabled,
+        detailMovie.release_date,
+      );
 
       setReleaseNotificationById((current) => ({
         ...current,
@@ -380,6 +410,10 @@ function UpcomingPageContent() {
               const toggling = togglingInterestId === movie.tmdbId;
               const isDetailOpen = detailMovieId === movie.tmdbId;
               const selectedDetailMovie = isDetailOpen ? detailMovie : null;
+              const releaseInfo = getReleaseDateDisplay(
+                movie.releaseDate,
+                movie.originalReleaseDate,
+              );
 
               return (
                 <Dialog.Root
@@ -412,7 +446,14 @@ function UpcomingPageContent() {
                             : 'upcoming-release-date'
                         }
                       >
-                        {formatReleaseDate(movie.releaseDate)}
+                        <span className="upcoming-release-date-primary">
+                          {releaseInfo.primary}
+                        </span>
+                        {releaseInfo.secondary ? (
+                          <span className="upcoming-release-date-secondary">
+                            {releaseInfo.secondary}
+                          </span>
+                        ) : null}
                       </p>
                       <p>관심 등록 {movie.interestCount}명</p>
                     </div>

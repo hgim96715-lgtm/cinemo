@@ -242,6 +242,7 @@
 
 .upcoming-movie-card h2 + p.is-today {
   display: inline-flex;
+  flex-direction: column;
   width: fit-content;
   margin-top: 0.16rem;
   position: relative;
@@ -252,16 +253,29 @@
   letter-spacing: 0.015em;
 }
 
+.upcoming-release-date-primary,
+.upcoming-release-date-secondary {
+  display: block;
+}
+
+.upcoming-release-date-secondary {
+  margin-top: 0.12rem;
+  color: rgb(143 135 122 / 0.82);
+  font-size: 0.64rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
 .upcoming-movie-card h2 + p.is-today::before {
   position: absolute;
-  top: 50%;
+  top: 0.1rem;
+  bottom: 0.1rem;
   left: 0;
   width: 0.18rem;
-  height: 0.72rem;
+  height: auto;
   border-radius: 999px;
   background: rgb(212 181 106 / 0.82);
   content: '';
-  transform: translateY(-50%);
 }
 
 .upcoming-movie-card h2 + p + p {

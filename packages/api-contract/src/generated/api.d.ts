@@ -1159,6 +1159,11 @@ export interface components {
             tmdbId: number;
             /** @example true */
             enabled: boolean;
+            /**
+             * Format: date
+             * @example 2026-09-16
+             */
+            releaseDate: string;
         };
         MovieChartItemDto: {
             /** @example 20251234 */
@@ -1253,6 +1258,11 @@ export interface components {
             posterPath: string | null;
             /** @example 12 */
             interestCount: number;
+            /**
+             * Format: date
+             * @example 1999-03-06
+             */
+            originalReleaseDate: string | null;
         };
         UpcomingMoviesResponseDto: {
             items: components["schemas"]["UpcomingMovieDto"][];

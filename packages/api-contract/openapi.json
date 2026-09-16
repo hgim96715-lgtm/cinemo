@@ -2264,11 +2264,17 @@
           "enabled": {
             "type": "boolean",
             "example": true
+          },
+          "releaseDate": {
+            "type": "string",
+            "example": "2026-09-16",
+            "format": "date"
           }
         },
         "required": [
           "tmdbId",
-          "enabled"
+          "enabled",
+          "releaseDate"
         ]
       },
       "MovieChartItemDto": {
@@ -2500,6 +2506,12 @@
           "interestCount": {
             "type": "number",
             "example": 12
+          },
+          "originalReleaseDate": {
+            "type": "string",
+            "example": "1999-03-06",
+            "nullable": true,
+            "format": "date"
           }
         },
         "required": [
@@ -2507,7 +2519,8 @@
           "title",
           "releaseDate",
           "posterPath",
-          "interestCount"
+          "interestCount",
+          "originalReleaseDate"
         ]
       },
       "UpcomingMoviesResponseDto": {

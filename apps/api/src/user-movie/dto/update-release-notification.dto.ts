@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, Min } from 'class-validator';
+import { IsBoolean, IsDateString, IsInt, Min } from 'class-validator';
 
 export class UpdateReleaseNotificationDto {
   @ApiProperty({ example: 550 })
@@ -10,4 +10,8 @@ export class UpdateReleaseNotificationDto {
   @ApiProperty({ example: true })
   @IsBoolean()
   enabled: boolean;
+
+  @ApiProperty({ example: '2026-09-16', format: 'date' })
+  @IsDateString()
+  releaseDate: string;
 }
