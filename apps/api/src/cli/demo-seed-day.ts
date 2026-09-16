@@ -6,14 +6,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NestFactory } from '@nestjs/core';
-import { GACHA_MACHINES, type GachaMachineId } from '@cinemo/shared';
 import { AppModule } from '../app.module';
 import { AdminService } from '../admin/admin.service';
 import { AuthService } from '../auth/auth.service';
-import { TicketService } from '../ticket/ticket.service';
 import { LobbyBoardService } from '../lobby-board/lobby-board.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { kstDateKey, kstTodayRange, todayKstDate } from '../lib/date-kst';
+import { kstDateKey, kstTodayRange } from '../lib/date-kst';
 import {
   DEMO_SEED,
   demoEmail,
@@ -95,11 +93,6 @@ function assertEnv() {
   return password;
 }
 
-function pickMachine(): GachaMachineId {
-  const m = GACHA_MACHINES[Math.floor(Math.random() * GACHA_MACHINES.length)]!;
-  return m.id;
-}
-
 function pickReview(personas: Personas): ReviewTemplate {
   return personas.reviews[Math.floor(Math.random() * personas.reviews.length)]!;
 }
@@ -158,43 +151,19 @@ async function runUserActivity(
   nickname: string,
   personas: Personas,
   deps: {
-    ticket: TicketService;
     lobby: LobbyBoardService;
     prisma: PrismaService;
   },
 ): Promise<SeedResult> {
   await deps.lobby.recordVisit(userId);
 
-  const ticketDate = todayKstDate();
-  const existing = await deps.prisma.ticket.findUnique({
-    where: { userId_ticketDate: { userId, ticketDate } },
+  const movie = await deps.prisma.moviePool.findFirst({
+    orderBy: { syncedAt: 'desc' },
+    select: { tmdbId: true, title: true },
   });
-
-  let tmdbId: number;
-  let movieTitle: string;
-
-  if (!existing) {
-    await deps.ticket.issueToday(userId);
-    const used = await deps.ticket.useToday(userId, pickMachine());
-    tmdbId = used.movie.id;
-    movieTitle = used.movie.title;
-  } else if (existing.status === 'issued') {
-    const used = await deps.ticket.useToday(userId, pickMachine());
-    tmdbId = used.movie.id;
-    movieTitle = used.movie.title;
-  } else if (existing.status === 'used' && existing.tmdbId != null) {
-    const movie = await deps.prisma.moviePool.findUnique({
-      where: { tmdbId: existing.tmdbId },
-      select: { tmdbId: true, title: true },
-    });
-    if (!movie) {
-      return { ok: false, nickname, reason: '티켓 영화 풀 없음' };
-    }
-    tmdbId = movie.tmdbId;
-    movieTitle = movie.title;
-  } else {
-    return { ok: false, nickname, reason: '티켓 상태 처리 불가' };
-  }
+  if (!movie) return { ok: false, nickname, reason: '영화 캐시가 없음' };
+  const tmdbId = movie.tmdbId;
+  const movieTitle = movie.title;
 
   const template = pickReview(personas);
   await deps.prisma.userMovie.upsert({
@@ -421,10 +390,9 @@ async function main() {
 
   const auth = app.get(AuthService);
   const admin = app.get(AdminService);
-  const ticket = app.get(TicketService);
   const lobby = app.get(LobbyBoardService);
   const prisma = app.get(PrismaService);
-  const deps = { ticket, lobby, prisma };
+  const deps = { lobby, prisma };
 
   const results: SeedResult[] = [];
   const demoUserIds: string[] = [];

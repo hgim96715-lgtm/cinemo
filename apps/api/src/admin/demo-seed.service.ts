@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as bcrypt from 'bcrypt';
-import { GACHA_MACHINES } from '@cinemo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminService } from './admin.service';
 import { kstDateKey, kstDayRange, toKstDate } from '../lib/date-kst';
@@ -122,7 +121,7 @@ export class DemoSeedService {
     if (users.length === 0) return { users: 0, rebuiltDates: 0 };
 
     const userIds = users.map((user) => user.id);
-    const [visits, logins, tickets] = await Promise.all([
+    const [visits, logins] = await Promise.all([
       this.prisma.lobbyVisit.findMany({
         where: { userId: { in: userIds } },
         select: { visitDate: true },
@@ -131,19 +130,13 @@ export class DemoSeedService {
         where: { userId: { in: userIds } },
         select: { loggedAt: true },
       }),
-      this.prisma.ticket.findMany({
-        where: { userId: { in: userIds } },
-        select: { ticketDate: true },
-      }),
     ]);
     const affectedDates = new Set<string>([
       ...visits.map((row) => kstDateKey(row.visitDate)),
       ...logins.map((row) => kstDateKey(row.loggedAt)),
-      ...tickets.map((row) => kstDateKey(row.ticketDate)),
     ]);
 
     await this.prisma.$transaction([
-      this.prisma.ticket.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.userMovie.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.lobbyVisit.deleteMany({ where: { userId: { in: userIds } } }),
       this.prisma.adminLoginLog.deleteMany({
@@ -208,7 +201,7 @@ export class DemoSeedService {
       take: 200,
     });
     if (movies.length === 0) {
-      throw new Error('MoviePool이 비어 있어 demo 뽑기를 만들 수 없습니다.');
+      throw new Error('MoviePool이 비어 있어 demo 관람 기록을 만들 수 없습니다.');
     }
     const upcomingMovies = movies
       .filter(
@@ -249,52 +242,7 @@ export class DemoSeedService {
       }
 
       const movie = movies[this.indexFor(dateKey, index, movies.length)];
-      const movieId = movie.tmdbId;
-      const ticket = await this.prisma.ticket.findUnique({
-        where: { userId_ticketDate: { userId: user.id, ticketDate: date } },
-      });
-      let tmdbId = ticket?.tmdbId ?? movieId;
-      if (!ticket) {
-        await this.prisma.ticket.create({
-          data: {
-            userId: user.id,
-            ticketDate: date,
-            machineId:
-              GACHA_MACHINES[
-                this.indexFor(dateKey, index, GACHA_MACHINES.length)
-              ].id,
-            tmdbId,
-            status: 'used',
-            issuedAt: new Date(eventAt.getTime() - 3 * 60_000),
-            usedAt: eventAt,
-            createdAt: eventAt,
-            updatedAt: eventAt,
-          },
-        });
-        await this.adminService.countIncrement('ticketsIssued', eventAt);
-        await this.adminService.countIncrement('ticketsUsed', eventAt);
-      } else if (ticket.status === 'issued') {
-        tmdbId = ticket.tmdbId ?? movieId;
-        await this.prisma.ticket.update({
-          where: { id: ticket.id },
-          data: {
-            machineId:
-              GACHA_MACHINES[
-                this.indexFor(dateKey, index, GACHA_MACHINES.length)
-              ].id,
-            tmdbId,
-            status: 'used',
-            usedAt: eventAt,
-          },
-        });
-        await this.adminService.countIncrement('ticketsUsed', eventAt);
-      }
-
-      const selectedMovie = await this.prisma.moviePool.findUnique({
-        where: { tmdbId },
-        select: { title: true },
-      });
-      const movieTitle = selectedMovie?.title ?? movie.title;
+      const tmdbId = movie.tmdbId;
 
       const reviewTemplate = this.pick(personas.reviews, dateKey, index)!;
       await this.prisma.userMovie.upsert({
@@ -471,7 +419,7 @@ export class DemoSeedService {
     const date = toKstDate(this.atKstStart(dateKey));
     const range = kstDayRange(dateKey);
     const userFilter = { user: { role: 'user' as const } };
-    const [visits, logins, ticketsIssued, ticketsUsed] = await Promise.all([
+    const [visits, logins] = await Promise.all([
       this.prisma.lobbyVisit.count({
         where: { visitDate: date, ...userFilter },
       }),
@@ -481,12 +429,6 @@ export class DemoSeedService {
           ...userFilter,
         },
       }),
-      this.prisma.ticket.count({
-        where: { ticketDate: date, ...userFilter },
-      }),
-      this.prisma.ticket.count({
-        where: { ticketDate: date, status: 'used', ...userFilter },
-      }),
     ]);
 
     await this.prisma.adminDailyStat.upsert({
@@ -495,14 +437,10 @@ export class DemoSeedService {
         date,
         visits,
         logins,
-        ticketsIssued,
-        ticketsUsed,
       },
       update: {
         visits,
         logins,
-        ticketsIssued,
-        ticketsUsed,
       },
     });
 

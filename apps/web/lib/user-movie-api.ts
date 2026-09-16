@@ -1,5 +1,5 @@
 import type {
-  GachaMovie,
+  MovieCard,
   ToggleUserMovieResult,
   UserMovieCalendar,
   UserMovieCounts,
@@ -91,7 +91,7 @@ export type DisplayedUserMovie = {
   tmdbId: number;
   wallSlot: number;
   displayOrder: number | null;
-  movie: GachaMovie;
+  movie: MovieCard;
 };
 
 export function listDisplayedUserMoviesRequest(token: string) {

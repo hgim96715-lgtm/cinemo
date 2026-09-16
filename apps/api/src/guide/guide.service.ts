@@ -55,10 +55,12 @@ export class GuideService {
     const steps = this.parseSteps(guide.steps);
     const stepIds = new Set(steps.map((step) => step.id));
 
+    const defaultStepIds = new Set(
+      DEFAULT_LOBBY_GUIDE_STEPS.map((step) => step.id),
+    );
     const isLegacyGuide =
-      stepIds.size === 3 &&
-      stepIds.has('ticket') &&
-      stepIds.has('gacha');
+      steps.length !== defaultStepIds.size ||
+      steps.some((step) => !defaultStepIds.has(step.id));
 
     if (steps.length === 0 || isLegacyGuide) {
       return this.prisma.lobbyGuide.update({

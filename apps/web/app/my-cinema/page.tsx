@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   DEFAULT_AVATAR,
-  type GachaMovie,
+  type MovieCard,
   type AvatarConfig,
   type UserMovieCounts,
 } from '@cinemo/shared';
@@ -76,7 +76,7 @@ export default function MyCinemaPage() {
   const [posterPickerOpen, setPosterPickerOpen] = useState(false);
   const [selectedWallSlot, setSelectedWallSlot] = useState<number | null>(null);
   const [selectedPosters, setSelectedPosters] = useState<
-    Record<number, GachaMovie>
+    Record<number, MovieCard>
   >({});
 
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -152,7 +152,7 @@ export default function MyCinemaPage() {
       try {
         const response = await listDisplayedUserMoviesRequest(token);
         if (cancelled) return;
-        const posters = response.items.reduce<Record<number, GachaMovie>>(
+        const posters = response.items.reduce<Record<number, MovieCard>>(
           (current, item) => {
             current[item.wallSlot] = item.movie;
             return current;
@@ -230,7 +230,7 @@ export default function MyCinemaPage() {
     setPosterPickerOpen(true);
   }
 
-  async function handlePosterSelected(movie: GachaMovie) {
+  async function handlePosterSelected(movie: MovieCard) {
     if (!accessToken || selectedWallSlot === null || saving) return;
     const wallSlot = selectedWallSlot;
     setSaving(true);
@@ -302,7 +302,7 @@ export default function MyCinemaPage() {
     }
   }
 
-  function handleCalendarMovieSelect(movie: GachaMovie) {
+  function handleCalendarMovieSelect(movie: MovieCard) {
     if (!calendarAddDate || !accessToken || isCalendarAdding) return;
 
     startCalendarTransition(async () => {

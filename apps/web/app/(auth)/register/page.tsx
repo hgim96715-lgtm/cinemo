@@ -215,7 +215,7 @@ export default function RegisterPage() {
           </div>
         </div>
         <button className="auth-submit" type="submit">
-          티켓 발급받기
+          회원가입하기
         </button>
       </form>
       <nav className="auth-links" aria-label="인증 페이지 이동">

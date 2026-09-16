@@ -4,12 +4,6 @@ export const GUIDE_STORAGE_KEY = "cinemo_guide_done";
 
 export const GUIDE_STEPS = [
   {
-    id: "ticket",
-    kicker: "TODAY'S TICKET",
-    title: "오늘의 영화 티켓을 받아보세요",
-    body: "매표소에서 티켓을 받고 뽑기방에서 오늘의 영화를 발견해요.",
-  },
-  {
     id: "upcoming",
     kicker: "SCREEN",
     title: "스크린에서 만날 영화를 저장해요",

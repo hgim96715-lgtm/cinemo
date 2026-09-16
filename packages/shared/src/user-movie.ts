@@ -1,4 +1,4 @@
-import { GachaMovie } from "./gacha";
+import { MovieCard } from "./movie";
 
 export const USER_MOVIE_KINDS = ["wish", "watched"] as const;
 
@@ -33,7 +33,7 @@ export type UserMovieListItem = UserMovieViewingDetails & {
   tmdbId: number;
   updatedAt: string;
   watchedAt: string | null;
-  movie: GachaMovie;
+  movie: MovieCard;
 };
 
 export type UserMovieListPage = {
@@ -51,7 +51,7 @@ export type UserMovieCalendarItem = {
   tmdbId: number;
   date: string;
   watchedAt: string;
-  movie: GachaMovie;
+  movie: MovieCard;
 };
 
 export type UserMovieCalendar = {

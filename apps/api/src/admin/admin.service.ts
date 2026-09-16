@@ -20,9 +20,7 @@ import {
 
 type CountField =
   | 'visits'
-  | 'logins'
-  | 'ticketsIssued'
-  | 'ticketsUsed';
+  | 'logins';
 
 @Injectable()
 export class AdminService {
@@ -50,15 +48,12 @@ export class AdminService {
       update: { [field]: { increment: 1 } },
     });
 
-    const hourly =
-      field === 'ticketsIssued' || field === 'ticketsUsed'
-        ? null
-        : this.prisma.adminHourlyStat.upsert({
-            where: { date_hour: { date, hour } },
-            create: { date, hour, [field]: 1 },
-            update: { [field]: { increment: 1 } },
-          });
-    await this.prisma.$transaction([daily, hourly].filter((q) => q !== null));
+    const hourly = this.prisma.adminHourlyStat.upsert({
+      where: { date_hour: { date, hour } },
+      create: { date, hour, [field]: 1 },
+      update: { [field]: { increment: 1 } },
+    });
+    await this.prisma.$transaction([daily, hourly]);
   }
 
   async recordGuestLogin(userId: string): Promise<void> {
@@ -89,7 +84,6 @@ export class AdminService {
       weekSignupCount,
       weekLoginSum,
       weekVisitCount,
-      todayTicketIssuedCount,
     ] = await Promise.all([
       this.prisma.user.count({ where: this.guestWhere() }),
       this.prisma.user.count({
@@ -129,9 +123,6 @@ export class AdminService {
           },
         },
       }),
-      this.prisma.ticket.count({
-        where: { ticketDate: visitDate, user: this.guestWhere() },
-      }),
     ]);
 
     return {
@@ -142,7 +133,6 @@ export class AdminService {
       weekSignupCount,
       weekLoginCount: weekLoginSum._sum.logins ?? 0,
       weekVisitCount,
-      todayTicketIssuedCount,
     };
   }
 
@@ -196,8 +186,6 @@ export class AdminService {
         visits: row?.visits ?? 0,
         logins: row?.logins ?? 0,
         signups: signupByDay.get(date) ?? 0,
-        ticketsIssued: row?.ticketsIssued ?? 0,
-        ticketsUsed: row?.ticketsUsed ?? 0,
       };
     });
 

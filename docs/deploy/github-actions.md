@@ -165,74 +165,6 @@ Swagger에서 기준일 1일 수집 검증
 
 공식 문서: [Workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), [Secrets 사용](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets), [수동 workflow 실행](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)
 
-## MoviePool seed
-
-현재는 GitHub Actions가 Railway API의 전용 endpoint를 호출한다. Cloud Scheduler 전환 후에는 `workflow_dispatch`를 수동 fallback으로 남길 수 있다.
-
-```txt
-GitHub Actions
-  → POST /v1/tmdb/seed-pool/cron
-  → Railway API
-  → Neon movie_pool_seed_runs 기록
-```
-
-실행 시각: KST 02:05 (`UTC 17:05`).
-
-필수 Secret:
-
-```txt
-CINEMO_API_URL       Railway API origin만 입력
-CINEMO_CRON_SECRET   Railway의 CRON_SECRET과 동일한 값
-```
-
-관리자 JWT를 Actions Secret으로 사용하지 않는다.
-
-관리자 화면:
-
-```txt
-/admin/ops  수동 시드 실행 · progress polling · 머신별 통계
-/admin      가장 최근 cron/manual 실행 결과 모달
-```
-
-결과 기록은 `MoviePoolSeedRun`에 저장하며, 관리자별 localStorage key로 이미 확인한 실행을 다시 표시하지 않는다.
-
-시드 실행 중 페이지를 새로고침해도 Railway API 작업은 중단되지 않는다. `/admin/ops` 재진입 시 `/v1/tmdb/seed-pool/progress` polling으로 진행 상태를 복원한다.
-
-중단 endpoint:
-
-```txt
-POST /v1/tmdb/seed-pool/cancel
-  → 현재 프로세스의 seedCancelRequested 설정
-  → 다음 page/movie 경계에서 전체 시드 종료
-  → 실행 잠금 해제
-```
-
-### MoviePool seed DB 오류
-
-증상:
-
-```txt
-500 {"statusCode":500,"message":"데이터베이스 오류가 발생했습니다."}
-```
-
-Neon의 `MoviePoolSeedRun` migration 미적용 상태에서 발생. 해결 후 GitHub Actions 재실행.
-
-```bash
-pnpm --filter api exec prisma migrate deploy
-```
-
-### MoviePool seed 401
-
-증상:
-
-```txt
-401 {"message":"로그인이 필요합니다.","error":"Unauthorized","statusCode":401}
-```
-
-`POST /v1/tmdb/seed-pool/cron`은 `@Public()`으로 JWT guard를 통과하지만 `x-cron-secret` 헤더와 Railway의 `CRON_SECRET`은 계속 비교.
-
-GitHub Actions Secret `CINEMO_CRON_SECRET`과 Railway Variable `CRON_SECRET`의 동일한 값 등록 필요.
-
 ## Portfolio demo activity seed
 
 운영 전 포트폴리오 화면에 활동 데이터가 보이도록 Railway DB에 demo 데이터 생성. 실제 회원과 구분하기 위해 이메일 도메인은 `demo.cinemo.invalid`로 고정.
@@ -256,7 +188,7 @@ DEMO_SEED_PASSWORD=demo 계정 공통 로그인 비밀번호 · 8자 이상
 
 ```txt
 신규 demo 유저 · 재방문 login · LobbyVisit
-Ticket issued/used · 랜덤 MoviePool 영화
+MoviePool 영화 기반 관람 기록
 AdminDailyStat · AdminHourlyStat · UserMovie
 ```
 

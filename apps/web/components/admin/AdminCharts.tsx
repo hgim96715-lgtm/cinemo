@@ -169,50 +169,6 @@ export function AdminWeekPeople({ analytics }: { analytics: AdminAnalytics }) {
   );
 }
 
-export function AdminWeekTickets({ analytics }: { analytics: AdminAnalytics }) {
-  const empty = analytics.series.every(
-    (row) => row.ticketsIssued === 0 && row.ticketsUsed === 0,
-  );
-  const data = analytics.series.map((row) => ({
-    date: dayLabel(row.date),
-    발급: row.ticketsIssued,
-    사용: row.ticketsUsed,
-  }));
-
-  return (
-    <ChartBox empty={empty}>
-      <ResponsiveBar
-        data={data}
-        keys={['발급', '사용']}
-        indexBy="date"
-        theme={theme}
-        colors={[GOLD, SLATE]}
-        groupMode="grouped"
-        margin={{ top: 12, right: 16, bottom: 48, left: 36 }}
-        padding={0.28}
-        innerPadding={2}
-        enableLabel={false}
-        borderRadius={2}
-        axisBottom={{ tickSize: 0, tickPadding: 8 }}
-        axisLeft={{ tickSize: 0, tickPadding: 6, tickValues: 4 }}
-        enableGridY
-        enableGridX={false}
-        legends={[
-          {
-            dataFrom: 'keys',
-            anchor: 'bottom',
-            direction: 'row',
-            translateY: 40,
-            itemWidth: 56,
-            itemHeight: 16,
-            symbolSize: 8,
-          },
-        ]}
-      />
-    </ChartBox>
-  );
-}
-
 export function AdminHoursChart({ analytics }: { analytics: AdminAnalytics }) {
   const today = analytics.to;
   const todayLabel = dayLabel(today);

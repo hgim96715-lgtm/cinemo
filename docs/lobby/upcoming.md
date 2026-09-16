@@ -45,7 +45,7 @@ apps/api/src/user-movie/release-notification.controller.ts
 apps/api/src/auth/mail.service.ts
 apps/api/src/auth/emails/release-notification-email.tsx
 packages/shared/src/lobby-board.ts
-packages/shared/src/gacha.ts
+packages/shared/src/movie.ts
 ```
 
 `UpcomingMovie`와 `UpcomingMoviesResponse`: `apps/web/lib/lobby-board-api.ts`에서 정의.

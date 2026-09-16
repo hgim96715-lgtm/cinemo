@@ -522,92 +522,6 @@
         ]
       }
     },
-    "/v1/tickets/today": {
-      "get": {
-        "operationId": "TicketController_getToday_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tickets"
-        ]
-      }
-    },
-    "/v1/tickets/issue": {
-      "post": {
-        "operationId": "TicketController_issueToday_v1",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tickets"
-        ]
-      }
-    },
-    "/v1/tickets/use": {
-      "post": {
-        "operationId": "TicketController_useToday_v1",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UseTicketDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tickets"
-        ]
-      }
-    },
-    "/v1/tickets/reset-today": {
-      "post": {
-        "operationId": "TicketController_resetToday_v1",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tickets"
-        ]
-      }
-    },
     "/v1/tmdb/movie/{movieId}": {
       "get": {
         "operationId": "TmdbController_getMovie_v1",
@@ -677,15 +591,6 @@
               "example": 1,
               "type": "number"
             }
-          },
-          {
-            "name": "machineId",
-            "required": false,
-            "in": "query",
-            "description": "genre: random|thriller|action|comedy|romance|horror|sf|drama · country: kr|jp|us|fr|gb|cn|de|in",
-            "schema": {
-              "example": "thriller"
-            }
           }
         ],
         "responses": {
@@ -728,178 +633,6 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool/latest": {
-      "get": {
-        "operationId": "TmdbController_getLatestSeedPool_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool/progress": {
-      "get": {
-        "operationId": "TmdbController_getSeedPoolProgress_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool": {
-      "post": {
-        "operationId": "TmdbController_seedPool_v1",
-        "parameters": [
-          {
-            "name": "pages",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "example": 3,
-              "type": "number"
-            }
-          },
-          {
-            "name": "machineId",
-            "required": false,
-            "in": "query",
-            "description": "genre: random|thriller|action|comedy|romance|horror|sf|drama · country: kr|jp|us|fr|gb|cn|de|in",
-            "schema": {
-              "example": "thriller"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool/all": {
-      "post": {
-        "operationId": "TmdbController_seedPoolAll_v1",
-        "parameters": [
-          {
-            "name": "pages",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "example": 10,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool/cron": {
-      "post": {
-        "operationId": "TmdbController_seedPoolCron_v1",
-        "parameters": [
-          {
-            "name": "pages",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "example": 3,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool/cron/status": {
-      "get": {
-        "operationId": "TmdbController_getSeedPoolCronStatus_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/seed-pool/cancel": {
-      "post": {
-        "operationId": "TmdbController_cancelSeedPool_v1",
-        "parameters": [],
-        "responses": {
-          "201": {
             "description": ""
           }
         },
@@ -1685,6 +1418,39 @@
         ]
       }
     },
+    "/v1/lobby/movie-chart/cron": {
+      "post": {
+        "operationId": "LobbyBoardController_collectMovieChartCron_v1",
+        "parameters": [
+          {
+            "name": "targetDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-cron-secret",
+            "in": "header",
+            "description": "CRON_SECRET 환경변수 값",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "summary": "영화 차트 일일 수집",
+        "tags": [
+          "lobby"
+        ]
+      }
+    },
     "/v1/profiles/{nickname}": {
       "get": {
         "operationId": "ProfilesController_getProfile_v1",
@@ -2307,19 +2073,6 @@
       "UpdateProfileDto": {
         "type": "object",
         "properties": {}
-      },
-      "UseTicketDto": {
-        "type": "object",
-        "properties": {
-          "machineId": {
-            "type": "string",
-            "description": "뽑기 머신 ID",
-            "example": "thriller"
-          }
-        },
-        "required": [
-          "machineId"
-        ]
       },
       "UpsertProviderOverrideDto": {
         "type": "object",

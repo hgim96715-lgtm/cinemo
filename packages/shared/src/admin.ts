@@ -6,7 +6,6 @@ export type AdminOverview = {
   weekSignupCount: number;
   weekLoginCount: number;
   weekVisitCount: number;
-  todayTicketIssuedCount: number;
 };
 
 export type AdminAnalyticsPoint = {
@@ -14,8 +13,6 @@ export type AdminAnalyticsPoint = {
   visits: number;
   logins: number;
   signups: number;
-  ticketsIssued: number;
-  ticketsUsed: number;
 };
 export type AdminHourlyPoint = {
   date: string;
@@ -57,28 +54,4 @@ export type AdminPeople = {
 export type AdminPeopleFeed = {
   items: AdminPeopleFeedItem[];
   total: number;
-};
-
-export type MoviePoolSeedRunStatus =
-  | "running"
-  | "succeeded"
-  | "partial"
-  | "failed";
-
-export type MoviePoolSeedTrigger = "cron" | "manual";
-
-export type MoviePoolSeedRun = {
-  id: string;
-  trigger: MoviePoolSeedTrigger;
-  status: MoviePoolSeedRunStatus;
-  pages: number;
-  machineCount: number;
-  processedPages: number;
-  fetchedCount: number;
-  savedCount: number;
-  skippedCount: number;
-  failedCount: number;
-  errorMessage: string | null;
-  startedAt: string;
-  finishedAt: string | null;
 };

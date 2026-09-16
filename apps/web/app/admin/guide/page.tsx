@@ -26,9 +26,8 @@ export default function AdminGuidePage() {
     async function loadGuide() {
       try {
         const guide = await getLobbyGuideRequest();
-        const isLegacyGuide = guide.steps.some((step) => step.id === 'gacha');
         if (!cancelled) {
-          setSteps(isLegacyGuide ? DEFAULT_LOBBY_GUIDE_STEPS : guide.steps);
+          setSteps(guide.steps);
         }
       } catch (error: unknown) {
         if (!cancelled) {

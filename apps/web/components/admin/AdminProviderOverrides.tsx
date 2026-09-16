@@ -66,8 +66,8 @@ export function AdminProviderOverrides({ token }: Props) {
     <section className="admin-ops-card">
       <h3 className="admin-ops-heading">OTT Override</h3>
       <p className="admin-ops-desc">
-        TMDB에 없거나 틀린 OTT를 영화(tmdbId)별로 add/remove. 뽑기 카드에 merge
-        반영.
+        TMDB에 없거나 틀린 OTT를 영화(tmdbId)별로 add/remove. 영화 상세 카드에
+        merge 반영.
       </p>
 
       <label className="admin-ops-field">

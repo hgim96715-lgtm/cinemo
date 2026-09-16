@@ -1,83 +1,18 @@
-import type {
-  GachaMovie,
-  MoviePoolSeedRun,
-  MovieWithTags,
-} from '@cinemo/shared';
+import type { MovieCard, MovieWithTags } from '@cinemo/shared';
 import { apiFetch } from './api-fetch';
 import { normalizeSearchQuery } from './search-query';
 
 export type TmdbSearchResponse = {
   page: number;
   total_pages: number;
-  results: GachaMovie[];
+  results: MovieCard[];
 };
-
-export type SeedResult = Record<
-  string,
-  {
-    ok: boolean;
-    processedPages: number;
-    fetchedCount: number;
-    savedCount: number;
-    skippedCount: number;
-    failedCount: number;
-  }
->;
-
-export type SeedSingleResult = {
-  ok: boolean;
-  processedPages: number;
-  fetchedCount: number;
-  savedCount: number;
-  skippedCount: number;
-  failedCount: number;
-};
-
-export function seedPoolAllRequest(token: string | null, pages = 5) {
-  return apiFetch<SeedResult>(`/tmdb/seed-pool/all?pages=${pages}`, {
-    method: 'POST',
-    token,
-  });
-}
 
 export function searchMoviesRequest(token: string, q: string, page = 1) {
   const query = encodeURIComponent(normalizeSearchQuery(q));
   return apiFetch<TmdbSearchResponse>(`/tmdb/search?q=${query}&page=${page}`, {
     token,
   });
-}
-
-export function seedPoolRequest(
-  token: string | null,
-  machineId: string,
-  pages = 5,
-) {
-  return apiFetch<SeedSingleResult>(
-    `/tmdb/seed-pool?machineId=${machineId}&pages=${pages}`,
-    {
-      method: 'POST',
-      token,
-    },
-  );
-}
-
-export type SeedProgress = {
-  done: number;
-  total: number;
-  machineId: string;
-};
-
-export type SeedProgressResponse = {
-  progress: SeedProgress | null;
-};
-
-export async function getSeedPoolProgressRequest(token: string | null) {
-  const response = await apiFetch<SeedProgressResponse>(
-    '/tmdb/seed-pool/progress',
-    { token },
-  );
-
-  return response.progress;
 }
 
 export type ProviderOverride = {
@@ -121,21 +56,6 @@ export function upsertProviderOverrideRequest(
     body: JSON.stringify(body),
   });
 }
-export type LatestSeedRunResponse = {
-  run: MoviePoolSeedRun | null;
-};
-
-export function getLatestSeedRunRequest(token: string | null) {
-  return apiFetch<LatestSeedRunResponse>('/tmdb/seed-pool/latest', { token });
-}
-
-export function cancelSeedPoolRequest(token: string | null) {
-  return apiFetch<{ cancelled: boolean }>('/tmdb/seed-pool/cancel', {
-    method: 'POST',
-    token,
-  });
-}
-
 export function getMovieDetailRequest(tmdbId: number) {
   return apiFetch<MovieWithTags>(`/tmdb/movie/${tmdbId}`);
 }

@@ -13,7 +13,7 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import type {
-  GachaMovie,
+  MovieCard,
   UserMovieKind,
   UserMovieListItem,
   UserMovieMarks,
@@ -67,7 +67,7 @@ const TMDB_GENRE_LABELS: Record<number, string> = {
 };
 
 type MovieDetailModalProps = {
-  movie: GachaMovie & {
+  movie: MovieCard & {
     genre_ids?: number[];
   };
   screening?: UserMovieListItem;

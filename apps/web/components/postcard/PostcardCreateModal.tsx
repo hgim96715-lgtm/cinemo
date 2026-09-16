@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X } from 'lucide-react';
-import type { GachaMovie } from '@cinemo/shared';
+import type { MovieCard } from '@cinemo/shared';
 import type { CreatePostcardInput, PostcardSummary } from '@/lib/postcard-api';
 import {
   recommendMovieQuotesRequest,
@@ -50,8 +50,8 @@ export function PostcardCreateModal({
   const accessToken = useAuthStore((state) => state.accessToken);
 
   const [query, setQuery] = useState('');
-  const [movies, setMovies] = useState<GachaMovie[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<GachaMovie | null>(null);
+  const [movies, setMovies] = useState<MovieCard[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<MovieCard | null>(null);
   const [loadingMovies, setLoadingMovies] = useState(false);
   const [suggestions, setSuggestions] = useState<MovieQuoteSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);

@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -8,9 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import type { MoviePool } from '../generated/prisma/client';
 import {
-  GACHA_MACHINES,
-  GACHA_TMDB_FILTERS,
-  type GachaMovie,
+  type MovieCard,
   type MovieVideoType,
   type MovieWithTags,
   type WatchProvider,
@@ -111,21 +108,6 @@ export class TmdbService {
 
     const teaser = pick('teaser');
     return teaser ? { key: teaser.key, type: 'teaser' as const } : null;
-  }
-
-  private seedProgress: {
-    done: number;
-    total: number;
-    machineId: string;
-  } | null = null;
-
-  private seedAllRuning = false;
-  private seedCancelRequested = false;
-
-  requestSeedCancel(): boolean {
-    if (!this.seedAllRuning) return false;
-    this.seedCancelRequested = true;
-    return true;
   }
 
   /** TMDB providers + admin override merge */
@@ -260,13 +242,13 @@ export class TmdbService {
     return { title: newTitle, overview: newOverview, director: newDirector };
   }
 
-  /** MoviePool row → GachaMovie (DB의 providers 사용) */
-  private async fromPool(row: MoviePool): Promise<GachaMovie> {
+  /** MoviePool row → MovieCard (DB의 providers 사용) */
+  private async fromPool(row: MoviePool): Promise<MovieCard> {
     const base = Array.isArray(row.providers)
       ? (row.providers as WatchProvider[])
       : [];
     const providers = await this.getMergeProviders(row.tmdbId, base);
-    const movie: GachaMovie = {
+    const movie: MovieCard = {
       id: row.tmdbId,
       title: row.title,
       overview: row.overview,
@@ -290,7 +272,7 @@ export class TmdbService {
   async getMovieCached(
     movieId: number,
     opts?: { force?: boolean },
-  ): Promise<GachaMovie> {
+  ): Promise<MovieCard> {
     const cached = await this.prismaService.moviePool.findUnique({
       where: { tmdbId: movieId },
     });
@@ -363,143 +345,6 @@ export class TmdbService {
     };
   }
 
-  async seedPool(
-    filters: Record<string, string> = {},
-    pages = 5,
-    opts?: {
-      onPageDone?: (
-        page: number,
-        stats: {
-          processedPages: number;
-          fetchedCount: number;
-          savedCount: number;
-          skippedCount: number;
-          failedCount: number;
-        },
-      ) => void | Promise<void>;
-      shouldCancel?: () => boolean;
-    },
-  ): Promise<{
-    ok: boolean;
-    processedPages: number;
-    fetchedCount: number;
-    savedCount: number;
-    skippedCount: number;
-    failedCount: number;
-  }> {
-    let processedPages = 0;
-    let fetchedCount = 0;
-    let savedCount = 0;
-    let skippedCount = 0;
-    let failedCount = 0;
-    for (let page = 1; page <= pages; page++) {
-      const { results } = await this.discoverMovies(filters, page);
-      fetchedCount += results.length;
-      if (opts?.shouldCancel?.()) break;
-      for (const movie of results) {
-        if (opts?.shouldCancel?.()) break;
-        if (!movie.poster_path) {
-          skippedCount += 1;
-          continue;
-        }
-        try {
-          await this.getMovieCached(movie.id, { force: true });
-          savedCount += 1;
-        } catch (error) {
-          failedCount += 1;
-          this.logger.warn(
-            `MoviePool 저장 실패 (${movie.id}): ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          );
-        }
-      }
-      if (opts?.shouldCancel?.()) break;
-      processedPages += 1;
-      await opts?.onPageDone?.(page, {
-        processedPages,
-        fetchedCount,
-        savedCount,
-        skippedCount,
-        failedCount,
-      });
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    }
-    return {
-      ok: failedCount === 0,
-      processedPages,
-      fetchedCount,
-      savedCount,
-      skippedCount,
-      failedCount,
-    };
-  }
-
-  async seedPoolAll(pages = 10): Promise<
-    Record<
-      string,
-      {
-        ok: boolean;
-        processedPages: number;
-        fetchedCount: number;
-        savedCount: number;
-        skippedCount: number;
-        failedCount: number;
-      }
-    >
-  > {
-    if (this.seedAllRuning) {
-      this.logger.warn('MoviePool 시드 중복 실행 차단');
-      throw new ConflictException('MoviePool 시드가 이미 실행 중입니다.');
-    }
-    this.seedAllRuning = true;
-    this.seedCancelRequested = false;
-    const results: Record<
-      string,
-      {
-        ok: boolean;
-        processedPages: number;
-        fetchedCount: number;
-        savedCount: number;
-        skippedCount: number;
-        failedCount: number;
-      }
-    > = {};
-    const total = GACHA_MACHINES.length * pages;
-    let done = 0;
-    this.seedProgress = { done: 0, total, machineId: '' };
-
-    try {
-      for (const machine of GACHA_MACHINES) {
-        const result = await this.seedPool(
-          GACHA_TMDB_FILTERS[machine.id],
-          pages,
-          {
-            onPageDone: () => {
-              done += 1;
-              this.seedProgress = {
-                done,
-                total,
-                machineId: machine.id,
-              };
-            },
-            shouldCancel: () => this.seedCancelRequested,
-          },
-        );
-        results[machine.id] = result;
-      }
-      return results;
-    } finally {
-      this.seedProgress = null;
-      this.seedAllRuning = false;
-      this.seedCancelRequested = false;
-    }
-  }
-
-  getSeedProgress() {
-    return this.seedProgress;
-  }
-
   async listProviderOverrides(tmdbId: number) {
     return this.prismaService.movieProviderOverride.findMany({
       where: { tmdbId },
@@ -535,7 +380,7 @@ export class TmdbService {
   async pickRandomMovie(
     filters: Record<string, string> = {},
     excludeIds: number[] = [],
-  ): Promise<GachaMovie> {
+  ): Promise<MovieCard> {
     const exclude = new Set(excludeIds);
 
     // 풀 우선: watched 제외 + 장르/국적 태그 + 포스터 있는 것만 + title에 이 영화에 대한 정보를 찾을 수 없습니다. 같은 것 제외
@@ -778,7 +623,7 @@ export class TmdbService {
 
   async searchMovies(query: string, page = 1) {
     const q = normalizeSearchQuery(query);
-    if (!q) return { page: 1, results: [] as GachaMovie[], total_pages: 0 };
+    if (!q) return { page: 1, results: [] as MovieCard[], total_pages: 0 };
 
     let result = await this.fetchSearchMovies(q, page);
     if (result.results.length > 0) return result;

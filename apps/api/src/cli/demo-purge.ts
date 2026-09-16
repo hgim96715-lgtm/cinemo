@@ -41,7 +41,6 @@ async function main() {
     const ids = users.map((u) => u.id);
 
     await prisma.$transaction([
-      prisma.ticket.deleteMany({ where: { userId: { in: ids } } }),
       prisma.userMovie.deleteMany({ where: { userId: { in: ids } } }),
       prisma.lobbyVisit.deleteMany({ where: { userId: { in: ids } } }),
       prisma.adminLoginLog.deleteMany({ where: { userId: { in: ids } } }),

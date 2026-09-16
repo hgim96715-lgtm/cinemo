@@ -26,7 +26,7 @@ import '@/styles/moviechart-modal.css';
 import '@/styles/confirm-modal.css';
 import '@/styles/common.css';
 
-import { GachaMovie } from '@cinemo/shared';
+import { MovieCard } from '@cinemo/shared';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { MovieDetailModalSkeleton } from '@/components/my-cinema/MovieDetailModalSkeleton';
@@ -82,7 +82,7 @@ function UpcomingPageContent() {
   const [hasNext, setHasNext] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const [detailMovie, setDetailMovie] = useState<GachaMovie | null>(null);
+  const [detailMovie, setDetailMovie] = useState<MovieCard | null>(null);
   const [detailMovieId, setDetailMovieId] = useState<number | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
 

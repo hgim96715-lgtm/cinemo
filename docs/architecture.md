@@ -20,7 +20,7 @@ flowchart LR
 ### Web
 
 - App Router 기반 Next.js
-- 화면: 로비, 뽑기, 개봉 예정, MY CINEMA, 관리자
+- 화면: 로비, 개봉 예정, MY CINEMA, 관리자
 - 서버 상태: API 응답 기준
 - 세션: `auth-store` + `localStorage` 복원
 - 포스터 이미지: TMDB remote URL 사용, 서버 이미지 파일 저장 없음
@@ -125,7 +125,6 @@ flowchart TD
   Auth[AuthModule]
   Postcard[PostcardModule]
   UserMovie[UserMovieModule]
-  Ticket[TicketModule]
   LobbyBoard[LobbyBoardModule]
   Tmdb[TmdbModule]
   Ai[AiModule]
@@ -139,7 +138,6 @@ flowchart TD
   App --> Auth
   App --> Postcard
   App --> UserMovie
-  App --> Ticket
   App --> LobbyBoard
   App --> Tmdb
   App --> Ai
@@ -149,8 +147,6 @@ flowchart TD
   App --> Profiles
 
   Tmdb --> Ai
-  Ticket --> Tmdb
-  Ticket --> Admin
   LobbyBoard --> Tmdb
   LobbyBoard --> Admin
   UserMovie --> Tmdb
@@ -174,9 +170,9 @@ flowchart TD
 | 인증 모듈 | `AuthModule` | JWT·OAuth 전략, `AuthService`, `MailService`, 전역 인증·역할 Guard 등록 |
 | 기능 모듈 | `PostcardModule` | 엽서 Controller·Service와 엽서 작성·수정 흐름 담당 |
 | 기능 모듈 | `UserMovieModule` | 개인 영화 활동과 개봉일 알림 처리 담당 |
-| 외부 API 모듈 | `TmdbModule` | TMDB 조회와 영화 데이터 보정·시드 담당 |
+| 외부 API 모듈 | `TmdbModule` | TMDB 조회와 영화 데이터 보정·캐시 담당 |
 | 외부 API 모듈 | `AiModule` | AI provider 추상화와 AI 기능 담당 |
-| 운영 모듈 | `AdminModule` | 관리자 기능과 통계·리포트·시드 담당 |
+| 운영 모듈 | `AdminModule` | 관리자 기능과 통계·리포트 담당 |
 
 ### `@Global()`과 `imports` 차이
 
@@ -258,7 +254,7 @@ flowchart LR
 
 ```txt
 packages/shared/src/
-├─ gacha.ts
+├─ movie.ts
 ├─ user-movie.ts
 ├─ lobby-board.ts
 ├─ profile.ts
@@ -277,8 +273,7 @@ packages/shared/src/
 ```txt
 회원가입/로그인
   → 가입 직후 로비 가이드
-  → 로비에서 오늘 티켓 발급
-  → 뽑기방에서 MoviePool 영화 선택
+  → 로비에서 영화 정보 탐색
   → 개봉 예정 영화 저장
   → 개봉일 알림 설정·캘린더 추가
   → MY CINEMA에서 관람 기록·영화 달력 확인
@@ -293,7 +288,7 @@ packages/shared/src/
 | 영역                         | 역할                          | 저장 기준        |
 | -------------------------- | --------------------------- | ------------ |
 | `UserMovie`                | 개인 관람 기록, 별점, 감상 메모, 보고 싶어요 | 사용자별 비공개 데이터 |
-| `MoviePool`                | 뽑기방에서 선택할 영화 후보             | 운영 데이터       |
+| `MoviePool`                | TMDB 영화 메타데이터 캐시               | 운영 데이터       |
 | `MovieReleaseNotification` | 보고 싶어요 영화의 개봉일 알림 설정        | 사용자별 알림 상태   |
 | `Postcard`                 | 영화 문구와 원문을 공개하는 엽서             | 작성자별 콘텐츠       |
 | `PostcardBookmark`         | 다른 사용자의 공개 엽서 보관                | 사용자별 보관 상태    |

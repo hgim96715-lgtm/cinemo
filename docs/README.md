@@ -18,8 +18,6 @@ common/    여러 기능에서 공유하는 UI·디자인 규칙
 ```mermaid
 flowchart LR
   Auth[회원가입·로그인] --> Lobby[로비]
-  Lobby --> Ticket[오늘 티켓]
-  Ticket --> Gacha[영화 뽑기]
   Lobby --> Upcoming[개봉 예정]
   Upcoming --> Wish[보고 싶어요]
   Wish --> Notice[개봉일 이메일 알림]
@@ -56,6 +54,7 @@ flowchart LR
 | Web·API 문서 지도       | [web/README.md](./web/README.md), [api/README.md](./api/README.md) |
 | 사용 라이브러리 목록·선택 기준 | [library/README.md](./library/README.md) |
 | 제품 생각·아이디어 기록 | [notes/README.md](./notes/README.md) |
+| 제거 기능 기록 | [notes/removed-features.md](./notes/removed-features.md) |
 | NestJS 환경 설정·`registerAs` | [api/nest-config.md](./api/nest-config.md) |
 | NestJS graceful shutdown | [api/graceful-shutdown.md](./api/graceful-shutdown.md) |
 
@@ -184,7 +183,6 @@ docs/prisma/
 │   └── password-reset-token.md
 ├── movie/
 │   ├── user-movie.md
-│   ├── ticket.md
 │   ├── movie-pool.md
 │   └── movie-release-notification.md
 ├── lobby-visit.md
@@ -194,7 +192,6 @@ docs/prisma/
     ├── admin-hourly-stat.md
     ├── movie-provider-override.md
     ├── lobby-guide.md
-    ├── movie-pool-seed-run.md
 ```
 
 
