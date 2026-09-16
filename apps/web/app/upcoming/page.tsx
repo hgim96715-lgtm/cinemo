@@ -119,7 +119,7 @@ function UpcomingPageContent() {
         );
 
         if (!cancelled) {
-          setMovies(result.items);
+          setMovies(sortUpcomingMovies(result.items));
           setHasNext(result.hasNext);
         }
       } catch (error: unknown) {
@@ -159,7 +159,9 @@ function UpcomingPageContent() {
         10,
       );
 
-      setMovies((current) => [...current, ...result.items]);
+      setMovies((current) =>
+        sortUpcomingMovies([...current, ...result.items]),
+      );
       setPage(nextPage);
       setHasNext(result.hasNext);
     } finally {
@@ -234,6 +236,7 @@ function UpcomingPageContent() {
   function getReleaseDateDisplay(
     releaseDate: string,
     originalReleaseDate?: string | null,
+    isReleaseDateConfirmed = false,
   ) {
     const today = kstDateKey();
     const currentDate = releaseDate.replaceAll('-', '.');
@@ -245,8 +248,17 @@ function UpcomingPageContent() {
       Number.isFinite(originalTime) &&
       Number.isFinite(releaseTime) &&
       releaseTime - originalTime >= 365 * 24 * 60 * 60 * 1000;
+    const hasConfirmedReleaseDate =
+      isReleaseDateConfirmed || isLikelyReRelease;
 
     if (releaseDate === today) {
+      if (!hasConfirmedReleaseDate) {
+        return {
+          primary: '개봉일 확인 중',
+          secondary: null,
+        };
+      }
+
       if (isLikelyReRelease && originalReleaseDate) {
         return {
           primary: '오늘 개봉 (재개봉)',
@@ -265,6 +277,25 @@ function UpcomingPageContent() {
     }
 
     return { primary: `${currentDate} 개봉 예정`, secondary: null };
+  }
+
+  function sortUpcomingMovies(movieList: UpcomingMovie[]) {
+    return [...movieList].sort((a, b) => {
+      const aIsPending =
+        getReleaseDateDisplay(
+          a.releaseDate,
+          a.originalReleaseDate,
+          a.isReleaseDateConfirmed,
+        ).primary === '개봉일 확인 중';
+      const bIsPending =
+        getReleaseDateDisplay(
+          b.releaseDate,
+          b.originalReleaseDate,
+          b.isReleaseDateConfirmed,
+        ).primary === '개봉일 확인 중';
+
+      return Number(aIsPending) - Number(bIsPending);
+    });
   }
 
   function handlePeriodChange(period: string) {
@@ -404,7 +435,7 @@ function UpcomingPageContent() {
           ) : movies.length === 0 ? (
             <p>현재 개봉 예정작이 없어요.</p>
           ) : (
-            movies.map((movie, index) => {
+            sortUpcomingMovies(movies).map((movie, index) => {
               const poster = tmdbPosterUrl(movie.posterPath, 'w185');
               const interested = interestedIds.includes(movie.tmdbId);
               const toggling = togglingInterestId === movie.tmdbId;
@@ -413,6 +444,7 @@ function UpcomingPageContent() {
               const releaseInfo = getReleaseDateDisplay(
                 movie.releaseDate,
                 movie.originalReleaseDate,
+                movie.isReleaseDateConfirmed,
               );
 
               return (
@@ -441,7 +473,8 @@ function UpcomingPageContent() {
                       <h2>{movie.title}</h2>
                       <p
                         className={
-                          isTodayKst(movie.releaseDate)
+                          isTodayKst(movie.releaseDate) &&
+                          releaseInfo.primary !== '개봉일 확인 중'
                             ? 'upcoming-release-date is-today'
                             : 'upcoming-release-date'
                         }

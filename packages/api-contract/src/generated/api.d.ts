@@ -1263,6 +1263,11 @@ export interface components {
              * @example 1999-03-06
              */
             originalReleaseDate: string | null;
+            /**
+             * @description KOBIS에서 국내 개봉일이 확인된 영화인지 여부
+             * @example true
+             */
+            isReleaseDateConfirmed: boolean;
         };
         UpcomingMoviesResponseDto: {
             items: components["schemas"]["UpcomingMovieDto"][];

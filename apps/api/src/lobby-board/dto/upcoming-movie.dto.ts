@@ -27,6 +27,12 @@ export class UpcomingMovieDto {
     format: 'date',
   })
   originalReleaseDate!: string | null;
+
+  @ApiProperty({
+    example: true,
+    description: 'KOBIS에서 국내 개봉일이 확인된 영화인지 여부',
+  })
+  isReleaseDateConfirmed!: boolean;
 }
 
 export class UpcomingMoviesResponseDto {

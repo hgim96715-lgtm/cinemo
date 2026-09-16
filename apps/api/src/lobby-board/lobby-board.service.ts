@@ -115,8 +115,8 @@ export class LobbyBoardService {
       'https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json',
     );
     url.searchParams.set('key', apiKey);
-    url.searchParams.set('openStartDt', fromDate.replaceAll('-', ''));
-    url.searchParams.set('openEndDt', untilDate.replaceAll('-', ''));
+    url.searchParams.set('openStartDt', fromDate.slice(0, 4));
+    url.searchParams.set('openEndDt', untilDate.slice(0, 4));
     url.searchParams.set('itemPerPage', '100');
 
     try {
@@ -552,6 +552,7 @@ export class LobbyBoardService {
         posterPath: movie.posterPath,
         interestCount: countMap.get(movie.tmdbId) ?? 0,
         originalReleaseDate: movie.originalReleaseDate,
+        isReleaseDateConfirmed: movie.isKobisBacked,
       }));
 
     return {

@@ -2512,6 +2512,11 @@
             "example": "1999-03-06",
             "nullable": true,
             "format": "date"
+          },
+          "isReleaseDateConfirmed": {
+            "type": "boolean",
+            "example": true,
+            "description": "KOBIS에서 국내 개봉일이 확인된 영화인지 여부"
           }
         },
         "required": [
@@ -2520,7 +2525,8 @@
           "releaseDate",
           "posterPath",
           "interestCount",
-          "originalReleaseDate"
+          "originalReleaseDate",
+          "isReleaseDateConfirmed"
         ]
       },
       "UpcomingMoviesResponseDto": {
