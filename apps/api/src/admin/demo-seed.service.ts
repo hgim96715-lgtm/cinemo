@@ -142,9 +142,6 @@ export class DemoSeedService {
       this.prisma.adminLoginLog.deleteMany({
         where: { userId: { in: userIds } },
       }),
-      this.prisma.movieProviderOverride.deleteMany({
-        where: { createdBy: { in: userIds } },
-      }),
       this.prisma.user.deleteMany({ where: { id: { in: userIds } } }),
     ]);
 
@@ -201,7 +198,9 @@ export class DemoSeedService {
       take: 200,
     });
     if (movies.length === 0) {
-      throw new Error('MoviePool이 비어 있어 demo 관람 기록을 만들 수 없습니다.');
+      throw new Error(
+        'MoviePool이 비어 있어 demo 관람 기록을 만들 수 없습니다.',
+      );
     }
     const upcomingMovies = movies
       .filter(
@@ -315,9 +314,9 @@ export class DemoSeedService {
     let createdPostcards = 0;
 
     for (let index = 0; index < users.length; index += 1) {
-      const owner = users[index]!;
-      const movie = movies[index % movies.length]!;
-      const sample = POSTCARD_SAMPLES[index % POSTCARD_SAMPLES.length]!;
+      const owner = users[index];
+      const movie = movies[index % movies.length];
+      const sample = POSTCARD_SAMPLES[index % POSTCARD_SAMPLES.length];
       const posterPath = movie.posterPath
         ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
         : null;
@@ -360,11 +359,11 @@ export class DemoSeedService {
         commentIndex < commenterIds.length;
         commentIndex += 1
       ) {
-        const commenterId = commenterIds[commentIndex]!;
+        const commenterId = commenterIds[commentIndex];
         const commentText =
           POSTCARD_COMMENT_SAMPLES[
             (index + commentIndex) % POSTCARD_COMMENT_SAMPLES.length
-          ]!;
+          ];
         const existingComment = await this.prisma.postcardComment.findFirst({
           where: {
             postcardId: postcard.id,
@@ -389,7 +388,7 @@ export class DemoSeedService {
       const replyAuthorId = users[(index + 3) % users.length]?.id;
       if (firstCommentId && replyAuthorId && replyAuthorId !== owner.id) {
         const replyText =
-          POSTCARD_REPLY_SAMPLES[index % POSTCARD_REPLY_SAMPLES.length]!;
+          POSTCARD_REPLY_SAMPLES[index % POSTCARD_REPLY_SAMPLES.length];
         const existingReply = await this.prisma.postcardComment.findFirst({
           where: {
             postcardId: postcard.id,

@@ -44,9 +44,6 @@ async function main() {
       prisma.userMovie.deleteMany({ where: { userId: { in: ids } } }),
       prisma.lobbyVisit.deleteMany({ where: { userId: { in: ids } } }),
       prisma.adminLoginLog.deleteMany({ where: { userId: { in: ids } } }),
-      prisma.movieProviderOverride.deleteMany({
-        where: { createdBy: { in: ids } },
-      }),
       prisma.user.deleteMany({ where: { id: { in: ids } } }),
     ]);
 
