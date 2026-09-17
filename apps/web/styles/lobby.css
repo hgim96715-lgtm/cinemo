@@ -1333,6 +1333,25 @@
   }
 }
 
+/* 태블릿 세로 공간에서는 모든 로비 영역이 아래로 이어지도록 스크롤 허용 */
+@media (max-width: 1024px) {
+  .lobby {
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .lobby-stage {
+    max-height: none;
+  }
+
+  .lobby-hall {
+    flex: 0 0 auto;
+    min-height: auto;
+  }
+}
+
 .lobby-guest-identity {
   display: flex;
   flex-direction: column;
