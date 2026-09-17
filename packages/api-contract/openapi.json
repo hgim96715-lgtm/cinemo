@@ -537,6 +537,41 @@
         ],
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tmdb"
+        ]
+      }
+    },
+    "/v1/tmdb/debug/movie/{movieId}/raw": {
+      "get": {
+        "operationId": "TmdbController_getRawMovieResponse_v1",
+        "parameters": [
+          {
+            "name": "movieId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -566,7 +601,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieGenresResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -595,7 +637,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieDiscoverResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -633,62 +682,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      }
-    },
-    "/v1/tmdb/provider-overrides": {
-      "get": {
-        "operationId": "TmdbController_listProviderOverrides_v1",
-        "parameters": [
-          {
-            "name": "tmdbId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "tmdb"
-        ]
-      },
-      "post": {
-        "operationId": "TmdbController_upsertProviderOverride_v1",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpsertProviderOverrideDto"
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSearchResponseDto"
+                }
               }
             }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
           }
         },
         "security": [
@@ -1451,6 +1452,58 @@
         ]
       }
     },
+    "/v1/kobis/movie/{movieCd}": {
+      "get": {
+        "operationId": "KobisController_getMovieInfo_v1",
+        "parameters": [
+          {
+            "name": "movieCd",
+            "required": true,
+            "in": "path",
+            "description": "KOBIS 영화 코드",
+            "schema": {
+              "example": "202",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "KOBIS 영화 상세 원본 JSON 조회",
+        "tags": [
+          "KOBIS"
+        ]
+      }
+    },
+    "/v1/kobis/movies/search": {
+      "get": {
+        "operationId": "KobisController_searchMovies_v1",
+        "parameters": [
+          {
+            "name": "movieNm",
+            "required": true,
+            "in": "query",
+            "description": "검색할 영화 이름",
+            "schema": {
+              "example": "디지몬 어드벤처",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "KOBIS 영화 이름 검색 원본 JSON 조회",
+        "tags": [
+          "KOBIS"
+        ]
+      }
+    },
     "/v1/profiles/{nickname}": {
       "get": {
         "operationId": "ProfilesController_getProfile_v1",
@@ -2074,43 +2127,288 @@
         "type": "object",
         "properties": {}
       },
-      "UpsertProviderOverrideDto": {
+      "MovieDetailDto": {
         "type": "object",
         "properties": {
-          "tmdbId": {
+          "id": {
             "type": "number",
-            "example": 496243
+            "example": 550
           },
-          "providerId": {
-            "type": "number",
-            "example": 356,
-            "description": "TMDB provider_id (Wavve=356)"
-          },
-          "providerName": {
+          "title": {
             "type": "string",
-            "example": "Wavve"
+            "example": "파이트 클럽"
           },
-          "logoPath": {
+          "original_title": {
             "type": "string",
-            "example": "/xxx.jpg"
+            "example": "Fight Club"
           },
-          "action": {
+          "original_language": {
+            "type": "string",
+            "example": "en"
+          },
+          "overview": {
+            "type": "string",
+            "example": "한 남자가 반복되는 일상에서 벗어나기 위해..."
+          },
+          "poster_path": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster.jpg"
+          },
+          "release_date": {
+            "type": "string",
+            "example": "1999-10-15"
+          },
+          "director": {
+            "type": "string",
+            "nullable": true,
+            "example": "데이비드 핀처"
+          },
+          "cast": {
+            "example": [
+              "브래드 피트"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trailerUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://www.youtube.com/watch?v=example"
+          },
+          "videoType": {
             "type": "string",
             "enum": [
-              "add",
-              "remove"
-            ]
+              "trailer"
+            ],
+            "nullable": true
           },
-          "note": {
+          "genre_ids": {
+            "example": [
+              18,
+              53
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "origin_countries": {
+            "example": [
+              "US"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstReleaseDate": {
             "type": "string",
-            "example": "웨이브 앱에서 확인"
+            "nullable": true,
+            "example": "1999-10-15"
+          },
+          "reReleaseDates": {
+            "example": [
+              "2026-09-16"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
-          "tmdbId",
-          "providerId",
-          "providerName",
-          "action"
+          "id",
+          "title",
+          "overview",
+          "poster_path",
+          "release_date",
+          "director",
+          "genre_ids",
+          "origin_countries"
+        ]
+      },
+      "MovieGenreDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 18
+          },
+          "name": {
+            "type": "string",
+            "example": "드라마"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "MovieGenresResponseDto": {
+        "type": "object",
+        "properties": {
+          "genres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieGenreDto"
+            }
+          }
+        },
+        "required": [
+          "genres"
+        ]
+      },
+      "MovieDiscoverMovieDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 550
+          },
+          "adult": {
+            "type": "boolean",
+            "example": false
+          },
+          "title": {
+            "type": "string",
+            "example": "파이트 클럽"
+          },
+          "original_title": {
+            "type": "string",
+            "example": "Fight Club"
+          },
+          "original_language": {
+            "type": "string",
+            "example": "en"
+          },
+          "overview": {
+            "type": "string",
+            "example": "한 남자가 반복되는 일상에서 벗어나기 위해..."
+          },
+          "poster_path": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster.jpg"
+          },
+          "release_date": {
+            "type": "string",
+            "example": "1999-10-15"
+          },
+          "genre_ids": {
+            "example": [
+              18,
+              53
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "adult",
+          "title",
+          "original_title",
+          "original_language",
+          "overview",
+          "poster_path",
+          "release_date",
+          "genre_ids"
+        ]
+      },
+      "MovieDiscoverResponseDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "total_pages": {
+            "type": "number",
+            "example": 1
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieDiscoverMovieDto"
+            }
+          }
+        },
+        "required": [
+          "page",
+          "total_pages",
+          "results"
+        ]
+      },
+      "MovieSearchItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 550
+          },
+          "title": {
+            "type": "string",
+            "example": "파이트 클럽"
+          },
+          "original_title": {
+            "type": "string",
+            "example": "Fight Club"
+          },
+          "original_language": {
+            "type": "string",
+            "example": "en"
+          },
+          "overview": {
+            "type": "string",
+            "example": "한 남자가 반복되는 일상에서 벗어나기 위해..."
+          },
+          "poster_path": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster.jpg"
+          },
+          "release_date": {
+            "type": "string",
+            "example": "1999-10-15"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "original_title",
+          "original_language",
+          "overview",
+          "poster_path",
+          "release_date"
+        ]
+      },
+      "MovieSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "total_pages": {
+            "type": "number",
+            "example": 1
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSearchItemDto"
+            }
+          }
+        },
+        "required": [
+          "page",
+          "total_pages",
+          "results"
         ]
       },
       "UpsertUserMovieDto": {
@@ -2318,11 +2616,30 @@
           "videoType": {
             "type": "string",
             "enum": [
-              "trailer",
-              "teaser"
+              "trailer"
             ],
             "nullable": true,
             "example": "trailer"
+          },
+          "releaseDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-09-16"
+          },
+          "reReleaseDates": {
+            "example": [
+              "2026-09-16"
+            ],
+            "description": "TMDB에서 확인된 재개봉일 목록",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tmdbId": {
+            "type": "number",
+            "nullable": true,
+            "example": 550
           }
         },
         "required": [
@@ -2334,7 +2651,10 @@
           "rankChange",
           "posterPath",
           "trailerUrl",
-          "videoType"
+          "videoType",
+          "releaseDate",
+          "reReleaseDates",
+          "tmdbId"
         ]
       },
       "MovieChartResponseDto": {
@@ -2507,12 +2827,6 @@
             "type": "number",
             "example": 12
           },
-          "originalReleaseDate": {
-            "type": "string",
-            "example": "1999-03-06",
-            "nullable": true,
-            "format": "date"
-          },
           "isReleaseDateConfirmed": {
             "type": "boolean",
             "example": true,
@@ -2525,7 +2839,6 @@
           "releaseDate",
           "posterPath",
           "interestCount",
-          "originalReleaseDate",
           "isReleaseDateConfirmed"
         ]
       },

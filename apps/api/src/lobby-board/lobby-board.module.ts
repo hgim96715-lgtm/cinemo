@@ -4,9 +4,10 @@ import { LobbyBoardController } from './lobby-board.controller';
 import { TmdbModule } from '../tmdb/tmdb.module';
 import { AdminModule } from '../admin/admin.module';
 import { MovieChartSnapshotService } from './movie-chart-snapshot.service';
+import { KobisModule } from '../kobis/kobis.module';
 
 @Module({
-  imports: [TmdbModule, AdminModule],
+  imports: [TmdbModule, KobisModule, AdminModule],
   controllers: [LobbyBoardController],
   providers: [LobbyBoardService, MovieChartSnapshotService],
 })

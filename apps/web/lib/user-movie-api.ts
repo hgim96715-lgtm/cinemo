@@ -1,5 +1,4 @@
 import type {
-  MovieCard,
   ToggleUserMovieResult,
   UserMovieCalendar,
   UserMovieCounts,
@@ -9,6 +8,7 @@ import type {
   UserMovieStats,
   UserMovieViewingDetails,
 } from '@cinemo/shared';
+import type { MovieSummary } from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
 
 export function toggleUserMovieRequest(
@@ -91,7 +91,7 @@ export type DisplayedUserMovie = {
   tmdbId: number;
   wallSlot: number;
   displayOrder: number | null;
-  movie: MovieCard;
+  movie: MovieSummary;
 };
 
 export function listDisplayedUserMoviesRequest(token: string) {

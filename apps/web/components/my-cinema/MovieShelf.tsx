@@ -18,8 +18,11 @@ import {
 } from '@/lib/user-movie-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { MovieDetailModal } from './MovieDetailModal';
+import { MovieDetailModalSkeleton } from './MovieDetailModalSkeleton';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { formatKstDateDots, kstYear } from '@/lib/date-kst';
+import { getMovieDetailRequest } from '@/lib/tmdb-api';
+import type { MovieDetail } from '@cinemo/api-contract';
 
 const PAGE_SIZE = 24;
 
@@ -132,6 +135,9 @@ export function MovieShelf({ kind, title }: Props) {
 
   const [selectedScreening, setSelectedScreening] =
     useState<UserMovieListItem | null>(null);
+  const [selectedMovieDetail, setSelectedMovieDetail] =
+    useState<MovieDetail | null>(null);
+  const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
   const [marksByTmdbId, setMarksByTmdbId] = useState<
     Record<number, Pick<UserMovieMarks, 'wish' | 'watched'>>
   >({});
@@ -139,6 +145,33 @@ export function MovieShelf({ kind, title }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const loadingMoreRef = useRef(false);
   const requestVersionRef = useRef(0);
+  const detailRequestVersionRef = useRef(0);
+
+  async function handleMovieDetailClick(item: UserMovieListItem) {
+    const requestVersion = detailRequestVersionRef.current + 1;
+    detailRequestVersionRef.current = requestVersion;
+    setSelectedScreening(item);
+    setSelectedMovieDetail(null);
+    setLoadingDetailId(item.tmdbId);
+
+    try {
+      const detail = await getMovieDetailRequest(item.tmdbId);
+      if (detailRequestVersionRef.current !== requestVersion) return;
+      setSelectedMovieDetail(detail);
+    } catch (error) {
+      if (detailRequestVersionRef.current !== requestVersion) return;
+      setError(
+        error instanceof Error
+          ? error.message
+          : '영화 상세 정보를 불러오지 못했습니다.',
+      );
+      setSelectedScreening(null);
+    } finally {
+      if (detailRequestVersionRef.current === requestVersion) {
+        setLoadingDetailId(null);
+      }
+    }
+  }
 
   function formatWatchedAt(value: string | null) {
     if (!value) return null;
@@ -318,6 +351,7 @@ export function MovieShelf({ kind, title }: Props) {
       setTotal((n) => Math.max(0, n - 1));
       if (selectedScreening?.tmdbId === tmdbId) {
         setSelectedScreening(null);
+        setSelectedMovieDetail(null);
       }
     }
 
@@ -465,6 +499,7 @@ export function MovieShelf({ kind, title }: Props) {
                     onOpenChange={(open) => {
                       if (!open && isDetailOpen) {
                         setSelectedScreening(null);
+                        setSelectedMovieDetail(null);
                       }
                     }}
                   >
@@ -473,7 +508,8 @@ export function MovieShelf({ kind, title }: Props) {
                         <button
                           type="button"
                           className="my-cinema-movie-card"
-                          onClick={() => setSelectedScreening(item)}
+                          onClick={() => void handleMovieDetailClick(item)}
+                          disabled={loadingDetailId === item.tmdbId}
                           aria-label={`${movie.title} 상세 보기`}
                         >
                           <div className="my-cinema-movie-poster">
@@ -533,15 +569,18 @@ export function MovieShelf({ kind, title }: Props) {
                       </div>
                     </div>
 
-                    {isDetailOpen && selectedScreening ? (
+                    {isDetailOpen && selectedScreening && selectedMovieDetail ? (
                       <MovieDetailModal
-                        movie={selectedScreening.movie}
+                        movie={selectedMovieDetail}
                         screening={selectedScreening}
                         marks={marksByTmdbId[selectedScreening.tmdbId]}
                         onToggleMark={(markKind) => {
                           void toggleMark(selectedScreening.tmdbId, markKind);
                         }}
-                        onClose={() => setSelectedScreening(null)}
+                        onClose={() => {
+                          setSelectedScreening(null);
+                          setSelectedMovieDetail(null);
+                        }}
                         onSaved={(details) => {
                           setItems((currentItems) =>
                             currentItems.map((item) =>
@@ -558,6 +597,8 @@ export function MovieShelf({ kind, title }: Props) {
                           );
                         }}
                       />
+                    ) : isDetailOpen && loadingDetailId === item.tmdbId ? (
+                      <MovieDetailModalSkeleton />
                     ) : null}
                   </Dialog.Root>
                 </li>

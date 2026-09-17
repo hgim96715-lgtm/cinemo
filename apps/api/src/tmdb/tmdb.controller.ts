@@ -1,19 +1,25 @@
 import {
-  Body,
   Controller,
   DefaultValuePipe,
   Get,
   ParseIntPipe,
-  Post,
   Query,
   Param,
+  NotFoundException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TmdbService } from './tmdb.service';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
-import { UserId } from '../auth/decorators/user-id.decorator';
-import { UpsertProviderOverrideDto } from './dto/upsert-provider-override.dto';
+import { EnvKeys } from '../config/env.keys';
+import { MovieDetailDto } from './dto/movie-detail.dto';
+import { MovieDiscoverResponseDto } from './dto/movie-discover.dto';
+import { MovieGenresResponseDto } from './dto/movie-genre.dto';
+import { MovieSearchResponseDto } from './dto/movie-search.dto';
 
 @ApiTags('tmdb')
 @ApiBearerAuth()
@@ -23,46 +29,55 @@ export class TmdbController {
 
   @Public()
   @Get('movie/:movieId')
-  getMovie(@Param('movieId', ParseIntPipe) movieId: number) {
+  @ApiOkResponse({ type: MovieDetailDto })
+  getMovie(
+    @Param('movieId', ParseIntPipe) movieId: number,
+  ): Promise<MovieDetailDto> {
     return this.tmdbService.getMovie(movieId);
   }
 
+  @Public()
+  @Get('debug/movie/:movieId/raw')
+  getRawMovieResponse(
+    @Param('movieId', ParseIntPipe) movieId: number,
+  ): Promise<unknown> {
+    const appEnv =
+      process.env[EnvKeys.APP_ENV] ??
+      (process.env[EnvKeys.NODE_ENV] === 'production' ? 'production' : 'local');
+
+    if (appEnv === 'production') {
+      throw new NotFoundException();
+    }
+
+    return this.tmdbService.getRawMovieResponse(movieId);
+  }
+
   @Get('genres')
+  @ApiOkResponse({ type: MovieGenresResponseDto })
   @ApiQuery({ name: 'language', required: false, example: 'ko' })
-  getMovieGenres(@Query('language') language?: string) {
+  getMovieGenres(
+    @Query('language') language?: string,
+  ): Promise<MovieGenresResponseDto> {
     return this.tmdbService.getMovieGenres(language ?? 'ko');
   }
 
   @Get('discover')
+  @ApiOkResponse({ type: MovieDiscoverResponseDto })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   discover(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-  ) {
+  ): Promise<MovieDiscoverResponseDto> {
     return this.tmdbService.discoverMovies({}, page);
   }
 
   @Get('search')
+  @ApiOkResponse({ type: MovieSearchResponseDto })
   @ApiQuery({ name: 'q', required: true, example: '인셉션' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   search(
     @Query('q') q: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-  ) {
+  ): Promise<MovieSearchResponseDto> {
     return this.tmdbService.searchMovies(q, page);
-  }
-
-  @Roles('admin')
-  @Get('provider-overrides')
-  listProviderOverrides(@Query('tmdbId', ParseIntPipe) tmdbId: number) {
-    return this.tmdbService.listProviderOverrides(tmdbId);
-  }
-
-  @Roles('admin')
-  @Post('provider-overrides')
-  upsertProviderOverride(
-    @UserId() userId: string,
-    @Body() dto: UpsertProviderOverrideDto,
-  ) {
-    return this.tmdbService.upsertProviderOverride(userId, dto);
   }
 }

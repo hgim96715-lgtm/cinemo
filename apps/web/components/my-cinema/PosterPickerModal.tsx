@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import * as Dialog from '@radix-ui/react-dialog';
-import type { MovieCard } from '@cinemo/shared';
+import type { MovieSearchItem } from '@cinemo/api-contract';
 import { searchMoviesRequest } from '@/lib/tmdb-api';
 import { normalizeSearchQuery } from '@/lib/search-query';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
@@ -12,7 +12,7 @@ import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type PosterPickerModalProps = {
   token: string;
-  onSelect: (movie: MovieCard) => void;
+  onSelect: (movie: MovieSearchItem) => void;
   onClose: () => void;
   onRemove?: () => void;
   isPending?: boolean;
@@ -28,7 +28,7 @@ export function PosterPickerModal({
   const { handleOpenAutoFocus, handleCloseAutoFocus } =
     useDialogFocusRestore();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<MovieCard[]>([]);
+  const [results, setResults] = useState<MovieSearchItem[]>([]);
   const [loading, setLoading] = useState(false);
   const normalizedQuery = normalizeSearchQuery(query);
 

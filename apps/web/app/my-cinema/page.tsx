@@ -6,10 +6,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   DEFAULT_AVATAR,
-  type MovieCard,
   type AvatarConfig,
   type UserMovieCounts,
 } from '@cinemo/shared';
+import type { MovieSearchItem, MovieSummary } from '@cinemo/api-contract';
 import { useAuthStore, type UpdateProfileInput } from '@/lib/auth-store';
 import { updateAvatarRequest, updateProfileRequest } from '@/lib/auth-api';
 import { AvatarFigure } from '@/components/my-cinema/AvatarFigure';
@@ -76,7 +76,7 @@ export default function MyCinemaPage() {
   const [posterPickerOpen, setPosterPickerOpen] = useState(false);
   const [selectedWallSlot, setSelectedWallSlot] = useState<number | null>(null);
   const [selectedPosters, setSelectedPosters] = useState<
-    Record<number, MovieCard>
+    Record<number, MovieSummary>
   >({});
 
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -152,7 +152,7 @@ export default function MyCinemaPage() {
       try {
         const response = await listDisplayedUserMoviesRequest(token);
         if (cancelled) return;
-        const posters = response.items.reduce<Record<number, MovieCard>>(
+        const posters = response.items.reduce<Record<number, MovieSummary>>(
           (current, item) => {
             current[item.wallSlot] = item.movie;
             return current;
@@ -230,7 +230,7 @@ export default function MyCinemaPage() {
     setPosterPickerOpen(true);
   }
 
-  async function handlePosterSelected(movie: MovieCard) {
+  async function handlePosterSelected(movie: MovieSearchItem) {
     if (!accessToken || selectedWallSlot === null || saving) return;
     const wallSlot = selectedWallSlot;
     setSaving(true);
@@ -246,7 +246,7 @@ export default function MyCinemaPage() {
 
       setSelectedPosters((current) => ({
         ...current,
-        [wallSlot]: movie,
+        [wallSlot]: { ...movie, director: null },
       }));
 
       setPosterPickerOpen(false);
@@ -302,7 +302,7 @@ export default function MyCinemaPage() {
     }
   }
 
-  function handleCalendarMovieSelect(movie: MovieCard) {
+  function handleCalendarMovieSelect(movie: MovieSearchItem) {
     if (!calendarAddDate || !accessToken || isCalendarAdding) return;
 
     startCalendarTransition(async () => {

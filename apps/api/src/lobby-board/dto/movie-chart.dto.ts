@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class MovieChartItemDto {
   @ApiProperty({ example: '20251234' })
@@ -34,11 +34,28 @@ export class MovieChartItemDto {
   trailerUrl!: string | null;
 
   @ApiProperty({
-    enum: ['trailer', 'teaser'],
+    enum: ['trailer'],
     nullable: true,
     example: 'trailer',
   })
-  videoType!: 'trailer' | 'teaser' | null;
+  videoType!: 'trailer' | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: '2026-09-16',
+  })
+  releaseDate!: string | null;
+
+  @ApiProperty({
+    type: [String],
+    example: ['2026-09-16'],
+    description: 'TMDB에서 확인된 재개봉일 목록',
+  })
+  reReleaseDates!: string[];
+
+  @ApiProperty({ type: Number, nullable: true, example: 550 })
+  tmdbId!: number | null;
 }
 
 export class MovieChartResponseDto {

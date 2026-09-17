@@ -14,10 +14,15 @@ import '@/styles/common.css';
 import '@/styles/moviechart.css';
 import '@/styles/moviechart-chart.css';
 import '@/styles/moviechart-modal.css';
+import '@/styles/movie-detail-modal.css';
 import type {
   MovieChartHistoryResponse,
   MovieChartItem,
+  MovieDetail,
 } from '@cinemo/api-contract';
+import { getMovieDetailRequest } from '@/lib/tmdb-api';
+import * as Dialog from '@radix-ui/react-dialog';
+import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 
 export default function MovieChartPage() {
   const [movies, setMovies] = useState<MovieChartItem[]>([]);
@@ -30,6 +35,10 @@ export default function MovieChartPage() {
   const [history, setHistory] = useState<MovieChartHistoryResponse>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  const [detailMovie, setDetailMovie] = useState<MovieDetail | null>(null);
+  const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
+  const [modealError, setModalError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +114,22 @@ export default function MovieChartPage() {
     };
   }, [targetDate]);
 
+  async function handleMovieDetailClick(tmdbId: number) {
+    setLoadingDetailId(tmdbId);
+    setModalError(null);
+
+    try {
+      const movie = await getMovieDetailRequest(tmdbId);
+      setDetailMovie(movie);
+    } catch (error: unknown) {
+      setModalError(
+        error instanceof Error ? error.message : '모달이 열리지 않습니다.',
+      );
+    } finally {
+      setLoadingDetailId(null);
+    }
+  }
+
   return (
     <main className="movie-chart-page">
       <CinemoNav
@@ -126,7 +151,17 @@ export default function MovieChartPage() {
             <span>기준일 {formatKstLongDate(targetDate)}</span>
           ) : null}
         </div>
+
+        <details className="movie-chart-data-note">
+          <summary>관객 수 집계 기준 안내</summary>
+          <p>
+            개봉 전 유료 사전 상영이나 일부 이벤트 상영 관객은 관객 수에 포함될
+            수 있습니다.
+            <br /> 공식 개봉일 전에도 순위와 관객 기록이 보일 수 있습니다.
+          </p>
+        </details>
       </header>
+
       {loading ? <MovieChartListSkeleton /> : null}
       {error ? <p>{error}</p> : null}
       {!loading && !error ? (
@@ -135,6 +170,8 @@ export default function MovieChartPage() {
           history={history}
           historyLoading={historyLoading}
           historyError={historyError}
+          loadingDetailId={loadingDetailId}
+          onSelectDetail={handleMovieDetailClick}
           onSelectTrailer={setSelectedTrailer}
         />
       ) : null}
@@ -143,6 +180,24 @@ export default function MovieChartPage() {
           movie={selectedTrailer}
           onClose={() => setSelectedTrailer(null)}
         />
+      ) : null}
+
+      {detailMovie ? (
+        <Dialog.Root
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setDetailMovie(null);
+            }
+          }}
+        >
+          <MovieDetailModal
+            movie={detailMovie}
+            showWatchedMark={false}
+            showCalendar={false}
+            onClose={() => setDetailMovie(null)}
+          />
+        </Dialog.Root>
       ) : null}
     </main>
   );

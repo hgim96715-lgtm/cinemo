@@ -5,13 +5,11 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MovieChartTrailerSkeleton } from '@/components/moviechart/MovieChartTrailerSkeleton';
-import type { MovieVideoType } from '@cinemo/shared';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 
 type MovieVideoModalProps = {
   title: string;
   videoUrl: string;
-  videoType?: MovieVideoType | null;
 };
 
 function getYoutubeEmbedUrl(url: string) {
@@ -32,7 +30,6 @@ function getYoutubeEmbedUrl(url: string) {
 export function MovieVideoModal({
   title,
   videoUrl,
-  videoType,
 }: MovieVideoModalProps) {
   const { handleOpenAutoFocus, handleCloseAutoFocus } = useDialogFocusRestore();
   const [isVideoLoading, setIsVideoLoading] = useState(true);
@@ -42,7 +39,7 @@ export function MovieVideoModal({
   const [thumbnailUrl, setThumbnailUrl] = useState(
     videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null,
   );
-  const videoLabel = videoType === 'teaser' ? '티저' : '예고편';
+  const videoLabel = '예고편';
 
   useEffect(() => {
     if (!isVideoLoading) {

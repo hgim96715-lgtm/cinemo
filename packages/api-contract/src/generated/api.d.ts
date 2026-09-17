@@ -404,6 +404,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tmdb/debug/movie/{movieId}/raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TmdbController_getRawMovieResponse_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tmdb/genres": {
         parameters: {
             query?: never;
@@ -446,22 +462,6 @@ export interface paths {
         get: operations["TmdbController_search_v1"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/tmdb/provider-overrides": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["TmdbController_listProviderOverrides_v1"];
-        put?: never;
-        post: operations["TmdbController_upsertProviderOverride_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -809,6 +809,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/kobis/movie/{movieCd}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** KOBIS 영화 상세 원본 JSON 조회 */
+        get: operations["KobisController_getMovieInfo_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kobis/movies/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** KOBIS 영화 이름 검색 원본 JSON 조회 */
+        get: operations["KobisController_searchMovies_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/profiles/{nickname}": {
         parameters: {
             query?: never;
@@ -1079,22 +1113,118 @@ export interface components {
         ResetPasswordDto: Record<string, never>;
         UpdateAvatarDto: Record<string, never>;
         UpdateProfileDto: Record<string, never>;
-        UpsertProviderOverrideDto: {
-            /** @example 496243 */
-            tmdbId: number;
+        MovieDetailDto: {
+            /** @example 550 */
+            id: number;
+            /** @example 파이트 클럽 */
+            title: string;
+            /** @example Fight Club */
+            original_title?: string;
+            /** @example en */
+            original_language?: string;
+            /** @example 한 남자가 반복되는 일상에서 벗어나기 위해... */
+            overview: string;
+            /** @example /poster.jpg */
+            poster_path: string | null;
+            /** @example 1999-10-15 */
+            release_date: string;
+            /** @example 데이비드 핀처 */
+            director: string | null;
             /**
-             * @description TMDB provider_id (Wavve=356)
-             * @example 356
+             * @example [
+             *       "브래드 피트"
+             *     ]
              */
-            providerId: number;
-            /** @example Wavve */
-            providerName: string;
-            /** @example /xxx.jpg */
-            logoPath?: string;
-            /** @enum {string} */
-            action: "add" | "remove";
-            /** @example 웨이브 앱에서 확인 */
-            note?: string;
+            cast?: string[];
+            /** @example https://www.youtube.com/watch?v=example */
+            trailerUrl?: string | null;
+            /** @enum {string|null} */
+            videoType?: "trailer" | null;
+            /**
+             * @example [
+             *       18,
+             *       53
+             *     ]
+             */
+            genre_ids: number[];
+            /**
+             * @example [
+             *       "US"
+             *     ]
+             */
+            origin_countries: string[];
+            /** @example 1999-10-15 */
+            firstReleaseDate?: string | null;
+            /**
+             * @example [
+             *       "2026-09-16"
+             *     ]
+             */
+            reReleaseDates?: string[];
+        };
+        MovieGenreDto: {
+            /** @example 18 */
+            id: number;
+            /** @example 드라마 */
+            name: string;
+        };
+        MovieGenresResponseDto: {
+            genres: components["schemas"]["MovieGenreDto"][];
+        };
+        MovieDiscoverMovieDto: {
+            /** @example 550 */
+            id: number;
+            /** @example false */
+            adult: boolean;
+            /** @example 파이트 클럽 */
+            title: string;
+            /** @example Fight Club */
+            original_title: string;
+            /** @example en */
+            original_language: string;
+            /** @example 한 남자가 반복되는 일상에서 벗어나기 위해... */
+            overview: string;
+            /** @example /poster.jpg */
+            poster_path: string | null;
+            /** @example 1999-10-15 */
+            release_date: string;
+            /**
+             * @example [
+             *       18,
+             *       53
+             *     ]
+             */
+            genre_ids: number[];
+        };
+        MovieDiscoverResponseDto: {
+            /** @example 1 */
+            page: number;
+            /** @example 1 */
+            total_pages: number;
+            results: components["schemas"]["MovieDiscoverMovieDto"][];
+        };
+        MovieSearchItemDto: {
+            /** @example 550 */
+            id: number;
+            /** @example 파이트 클럽 */
+            title: string;
+            /** @example Fight Club */
+            original_title: string;
+            /** @example en */
+            original_language: string;
+            /** @example 한 남자가 반복되는 일상에서 벗어나기 위해... */
+            overview: string;
+            /** @example /poster.jpg */
+            poster_path: string | null;
+            /** @example 1999-10-15 */
+            release_date: string;
+        };
+        MovieSearchResponseDto: {
+            /** @example 1 */
+            page: number;
+            /** @example 1 */
+            total_pages: number;
+            results: components["schemas"]["MovieSearchItemDto"][];
         };
         UpsertUserMovieDto: {
             /** @example 550 */
@@ -1186,7 +1316,18 @@ export interface components {
              * @example trailer
              * @enum {string|null}
              */
-            videoType: "trailer" | "teaser" | null;
+            videoType: "trailer" | null;
+            /** @example 2026-09-16 */
+            releaseDate: string | null;
+            /**
+             * @description TMDB에서 확인된 재개봉일 목록
+             * @example [
+             *       "2026-09-16"
+             *     ]
+             */
+            reReleaseDates: string[];
+            /** @example 550 */
+            tmdbId: number | null;
         };
         MovieChartResponseDto: {
             items: components["schemas"]["MovieChartItemDto"][];
@@ -1258,11 +1399,6 @@ export interface components {
             posterPath: string | null;
             /** @example 12 */
             interestCount: number;
-            /**
-             * Format: date
-             * @example 1999-03-06
-             */
-            originalReleaseDate: string | null;
             /**
              * @description KOBIS에서 국내 개봉일이 확인된 영화인지 여부
              * @example true
@@ -1859,6 +1995,27 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
+                content: {
+                    "application/json": components["schemas"]["MovieDetailDto"];
+                };
+            };
+        };
+    };
+    TmdbController_getRawMovieResponse_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
                 content?: never;
             };
         };
@@ -1878,7 +2035,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MovieGenresResponseDto"];
+                };
             };
         };
     };
@@ -1897,7 +2056,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MovieDiscoverResponseDto"];
+                };
             };
         };
     };
@@ -1917,47 +2078,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    TmdbController_listProviderOverrides_v1: {
-        parameters: {
-            query: {
-                tmdbId: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": components["schemas"]["MovieSearchResponseDto"];
                 };
-                content?: never;
-            };
-        };
-    };
-    TmdbController_upsertProviderOverride_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertProviderOverrideDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -2452,6 +2575,46 @@ export interface operations {
         requestBody?: never;
         responses: {
             202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KobisController_getMovieInfo_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description KOBIS 영화 코드 */
+                movieCd: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KobisController_searchMovies_v1: {
+        parameters: {
+            query: {
+                /** @description 검색할 영화 이름 */
+                movieNm: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

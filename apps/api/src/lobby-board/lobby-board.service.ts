@@ -4,21 +4,22 @@ import { BoardBoxOfficeMovie, LobbyBoardResponse } from '@cinemo/shared';
 import { kstDateKey, todayKstDate } from '../lib/date-kst';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { AdminService } from '../admin/admin.service';
-import { ConfigService } from '@nestjs/config';
 import { clamp } from '../lib/clamp';
 import { MovieChartSnapshotService } from './movie-chart-snapshot.service';
-
-type KobisUpcomingMovie = {
-  titles: string[];
-  openDate: string;
-};
+import { KobisService } from '../kobis/kobis.service';
+import type {
+  KobisDailyBoxOfficeMovie,
+  KobisUpcomingMovie,
+} from '../kobis/kobis.service';
 
 type MovieChartMovie = BoardBoxOfficeMovie & {
   kobisMovieCd: string;
   tmdbId: number | null;
+  releaseDate: string | null;
+  reReleaseDates: string[];
   dailyAudienceCount: number;
   trailerUrl: string | null;
-  videoType: 'trailer' | 'teaser' | null;
+  videoType: 'trailer' | null;
 };
 
 @Injectable()
@@ -27,8 +28,8 @@ export class LobbyBoardService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tmdbService: TmdbService,
+    private readonly kobisService: KobisService,
     private readonly adminService: AdminService,
-    private readonly configService: ConfigService,
     private readonly movieChartSnapshotService: MovieChartSnapshotService,
   ) {}
 
@@ -104,77 +105,18 @@ export class LobbyBoardService {
     );
   }
 
-  private async getKobisUpcomingMovies(
-    fromDate: string,
-    untilDate: string,
-  ): Promise<KobisUpcomingMovie[] | null> {
-    const apiKey = this.configService.get<string>('tmdb.kobisApiKey')?.trim();
-    if (!apiKey) return null;
-
-    const url = new URL(
-      'https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json',
-    );
-    url.searchParams.set('key', apiKey);
-    url.searchParams.set('openStartDt', fromDate.slice(0, 4));
-    url.searchParams.set('openEndDt', untilDate.slice(0, 4));
-    url.searchParams.set('itemPerPage', '100');
-
-    try {
-      const response = await fetch(url);
-      if (!response.ok) return null;
-
-      const data = (await response.json()) as {
-        movieListResult?: {
-          movieList?: Array<{
-            movieNm: string;
-            movieNmEn?: string;
-            typeNm?: string;
-            openDt?: string;
-          }>;
-        };
-      };
-
-      const movies = (data.movieListResult?.movieList ?? [])
-        .filter(
-          (movie) =>
-            movie.typeNm !== '단편' &&
-            Boolean(movie.openDt) &&
-            movie.openDt! >= fromDate.replaceAll('-', '') &&
-            movie.openDt! <= untilDate.replaceAll('-', ''),
-        )
-        .map((movie) => ({
-          titles: [movie.movieNm, movie.movieNmEn]
-            .filter((title): title is string => Boolean(title?.trim()))
-            .map((title) => this.normalizeExternalMovieTitle(title)),
-          openDate: `${movie.openDt!.slice(0, 4)}-${movie.openDt!.slice(4, 6)}-${movie.openDt!.slice(6, 8)}`,
-        }));
-
-      return movies.length > 0 ? movies : null;
-    } catch {
-      return null;
-    }
-  }
-
-  private async getBoxOfficeMovies(
+  private async getDailyBoxOfficeMovies(
     targetDate?: string,
   ): Promise<MovieChartMovie[]> {
-    const KOBIS_DAILY_BOX_OFFICE_URL =
-      'https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json';
-
-    const apikey = this.configService.get<string>('tmdb.kobisApiKey')?.trim();
-
-    if (!apikey) return [];
-
-    const targetDt = targetDate
-      ? targetDate.replaceAll('-', '')
-      : new Intl.DateTimeFormat('en-CA', {
-          timeZone: 'Asia/Seoul',
-        })
-          .format(new Date(Date.now() - 24 * 60 * 60 * 1000))
-          .replaceAll('-', '');
-
     const cached = this.boxOfficeCache;
     const fallbackMovies = cached?.movies ?? [];
+    const targetDt =
+      targetDate?.replaceAll('-', '') ??
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul',
+      })
+        .format(new Date(Date.now() - 24 * 60 * 60 * 1000))
+        .replaceAll('-', '');
 
     if (
       !targetDate &&
@@ -185,26 +127,9 @@ export class LobbyBoardService {
       return cached.movies;
     }
 
-    const url = new URL(KOBIS_DAILY_BOX_OFFICE_URL);
-    url.searchParams.set('key', apikey);
-    url.searchParams.set('targetDt', targetDt);
     try {
-      const response = await fetch(url);
-      if (!response.ok) return [];
-      const data = (await response.json()) as {
-        boxOfficeResult?: {
-          dailyBoxOfficeList?: Array<{
-            movieCd: string;
-            rank: string;
-            movieNm: string;
-            audiCnt: string;
-            audiAcc: string;
-            rankInten: string;
-            rankOldAndNew: string;
-          }>;
-        };
-      };
-      const list = data.boxOfficeResult?.dailyBoxOfficeList ?? [];
+      const boxOffice = await this.kobisService.getDailyBoxOffice(targetDate);
+      const list: KobisDailyBoxOfficeMovie[] = boxOffice.movies;
 
       const moviePool = await this.prisma.moviePool.findMany({
         where: {
@@ -216,6 +141,7 @@ export class LobbyBoardService {
           title: true,
           tmdbId: true,
           posterPath: true,
+          releaseDate: true,
         },
       });
 
@@ -224,56 +150,37 @@ export class LobbyBoardService {
       const movies = await Promise.all(
         list.map(async (movie) => {
           const pooledMovie = movieMap.get(movie.movieNm);
-          let tmdbId = pooledMovie?.tmdbId ?? null;
-          let searchedMovie:
-            { id: number; poster_path: string | null } | undefined;
+          const media = await this.tmdbService.resolveMovieMedia(
+            movie.movieNm,
+            {
+              tmdbId: pooledMovie?.tmdbId,
+              posterPath: pooledMovie?.posterPath,
+            },
+          );
 
-          if (!tmdbId) {
-            try {
-              const result = await this.tmdbService.searchMovies(movie.movieNm);
-              searchedMovie =
-                result.results.find((item) => item.poster_path) ??
-                result.results[0];
-              tmdbId = searchedMovie.id ?? null;
-            } catch {
-              searchedMovie = undefined;
-            }
-          }
-          const posterPath =
-            pooledMovie?.posterPath ?? searchedMovie?.poster_path ?? null;
-          let trailerUrl: string | null = null;
-          let videoType: 'trailer' | 'teaser' | null = null;
-          if (tmdbId) {
-            try {
-              const video = await this.tmdbService.getMovieVideo(tmdbId);
-              trailerUrl = video?.url ?? null;
-              videoType = video?.videoType ?? null;
-            } catch {
-              trailerUrl = null;
-              videoType = null;
-            }
-          }
           return {
             kobisMovieCd: movie.movieCd,
-            tmdbId,
+            tmdbId: media.tmdbId,
             rank: Number(movie.rank),
             title: movie.movieNm,
+            releaseDate: pooledMovie?.releaseDate || null,
+            reReleaseDates: media.reReleaseDates,
             dailyAudienceCount: Number(movie.audiCnt),
             audienceCount: Number(movie.audiAcc),
             rankChange:
               movie.rankOldAndNew === 'NEW'
                 ? null
                 : Number(movie.rankInten) || 0,
-            posterPath,
-            trailerUrl,
-            videoType,
+            posterPath: media.posterPath,
+            trailerUrl: media.trailerUrl,
+            videoType: media.videoType,
           };
         }),
       );
 
       if (!targetDate) {
         this.boxOfficeCache = {
-          targetDt,
+          targetDt: boxOffice.targetDt,
           expiresAt: Date.now() + 10 * 60 * 1000,
           movies,
         };
@@ -306,7 +213,7 @@ export class LobbyBoardService {
   async getBoard(): Promise<LobbyBoardResponse> {
     const [upcomingResult, boxOfficeMovies] = await Promise.all([
       this.getUpcomingMovies(undefined, 1, 30),
-      this.getBoxOfficeMovies(),
+      this.getDailyBoxOfficeMovies(),
     ]);
 
     const upcomingInterestMovies = upcomingResult.items
@@ -328,7 +235,7 @@ export class LobbyBoardService {
   }
 
   async getMovieChart() {
-    const movies = await this.getBoxOfficeMovies();
+    const movies = await this.getDailyBoxOfficeMovies();
     const targetDt = this.boxOfficeCache?.targetDt;
 
     const targetDate = targetDt
@@ -343,7 +250,7 @@ export class LobbyBoardService {
   }
 
   async collectDailyMovieChart(targetDate: string) {
-    const movies = await this.getBoxOfficeMovies(targetDate);
+    const movies = await this.getDailyBoxOfficeMovies(targetDate);
     if (movies.length === 0) {
       return {
         targetDate,
@@ -464,7 +371,10 @@ export class LobbyBoardService {
       ),
     );
 
-    const kobisMovies = await this.getKobisUpcomingMovies(fromDate, untilDate);
+    const kobisMovies = await this.kobisService.getUpcomingMovies(
+      fromDate,
+      untilDate,
+    );
 
     const movies = responses
       .flatMap((response) => response.results)
@@ -504,7 +414,6 @@ export class LobbyBoardService {
 
           return {
             ...movie,
-            originalReleaseDate: detail.release_date,
           };
         } catch {
           return null;
@@ -551,7 +460,6 @@ export class LobbyBoardService {
         releaseDate: movie.releaseDate,
         posterPath: movie.posterPath,
         interestCount: countMap.get(movie.tmdbId) ?? 0,
-        originalReleaseDate: movie.originalReleaseDate,
         isReleaseDateConfirmed: movie.isKobisBacked,
       }));
 

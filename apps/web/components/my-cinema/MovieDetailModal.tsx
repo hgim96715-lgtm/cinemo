@@ -13,11 +13,11 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import type {
-  MovieCard,
   UserMovieKind,
   UserMovieListItem,
   UserMovieMarks,
 } from '@cinemo/shared';
+import type { MovieDetail } from '@cinemo/api-contract';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { useAuthStore } from '@/lib/auth-store';
 import { updateViewingDetailsRequest } from '@/lib/user-movie-api';
@@ -65,14 +65,12 @@ const TMDB_GENRE_LABELS: Record<number, string> = {
   10752: '전쟁',
   37: '서부',
 };
-
 type MovieDetailModalProps = {
-  movie: MovieCard & {
-    genre_ids?: number[];
-  };
+  movie: MovieDetail;
   screening?: UserMovieListItem;
   marks?: Pick<UserMovieMarks, 'wish' | 'watched'>;
   showWatchedMark?: boolean;
+  showCalendar?: boolean;
   onClose: () => void;
   onToggleMark?: (kind: UserMovieKind) => void;
   onSaved?: (details: SavedScreeningDetails) => void;
@@ -85,6 +83,7 @@ export function MovieDetailModal({
   screening,
   marks,
   showWatchedMark = true,
+  showCalendar = true,
   onClose,
   onToggleMark,
   onSaved,
@@ -371,10 +370,27 @@ export function MovieDetailModal({
               ) : null}
 
               <dl className="movie-detail-facts">
-                {movie.release_date ? (
+                {movie.firstReleaseDate || movie.release_date ? (
                   <div>
-                    <dt>개봉일</dt>
-                    <dd>{movie.release_date.replaceAll('-', '.')}</dd>
+                    <dt>
+                      {movie.firstReleaseDate ? '최초 개봉일' : '개봉일'}
+                    </dt>
+                    <dd>
+                      {(movie.firstReleaseDate ?? movie.release_date).replaceAll(
+                        '-',
+                        '.',
+                      )}
+                    </dd>
+                  </div>
+                ) : null}
+                {movie.reReleaseDates?.length ? (
+                  <div>
+                    <dt>재개봉일</dt>
+                    <dd>
+                      {movie.reReleaseDates
+                        .map((date) => date.replaceAll('-', '.'))
+                        .join(', ')}
+                    </dd>
                   </div>
                 ) : null}
                 {movie.director ? (
@@ -433,7 +449,7 @@ export function MovieDetailModal({
                 {movie.overview?.trim() || '줄거리 정보가 없어요.'}
               </p>
               {movie.trailerUrl ||
-              calendarUrl ||
+              (showCalendar && calendarUrl) ||
               onToggleReleaseNotification ? (
                 <div
                   className="movie-detail-actions"
@@ -449,20 +465,17 @@ export function MovieDetailModal({
                           type="button"
                           className="movie-detail-trailer-link"
                         >
-                          {movie.videoType === 'teaser'
-                            ? '티저 보기'
-                            : '예고편 보기'}
+                          예고편 보기
                           <Play size={15} aria-hidden />
                         </button>
                       </Dialog.Trigger>
                       <MovieVideoModal
                         title={movie.title}
                         videoUrl={movie.trailerUrl}
-                        videoType={movie.videoType}
                       />
                     </Dialog.Root>
                   ) : null}
-                  {calendarUrl ? (
+                  {showCalendar && calendarUrl ? (
                     <a
                       className="movie-detail-calendar-button"
                       href={calendarUrl}

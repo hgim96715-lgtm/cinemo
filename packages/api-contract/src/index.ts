@@ -1,5 +1,17 @@
 import type { components } from './generated/api';
 
+export type MovieDetail = components['schemas']['MovieDetailDto'];
+
+export type MovieSummary = Omit<
+  MovieDetail,
+  'genre_ids' | 'origin_countries' | 'firstReleaseDate' | 'reReleaseDates'
+>;
+
+export type MovieSearchItem = components['schemas']['MovieSearchItemDto'];
+
+export type MovieSearchResponse =
+  components['schemas']['MovieSearchResponseDto'];
+
 export type MovieChartItem =
   components['schemas']['MovieChartItemDto'];
 

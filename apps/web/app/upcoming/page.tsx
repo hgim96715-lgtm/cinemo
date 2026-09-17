@@ -26,7 +26,7 @@ import '@/styles/moviechart-modal.css';
 import '@/styles/confirm-modal.css';
 import '@/styles/common.css';
 
-import { MovieCard } from '@cinemo/shared';
+import type { MovieDetail } from '@cinemo/api-contract';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { MovieDetailModalSkeleton } from '@/components/my-cinema/MovieDetailModalSkeleton';
@@ -38,6 +38,9 @@ type UpcomingPeriod = {
   key: string;
   label: string;
 };
+
+type MovieDetailMovie = MovieDetail &
+  Pick<UpcomingMovie, 'isReleaseDateConfirmed'>;
 
 function getUpcomingPeriods(): UpcomingPeriod[] {
   const { year, month } = kstYearMonth();
@@ -82,7 +85,7 @@ function UpcomingPageContent() {
   const [hasNext, setHasNext] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const [detailMovie, setDetailMovie] = useState<MovieCard | null>(null);
+  const [detailMovie, setDetailMovie] = useState<MovieDetailMovie | null>(null);
   const [detailMovieId, setDetailMovieId] = useState<number | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
 
@@ -159,9 +162,7 @@ function UpcomingPageContent() {
         10,
       );
 
-      setMovies((current) =>
-        sortUpcomingMovies([...current, ...result.items]),
-      );
+      setMovies((current) => sortUpcomingMovies([...current, ...result.items]));
       setPage(nextPage);
       setHasNext(result.hasNext);
     } finally {
@@ -235,45 +236,20 @@ function UpcomingPageContent() {
 
   function getReleaseDateDisplay(
     releaseDate: string,
-    originalReleaseDate?: string | null,
     isReleaseDateConfirmed = false,
   ) {
     const today = kstDateKey();
     const currentDate = releaseDate.replaceAll('-', '.');
-    const originalTime = originalReleaseDate
-      ? Date.parse(`${originalReleaseDate}T00:00:00Z`)
-      : NaN;
-    const releaseTime = Date.parse(`${releaseDate}T00:00:00Z`);
-    const isLikelyReRelease =
-      Number.isFinite(originalTime) &&
-      Number.isFinite(releaseTime) &&
-      releaseTime - originalTime >= 365 * 24 * 60 * 60 * 1000;
-    const hasConfirmedReleaseDate =
-      isReleaseDateConfirmed || isLikelyReRelease;
 
     if (releaseDate === today) {
-      if (!hasConfirmedReleaseDate) {
+      if (!isReleaseDateConfirmed) {
         return {
           primary: '개봉일 확인 중',
           secondary: null,
         };
       }
 
-      if (isLikelyReRelease && originalReleaseDate) {
-        return {
-          primary: '오늘 개봉 (재개봉)',
-          secondary: `원개봉 ${originalReleaseDate.replaceAll('-', '.')}`,
-        };
-      }
-
       return { primary: '오늘 개봉', secondary: null };
-    }
-
-    if (isLikelyReRelease && originalReleaseDate) {
-      return {
-        primary: `${currentDate} 재개봉`,
-        secondary: `원개봉 ${originalReleaseDate.replaceAll('-', '.')}`,
-      };
     }
 
     return { primary: `${currentDate} 개봉 예정`, secondary: null };
@@ -282,17 +258,11 @@ function UpcomingPageContent() {
   function sortUpcomingMovies(movieList: UpcomingMovie[]) {
     return [...movieList].sort((a, b) => {
       const aIsPending =
-        getReleaseDateDisplay(
-          a.releaseDate,
-          a.originalReleaseDate,
-          a.isReleaseDateConfirmed,
-        ).primary === '개봉일 확인 중';
+        getReleaseDateDisplay(a.releaseDate, a.isReleaseDateConfirmed)
+          .primary === '개봉일 확인 중';
       const bIsPending =
-        getReleaseDateDisplay(
-          b.releaseDate,
-          b.originalReleaseDate,
-          b.isReleaseDateConfirmed,
-        ).primary === '개봉일 확인 중';
+        getReleaseDateDisplay(b.releaseDate, b.isReleaseDateConfirmed)
+          .primary === '개봉일 확인 중';
 
       return Number(aIsPending) - Number(bIsPending);
     });
@@ -340,6 +310,7 @@ function UpcomingPageContent() {
       setDetailMovie({
         ...movie,
         release_date: upcomingMovie?.releaseDate ?? movie.release_date,
+        isReleaseDateConfirmed: upcomingMovie?.isReleaseDateConfirmed ?? false,
       });
 
       if (notificationPromise) {
@@ -443,7 +414,6 @@ function UpcomingPageContent() {
               const selectedDetailMovie = isDetailOpen ? detailMovie : null;
               const releaseInfo = getReleaseDateDisplay(
                 movie.releaseDate,
-                movie.originalReleaseDate,
                 movie.isReleaseDateConfirmed,
               );
 

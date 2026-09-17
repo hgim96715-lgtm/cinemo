@@ -11,6 +11,7 @@ import demoConfig from './config/demo.config';
 import mailConfig from './config/mail.config';
 import oauthConfig from './config/oauth.config';
 import tmdbConfig from './config/tmdb.config';
+import kobisConfig from './config/kobis.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
@@ -25,6 +26,7 @@ import { GuideModule } from './guide/guide.module';
 import { PlacesModule } from './places/places.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PostcardModule } from './postcard/postcard.module';
+import { KobisModule } from './kobis/kobis.module';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { PostcardModule } from './postcard/postcard.module';
         databaseConfig,
         authConfig,
         tmdbConfig,
+        kobisConfig,
         aiConfig,
         oauthConfig,
         mailConfig,
@@ -57,6 +60,7 @@ import { PostcardModule } from './postcard/postcard.module';
     GuideModule,
     PlacesModule,
     PostcardModule,
+    KobisModule,
   ],
   controllers: [AppController, AiController],
   providers: [AppService],

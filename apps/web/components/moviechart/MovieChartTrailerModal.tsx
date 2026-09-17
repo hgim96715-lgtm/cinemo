@@ -27,7 +27,6 @@ export function MovieChartTrailerModal({
       <MovieVideoModal
         title={movie.title}
         videoUrl={movie.trailerUrl}
-        videoType={movie.videoType}
       />
     </Dialog.Root>
   );

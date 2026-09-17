@@ -1,5 +1,3 @@
-import { MovieCard } from "./movie";
-
 export const USER_MOVIE_KINDS = ["wish", "watched"] as const;
 
 export type UserMovieKind = (typeof USER_MOVIE_KINDS)[number];
@@ -15,6 +13,20 @@ export type UserMovieViewingDetails = {
   viewingLocation: string | null;
   review: string | null;
   rating: number | null;
+};
+
+type UserMovieMovie = {
+  id: number;
+  title: string;
+  original_title?: string;
+  original_language?: string;
+  overview: string;
+  poster_path: string | null;
+  release_date: string;
+  director: string | null;
+  cast?: string[];
+  trailerUrl?: string | null;
+  videoType?: "trailer" | null;
 };
 
 export type ToggleUserMovieResult = {
@@ -33,7 +45,7 @@ export type UserMovieListItem = UserMovieViewingDetails & {
   tmdbId: number;
   updatedAt: string;
   watchedAt: string | null;
-  movie: MovieCard;
+  movie: UserMovieMovie;
 };
 
 export type UserMovieListPage = {
@@ -51,7 +63,7 @@ export type UserMovieCalendarItem = {
   tmdbId: number;
   date: string;
   watchedAt: string;
-  movie: MovieCard;
+  movie: UserMovieMovie;
 };
 
 export type UserMovieCalendar = {
