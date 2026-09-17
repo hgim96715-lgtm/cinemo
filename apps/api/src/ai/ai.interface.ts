@@ -25,6 +25,7 @@ export interface IAiProvider {
   recommendMovieQuotes(
     input: RecommendMovieQuotesInput,
   ): Promise<MovieQuoteSuggestion[]>;
+  koreanPersonName(name: string): Promise<string | null>;
 }
 
 export const AI_PROVIDER = Symbol('AI_PROVIDER');

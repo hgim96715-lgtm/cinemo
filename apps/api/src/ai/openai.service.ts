@@ -138,6 +138,33 @@ export class OpenAiService implements IAiProvider {
     }
   }
 
+  async koreanPersonName(name: string): Promise<string | null> {
+    try {
+      const response = await this.openai.responses.create({
+        model: this.model,
+        input:
+          `영화 배우 "${name}"의 한국어 표기를 알려줘.\n` +
+          `원문이 일본식 한자 이름이면 중국어 또는 한국식 한자음으로 읽지 말고 일본어 발음 기준으로 음역해.\n` +
+          `예: 谷村美月은 곡촌미월이 아니라 타니무라 미츠키로 표기해.\n` +
+          `한글 이름만 출력해. 설명, 따옴표, 부연 일절 없이.`,
+      });
+
+      const text = this.getOutputText(response);
+
+      if (!text || text.length > 20 || /죄송|알 수 없|모르|없어/.test(text)) {
+        return null;
+      }
+
+      return text;
+    } catch (error) {
+      this.logger.warn(
+        `koreanPersonName 실패 (${name}): ${(error as Error).message}`,
+      );
+
+      return null;
+    }
+  }
+
   async recommendMovieQuotes(
     input: RecommendMovieQuotesInput,
   ): Promise<MovieQuoteSuggestion[]> {

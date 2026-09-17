@@ -16,6 +16,9 @@ export class AiService {
   koreanDirector(name: string) {
     return this.aiProvider.koreanDirector(name);
   }
+  koreanPersonName(name: string) {
+    return this.aiProvider.koreanPersonName(name);
+  }
 
   recommendMovieQuotes(
     input: Parameters<IAiProvider['recommendMovieQuotes']>[0],
