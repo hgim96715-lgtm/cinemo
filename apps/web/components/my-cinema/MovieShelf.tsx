@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { CalendarDays, ChevronDown, MapPin, Search } from 'lucide-react';
+import { CalendarDays, MapPin, Search } from 'lucide-react';
 import {
   type UserMovieKind,
   type UserMovieListItem,
@@ -20,9 +20,14 @@ import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { MovieDetailModal } from './MovieDetailModal';
 import { MovieDetailModalSkeleton } from './MovieDetailModalSkeleton';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { formatKstDateDots, kstYear } from '@/lib/date-kst';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import type { MovieDetail } from '@cinemo/api-contract';
+import {
+  CinemoSelect,
+  type CinemoSelectOption,
+} from '@/components/common/CinemoSelect';
 
 const PAGE_SIZE = 24;
 
@@ -30,86 +35,6 @@ type Props = {
   kind: UserMovieKind;
   title: string;
 };
-
-type MovieShelfFilterOption = {
-  value: string;
-  label: string;
-};
-
-type MovieShelfFilterSelectProps = {
-  value: string;
-  options: MovieShelfFilterOption[];
-  onChange: (value: string) => void;
-  ariaLabel: string;
-};
-
-function MovieShelfFilterSelect({
-  value,
-  options,
-  onChange,
-  ariaLabel,
-}: MovieShelfFilterSelectProps) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const selectedOption =
-    options.find((option) => option.value === value) ?? options[0];
-
-  useEffect(() => {
-    if (!open) return;
-
-    function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [open]);
-
-  return (
-    <div
-      className={`my-cinema-shelf-filter-select${open ? ' is-open' : ''}`}
-      ref={rootRef}
-    >
-      <button
-        type="button"
-        className="my-cinema-shelf-filter-trigger"
-        aria-label={ariaLabel}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-      >
-        <span>{selectedOption?.label ?? ''}</span>
-        <ChevronDown size={18} strokeWidth={1.7} aria-hidden />
-      </button>
-
-      {open ? (
-        <div
-          className="my-cinema-shelf-filter-menu"
-          role="listbox"
-          aria-label={ariaLabel}
-        >
-          {options.map((option) => (
-            <button
-              key={option.value || 'empty'}
-              type="button"
-              className="my-cinema-shelf-filter-option"
-              role="option"
-              aria-selected={option.value === value}
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 export function MovieShelf({ kind, title }: Props) {
   const router = useRouter();
@@ -403,14 +328,14 @@ export function MovieShelf({ kind, title }: Props) {
         : '본 작품이 없어요.';
 
   const currentKstYear = kstYear();
-  const yearOptions: MovieShelfFilterOption[] = [
+  const yearOptions: CinemoSelectOption[] = [
     { value: '', label: '전체 연도' },
     ...Array.from(
       { length: currentKstYear - 1999 },
       (_, index) => currentKstYear - index,
     ).map((year) => ({ value: String(year), label: `${year}년` })),
   ];
-  const monthOptions: MovieShelfFilterOption[] = [
+  const monthOptions: CinemoSelectOption[] = [
     { value: '', label: '전체 월' },
     ...Array.from({ length: 12 }, (_, index) => index + 1).map((month) => ({
       value: String(month),
@@ -420,25 +345,29 @@ export function MovieShelf({ kind, title }: Props) {
 
   return (
     <main className="my-cinema my-cinema--shelf">
-      <CinemoNav
-        rightHref="/my-cinema"
-        rightLabel="MY CINEMA"
-        rightAriaLabel="MY CINEMA로 이동"
-      />
-
-      <header className="my-cinema-shelf-header">
-        <div className="my-cinema-shelf-heading">
-          <p className="my-cinema-kicker">
-            {kind === 'watched' ? 'WATCHED' : 'WISHLIST'}
-          </p>
-          <p className="my-cinema-shelf-subtitle">CINEMO FILM ARCHIVE</p>
-          <h1 className="my-cinema-shelf-title">
+      <CinemoPageHeader
+        className="my-cinema-shelf-header"
+        eyebrow={kind === 'watched' ? 'WATCHED' : 'WISHLIST'}
+        eyebrowClassName="my-cinema-kicker"
+        subtitle="CINEMO FILM ARCHIVE"
+        titleClassName="my-cinema-shelf-title"
+        title={
+          <>
             {title}
             <span className="my-cinema-shelf-count">
               <span className="my-cinema-shelf-count-number">{total}</span>
               <span className="my-cinema-shelf-count-unit">편</span>
             </span>
-          </h1>
+          </>
+        }
+        nav={
+          <CinemoNav
+            rightHref="/my-cinema"
+            rightLabel="MY CINEMA"
+            rightAriaLabel="MY CINEMA로 이동"
+          />
+        }
+      >
           <div className="my-cinema-shelf-toolbar">
             <div className="my-cinema-shelf-search">
               <Search size={18} strokeWidth={1.5} aria-hidden />
@@ -453,7 +382,7 @@ export function MovieShelf({ kind, title }: Props) {
 
             {kind === 'watched' ? (
               <div className="my-cinema-shelf-filters">
-                <MovieShelfFilterSelect
+                <CinemoSelect
                   value={filterYear ? String(filterYear) : ''}
                   options={yearOptions}
                   ariaLabel="관람 연도 필터"
@@ -461,7 +390,7 @@ export function MovieShelf({ kind, title }: Props) {
                     setFilterYear(value ? Number(value) : undefined)
                   }
                 />
-                <MovieShelfFilterSelect
+                <CinemoSelect
                   value={filterMonth ? String(filterMonth) : ''}
                   options={monthOptions}
                   ariaLabel="관람 월 필터"
@@ -472,8 +401,7 @@ export function MovieShelf({ kind, title }: Props) {
               </div>
             ) : null}
           </div>
-        </div>
-      </header>
+      </CinemoPageHeader>
 
       <div ref={scrollRef} className="my-cinema-shelf-scroll">
         {error ? <p className="my-cinema-copy">{error}</p> : null}

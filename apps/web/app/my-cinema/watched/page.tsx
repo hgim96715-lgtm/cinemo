@@ -6,6 +6,9 @@ import '@/styles/movie-detail-modal.css';
 import '@/styles/moviechart-modal.css';
 import '@/styles/lobby.css';
 import '@/styles/common.css';
+import '@/styles/cinemo-select.css';
+import '@/styles/cinemo-nav.css';
+import '@/styles/cinemo-page-header.css';
 
 export default function WatchedShelfPage() {
   return <MovieShelf kind="watched" title="관람 기록" />;

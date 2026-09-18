@@ -25,12 +25,15 @@ import '@/styles/movie-detail-modal.css';
 import '@/styles/moviechart-modal.css';
 import '@/styles/confirm-modal.css';
 import '@/styles/common.css';
+import '@/styles/cinemo-nav.css';
+import '@/styles/cinemo-page-header.css';
 
 import type { MovieDetail } from '@cinemo/api-contract';
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { MovieDetailModalSkeleton } from '@/components/my-cinema/MovieDetailModalSkeleton';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { UpcomingMovieListSkeleton } from '@/components/upcoming/UpcomingMovieListSkeleton';
 import { kstDateKey, kstYearMonth } from '@/lib/date-kst';
 
@@ -363,18 +366,21 @@ function UpcomingPageContent() {
   return (
     <main className="lobby upcoming-lobby lobby--lit">
       <section className="lobby-stage upcoming-page">
-        <CinemoNav
-          rightHref="/my-cinema/wish"
-          rightLabel="찜한 영화"
-          rightAriaLabel="찜한 영화로 이동"
+        <CinemoPageHeader
+          className="upcoming-header"
+          eyebrow="COMING SOON"
+          eyebrowClassName="lobby-destination-kicker"
+          title="곧 스크린에서 만날 영화"
+          description="개봉일을 확인하고 미리 찜해보세요"
+          leading={<Sparkles size={28} strokeWidth={1.8} aria-hidden />}
+          nav={
+            <CinemoNav
+              rightHref="/my-cinema/wish"
+              rightLabel="찜한 영화"
+              rightAriaLabel="찜한 영화로 이동"
+            />
+          }
         />
-
-        <header className="upcoming-header">
-          <Sparkles size={28} strokeWidth={1.8} aria-hidden />
-          <p className="lobby-destination-kicker">COMING SOON</p>
-          <h1>곧 스크린에서 만날 영화</h1>
-          <p>개봉일을 확인하고 미리 찜해보세요</p>
-        </header>
 
         <div
           className="upcoming-period-tabs"

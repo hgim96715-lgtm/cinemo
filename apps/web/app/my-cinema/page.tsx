@@ -29,6 +29,7 @@ import '@/styles/lobby.css';
 import '@/styles/avatar.css';
 import '@/styles/profile.css';
 import '@/styles/common.css';
+import '@/styles/cinemo-nav.css';
 import {
   CalendarDays,
   Clapperboard,
@@ -53,7 +54,8 @@ import { WatchedDateEditModal } from '@/components/my-cinema/WatchedDateEditModa
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { MovieStatsPanel } from '@/components/my-cinema/MovieStatsPanel';
 import '@/styles/confirm-modal.css';
-import { CinemoNav } from '@/components/common/CinemoNav';
+import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
+import '@/styles/cinemo-page-header.css';
 
 export default function MyCinemaPage() {
   const router = useRouter();
@@ -366,18 +368,20 @@ export default function MyCinemaPage() {
 
   return (
     <main className="my-cinema my-cinema--dashboard">
-      <CinemoNav />
-
-      <header className="my-cinema-header my-cinema-dashboard-header">
-        <p className="my-cinema-kicker">MY CINEMA</p>
-        <h1 className="my-cinema-title my-cinema-dashboard-brand">
-          <Clapperboard size={30} strokeWidth={1.35} aria-hidden="true" />
-          <span>{user.nickname}</span>
-        </h1>
-        <p className="my-cinema-dashboard-lede">
-          내가 본 영화와 취향을 한눈에 모아보는 공간
-        </p>
-      </header>
+      <CinemoPageHeader
+        className="my-cinema-header my-cinema-dashboard-header"
+        eyebrow="MY CINEMA"
+        eyebrowClassName="my-cinema-kicker"
+        titleClassName="my-cinema-title my-cinema-dashboard-brand"
+        title={
+          <>
+            <Clapperboard size={30} strokeWidth={1.35} aria-hidden="true" />
+            <span>{user.nickname}</span>
+          </>
+        }
+        description="내가 본 영화와 취향을 한눈에 모아보는 공간"
+        descriptionClassName="my-cinema-dashboard-lede"
+      />
 
       <div className="my-cinema-dashboard">
         <section className="my-cinema-profile-card" aria-label="내 프로필">

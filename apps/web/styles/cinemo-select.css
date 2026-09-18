@@ -1,0 +1,111 @@
+.cinemo-select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.cinemo-select > div:has(> .cinemo-select-menu) {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+}
+
+.cinemo-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid rgb(212 181 106 / 0.32);
+  border-radius: 0.65rem;
+  outline: none;
+  background: rgb(20 18 21 / 0.86);
+  color: var(--cinemo-fg);
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.cinemo-select-trigger:hover,
+.cinemo-select-trigger[data-state='open'] {
+  border-color: rgb(212 181 106 / 0.58);
+  background: rgb(212 181 106 / 0.08);
+}
+
+.cinemo-select-trigger:focus-visible {
+  border-color: var(--cinemo-gold);
+  box-shadow: 0 0 0 3px rgb(212 181 106 / 0.13);
+}
+
+.cinemo-select-trigger svg {
+  flex: 0 0 auto;
+  color: var(--cinemo-gold);
+  transition: transform 160ms ease;
+}
+
+.cinemo-select-trigger[data-state='open'] svg {
+  transform: rotate(180deg);
+}
+
+.cinemo-select-menu {
+  z-index: 1000;
+  display: grid;
+  gap: 0.15rem;
+  width: var(--radix-select-trigger-width);
+  min-width: var(--radix-select-trigger-width);
+  max-height: 18rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem;
+  border: 1px solid rgb(212 181 106 / 0.42);
+  border-radius: 0.65rem;
+  background: #17171d;
+  box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.45);
+}
+
+.cinemo-select-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.65rem 0.7rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--cinemo-fg);
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cinemo-select-option[data-highlighted] {
+  outline: none;
+  background: rgb(212 181 106 / 0.14);
+  color: var(--cinemo-gold);
+}
+
+.cinemo-select-option:hover,
+.cinemo-select-option[aria-selected='true'] {
+  background: rgb(212 181 106 / 0.14);
+  color: var(--cinemo-gold);
+}
+
+@media (max-width: 40rem) {
+  .cinemo-select-trigger {
+    min-height: 2.9rem;
+    padding-inline: 0.85rem;
+    font-size: 0.92rem;
+  }
+
+  .cinemo-select-option {
+    font-size: 0.9rem;
+  }
+}

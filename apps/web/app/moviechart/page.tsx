@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { MovieChartTrailerModal } from '@/components/moviechart/MovieChartTrailerModal';
 import { MovieChartListSkeleton } from '@/components/moviechart/MovieChartListSkeleton';
 import { MovieChartContentTabs } from '@/components/moviechart/MovieChartContentTabs';
@@ -11,6 +12,8 @@ import {
 } from '@/lib/lobby-board-api';
 import { formatKstLongDate } from '@/lib/date-kst';
 import '@/styles/common.css';
+import '@/styles/cinemo-nav.css';
+import '@/styles/cinemo-page-header.css';
 import '@/styles/moviechart.css';
 import '@/styles/moviechart-chart.css';
 import '@/styles/moviechart-modal.css';
@@ -132,17 +135,21 @@ export default function MovieChartPage() {
 
   return (
     <main className="movie-chart-page">
-      <CinemoNav
-        showRightLink
-        rightHref="/postcard"
-        rightLabel="POSTCARD"
-        rightAriaLabel="CINEMO 엽서로 이동"
-      />
-      <header className="movie-chart-header">
-        <span className="movie-chart-kicker">MOVIE CHART</span>
-        <h1>오늘의 영화 순위</h1>
-        <p>누적 관객 수와 전일 대비 순위를 확인해보세요.</p>
-
+      <CinemoPageHeader
+        className="movie-chart-header"
+        eyebrow="MOVIE CHART"
+        eyebrowClassName="movie-chart-kicker"
+        title="오늘의 영화 순위"
+        description="누적 관객 수와 전일 대비 순위를 확인해보세요."
+        nav={
+          <CinemoNav
+            showRightLink
+            rightHref="/postcard"
+            rightLabel="POSTCARD"
+            rightAriaLabel="CINEMO 엽서로 이동"
+          />
+        }
+      >
         <div className="movie-chart-meta" aria-label="영화 차트 기준 정보">
           <span>KOBIS 일일 박스오피스</span>
           <span aria-hidden="true">·</span>
@@ -160,7 +167,7 @@ export default function MovieChartPage() {
             <br /> 공식 개봉일 전에도 순위와 관객 기록이 보일 수 있습니다.
           </p>
         </details>
-      </header>
+      </CinemoPageHeader>
 
       {loading ? <MovieChartListSkeleton /> : null}
       {error ? <p>{error}</p> : null}

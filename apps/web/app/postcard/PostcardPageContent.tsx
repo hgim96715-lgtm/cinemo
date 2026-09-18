@@ -14,6 +14,7 @@ import {
   togglePostcardBookmarkRequest,
 } from '@/lib/postcard-api';
 import { CinemoNav } from '@/components/common/CinemoNav';
+import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { PostcardReactionBar } from '@/components/postcard/PostcardReactionBar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -125,18 +126,22 @@ export function PostcardPageContent() {
   if (loading) {
     return (
       <main className="postcard-page postcard-public-page">
-        <CinemoNav
-          showRightLink={true}
-          rightHref="/my-cinema/postcard"
-          rightLabel="MY POSTCARD"
-          rightAriaLabel="MY POSTCARD로 이동"
-          rightOnClick={handleMyPostcardClick}
+        <CinemoPageHeader
+          className="postcard-page-header"
+          eyebrow="CINEMO POSTCARD"
+          eyebrowClassName="postcard-page-eyebrow"
+          title="CINEMO 엽서"
+          description="영화에서 기억할 문장을 한 장의 엽서로 남겨보세요."
+          nav={
+            <CinemoNav
+              showRightLink
+              rightHref="/my-cinema/postcard"
+              rightLabel="MY POSTCARD"
+              rightAriaLabel="MY POSTCARD로 이동"
+              rightOnClick={handleMyPostcardClick}
+            />
+          }
         />
-        <header className="postcard-page-header">
-          <p className="postcard-page-eyebrow">CINEMO POSTCARD</p>
-          <h1>CINEMO 엽서</h1>
-          <p>영화에서 기억할 문장을 한 장의 엽서로 남겨보세요.</p>
-        </header>
         <PostcardListSkeleton />
       </main>
     );
@@ -147,18 +152,22 @@ export function PostcardPageContent() {
   }
   return (
     <main className="postcard-page postcard-public-page">
-      <CinemoNav
-        showRightLink={true}
-        rightHref="/my-cinema/postcard"
-        rightLabel="MY POSTCARD"
-        rightAriaLabel="MY POSTCARD로 이동"
-        rightOnClick={handleMyPostcardClick}
+      <CinemoPageHeader
+        className="postcard-page-header"
+        eyebrow="CINEMO POSTCARD"
+        eyebrowClassName="postcard-page-eyebrow"
+        title="CINEMO 엽서"
+        description="영화에서 기억할 문장을 한 장의 엽서로 남겨보세요."
+        nav={
+          <CinemoNav
+            showRightLink
+            rightHref="/my-cinema/postcard"
+            rightLabel="MY POSTCARD"
+            rightAriaLabel="MY POSTCARD로 이동"
+            rightOnClick={handleMyPostcardClick}
+          />
+        }
       />
-      <header className="postcard-page-header">
-        <p className="postcard-page-eyebrow">CINEMO POSTCARD</p>
-        <h1>CINEMO 엽서</h1>
-        <p>영화에서 기억할 문장을 한 장의 엽서로 남겨보세요.</p>
-      </header>
 
       {postcards.length === 0 ? (
         <p className="postcard-empty">아직 공개된 엽서가 없습니다.</p>

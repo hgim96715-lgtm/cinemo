@@ -582,13 +582,6 @@
   gap: 0.15rem;
 }
 
-.my-cinema-shelf-heading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-}
-
 .my-cinema-shelf-title {
   margin: 0;
   display: inline-flex;
@@ -1360,6 +1353,14 @@
   width: min(100%, 60rem);
 }
 
+.my-cinema-shelf-header {
+  margin-bottom: 0;
+}
+
+.my-cinema-shelf-header > .cinemo-nav {
+  margin-bottom: 1rem;
+}
+
 .my-cinema-shelf-subtitle {
   margin: 0;
   color: rgb(212 181 106 / 0.62);
@@ -1427,88 +1428,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.55rem;
-}
-
-.my-cinema-shelf-filter-select {
-  position: relative;
-  min-width: 0;
-}
-
-.my-cinema-shelf-filter-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 2.55rem;
-  padding: 0 0.8rem;
-  border: 1px solid rgb(212 181 106 / 0.32);
-  border-radius: 0.65rem;
-  outline: none;
-  background: rgb(20 18 21 / 0.86);
-  color: var(--lobby-fg);
-  font: inherit;
-  font-size: 0.78rem;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.my-cinema-shelf-filter-trigger:hover,
-.my-cinema-shelf-filter-select.is-open .my-cinema-shelf-filter-trigger {
-  border-color: rgb(212 181 106 / 0.58);
-  background: rgb(212 181 106 / 0.08);
-}
-
-.my-cinema-shelf-filter-trigger:focus-visible {
-  border-color: var(--lobby-gold);
-  box-shadow: 0 0 0 3px rgb(212 181 106 / 0.13);
-}
-
-.my-cinema-shelf-filter-trigger svg {
-  flex: 0 0 auto;
-  color: var(--lobby-gold);
-  transition: transform 160ms ease;
-}
-
-.my-cinema-shelf-filter-select.is-open .my-cinema-shelf-filter-trigger svg {
-  transform: rotate(180deg);
-}
-
-.my-cinema-shelf-filter-menu {
-  position: absolute;
-  inset: calc(100% + 0.35rem) 0 auto;
-  z-index: 10;
-  display: grid;
-  gap: 0.15rem;
-  max-height: 14rem;
-  overflow-y: auto;
-  padding: 0.35rem;
-  border: 1px solid rgb(212 181 106 / 0.42);
-  border-radius: 0.65rem;
-  background: #17171d;
-  box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.45);
-}
-
-.my-cinema-shelf-filter-option {
-  width: 100%;
-  padding: 0.65rem 0.7rem;
-  border: 0;
-  border-radius: 0.4rem;
-  background: transparent;
-  color: var(--lobby-fg);
-  font: inherit;
-  font-size: 0.78rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.my-cinema-shelf-filter-option:hover,
-.my-cinema-shelf-filter-option[aria-selected='true'] {
-  background: rgb(212 181 106 / 0.14);
-  color: var(--lobby-gold);
 }
 
 .my-cinema-shelf-scroll {
@@ -1609,15 +1528,6 @@
     gap: 0.5rem;
   }
 
-  .my-cinema-shelf-filter-trigger {
-    min-height: 2.45rem;
-    padding-inline: 0.7rem;
-    font-size: 0.76rem;
-  }
-
-  .my-cinema-shelf-filter-option {
-    font-size: 0.76rem;
-  }
 }
 
 /* 선반 그리드 간격·열 수 보정 */
