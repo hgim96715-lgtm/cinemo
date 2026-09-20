@@ -27,6 +27,9 @@ import { PlacesModule } from './places/places.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PostcardModule } from './postcard/postcard.module';
 import { KobisModule } from './kobis/kobis.module';
+import { RegionModule } from './region/region.module';
+import { KakaoModule } from './kakao/kakao.module';
+import { CinemaModule } from './cinema/cinema.module';
 
 @Module({
   imports: [
@@ -61,6 +64,9 @@ import { KobisModule } from './kobis/kobis.module';
     PlacesModule,
     PostcardModule,
     KobisModule,
+    RegionModule,
+    KakaoModule,
+    CinemaModule,
   ],
   controllers: [AppController, AiController],
   providers: [AppService],

@@ -1065,6 +1065,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/regions/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 법정동 코드 동기화 */
+        post: operations["RegionController_syncRegions_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/regions/sync-regions-and-districts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 법정동 데이터를 Region·District로 동기화 */
+        post: operations["RegionController_syncRegionsAndDistricts_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/regions/legal-dongs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 법정동 지역 목록 조회 */
+        get: operations["RegionPublicController_findLegalDongAreas_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/regions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 지역 및 구·군 목록 조회 */
+        get: operations["RegionPublicController_findRegions_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kakao/places/cinemas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 지역별 영화관 검색
+         * @description 카카오 Local API를 사용해 입력한 지역의 영화관을 검색함
+         */
+        get: operations["KakaoPlaceController_searchCinemas_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kakao/places/cinemas/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 지역별 영화관 검색 결과 저장
+         * @description 카카오 장소 검색 결과를 Cinema 테이블에 저장하거나 갱신함
+         */
+        post: operations["KakaoPlaceController_syncCinemas_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cinemas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 지역별 저장 영화관 조회
+         * @description 외부 API를 호출하지 않고 DB에 저장된 영화관을 조회함
+         */
+        get: operations["CinemaController_findCinemas_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1502,6 +1630,197 @@ export interface components {
              * @example 😊
              */
             emoji: string;
+        };
+        LegalDongSyncResponseDto: {
+            /**
+             * @description 동기화된 법정동 데이터 수
+             * @example 20560
+             */
+            syncedCount: number;
+        };
+        RegionSyncResponseDto: {
+            /**
+             * @description 동기화된 광역지역 수
+             * @example 17
+             */
+            regionsCount: number;
+            /**
+             * @description 동기화된 구·군 수
+             * @example 250
+             */
+            districtsCount: number;
+        };
+        Object: Record<string, never>;
+        LegalDongAreaResponseDto: {
+            /**
+             * @description 10자리 법정동 코드
+             * @example 1100000000
+             */
+            regionCode: string;
+            /**
+             * @description 시도 코드
+             * @example 11
+             */
+            sidoCode: string;
+            /**
+             * @description 시군구 코드
+             * @example 110
+             */
+            sigunguCode: string;
+            /**
+             * @description 최하위 지역명
+             * @example 청운동
+             */
+            lowestName: string;
+            /**
+             * @description 법정동 전체 주소명
+             * @example 서울특별시 종로구 청운동
+             */
+            addressName: string;
+        };
+        DistrictResponseDto: {
+            /**
+             * @description 구·군 식별자
+             * @example uuid
+             */
+            id: string;
+            /**
+             * @description 구·군 이름
+             * @example 강남구
+             */
+            name: string;
+            /**
+             * @description 구·군 중심 위도
+             * @example 37.5172
+             */
+            centerLatitude: number | null;
+            /**
+             * @description 구·군 중심 경도
+             * @example 127.0473
+             */
+            centerLongitude: number | null;
+            /**
+             * @description 구·군 지도 확대 단계
+             * @example 13
+             */
+            zoom: number | null;
+            /**
+             * @description 구·군 전체 주소명
+             * @example 서울특별시 중구
+             */
+            addressName: string;
+        };
+        RegionResponseDto: {
+            /**
+             * @description 광역지역 식별자
+             * @example uuid
+             */
+            id: string;
+            /**
+             * @description 광역지역 이름
+             * @example 서울특별시
+             */
+            name: string;
+            /**
+             * @description 광역지역 중심 위도
+             * @example 37.5665
+             */
+            centerLatitude: number | null;
+            /**
+             * @description 광역지역 중심 경도
+             * @example 126.978
+             */
+            centerLongitude: number | null;
+            /**
+             * @description 광역지역 지도 확대 단계
+             * @example 11
+             */
+            zoom: number | null;
+            /** @description 해당 광역지역에 속한 구·군 목록 */
+            districts: components["schemas"]["DistrictResponseDto"][];
+            /**
+             * @description 광역지역 전체 주소명
+             * @example 서울특별시
+             */
+            addressName: string;
+        };
+        KakaoCinemaPlaceDto: {
+            /**
+             * @description 카카오 장소 고유 ID
+             * @example 123456789
+             */
+            kakaoId: string;
+            /**
+             * @description 영화관 이름
+             * @example CGV 강남
+             */
+            name: string;
+            /**
+             * @description 카카오 장소 카테고리
+             * @example 문화,예술 > 영화관
+             */
+            category: string;
+            /**
+             * @description 지번 주소
+             * @example 서울 강남구 역삼동 123
+             */
+            address: string;
+            /**
+             * @description 도로명 주소
+             * @example 서울 강남구 강남대로 438
+             */
+            roadAddress: Record<string, never> | null;
+            /**
+             * @description 카카오맵 장소 상세 페이지 URL
+             * @example https://place.map.kakao.com/123456789
+             */
+            placeUrl: Record<string, never> | null;
+            /**
+             * @description 경도
+             * @example 127.0276
+             */
+            longitude: number;
+            /**
+             * @description 위도
+             * @example 37.4979
+             */
+            latitude: number;
+        };
+        KakaoCinemaSyncResponseDto: {
+            /**
+             * @description 저장 또는 갱신된 영화관 수
+             * @example 12
+             */
+            syncedCount: number;
+        };
+        CinemaResponseDto: {
+            /** @description 영화관 DB ID */
+            id: string;
+            /** @description 카카오 장소 ID */
+            kakaoId: string;
+            /**
+             * @description 영화관 브랜드
+             * @example CGV
+             */
+            brand: string | null;
+            /** @description 영화관 이름 */
+            name: string;
+            /** @description 카카오 장소 카테고리 */
+            category: string | null;
+            /** @description 지번 주소 */
+            address: string;
+            /** @description 도로명 주소 */
+            roadAddress: string | null;
+            /** @description 카카오맵 장소 URL */
+            placeUrl: string | null;
+            /** @description 위도 */
+            latitude: number;
+            /** @description 경도 */
+            longitude: number;
+            /** @description Region ID */
+            regionId: string;
+            /** @description District ID */
+            districtId: string | null;
         };
     };
     responses: never;
@@ -2977,6 +3296,153 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    RegionController_syncRegions_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalDongSyncResponseDto"];
+                };
+            };
+        };
+    };
+    RegionController_syncRegionsAndDistricts_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegionSyncResponseDto"];
+                };
+            };
+        };
+    };
+    RegionPublicController_findLegalDongAreas_v1: {
+        parameters: {
+            query?: {
+                /** @description 시도 코드 */
+                sidoCode?: string;
+                /** @description 조회할 최대 개수 */
+                limit?: components["schemas"]["Object"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalDongAreaResponseDto"][];
+                };
+            };
+        };
+    };
+    RegionPublicController_findRegions_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegionResponseDto"][];
+                };
+            };
+        };
+    };
+    KakaoPlaceController_searchCinemas_v1: {
+        parameters: {
+            query: {
+                /** @description 영화관을 검색할 지역명 */
+                region: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KakaoCinemaPlaceDto"][];
+                };
+            };
+        };
+    };
+    KakaoPlaceController_syncCinemas_v1: {
+        parameters: {
+            query: {
+                /** @description 영화관을 검색할 지역명 */
+                region: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KakaoCinemaSyncResponseDto"];
+                };
+            };
+        };
+    };
+    CinemaController_findCinemas_v1: {
+        parameters: {
+            query: {
+                /** @description 조회할 Region 이름 */
+                region: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CinemaResponseDto"][];
+                };
             };
         };
     };

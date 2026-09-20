@@ -54,4 +54,6 @@ export const envValidationSchema = Joi.object({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
+
+  [EnvKeys.DATA_GO_KR_SERVICE_KEY]: Joi.string().trim().min(1).optional(),
 });

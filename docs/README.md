@@ -25,6 +25,7 @@ flowchart LR
   Cinema --> Watched[관람 기록·영화 달력]
   Cinema --> Postcard[POSTCARD]
   Postcard --> Community[공개 엽서·댓글]
+  Lobby --> CinemaMap[지역별 영화관 탐색]
 ```
 
 ## 먼저 읽을 문서
@@ -39,6 +40,7 @@ flowchart LR
 | CRUD·upsert·트랜잭션 기준 | [prisma/crud-and-transactions.md](./prisma/crud-and-transactions.md) |
 | API/Web 공통 코드     | [shared.md](./shared.md)                           |
 | 공통 UI·폰트 기준 | [common/typography.md](./common/typography.md) |
+| 공통 페이지 헤더·선택 UI | [common/page-header.md](./common/page-header.md), [common/select.md](./common/select.md) |
 | React Hook 사용 기준 | [web/react-hooks.md](./web/react-hooks.md) |
 | Web 폼 라이브러리 사용 기준 | [library/form-validation.md](./library/form-validation.md) |
 | 날짜·시간·영화 달력 기준 | [date/README.md](./date/README.md) |
@@ -47,6 +49,8 @@ flowchart LR
 | 로비 가이드            | [guide.md](./guide.md)                         |
 | 로비 전광판·개봉 예정  | [lobby/README.md](./lobby/README.md)           |
 | 외부 API·메일         | [external-api/README.md](./external-api/README.md) |
+| 법정동 코드 API         | [external-api/legal-dong-code.md](./external-api/legal-dong-code.md) |
+| 영화관 지도·카카오 수집 | [lobby/cinema-map.md](./lobby/cinema-map.md), [external-api/kakao.md](./external-api/kakao.md) |
 | AI Provider           | [ai/README.md](./ai/README.md)                 |
 | 소셜 로그인            | [social/README.md](./social/README.md)         |
 | 배포·Railway·Vercel | [deploy/README.md](./deploy/README.md)             |
@@ -68,6 +72,11 @@ docs/
 │   ├── board.md
 │   ├── moviechart.md
 │   └── upcoming.md
+├── common/
+│   ├── README.md
+│   ├── navigation.md
+│   ├── page-header.md
+│   └── select.md
 ├── external-api/
 ├── ai/
 │   ├── README.md
@@ -167,7 +176,7 @@ fetch·axios·React Query 등 실제 통신
 - 개봉일 알림: `MovieReleaseNotification` + GitHub Actions + React Email + Resend
 - 캘린더: 서버 iCalendar(`.ics`) 응답. 브라우저에서 Apple Calendar를 강제로 바로 여는 기능은 제공하지 않는다
 - 이미지: 포스터 원본을 저장하지 않고 TMDB 경로와 `tmdbId`를 사용
-- 문서: `docs/`에 현재 구조·기능·운영 기준을 기록하고 Git으로 함께 관리한다
+- 문서: `docs/`에 현재 구조·기능·운영 기준을 기록한다. `docs/`는 제품 코드 커밋 대상에서 제외한다
 
 
 
@@ -190,7 +199,6 @@ docs/prisma/
     ├── admin-login-log.md
     ├── admin-daily-stat.md
     ├── admin-hourly-stat.md
-    ├── movie-provider-override.md
     ├── lobby-guide.md
 ```
 

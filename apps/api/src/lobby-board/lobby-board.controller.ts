@@ -19,7 +19,6 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiTags,
-  ApiQuery,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiOperation,
@@ -66,7 +65,6 @@ export class LobbyBoardController {
 
   @Public()
   @Get('movie-chart/history')
-  @ApiQuery({ type: MovieChartHistoryQueryDto })
   @ApiOkResponse({ type: [MovieChartHistoryItemDto] })
   getMovieChartHistory(@Query() query: MovieChartHistoryQueryDto) {
     return this.movieChartSnapshotService.getSnapshots(query.from, query.to);
@@ -74,7 +72,6 @@ export class LobbyBoardController {
 
   @Public()
   @Get('movie-chart/stats')
-  @ApiQuery({ type: MovieChartHistoryQueryDto })
   @ApiOkResponse({ type: MovieChartStatsResponseDto })
   getMovieChartStats(@Query() query: MovieChartHistoryQueryDto) {
     return this.movieChartSnapshotService.getStats(query.from, query.to);

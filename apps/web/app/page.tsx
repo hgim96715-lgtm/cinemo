@@ -4,7 +4,7 @@ import { Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ADMIN_AVATAR } from '@cinemo/shared';
-import { CalendarClock, Clapperboard, Images } from 'lucide-react';
+import { CalendarClock, Clapperboard, Images, MapPinned } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import '@/styles/lobby.css';
 import '@/styles/avatar.css';
@@ -111,6 +111,25 @@ function HomeContent() {
             </span>
 
             <Images
+              className="lobby-feature-icon"
+              size={30}
+              strokeWidth={1.8}
+              aria-hidden
+            />
+          </Link>
+
+          <Link
+            href="/cinema-map"
+            className="lobby-feature-card lobby-feature-card--cinema-map"
+            aria-label="지역별 영화관 탐색"
+          >
+            <span className="lobby-feature-kicker">CINEMA MAP</span>
+            <strong>지역별 영화관 탐색</strong>
+            <span className="lobby-feature-description">
+              내 주변 영화관을 지도에서 찾아보세요
+            </span>
+
+            <MapPinned
               className="lobby-feature-icon"
               size={30}
               strokeWidth={1.8}

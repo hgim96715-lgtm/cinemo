@@ -142,6 +142,89 @@ model MoviePool {
     @@map("movie_pool")
 }
 
+model LegalDong {
+    id               String  @id @default(uuid(7)) @db.Uuid
+    regionCode       String  @unique @map("region_code")
+    sidoCode         String  @map("sido_code")
+    sigunguCode      String  @map("sigungu_code")
+    eupmyeondongCode String  @map("eupmyeondong_code")
+    riCode           String  @map("ri_code")
+    residentCode     String  @map("resident_code")
+    landCode         String  @map("land_code")
+    addressName      String  @map("address_name")
+    order            Int     @map("sort_order")
+    remark           String?
+    upperCode        String  @map("upper_code")
+    lowestName       String  @map("lowest_name")
+    effectiveDate    String? @map("effective_date")
+
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    @@index([sidoCode, sigunguCode])
+    @@map("legal_dongs")
+}
+
+// 영화관 지도
+model Region {
+    id              String     @id @default(uuid(7)) @db.Uuid
+    name            String     @unique
+    addressName     String     @map("address_name")
+    centerLatitude  Float?
+    centerLongitude Float?
+    zoom            Int?
+    districts       District[]
+    createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+    cinemas         Cinema[]
+
+    @@map("regions")
+}
+
+model District {
+    id              String   @id @default(uuid(7)) @db.Uuid
+    regionId        String   @map("region_id") @db.Uuid
+    name            String
+    addressName     String   @map("address_name")
+    centerLatitude  Float?
+    centerLongitude Float?
+    zoom            Int?
+    region          Region   @relation(fields: [regionId], references: [id], onDelete: Restrict)
+    cinemas         Cinema[]
+    createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    @@unique([regionId, name])
+    @@index([regionId])
+    @@map("districts")
+}
+
+model Cinema {
+    id          String   @id @default(uuid(7)) @db.Uuid
+    kakaoId     String   @unique @map("kakao_id")
+    regionId    String   @map("region_id") @db.Uuid
+    districtId  String?  @map("district_id") @db.Uuid
+    brand       String?
+    name        String
+    category    String?
+    address     String
+    roadAddress String?  @map("road_address")
+    placeUrl    String?  @map("place_url")
+    latitude    Float
+    longitude   Float
+    syncedAt    DateTime @default(now()) @map("synced_at") @db.Timestamptz(3)
+    createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+    updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+    region   Region    @relation(fields: [regionId], references: [id], onDelete: Restrict)
+    district District? @relation(fields: [districtId], references: [id], onDelete: Restrict)
+
+    @@index([regionId])
+    @@index([districtId])
+    @@index([brand])
+    @@map("cinemas")
+}
+
 model UserMovie {
     id                String                @id @default(uuid(7)) @db.Uuid
     userId            String                @map("user_id") @db.Uuid
@@ -337,10 +420,10 @@ model AdminLoginLog {
 }
 
 model AdminDailyStat {
-    date          DateTime @id @db.Date
-    visits        Int      @default(0)
-    logins        Int      @default(0)
-    updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+    date      DateTime @id @db.Date
+    visits    Int      @default(0)
+    logins    Int      @default(0)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
     @@map("admin_daily_stats")
 }

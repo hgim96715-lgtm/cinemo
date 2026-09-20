@@ -48,4 +48,6 @@ export const EnvKeys = {
 
   RESEND_API_KEY: 'RESEND_API_KEY',
   RESEND_FROM: 'RESEND_FROM',
+
+  DATA_GO_KR_SERVICE_KEY: 'DATA_GO_KR_SERVICE_KEY',
 } as const;
