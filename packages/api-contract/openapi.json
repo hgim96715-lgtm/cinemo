@@ -2291,6 +2291,27 @@
           "cinemas"
         ]
       }
+    },
+    "/v1/cinemas/analysis": {
+      "get": {
+        "operationId": "CinemaController_findCinemaAnalysis_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CinemaAnalysisResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "cinemas"
+        ]
+      }
     }
   },
   "info": {
@@ -3681,6 +3702,49 @@
           "page",
           "pageSize",
           "totalPages"
+        ]
+      },
+      "CinemaAnalysisItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "서울특별시"
+          },
+          "count": {
+            "type": "number",
+            "example": 51
+          }
+        },
+        "required": [
+          "name",
+          "count"
+        ]
+      },
+      "CinemaAnalysisResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "example": 250
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CinemaAnalysisItemDto"
+            }
+          },
+          "brands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CinemaAnalysisItemDto"
+            }
+          }
+        },
+        "required": [
+          "totalCount",
+          "regions",
+          "brands"
         ]
       }
     }

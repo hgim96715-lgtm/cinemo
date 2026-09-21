@@ -86,14 +86,134 @@
   text-align: center;
 }
 
+.cinema-analysis-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  text-align: left;
+}
+
+.cinema-analysis-kicker {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--cinemo-gold);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
 .cinema-map-analysis-panel h2 {
   margin: 0;
   color: var(--cinemo-fg);
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  line-height: 1.2;
 }
 
-.cinema-map-analysis-panel p {
+.cinema-analysis-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgb(212 181 106 / 35%);
+  border-radius: 0.8rem;
+  background: rgb(212 181 106 / 8%);
+  color: var(--cinemo-muted);
+  font-size: 0.8rem;
+}
+
+.cinema-analysis-total strong {
+  color: var(--cinemo-gold);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.cinema-analysis-status {
   margin: 0.75rem 0 0;
   color: var(--cinemo-muted);
+}
+
+.cinema-analysis-charts {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.cinema-analysis-chart-card {
+  padding: 1rem;
+  border: 1px solid rgb(212 181 106 / 25%);
+  border-radius: 1rem;
+  background: #111216;
+  text-align: left;
+}
+
+.cinema-analysis-chart-card h3 {
+  margin: 0 0 1rem;
+  color: var(--cinemo-fg);
+  font-size: 1rem;
+}
+
+.cinema-analysis-chart {
+  width: 100%;
+  height: 24rem;
+}
+
+.cinema-analysis-chart svg text {
+  font-family: inherit;
+}
+
+.cinema-analysis-chart svg line,
+.cinema-analysis-chart svg path[fill='none'] {
+  stroke: rgb(212 181 106 / 22%);
+}
+
+.cinema-analysis-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgb(212 181 106 / 55%);
+  border-radius: 0.65rem;
+  color: var(--cinemo-fg);
+  background: #17181c;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 35%);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.cinema-analysis-tooltip strong {
+  color: var(--cinemo-gold);
+  font-weight: 700;
+}
+
+.cinema-analysis-tooltip span:last-child {
+  color: var(--cinemo-fg);
+  font-weight: 600;
+}
+
+.cinema-analysis-tooltip-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+@media (max-width: 560px) {
+  .cinema-map-analysis-panel {
+    padding: 1.25rem;
+  }
+
+  .cinema-analysis-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cinema-analysis-total {
+    align-self: stretch;
+    justify-content: center;
+  }
 }
 
 .cinema-map-layout {

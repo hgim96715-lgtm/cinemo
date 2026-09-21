@@ -16,12 +16,18 @@ import { CinemoSelect } from '@/components/common/CinemoSelect';
 import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import type {
+  CinemaAnalysisResponse,
   CinemaPageResponse,
   CinemaResponse,
   RegionResponse,
 } from '@cinemo/api-contract';
 import { getRegionsRequest } from '@/lib/region-api';
-import { getCinemasRequest, searchCinemasRequest } from '@/lib/cinema-api';
+import {
+  getCinemaAnalysisRequest,
+  getCinemasRequest,
+  searchCinemasRequest,
+} from '@/lib/cinema-api';
+import { CinemaAnalysisCharts } from './CinemaAnalysisCharts';
 
 const CINEMA_PAGE_SIZE = 20;
 
@@ -57,6 +63,23 @@ export default function CinemaMapPage() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [cinemaPage, setCinemaPage] = useState<CinemaPageResponse | null>(null);
   const [cinemaPageNumber, setCinemaPageNumber] = useState(1);
+  const [analysis, setAnalysis] = useState<CinemaAnalysisResponse | null>(null);
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+  const selectedTab =
+    searchParams.get('tab') === 'analysis' ? 'analysis' : 'map';
+
+  const handleTabChange = (value: string) => {
+    if (value === selectedTab) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', value);
+
+    router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -90,6 +113,44 @@ export default function CinemaMapPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedTab !== 'analysis' || analysis) {
+      return;
+    }
+    let cancelled = false;
+
+    async function loadAnalysis() {
+      setIsAnalysisLoading(true);
+      setAnalysisError(null);
+
+      try {
+        const response = await getCinemaAnalysisRequest();
+
+        if (!cancelled) {
+          setAnalysis(response);
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setAnalysisError(
+            error instanceof Error
+              ? error.message
+              : '영화관 분석을 불러오지 못했어요.',
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setIsAnalysisLoading(false);
+        }
+      }
+    }
+
+    void loadAnalysis();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTab, analysis]);
 
   useEffect(() => {
     let cancelled = false;
@@ -177,19 +238,6 @@ export default function CinemaMapPage() {
     };
   }, [cinemaSearchQuery]);
 
-  const selectedTab =
-    searchParams.get('tab') === 'analysis' ? 'analysis' : 'map';
-
-  const handleTabChange = (value: string) => {
-    if (value === selectedTab) return;
-
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('tab', value);
-
-    router.replace(`${pathname}?${params.toString()}`, {
-      scroll: false,
-    });
-  };
   const selectedRegionTitle = selectedRegion || '전체 지역';
   const regionOptions = [
     { value: '', label: '전체 지역' },
@@ -457,8 +505,32 @@ export default function CinemaMapPage() {
 
         <Tabs.Content className="cinema-map-tab-panel" value="analysis">
           <section className="cinema-map-analysis-panel">
-            <h2>영화관 분석</h2>
-            <p>지역별·브랜드별 영화관 분석을 준비 중이에요.</p>
+            <div className="cinema-analysis-heading">
+              <div>
+                <span className="cinema-analysis-kicker">OVERVIEW</span>
+                <h2>영화관 분석</h2>
+              </div>
+
+              {analysis ? (
+                <div className="cinema-analysis-total">
+                  <span>전체 영화관</span>
+                  <strong>{analysis.totalCount.toLocaleString()}</strong>
+                  <span>개</span>
+                </div>
+              ) : null}
+            </div>
+
+            {isAnalysisLoading ? (
+              <p className="cinema-analysis-status" role="status">
+                분석 데이터를 불러오는 중...
+              </p>
+            ) : analysisError ? (
+              <p className="cinema-analysis-status" role="alert">
+                {analysisError}
+              </p>
+            ) : analysis ? (
+              <CinemaAnalysisCharts analysis={analysis} />
+            ) : null}
           </section>
         </Tabs.Content>
       </Tabs.Root>

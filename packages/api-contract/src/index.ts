@@ -41,3 +41,6 @@ export type RegionSyncResponse = components["schemas"]["RegionSyncResponseDto"];
 export type RegionResponse = components["schemas"]["RegionResponseDto"];
 
 export type CinemaPageResponse = components["schemas"]["CinemaPageResponseDto"];
+
+export type CinemaAnalysisResponse =
+  components["schemas"]["CinemaAnalysisResponseDto"];

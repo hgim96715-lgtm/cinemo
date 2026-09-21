@@ -6,6 +6,7 @@ import { CinemaResponseDto } from './dto/cinema-response.dto';
 import { CinemaService } from './cinema.service';
 import { CinemaSearchQueryDto } from './dto/cinema-search-query.dto';
 import { CinemaPageResponseDto } from './dto/cinema-page-response.dto';
+import { CinemaAnalysisResponseDto } from './dto/cinema-analysis-response.dto';
 
 @ApiTags('cinemas')
 @Public()
@@ -36,5 +37,11 @@ export class CinemaController {
   @ApiOkResponse({ type: [CinemaResponseDto] })
   searchCinemas(@Query() query: CinemaSearchQueryDto) {
     return this.cinemaService.searchCinemas(query.query);
+  }
+
+  @Get('analysis')
+  @ApiOkResponse({ type: CinemaAnalysisResponseDto })
+  findCinemaAnalysis(): Promise<CinemaAnalysisResponseDto> {
+    return this.cinemaService.findCinemaAnalysis();
   }
 }

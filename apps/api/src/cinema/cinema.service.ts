@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CinemaPageResponseDto } from './dto/cinema-page-response.dto';
+import { CinemaAnalysisResponseDto } from './dto/cinema-analysis-response.dto';
 
 @Injectable()
 export class CinemaService {
@@ -92,5 +93,63 @@ export class CinemaService {
         name: 'asc',
       },
     });
+  }
+  async findCinemaAnalysis(): Promise<CinemaAnalysisResponseDto> {
+    const [totalCount, regionGroups, brandGroups] = await Promise.all([
+      this.prisma.cinema.count(),
+      this.prisma.cinema.groupBy({
+        by: ['regionId'],
+        _count: {
+          _all: true,
+        },
+      }),
+      this.prisma.cinema.groupBy({
+        by: ['brand'],
+        _count: {
+          _all: true,
+        },
+      }),
+    ]);
+    const regionRecords = await this.prisma.region.findMany({
+      where: {
+        id: {
+          in: regionGroups.map((group) => group.regionId),
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+    const regionNameById = new Map(
+      regionRecords.map((region) => [region.id, region.name]),
+    );
+
+    const regions = regionGroups
+      .map((group) => ({
+        name: regionNameById.get(group.regionId) ?? '알 수 없음',
+        count: group._count._all,
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const brands = Object.entries(
+      brandGroups.reduce<Record<string, number>>((counts, group) => {
+        const brandName =
+          group.brand?.trim() && group.brand !== '영화관'
+            ? group.brand
+            : '기타';
+
+        counts[brandName] = (counts[brandName] ?? 0) + group._count._all;
+
+        return counts;
+      }, {}),
+    )
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+    return {
+      totalCount,
+      regions,
+      brands,
+    };
   }
 }

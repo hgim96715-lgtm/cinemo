@@ -1,7 +1,9 @@
-import type { CinemaPageResponse, CinemaResponse } from '@cinemo/api-contract';
+import type {
+  CinemaAnalysisResponse,
+  CinemaPageResponse,
+  CinemaResponse,
+} from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
-
-// apps/web/lib/cinema-api.ts
 
 export function getCinemasRequest(region?: string, page = 1, pageSize = 20) {
   const params = new URLSearchParams({
@@ -20,4 +22,8 @@ export function searchCinemasRequest(query: string) {
   const params = new URLSearchParams({ query });
 
   return apiFetch<CinemaResponse[]>(`/cinemas/search?${params.toString()}`);
+}
+
+export function getCinemaAnalysisRequest() {
+  return apiFetch<CinemaAnalysisResponse>('/cinemas/analysis');
 }
