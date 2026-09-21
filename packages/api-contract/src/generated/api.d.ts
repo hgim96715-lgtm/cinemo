@@ -1181,10 +1181,30 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 지역별 저장 영화관 조회
-         * @description 외부 API를 호출하지 않고 DB에 저장된 영화관을 조회함
+         * 영화관 조회
+         * @description region이 있으면 해당 지역의 영화관을 조회하고, 없으면 전체 영화관을 조회함
          */
         get: operations["CinemaController_findCinemas_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cinemas/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 전국 영화관 검색
+         * @description 이름·브랜드·주소 기준으로 DB의 영화관을 검색함
+         */
+        get: operations["CinemaController_searchCinemas_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1821,6 +1841,30 @@ export interface components {
             regionId: string;
             /** @description District ID */
             districtId: string | null;
+        };
+        CinemaPageResponseDto: {
+            /** @description 현재 페이지의 영화관 목록 */
+            items: components["schemas"]["CinemaResponseDto"][];
+            /**
+             * @description 전체 영화관 수
+             * @example 140
+             */
+            totalCount: number;
+            /**
+             * @description 현재 페이지 번호
+             * @example 1
+             */
+            page: number;
+            /**
+             * @description 페이지당 영화관 수
+             * @example 20
+             */
+            pageSize: number;
+            /**
+             * @description 전체 페이지 수
+             * @example 7
+             */
+            totalPages: number;
         };
     };
     responses: never;
@@ -3426,9 +3470,35 @@ export interface operations {
     };
     CinemaController_findCinemas_v1: {
         parameters: {
+            query?: {
+                /** @description 지역명. 없으면 전체 지역을 조회함 */
+                region?: string;
+                /** @description 페이지 번호 */
+                page?: components["schemas"]["Object"];
+                /** @description 페이지당 영화관 수 */
+                pageSize?: components["schemas"]["Object"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CinemaPageResponseDto"];
+                };
+            };
+        };
+    };
+    CinemaController_searchCinemas_v1: {
+        parameters: {
             query: {
-                /** @description 조회할 Region 이름 */
-                region: string;
+                /** @description 전국 영화관 검색어 */
+                query: string;
             };
             header?: never;
             path?: never;

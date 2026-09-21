@@ -1,11 +1,8 @@
 'use client';
 
-// Leaflet은 DOM을 직접 관리하므로 개발 중 Fast Refresh에서 이전 지도 인스턴스를 재사용하지 않음.
-// @refresh reset
-
 import L from 'leaflet';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { useEffect, useRef } from 'react';
 import type { CinemaMapCinema } from './cinema-map-data';
 
@@ -35,30 +32,14 @@ function MoveMap({ center, zoom, cinemas, isLoading }: CinemaMapViewProps) {
 
   useEffect(() => {
     const container = map.getContainer();
-    const resizeObserver = new ResizeObserver(() => {
-      if (container.isConnected) {
-        map.invalidateSize({ pan: false });
-      }
-    });
-
-    resizeObserver.observe(container);
-
     const frameId = window.requestAnimationFrame(() => {
       if (container.isConnected) {
-        map.invalidateSize({ pan: false });
+        map.invalidateSize({ animate: false, pan: false });
       }
     });
-
-    const timeoutId = window.setTimeout(() => {
-      if (container.isConnected) {
-        map.invalidateSize({ pan: false });
-      }
-    }, 100);
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.clearTimeout(timeoutId);
-      resizeObserver.disconnect();
     };
   }, [map]);
 
@@ -135,19 +116,21 @@ export function CinemaMapCanvas({
         }
       />
 
-      {cinemas.map((cinema) => (
-        <Marker
-          key={cinema.id}
-          position={cinema.position}
-          icon={cinemaMarkerIcon}
-        >
-          <Popup>
-            <strong>{cinema.name}</strong>
-            <br />
-            {cinema.address}
-          </Popup>
-        </Marker>
-      ))}
+      <MarkerClusterGroup chunkedLoading>
+        {cinemas.map((cinema) => (
+          <Marker
+            key={cinema.id}
+            position={cinema.position}
+            icon={cinemaMarkerIcon}
+          >
+            <Popup>
+              <strong>{cinema.name}</strong>
+              <br />
+              {cinema.address}
+            </Popup>
+          </Marker>
+        ))}
+      </MarkerClusterGroup>
     </MapContainer>
   );
 }

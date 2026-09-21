@@ -18,9 +18,7 @@ import {
   toKstDate,
 } from '../lib/date-kst';
 
-type CountField =
-  | 'visits'
-  | 'logins';
+type CountField = 'visits' | 'logins';
 
 @Injectable()
 export class AdminService {

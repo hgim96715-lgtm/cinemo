@@ -9,6 +9,7 @@ import { KakaoCinemaPlaceDto } from './dto/kakao-cinema-place.dto';
 import { KakaoPlaceResponseDto } from './dto/kakao-place-response.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { REGION_ALIASES } from './constants/region-aliases';
+import { CINEMA_SEARCH_TERMS } from './constants/cinema-search-terms';
 
 @Injectable()
 export class KakaoPlaceService {
@@ -107,22 +108,28 @@ export class KakaoPlaceService {
 
     const aliases = REGION_ALIASES[region.name] ?? [region.name];
     const cinemaMap = new Map<string, KakaoCinemaPlaceDto>();
-    for (const district of region.districts) {
-      const searchResults = await this.searchCinemasByRegion(
-        district.addressName,
-      );
-      for (const cinema of searchResults) {
-        const addresses = [cinema.address, cinema.roadAddress]
-          .filter(Boolean)
-          .map((address) => address!.trim());
 
-        const isSameRegion = addresses.some((addresses) =>
-          aliases.some((aliases) => addresses.startsWith(aliases)),
-        );
-        if (!isSameRegion) {
-          continue;
+    for (const district of region.districts) {
+      for (const searchTerm of CINEMA_SEARCH_TERMS) {
+        const searchRegion = searchTerm
+          ? `${district.addressName} ${searchTerm}`
+          : district.addressName;
+
+        const searchResults = await this.searchCinemasByRegion(searchRegion);
+
+        for (const cinema of searchResults) {
+          const addresses = [cinema.address, cinema.roadAddress]
+            .filter(Boolean)
+            .map((address) => address!.trim());
+
+          const isSameRegion = addresses.some((address) =>
+            aliases.some((alias) => address.startsWith(alias)),
+          );
+
+          if (isSameRegion) {
+            cinemaMap.set(cinema.kakaoId, cinema);
+          }
         }
-        cinemaMap.set(cinema.kakaoId, cinema);
       }
     }
     const cinemas = [...cinemaMap.values()];
@@ -133,51 +140,54 @@ export class KakaoPlaceService {
 
     const kakaoIds = cinemas.map((cinema) => cinema.kakaoId);
 
-    await this.prisma.$transaction([
-      this.prisma.cinema.deleteMany({
-        where: {
-          regionId: region.id,
-          kakaoId: {
-            notIn: kakaoIds,
-          },
-        },
-      }),
-
-      ...cinemas.map((cinema) =>
-        this.prisma.cinema.upsert({
+    await this.prisma.$transaction(
+      [
+        this.prisma.cinema.deleteMany({
           where: {
-            kakaoId: cinema.kakaoId,
-          },
-          create: {
-            kakaoId: cinema.kakaoId,
             regionId: region.id,
-            districtId: null,
-            brand: cinema.category.split('>').at(-1)?.trim() || null,
-            name: cinema.name,
-            category: cinema.category,
-            address: cinema.address,
-            roadAddress: cinema.roadAddress,
-            placeUrl: cinema.placeUrl,
-            latitude: cinema.latitude,
-            longitude: cinema.longitude,
-          },
-          update: {
-            regionId: region.id,
-            brand: cinema.category.split('>').at(-1)?.trim() || null,
-            name: cinema.name,
-            category: cinema.category,
-            address: cinema.address,
-            roadAddress: cinema.roadAddress,
-            placeUrl: cinema.placeUrl,
-            latitude: cinema.latitude,
-            longitude: cinema.longitude,
-            syncedAt: new Date(),
+            kakaoId: {
+              notIn: kakaoIds,
+            },
           },
         }),
-      ),
-    ], {
-      timeout: 30_000,
-    });
+
+        ...cinemas.map((cinema) =>
+          this.prisma.cinema.upsert({
+            where: {
+              kakaoId: cinema.kakaoId,
+            },
+            create: {
+              kakaoId: cinema.kakaoId,
+              regionId: region.id,
+              districtId: null,
+              brand: cinema.category.split('>').at(-1)?.trim() || null,
+              name: cinema.name,
+              category: cinema.category,
+              address: cinema.address,
+              roadAddress: cinema.roadAddress,
+              placeUrl: cinema.placeUrl,
+              latitude: cinema.latitude,
+              longitude: cinema.longitude,
+            },
+            update: {
+              regionId: region.id,
+              brand: cinema.category.split('>').at(-1)?.trim() || null,
+              name: cinema.name,
+              category: cinema.category,
+              address: cinema.address,
+              roadAddress: cinema.roadAddress,
+              placeUrl: cinema.placeUrl,
+              latitude: cinema.latitude,
+              longitude: cinema.longitude,
+              syncedAt: new Date(),
+            },
+          }),
+        ),
+      ],
+      {
+        timeout: 30_000,
+      },
+    );
     return cinemas.length;
   }
 }

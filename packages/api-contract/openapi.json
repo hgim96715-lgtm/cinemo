@@ -2180,6 +2180,11 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "summary": "지역별 영화관 검색 결과 저장",
         "tags": [
           "kakao-places"
@@ -2188,16 +2193,80 @@
     },
     "/v1/cinemas": {
       "get": {
-        "description": "외부 API를 호출하지 않고 DB에 저장된 영화관을 조회함",
+        "description": "region이 있으면 해당 지역의 영화관을 조회하고, 없으면 전체 영화관을 조회함",
         "operationId": "CinemaController_findCinemas_v1",
         "parameters": [
           {
             "name": "region",
-            "required": true,
+            "required": false,
             "in": "query",
-            "description": "조회할 Region 이름",
+            "description": "지역명. 없으면 전체 지역을 조회함",
             "schema": {
               "example": "서울특별시",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "페이지 번호",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "페이지당 영화관 수",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CinemaPageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "영화관 조회",
+        "tags": [
+          "cinemas"
+        ]
+      }
+    },
+    "/v1/cinemas/search": {
+      "get": {
+        "description": "이름·브랜드·주소 기준으로 DB의 영화관을 검색함",
+        "operationId": "CinemaController_searchCinemas_v1",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "전국 영화관 검색어",
+            "schema": {
+              "example": "메가박스 이수",
               "type": "string"
             }
           }
@@ -2217,7 +2286,7 @@
             }
           }
         },
-        "summary": "지역별 저장 영화관 조회",
+        "summary": "전국 영화관 검색",
         "tags": [
           "cinemas"
         ]
@@ -3573,6 +3642,45 @@
           "longitude",
           "regionId",
           "districtId"
+        ]
+      },
+      "CinemaPageResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "현재 페이지의 영화관 목록",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CinemaResponseDto"
+            }
+          },
+          "totalCount": {
+            "type": "number",
+            "example": 140,
+            "description": "전체 영화관 수"
+          },
+          "page": {
+            "type": "number",
+            "example": 1,
+            "description": "현재 페이지 번호"
+          },
+          "pageSize": {
+            "type": "number",
+            "example": 20,
+            "description": "페이지당 영화관 수"
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 7,
+            "description": "전체 페이지 수"
+          }
+        },
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
         ]
       }
     }

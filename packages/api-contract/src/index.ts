@@ -39,3 +39,5 @@ export type LegalDongArea = components["schemas"]["LegalDongAreaResponseDto"];
 export type RegionSyncResponse = components["schemas"]["RegionSyncResponseDto"];
 
 export type RegionResponse = components["schemas"]["RegionResponseDto"];
+
+export type CinemaPageResponse = components["schemas"]["CinemaPageResponseDto"];
