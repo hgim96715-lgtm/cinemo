@@ -6,7 +6,11 @@
     "dev": "next dev --webpack -p 3051",
     "build": "pnpm --filter @cinemo/shared build && next build --webpack",
     "start": "next start -p 3051",
-    "lint": "eslint"
+    "lint": "eslint",
+    "demo:traffic": "playwright test --config playwright.demo.config.ts",
+    "test:e2e": "playwright test --config playwright.demo.config.ts",
+    "test:demo": "playwright test --config playwright.demo.config.ts",
+    "test:ui": "playwright test --config playwright.demo.config.ts --ui"
   },
   "dependencies": {
     "@cinemo/api-contract": "workspace:*",
@@ -33,6 +37,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^20",

@@ -1,0 +1,45 @@
+name: CINEMO Demo Browser Traffic
+
+on:
+  schedule:
+    # UTC 기준: 한국 시간 09:00, 12:30, 18:30, 22:00
+    - cron: '0 0 * * *'
+    - cron: '30 3 * * *'
+    - cron: '30 9 * * *'
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: cinemo-demo-browser-traffic
+  cancel-in-progress: false
+
+jobs:
+  visit-public-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v4
+
+      - name: pnpm 설정
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: 의존성 설치
+        run: pnpm install --frozen-lockfile
+
+      - name: Playwright 브라우저 설치
+        run: pnpm --filter web exec playwright install --with-deps chromium webkit
+
+      - name: 공개 Demo 사용자 흐름 실행
+        run: pnpm --filter web test:demo
+        env:
+          DEMO_BASE_URL: https://cinemo-six.vercel.app
