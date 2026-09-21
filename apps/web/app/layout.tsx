@@ -11,6 +11,7 @@ import './globals.css';
 import { AuthBootstrap } from '@/components/auth/AuthBootstrap';
 
 import { Nanum_Pen_Script } from 'next/font/google';
+import { QueryProvider } from '@/components/providers/QueryProvider';
 
 const nanumPen = Nanum_Pen_Script({
   variable: '--font-nanum-pen',
@@ -58,7 +59,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${notoSerifKr.variable} ${notoSansKr.variable} ${nanumPen.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <AuthBootstrap>{children}</AuthBootstrap>
+        <QueryProvider>
+          <AuthBootstrap>{children}</AuthBootstrap>
+        </QueryProvider>
+
         <Script id="beusable-rum" strategy="afterInteractive">
           {`(function(w, d, a){
   w.__beusablerumclient__ = {

@@ -1,223 +1,299 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useForm, useWatch, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
-import {
-  checkEmailRequest,
-  checkNicknameRequest,
-  registerRequest,
-} from '@/lib/auth-api';
-import { useAvailabilityCheck } from '@/hooks/useAvailabilityCheck';
+import { registerRequest } from '@/lib/auth-api';
 import { useGuideStore } from '@/lib/guide-store';
+import {
+  useEmailAvailability,
+  useNicknameAvailability,
+} from './useAvailabilityQuery';
+import type { AvailabilityStatus } from './useAvailabilityQuery';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const registerSchema = z
+  .object({
+    email: z.email({
+      error: '이메일 형식을 확인해 주세요.',
+    }),
+    nickname: z
+      .string()
+      .min(2, {
+        error: '닉네임은 2자 이상이어야 합니다.',
+      })
+      .max(20, {
+        error: '닉네임은 20자 이하이어야 합니다.',
+      }),
+    password: z.string().min(8, {
+      error: '비밀번호는 8자 이상이어야 합니다.',
+    }),
+    passwordConfirm: z.string().min(8, {
+      error: '비밀번호를 다시 입력해 주세요.',
+    }),
+  })
+  .refine((values) => values.password === values.passwordConfirm, {
+    path: ['passwordConfirm'],
+    error: '비밀번호가 일치하지 않습니다.',
+  });
 
-function isValidEmail(value: string) {
-  return EMAIL_RE.test(value);
-}
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
-function isValidNickname(value: string) {
-  return value.length >= 2 && value.length <= 20;
-}
+function AvailabilityMessage({
+  status,
+}: {
+  status: AvailabilityStatus;
+}): ReactNode {
+  switch (status) {
+    case 'checking':
+      return <span className="auth-hint">확인 중…</span>;
 
-function passwordRules(password: string) {
-  return {
-    minLength: password.length >= 8,
-  };
+    case 'available':
+      return (
+        <span className="auth-hint auth-hint--ok">사용 가능한 값입니다.</span>
+      );
+
+    case 'unavailable':
+      return (
+        <span className="auth-hint auth-hint--danger">이미 사용 중입니다.</span>
+      );
+
+    case 'validationError':
+      return (
+        <span className="auth-hint auth-hint--danger">
+          입력 형식을 확인해 주세요.
+        </span>
+      );
+
+    case 'error':
+      return (
+        <span className="auth-hint auth-hint--danger">
+          중복 확인에 실패했습니다.
+        </span>
+      );
+
+    default:
+      return null;
+  }
 }
 
 export default function RegisterPage() {
   const router = useRouter();
   const setSession = useAuthStore((state) => state.setSession);
-  const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const emailStatus = useAvailabilityCheck({
-    value: email,
-    validate: isValidEmail,
-    check: checkEmailRequest,
-  });
-  const [nickname, setNickname] = useState('');
-  const nicknameStatus = useAvailabilityCheck({
-    value: nickname,
-    validate: isValidNickname,
-    check: checkNicknameRequest,
-  });
-  const [password, setPassword] = useState('');
+  const requestGuide = useGuideStore((state) => state.requestGuide);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const requestGuide = useGuideStore((s) => s.requestGuide);
 
-  const rules = passwordRules(password);
+  const {
+    register: registerField,
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      email: '',
+      nickname: '',
+      password: '',
+      passwordConfirm: '',
+    },
+  });
 
-  async function register(formData: FormData) {
-    setError(null);
-    const passwordConfirm = formData.get('passwordConfirm');
+  const email = useWatch({
+    control,
+    name: 'email',
+    defaultValue: '',
+  });
 
-    if (nicknameStatus === 'taken' || nicknameStatus === 'invalid') {
-      setError('닉네임을 확인해 주세요');
+  const nickname = useWatch({
+    control,
+    name: 'nickname',
+    defaultValue: '',
+  });
+
+  const password = useWatch({
+    control,
+    name: 'password',
+    defaultValue: '',
+  });
+
+  const emailAvailability = useEmailAvailability(email);
+  const nicknameAvailability = useNicknameAvailability(nickname);
+
+  const handleRegister: SubmitHandler<RegisterFormValues> = async (values) => {
+    if (emailAvailability.status !== 'available') {
+      setError('root.server', {
+        message: '이메일 중복 확인을 완료해 주세요.',
+      });
       return;
     }
-    if (typeof passwordConfirm !== 'string') {
-      setError('입력을 확인해 주세요');
+
+    if (nicknameAvailability.status !== 'available') {
+      setError('root.server', {
+        message: '닉네임 중복 확인을 완료해 주세요.',
+      });
       return;
     }
-    if (emailStatus !== 'ok' || nicknameStatus !== 'ok') {
-      setError('이메일과 닉네임을 확인해 주세요');
-      return;
-    }
-    if (!rules.minLength) {
-      setError('비밀번호는 8자 이상이어야 합니다.');
-      return;
-    }
-    if (password !== passwordConfirm) {
-      setError('비밀번호가 일치하지 않습니다.');
-      return;
-    }
+
     try {
-      const data = await registerRequest(email, password, nickname);
+      const data = await registerRequest(
+        values.email,
+        values.password,
+        values.nickname,
+      );
+
       setSession(data.accessToken, data.user);
       requestGuide();
       router.push('/');
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : '회원가입에 실패했습니다.',
-      );
+    } catch (error: unknown) {
+      setError('root.server', {
+        message:
+          error instanceof Error ? error.message : '회원가입에 실패했습니다.',
+      });
     }
-  }
+  };
 
   return (
     <>
       <h1 className="auth-title">Join</h1>
-      {error ? (
+
+      {errors.root?.server ? (
         <p className="auth-error" role="alert">
-          {error}
+          {errors.root.server.message}
         </p>
       ) : null}
-      <form className="auth-form" action={register}>
+
+      <form
+        className="auth-form"
+        onSubmit={handleSubmit(handleRegister)}
+        noValidate
+      >
         <label className="auth-field">
           <span className="auth-label">
             이메일 <span className="auth-req">*</span>
           </span>
+
           <input
-            name="email"
             type="email"
             autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="cinemo@example.com"
+            {...registerField('email')}
           />
-          {emailStatus === 'checking' ? (
-            <span className="auth-hint">확인 중…</span>
-          ) : null}
-          {emailStatus === 'taken' ? (
+
+          {errors.email ? (
             <span className="auth-hint auth-hint--danger">
-              이미 사용중인 이메일입니다.
+              {errors.email.message}
             </span>
-          ) : null}
-          {emailStatus === 'ok' ? (
-            <span className="auth-hint auth-hint--ok">
-              사용 가능한 이메일입니다.
-            </span>
-          ) : null}
-          {emailStatus === 'invalid' ? (
-            <span className="auth-hint auth-hint--danger">
-              이메일 형식을 확인해 주세요.
-            </span>
-          ) : null}
+          ) : (
+            <AvailabilityMessage status={emailAvailability.status} />
+          )}
         </label>
+
         <label className="auth-field">
           <span className="auth-label">
             닉네임 <span className="auth-req">*</span>
           </span>
+
           <input
-            name="nickname"
             type="text"
             autoComplete="nickname"
-            required
-            minLength={2}
-            maxLength={20}
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
+            placeholder="닉네임을 입력하세요"
+            {...registerField('nickname')}
           />
-          {nicknameStatus === 'checking' ? (
-            <span className="auth-hint">확인 중…</span>
-          ) : null}
-          {nicknameStatus === 'taken' ? (
+
+          {errors.nickname ? (
             <span className="auth-hint auth-hint--danger">
-              이미 사용중인 닉네임입니다.
+              {errors.nickname.message}
             </span>
-          ) : null}
-          {nicknameStatus === 'ok' ? (
-            <span className="auth-hint auth-hint--ok">
-              사용 가능한 닉네임입니다.
-            </span>
-          ) : null}
-          {nicknameStatus === 'invalid' ? (
-            <span className="auth-hint auth-hint--danger">
-              닉네임은 2~20자여야 합니다.
-            </span>
-          ) : null}
+          ) : (
+            <AvailabilityMessage status={nicknameAvailability.status} />
+          )}
         </label>
+
         <div className="auth-field">
           <span className="auth-label">
             비밀번호 <span className="auth-req">*</span>
             <span
-              className={`auth-rule-inline${rules.minLength ? ' is-ok' : ''}`}
+              className={`auth-rule-inline${
+                password.length >= 8 ? ' is-ok' : ''
+              }`}
             >
               8자 이상
             </span>
           </span>
+
           <div className="auth-password-row">
             <input
-              name="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="8자 이상 입력하세요"
+              {...registerField('password')}
             />
+
             <button
               type="button"
               className="auth-eye"
               aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
-              onClick={() => setShowPassword((v) => !v)}
+              onClick={() => setShowPassword((visible) => !visible)}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+
+          {errors.password ? (
+            <span className="auth-hint auth-hint--danger">
+              {errors.password.message}
+            </span>
+          ) : null}
         </div>
+
         <div className="auth-field">
           <span className="auth-label">
             비밀번호 확인 <span className="auth-req">*</span>
           </span>
+
           <div className="auth-password-row">
             <input
-              name="passwordConfirm"
               type={showPasswordConfirm ? 'text' : 'password'}
               autoComplete="new-password"
-              required
-              minLength={8}
+              placeholder="비밀번호를 다시 입력하세요"
+              {...registerField('passwordConfirm')}
             />
+
             <button
               type="button"
               className="auth-eye"
               aria-label={
-                showPasswordConfirm ? '비밀번호 숨기기' : '비밀번호 보기'
+                showPasswordConfirm
+                  ? '비밀번호 확인 숨기기'
+                  : '비밀번호 확인 보기'
               }
-              onClick={() => setShowPasswordConfirm((v) => !v)}
+              onClick={() => setShowPasswordConfirm((visible) => !visible)}
             >
               {showPasswordConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+
+          {errors.passwordConfirm ? (
+            <span className="auth-hint auth-hint--danger">
+              {errors.passwordConfirm.message}
+            </span>
+          ) : null}
         </div>
-        <button className="auth-submit" type="submit">
-          회원가입하기
+
+        <button className="auth-submit" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? '가입 중…' : '회원가입하기'}
         </button>
       </form>
+
       <nav className="auth-links" aria-label="인증 페이지 이동">
         <Link href="/login">로그인</Link>
         <Link href="/">CINEMO LOBBY</Link>
