@@ -81,7 +81,7 @@ export class RegionService {
   }
 
   private async upsertLegalDongs(rows: LegalDongRowDto[]): Promise<number> {
-    const batchSize = 500;
+    const batchSize = 100;
 
     for (let index = 0; index < rows.length; index += batchSize) {
       const batch = rows.slice(index, index + batchSize);
@@ -123,6 +123,9 @@ export class RegionService {
             },
           }),
         ),
+        {
+          timeout: 30_000,
+        },
       );
     }
 
