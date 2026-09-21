@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -28,6 +28,7 @@ import {
   searchCinemasRequest,
 } from '@/lib/cinema-api';
 import { CinemaAnalysisCharts } from './CinemaAnalysisCharts';
+import type { CinemaMapCinema } from './cinema-map-data';
 
 const CINEMA_PAGE_SIZE = 20;
 
@@ -63,6 +64,7 @@ export default function CinemaMapPage() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [cinemaPage, setCinemaPage] = useState<CinemaPageResponse | null>(null);
   const [cinemaPageNumber, setCinemaPageNumber] = useState(1);
+  const [focusedCinemaId, setFocusedCinemaId] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<CinemaAnalysisResponse | null>(null);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -276,13 +278,17 @@ export default function CinemaMapPage() {
     ? searchedCinemas
     : cinemas;
 
-  const visibleCinemas = cinemasForDisplay.map((cinema) => ({
-    id: cinema.id,
-    brand: cinema.brand ?? '영화관',
-    name: cinema.name,
-    address: cinema.roadAddress ?? cinema.address,
-    position: [cinema.latitude, cinema.longitude] as [number, number],
-  }));
+  const visibleCinemas = useMemo<CinemaMapCinema[]>(
+    () =>
+      cinemasForDisplay.map((cinema) => ({
+        id: cinema.id,
+        brand: cinema.brand ?? '영화관',
+        name: cinema.name,
+        address: cinema.roadAddress ?? cinema.address,
+        position: [cinema.latitude, cinema.longitude] as [number, number],
+      })),
+    [cinemasForDisplay],
+  );
 
   const cinemaCount = isGlobalSearch
     ? visibleCinemas.length
@@ -318,6 +324,7 @@ export default function CinemaMapPage() {
                 center={selectedCenter}
                 zoom={selectedZoom}
                 cinemas={visibleCinemas}
+                focusCinemaId={focusedCinemaId}
                 isLoading={isCinemasLoading || isSearchLoading}
               />
             </div>
@@ -346,6 +353,7 @@ export default function CinemaMapPage() {
                     options={regionOptions}
                     ariaLabel="지역 선택"
                     onChange={(value) => {
+                      setFocusedCinemaId(null);
                       setIsCinemasLoading(true);
                       setCinemas([]);
                       setCinemaPage(null);
@@ -364,9 +372,10 @@ export default function CinemaMapPage() {
                     className="cinema-map-search"
                     type="search"
                     value={cinemaSearchQuery}
-                    onChange={(event) =>
-                      setCinemaSearchQuery(event.target.value)
-                    }
+                    onChange={(event) => {
+                      setFocusedCinemaId(null);
+                      setCinemaSearchQuery(event.target.value);
+                    }}
                     placeholder="영화관 이름, 주소, 브랜드 검색"
                     aria-label="영화관 검색"
                   />
@@ -418,7 +427,18 @@ export default function CinemaMapPage() {
                           <span className="cinema-map-brand">
                             {cinema.brand}
                           </span>
-                          <strong>{cinema.name}</strong>
+                          <strong>
+                            <button
+                              type="button"
+                              className="cinema-map-name-button"
+                              onClick={() => {
+                                if (focusedCinemaId === cinema.id) return;
+                                setFocusedCinemaId(cinema.id);
+                              }}
+                            >
+                              {cinema.name}
+                            </button>
+                          </strong>
                           <span>{cinema.address}</span>
 
                           <a
@@ -472,9 +492,10 @@ export default function CinemaMapPage() {
                       <button
                         type="button"
                         disabled={isCinemasLoading || cinemaPage.page === 1}
-                        onClick={() =>
-                          setCinemaPageNumber((page) => Math.max(1, page - 1))
-                        }
+                        onClick={() => {
+                          setFocusedCinemaId(null);
+                          setCinemaPageNumber((page) => Math.max(1, page - 1));
+                        }}
                       >
                         이전
                       </button>
@@ -487,11 +508,12 @@ export default function CinemaMapPage() {
                           isCinemasLoading ||
                           cinemaPage.page === cinemaPage.totalPages
                         }
-                        onClick={() =>
+                        onClick={() => {
+                          setFocusedCinemaId(null);
                           setCinemaPageNumber((page) =>
                             Math.min(cinemaPage.totalPages, page + 1),
-                          )
-                        }
+                          );
+                        }}
                       >
                         다음
                       </button>

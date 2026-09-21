@@ -10,6 +10,7 @@ type CinemaMapCanvasProps = {
   center: [number, number];
   zoom: number;
   cinemas: CinemaMapCinema[];
+  focusCinemaId: string | null;
   isLoading: boolean;
 };
 
@@ -25,6 +26,43 @@ const cinemaMarkerIcon = L.divIcon({
   iconAnchor: [14, 28],
   popupAnchor: [0, -28],
 });
+
+function FocusCinema({
+  cinemaId,
+  cinemas,
+}: {
+  cinemaId: string | null;
+  cinemas: CinemaMapCinema[];
+}) {
+  const map = useMap();
+  const lastFocusedCinemaId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!cinemaId) {
+      lastFocusedCinemaId.current = null;
+      return;
+    }
+
+    if (lastFocusedCinemaId.current === cinemaId) {
+      return;
+    }
+
+    const cinema = cinemas.find((item) => item.id === cinemaId);
+
+    if (!cinema || !map.getPane('mapPane')) {
+      return;
+    }
+
+    lastFocusedCinemaId.current = cinemaId;
+    map.stop();
+    map.flyTo(cinema.position, 17, {
+      animate: true,
+      duration: 0.8,
+    });
+  }, [cinemaId, cinemas, map]);
+
+  return null;
+}
 
 function MoveMap({ center, zoom, cinemas, isLoading }: CinemaMapViewProps) {
   const map = useMap();
@@ -94,6 +132,7 @@ export function CinemaMapCanvas({
   center = [37.5665, 126.978],
   zoom = 11,
   cinemas,
+  focusCinemaId,
   isLoading,
 }: CinemaMapCanvasProps) {
   return (
@@ -116,7 +155,13 @@ export function CinemaMapCanvas({
         }
       />
 
-      <MarkerClusterGroup chunkedLoading>
+      <FocusCinema cinemaId={focusCinemaId} cinemas={cinemas} />
+
+      <MarkerClusterGroup
+        chunkedLoading
+        maxClusterRadius={40}
+        disableClusteringAtZoom={16}
+      >
         {cinemas.map((cinema) => (
           <Marker
             key={cinema.id}

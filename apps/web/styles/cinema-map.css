@@ -273,6 +273,9 @@
   padding: 0;
   overflow: hidden;
   background: #111216;
+  position: sticky;
+  top: 1rem;
+  align-self: start;
 }
 
 .cinema-map-panel label,
@@ -464,6 +467,28 @@
   white-space: nowrap;
 }
 
+.cinema-map-name-button {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cinema-map-name-button:focus-visible {
+  border-radius: 0.2rem;
+  outline: 2px solid var(--cinemo-gold);
+  outline-offset: 3px;
+}
+
 .cinema-map-list-item > span:not(.cinema-map-brand) {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -571,10 +596,17 @@
 
   .cinema-map-layout {
     grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .cinema-map-layout > .cinema-map-panel:first-child {
-    height: 420px;
+    position: sticky;
+    top: -1.5rem;
+    z-index: 10;
+    height: 20rem;
+    margin: 0;
+    background: #111216;
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 28%);
   }
 }
 
@@ -584,7 +616,8 @@
   }
 
   .cinema-map-layout > .cinema-map-panel:first-child {
-    height: 360px;
+    top: -1.5rem;
+    height: 18rem;
   }
 
   .cinema-map-panel:not(:first-child) {
