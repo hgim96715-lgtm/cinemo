@@ -175,7 +175,9 @@ export class KakaoPlaceService {
           },
         }),
       ),
-    ]);
+    ], {
+      timeout: 30_000,
+    });
     return cinemas.length;
   }
 }
