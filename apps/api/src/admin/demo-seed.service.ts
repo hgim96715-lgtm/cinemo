@@ -55,6 +55,26 @@ const POSTCARD_SAMPLES = [
     text: '생각보다 오래 마음에 머무는 장면.',
     originalText: 'A scene that stays in your heart longer than expected.',
   },
+  {
+    text: '오늘의 기분과 이상하게 잘 맞았던 영화.',
+    originalText: null,
+  },
+  {
+    text: '말보다 표정이 오래 기억에 남았다.',
+    originalText: null,
+  },
+  {
+    text: '작은 장면 하나 때문에 다시 보고 싶어졌다.',
+    originalText: 'One small scene made me want to watch it again.',
+  },
+  {
+    text: '영화가 끝난 뒤 조용히 생각할 시간이 필요했다.',
+    originalText: null,
+  },
+  {
+    text: '누군가에게 추천하고 싶은 밤의 영화.',
+    originalText: null,
+  },
 ] as const;
 
 const POSTCARD_COMMENT_SAMPLES = [
@@ -63,6 +83,13 @@ const POSTCARD_COMMENT_SAMPLES = [
   '엽서 분위기와 문장이 잘 어울려요.',
   '이 영화 아직 못 봤는데 궁금해졌어요.',
   '좋은 문장 남겨줘서 고마워요.',
+  '포스터랑 문장이 같이 보이니까 영화 분위기가 더 잘 느껴져요.',
+  '저는 이 장면에서 잠깐 멈춰서 생각하게 되더라고요.',
+  '이 영화의 다른 장면도 이런 느낌인지 궁금해졌어요.',
+  '짧은 문장인데 영화의 여운이 잘 전해져요.',
+  '다음에 볼 영화 목록에 넣어둘게요.',
+  '이런 기록을 보니까 저도 한 장 남기고 싶네요.',
+  '영화를 본 사람만 알아볼 수 있는 문장이라 더 좋아요.',
 ] as const;
 
 const POSTCARD_REPLY_SAMPLES = [
@@ -71,6 +98,11 @@ const POSTCARD_REPLY_SAMPLES = [
   '좋게 봐줘서 고마워요!',
   '시간 나면 꼭 봐보세요.',
   '저도 다음에 다시 보려고요.',
+  '그 장면을 이렇게 표현할 수도 있겠네요.',
+  '저도 비슷한 느낌으로 받아들였어요.',
+  '추천 고마워요. 주말에 찾아볼게요.',
+  '다 보고 나서 이 문장을 다시 읽어봐야겠어요.',
+  '다음 엽서도 기대할게요.',
 ] as const;
 @Injectable()
 export class DemoSeedService {
@@ -207,8 +239,6 @@ export class DemoSeedService {
         (movie) => movie.releaseDate && movie.releaseDate >= kstDateKey(now),
       )
       .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
-    const featuredUpcomingMovie = upcomingMovies[0];
-
     for (let index = 0; index < users.length; index += 1) {
       const user = users[index];
       const eventAt = this.activityTime(dateKey, index, 'activity');
@@ -265,18 +295,39 @@ export class DemoSeedService {
         update: {},
       });
 
-      if (featuredUpcomingMovie) {
+      const wishedMovies = this.selectWishMovies(
+        dateKey,
+        index,
+        upcomingMovies,
+      );
+      const wishedMovieIds = wishedMovies.map((movie) => movie.tmdbId);
+
+      if (wishedMovieIds.length === 0) {
+        await this.prisma.userMovie.deleteMany({
+          where: { userId: user.id, kind: 'wish' },
+        });
+      } else {
+        await this.prisma.userMovie.deleteMany({
+          where: {
+            userId: user.id,
+            kind: 'wish',
+            tmdbId: { notIn: wishedMovieIds },
+          },
+        });
+      }
+
+      for (const wishedMovie of wishedMovies) {
         await this.prisma.userMovie.upsert({
           where: {
             userId_tmdbId_kind: {
               userId: user.id,
-              tmdbId: featuredUpcomingMovie.tmdbId,
+              tmdbId: wishedMovie.tmdbId,
               kind: 'wish',
             },
           },
           create: {
             userId: user.id,
-            tmdbId: featuredUpcomingMovie.tmdbId,
+            tmdbId: wishedMovie.tmdbId,
             kind: 'wish',
           },
           update: {},
@@ -286,7 +337,7 @@ export class DemoSeedService {
       activities += 1;
     }
 
-    const createdPostcards = await this.seedPostcardCommunity(users);
+    const createdPostcards = await this.seedPostcardCommunity(users, dateKey);
 
     return {
       date: dateKey,
@@ -296,7 +347,7 @@ export class DemoSeedService {
     };
   }
 
-  private async seedPostcardCommunity(users: DemoUser[]) {
+  private async seedPostcardCommunity(users: DemoUser[], dateKey: string) {
     if (users.length === 0) return 0;
 
     const movies = await this.prisma.moviePool.findMany({
@@ -316,7 +367,7 @@ export class DemoSeedService {
     for (let index = 0; index < users.length; index += 1) {
       const owner = users[index];
       const movie = movies[index % movies.length];
-      const sample = POSTCARD_SAMPLES[index % POSTCARD_SAMPLES.length];
+      const sample = this.pick(POSTCARD_SAMPLES, dateKey, index)!;
       const posterPath = movie.posterPath
         ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
         : null;
@@ -361,9 +412,11 @@ export class DemoSeedService {
       ) {
         const commenterId = commenterIds[commentIndex];
         const commentText =
-          POSTCARD_COMMENT_SAMPLES[
-            (index + commentIndex) % POSTCARD_COMMENT_SAMPLES.length
-          ];
+          this.pick(
+            POSTCARD_COMMENT_SAMPLES,
+            dateKey,
+            index * 3 + commentIndex,
+          )!;
         const existingComment = await this.prisma.postcardComment.findFirst({
           where: {
             postcardId: postcard.id,
@@ -388,7 +441,7 @@ export class DemoSeedService {
       const replyAuthorId = users[(index + 3) % users.length]?.id;
       if (firstCommentId && replyAuthorId && replyAuthorId !== owner.id) {
         const replyText =
-          POSTCARD_REPLY_SAMPLES[index % POSTCARD_REPLY_SAMPLES.length];
+          this.pick(POSTCARD_REPLY_SAMPLES, dateKey, index)!;
         const existingReply = await this.prisma.postcardComment.findFirst({
           where: {
             postcardId: postcard.id,
@@ -541,9 +594,41 @@ export class DemoSeedService {
     return `${base}_${dateKey.replace(/-/g, '')}${sequence}`.slice(0, 20);
   }
 
-  private pick<T>(items: T[], dateKey: string, index: number): T | undefined {
+  private pick<T>(
+    items: readonly T[],
+    dateKey: string,
+    index: number,
+  ): T | undefined {
     if (items.length === 0) return undefined;
     return items[this.indexFor(dateKey, index, items.length)];
+  }
+
+  private selectWishMovies(
+    dateKey: string,
+    userIndex: number,
+    upcomingMovies: { tmdbId: number; title: string; releaseDate: string }[],
+  ) {
+    if (upcomingMovies.length === 0) return [];
+
+    // 사용자마다 0~2편만 찜하도록 해 모든 사용자가 같은 영화를 찜하지 않게 함.
+    const wishCount = Math.min(
+      this.indexFor(dateKey, userIndex + 67, 3),
+      upcomingMovies.length,
+    );
+    const startIndex = this.indexFor(
+      dateKey,
+      userIndex + 79,
+      upcomingMovies.length,
+    );
+    const selected = new Set<number>();
+
+    for (let offset = 0; selected.size < wishCount; offset += 1) {
+      selected.add(
+        (startIndex + offset * 7) % upcomingMovies.length,
+      );
+    }
+
+    return [...selected].map((index) => upcomingMovies[index]);
   }
 
   private indexFor(dateKey: string, index: number, length: number) {
