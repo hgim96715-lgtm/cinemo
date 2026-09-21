@@ -31,6 +31,7 @@ const chartTheme = {
 };
 
 export function CinemaAnalysisCharts({ analysis }: Props) {
+  const brandColors = ['#75c2aa', '#f49363', '#91a2d2', '#d987bd'];
   const brandData = analysis.brands.map((brand) => ({
     id: brand.name,
     label: brand.name,
@@ -42,12 +43,13 @@ export function CinemaAnalysisCharts({ analysis }: Props) {
       <section className="cinema-analysis-chart-card">
         <h3>지역별 영화관 수</h3>
 
-        <div className="cinema-analysis-chart">
+        <div className="cinema-analysis-chart cinema-analysis-chart--regions">
           <ResponsiveBar
-            data={analysis.regions}
+            data={[...analysis.regions].reverse()}
             keys={['count']}
             indexBy="name"
-            margin={{ top: 20, right: 20, bottom: 110, left: 60 }}
+            layout="horizontal"
+            margin={{ top: 20, right: 20, bottom: 40, left: 135 }}
             padding={0.3}
             valueScale={{ type: 'linear' }}
             indexScale={{ type: 'band', round: true }}
@@ -66,7 +68,9 @@ export function CinemaAnalysisCharts({ analysis }: Props) {
               </div>
             )}
             axisBottom={{
-              tickRotation: -35,
+              tickSize: 0,
+              tickPadding: 8,
+              tickValues: 5,
             }}
             axisLeft={{
               tickSize: 0,
@@ -87,7 +91,7 @@ export function CinemaAnalysisCharts({ analysis }: Props) {
             padAngle={1}
             cornerRadius={4}
             activeOuterRadiusOffset={6}
-            colors={{ scheme: 'set2' }}
+            colors={brandColors}
             theme={chartTheme}
             tooltip={({ datum }) => (
               <div className="cinema-analysis-tooltip">
@@ -100,11 +104,24 @@ export function CinemaAnalysisCharts({ analysis }: Props) {
               </div>
             )}
             enableArcLinkLabels={false}
-            arcLabel={(datum) => `${datum.label} ${datum.value}개`}
-            arcLabelsSkipAngle={0}
+            arcLabel={(datum) => `${datum.value}개`}
+            arcLabelsSkipAngle={10}
             arcLabelsTextColor="#17181c"
           />
         </div>
+
+        <ul className="cinema-analysis-brand-list">
+          {brandData.map((brand, index) => (
+            <li key={brand.id}>
+              <span
+                className="cinema-analysis-tooltip-dot"
+                style={{ backgroundColor: brandColors[index % brandColors.length] }}
+              />
+              <span>{brand.label}</span>
+              <strong>{brand.value}개</strong>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

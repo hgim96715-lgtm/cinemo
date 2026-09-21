@@ -160,6 +160,10 @@
   height: 24rem;
 }
 
+.cinema-analysis-chart--regions {
+  height: 32rem;
+}
+
 .cinema-analysis-chart svg text {
   font-family: inherit;
 }
@@ -200,6 +204,36 @@
   border-radius: 50%;
 }
 
+.cinema-analysis-brand-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cinema-analysis-brand-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--cinemo-muted);
+  font-size: 0.78rem;
+}
+
+.cinema-analysis-brand-list li > span:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cinema-analysis-brand-list strong {
+  color: var(--cinemo-fg);
+  font-size: 0.78rem;
+}
+
 @media (max-width: 560px) {
   .cinema-map-analysis-panel {
     padding: 1.25rem;
@@ -213,6 +247,10 @@
   .cinema-analysis-total {
     align-self: stretch;
     justify-content: center;
+  }
+
+  .cinema-analysis-brand-list {
+    grid-template-columns: 1fr;
   }
 }
 
