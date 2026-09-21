@@ -81,52 +81,29 @@ export class RegionService {
   }
 
   private async upsertLegalDongs(rows: LegalDongRowDto[]): Promise<number> {
-    const batchSize = 100;
+    const batchSize = 1000;
 
     for (let index = 0; index < rows.length; index += batchSize) {
       const batch = rows.slice(index, index + batchSize);
 
-      await this.prisma.$transaction(
-        batch.map((row) =>
-          this.prisma.legalDong.upsert({
-            where: {
-              regionCode: row.region_cd,
-            },
-            create: {
-              regionCode: row.region_cd,
-              sidoCode: row.sido_cd,
-              sigunguCode: row.sgg_cd,
-              eupmyeondongCode: row.umd_cd,
-              riCode: row.ri_cd,
-              residentCode: row.locatjumin_cd,
-              landCode: row.locatjijuk_cd,
-              addressName: row.locatadd_nm,
-              order: row.locat_order,
-              remark: row.locat_rm || null,
-              upperCode: row.locathigh_cd,
-              lowestName: row.locallow_nm,
-              effectiveDate: row.adpt_de || null,
-            },
-            update: {
-              sidoCode: row.sido_cd,
-              sigunguCode: row.sgg_cd,
-              eupmyeondongCode: row.umd_cd,
-              riCode: row.ri_cd,
-              residentCode: row.locatjumin_cd,
-              landCode: row.locatjijuk_cd,
-              addressName: row.locatadd_nm,
-              order: row.locat_order,
-              remark: row.locat_rm || null,
-              upperCode: row.locathigh_cd,
-              lowestName: row.locallow_nm,
-              effectiveDate: row.adpt_de || null,
-            },
-          }),
-        ),
-        {
-          timeout: 30_000,
-        },
-      );
+      await this.prisma.legalDong.createMany({
+        data: batch.map((row) => ({
+          regionCode: row.region_cd,
+          sidoCode: row.sido_cd,
+          sigunguCode: row.sgg_cd,
+          eupmyeondongCode: row.umd_cd,
+          riCode: row.ri_cd,
+          residentCode: row.locatjumin_cd,
+          landCode: row.locatjijuk_cd,
+          addressName: row.locatadd_nm,
+          order: row.locat_order,
+          remark: row.locat_rm || null,
+          upperCode: row.locathigh_cd,
+          lowestName: row.locallow_nm,
+          effectiveDate: row.adpt_de || null,
+        })),
+        skipDuplicates: true,
+      });
     }
 
     return rows.length;
