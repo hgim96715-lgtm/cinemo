@@ -12,12 +12,14 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
+import type { UserMovieKind } from '@cinemo/shared';
 import type {
-  UserMovieKind,
+  MovieDetail,
+  MovieSummary,
+  PlaceSearchResult,
   UserMovieListItem,
   UserMovieMarks,
-} from '@cinemo/shared';
-import type { MovieDetail } from '@cinemo/api-contract';
+} from '@cinemo/api-contract';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { useAuthStore } from '@/lib/auth-store';
 import { updateViewingDetailsRequest } from '@/lib/user-movie-api';
@@ -25,15 +27,13 @@ import { updateViewingDetailsRequest } from '@/lib/user-movie-api';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { kstDateKey } from '@/lib/date-kst';
-import type { PlaceSearchResult } from '@/lib/places-api';
 import { searchPlacesRequest } from '@/lib/places-api';
-import { MovieDetailScreeningForm } from './MovieDetailScreeningForm';
+import { WatchedRecordForm } from './WatchedRecordForm';
 import {
-  type MovieScreeningFormValues,
-  type SavedScreeningDetails,
+  type WatchedRecordFormValues,
   isCustomViewingPlatform,
-  movieScreeningSchema,
-} from './movie-detail-form';
+  watchedRecordSchema,
+} from './watched-record-form';
 import {
   RECENT_LOCATIONS_STORAGE_KEY,
   type RecentLocation,
@@ -65,21 +65,34 @@ const TMDB_GENRE_LABELS: Record<number, string> = {
   10752: '전쟁',
   37: '서부',
 };
+
+type MovieModalMovie = MovieSummary &
+  Partial<
+    Pick<
+      MovieDetail,
+      'genre_ids' | 'origin_countries' | 'firstReleaseDate' | 'reReleaseDates'
+    >
+  >;
+
 type MovieDetailModalProps = {
-  movie: MovieDetail;
+  movie: MovieModalMovie;
+  variant?: 'default' | 'wish';
+  isDetailLoading?: boolean;
   screening?: UserMovieListItem;
   marks?: Pick<UserMovieMarks, 'wish' | 'watched'>;
   showWatchedMark?: boolean;
   showCalendar?: boolean;
   onClose: () => void;
   onToggleMark?: (kind: UserMovieKind) => void;
-  onSaved?: (details: SavedScreeningDetails) => void;
+  onSaved?: () => void;
   releaseNotificationEnabled?: boolean;
   onToggleReleaseNotification?: () => void;
 };
 
 export function MovieDetailModal({
   movie,
+  variant = 'default',
+  isDetailLoading = false,
   screening,
   marks,
   showWatchedMark = true,
@@ -97,14 +110,16 @@ export function MovieDetailModal({
     null,
   );
   const todayKst = kstDateKey();
+  const isReleased =
+    Boolean(movie.release_date) && movie.release_date <= todayKst;
   const poster = tmdbPosterUrl(movie.poster_path, 'w342');
-  const [locationSuggestions, setLocationSuggestions] = useState<
-    PlaceSearchResult[]
-  >([]);
-  const [locationSuggestionsQuery, setLocationSuggestionsQuery] = useState('');
+  const [placeSuggestions, setPlaceSuggestions] = useState<PlaceSearchResult[]>(
+    [],
+  );
+  const [placeSuggestionsQuery, setPlaceSuggestionsQuery] = useState('');
   const [recentLocations, setRecentLocations] =
     useState<RecentLocation[]>(readRecentLocations);
-  const [isLocationFocused, setIsLocationFocused] = useState(false);
+  const [isPlaceFocused, setIsPlaceFocused] = useState(false);
 
   const [showNotificationGuide, setShowNotificationGuide] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -144,9 +159,9 @@ export function MovieDetailModal({
     setValue,
     reset: resetMovieScreeningForm,
     formState: { errors, isSubmitting },
-  } = useForm<MovieScreeningFormValues>({
+  } = useForm<WatchedRecordFormValues>({
     mode: 'onBlur',
-    resolver: zodResolver(movieScreeningSchema),
+    resolver: zodResolver(watchedRecordSchema),
     defaultValues: {
       watchedAt: screening?.watchedAt?.slice(0, 10) ?? '',
       viewingType: screening?.viewingType ?? '',
@@ -160,7 +175,7 @@ export function MovieDetailModal({
       customViewingPlatform: isCustomViewingPlatform(screening?.viewingPlatform)
         ? (screening?.viewingPlatform ?? '')
         : '',
-      viewingLocation: screening?.viewingLocation ?? '',
+      viewingPlace: screening?.viewingPlace ?? '',
       review: screening?.review ?? '',
       rating: screening?.rating ?? null,
     },
@@ -179,7 +194,7 @@ export function MovieDetailModal({
     name: 'viewingType',
   });
 
-  const viewingLocation = useWatch({ control, name: 'viewingLocation' });
+  const viewingPlace = useWatch({ control, name: 'viewingPlace' });
 
   useEffect(() => {
     resetMovieScreeningForm({
@@ -195,38 +210,33 @@ export function MovieDetailModal({
       customViewingPlatform: isCustomViewingPlatform(screening?.viewingPlatform)
         ? (screening?.viewingPlatform ?? '')
         : '',
-      viewingLocation: screening?.viewingLocation ?? '',
+      viewingPlace: screening?.viewingPlace ?? '',
       review: screening?.review ?? '',
       rating: screening?.rating ?? null,
     });
   }, [screening, resetMovieScreeningForm]);
 
   useEffect(() => {
-    const query = viewingLocation.trim();
+    const query = viewingPlace.trim();
 
-    if (
-      !isLocationFocused ||
-      !accessToken ||
-      isSubmitting ||
-      query.length < 2
-    ) {
+    if (!isPlaceFocused || !accessToken || isSubmitting || query.length < 2) {
       return;
     }
 
     const token = accessToken;
     let cancelled = false;
     const timer = window.setTimeout(() => {
-      async function loadLocations() {
+      async function loadPlaces() {
         setSearchingPlacesQuery(query);
         try {
           const results = await searchPlacesRequest(token, query);
 
           if (!cancelled) {
-            setLocationSuggestions(results);
-            setLocationSuggestionsQuery(query);
+            setPlaceSuggestions(results);
+            setPlaceSuggestionsQuery(query);
           }
         } catch {
-          if (!cancelled) setLocationSuggestions([]);
+          if (!cancelled) setPlaceSuggestions([]);
         } finally {
           if (!cancelled) {
             setSearchingPlacesQuery((currentQuery) =>
@@ -235,7 +245,7 @@ export function MovieDetailModal({
           }
         }
       }
-      void loadLocations();
+      void loadPlaces();
     }, 300);
     return () => {
       cancelled = true;
@@ -243,46 +253,46 @@ export function MovieDetailModal({
     };
   }, [
     accessToken,
-    isLocationFocused,
+    isPlaceFocused,
     isSubmitting,
     recentLocations,
-    viewingLocation,
+    viewingPlace,
   ]);
 
   const recentLocationMatches = getRecentLocationMatches(
     recentLocations,
-    viewingLocation.trim(),
+    viewingPlace.trim(),
   );
   const isSearchingPlaces =
-    searchingPlacesQuery === viewingLocation.trim() &&
+    searchingPlacesQuery === viewingPlace.trim() &&
     searchingPlacesQuery.length >= 2;
-  const visibleLocationSuggestions = (
-    isLocationFocused
-      ? viewingLocation.trim().length < 2 ||
-        locationSuggestionsQuery !== viewingLocation.trim()
+  const visiblePlaceSuggestions = (
+    isPlaceFocused
+      ? viewingPlace.trim().length < 2 ||
+        placeSuggestionsQuery !== viewingPlace.trim()
         ? recentLocationMatches
-        : mergeLocationSuggestions(recentLocationMatches, locationSuggestions)
+        : mergeLocationSuggestions(recentLocationMatches, placeSuggestions)
       : []
   ) as PlaceSearchResult[];
 
-  function handleLocationSelect(location: PlaceSearchResult) {
-    setValue('viewingLocation', location.name, {
+  function handlePlaceSelect(place: PlaceSearchResult) {
+    setValue('viewingPlace', place.name, {
       shouldDirty: true,
       shouldValidate: true,
     });
-    rememberLocation(location);
-    setIsLocationFocused(false);
-    setLocationSuggestions([]);
+    rememberLocation(place);
+    setIsPlaceFocused(false);
+    setPlaceSuggestions([]);
   }
 
   const handleSaveViewingDetails = handleSubmit(
-    async (values: MovieScreeningFormValues) => {
+    async (values: WatchedRecordFormValues) => {
       if (!screening || !accessToken) return;
 
       setViewingDetailsError(null);
 
       try {
-        const details: SavedScreeningDetails = {
+        const details = {
           watchedAt: values.watchedAt || null,
           viewingType: values.viewingType || null,
           viewingTypeCustom:
@@ -294,7 +304,7 @@ export function MovieDetailModal({
               ? values.customViewingPlatform
               : values.viewingPlatform
             ).trim() || null,
-          viewingLocation: values.viewingLocation.trim() || null,
+          viewingPlace: values.viewingPlace.trim() || null,
           review: values.review.trim() || null,
           rating: values.rating,
         };
@@ -305,9 +315,9 @@ export function MovieDetailModal({
           details,
         );
 
-        rememberLocation(values.viewingLocation);
+        rememberLocation(values.viewingPlace);
 
-        onSaved?.(details);
+        onSaved?.();
         onClose();
       } catch {
         setViewingDetailsError('관람 정보를 저장하지 못했습니다.');
@@ -329,7 +339,7 @@ export function MovieDetailModal({
       <Dialog.Portal>
         <Dialog.Overlay className="movie-detail-overlay" />
         <Dialog.Content
-          className={`movie-detail-modal${largeText ? ' is-large-text' : ''}`}
+          className={`movie-detail-modal movie-detail-modal--${variant}${largeText ? ' is-large-text' : ''}`}
           aria-describedby={undefined}
         >
           <Dialog.Close asChild>
@@ -353,33 +363,45 @@ export function MovieDetailModal({
             </div>
 
             <div className="movie-detail-info">
-              <p className="movie-detail-kicker">MOVIE DETAIL</p>
+              <p className="movie-detail-kicker">
+                {variant === 'wish' ? 'WISH MOVIE' : 'MOVIE DETAIL'}
+              </p>
 
               <Dialog.Title asChild>
                 <h2>{movie.title}</h2>
               </Dialog.Title>
-              {movie.genre_ids?.length ? (
-                <div className="movie-detail-genres" aria-label="영화 장르">
-                  {movie.genre_ids
+              <div
+                className="movie-detail-genres"
+                aria-label="영화 장르"
+                aria-busy={isDetailLoading}
+              >
+                {isDetailLoading ? (
+                  <>
+                    <span
+                      className="movie-detail-genre-skeleton movie-detail-genre-skeleton--short"
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="movie-detail-genre-skeleton movie-detail-genre-skeleton--long"
+                      aria-hidden="true"
+                    />
+                  </>
+                ) : movie.genre_ids?.length ? (
+                  movie.genre_ids
                     .map((genreId) => TMDB_GENRE_LABELS[genreId])
                     .filter(Boolean)
-                    .map((genre) => (
-                      <span key={genre}>{genre}</span>
-                    ))}
-                </div>
-              ) : null}
+                    .map((genre) => <span key={genre}>{genre}</span>)
+                ) : null}
+              </div>
 
               <dl className="movie-detail-facts">
                 {movie.firstReleaseDate || movie.release_date ? (
                   <div>
-                    <dt>
-                      {movie.firstReleaseDate ? '최초 개봉일' : '개봉일'}
-                    </dt>
+                    <dt>개봉일</dt>
                     <dd>
-                      {(movie.firstReleaseDate ?? movie.release_date).replaceAll(
-                        '-',
-                        '.',
-                      )}
+                      {(
+                        movie.firstReleaseDate ?? movie.release_date
+                      ).replaceAll('-', '.')}
                     </dd>
                   </div>
                 ) : null}
@@ -495,7 +517,7 @@ export function MovieDetailModal({
                       </span>
                     </a>
                   ) : null}
-                  {onToggleReleaseNotification ? (
+                  {onToggleReleaseNotification && !isReleased ? (
                     <button
                       type="button"
                       className={`movie-detail-notification-button${
@@ -510,20 +532,6 @@ export function MovieDetailModal({
                       onClick={handleNotificationClick}
                     >
                       <Bell size={17} aria-hidden />
-                      <span className="movie-detail-sr-only">
-                        {releaseNotificationEnabled
-                          ? '개봉일 알림 해제'
-                          : '개봉일 알림 설정'}
-                      </span>
-                      <span
-                        id={`movie-notification-tooltip-${movie.id}`}
-                        className="movie-detail-tooltip"
-                        role="tooltip"
-                      >
-                        {releaseNotificationEnabled
-                          ? '개봉일 알림 해제'
-                          : '개봉일 알림 설정'}
-                      </span>
                     </button>
                   ) : null}
                 </div>
@@ -574,7 +582,7 @@ export function MovieDetailModal({
                 ) : null}
               </div>
               {screening ? (
-                <MovieDetailScreeningForm
+                <WatchedRecordForm
                   control={control}
                   errors={errors}
                   register={register}
@@ -586,14 +594,14 @@ export function MovieDetailModal({
                   viewingPlatformMode={viewingPlatformMode}
                   selectedViewingPlatform={selectedViewingPlatform}
                   viewingDetailsError={viewingDetailsError}
-                  isLocationFocused={isLocationFocused}
-                  onLocationFocus={() => setIsLocationFocused(true)}
-                  onLocationBlur={() => {
-                    window.setTimeout(() => setIsLocationFocused(false), 0);
+                  isPlaceFocused={isPlaceFocused}
+                  onPlaceFocus={() => setIsPlaceFocused(true)}
+                  onPlaceBlur={() => {
+                    window.setTimeout(() => setIsPlaceFocused(false), 0);
                   }}
-                  visibleLocationSuggestions={visibleLocationSuggestions}
+                  visiblePlaceSuggestions={visiblePlaceSuggestions}
                   isSearchingPlaces={isSearchingPlaces}
-                  onLocationSelect={handleLocationSelect}
+                  onPlaceSelect={handlePlaceSelect}
                 />
               ) : null}
             </div>

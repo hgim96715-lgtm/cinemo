@@ -477,6 +477,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 영화 보관 상태 토글
+         * @description 보고 싶은 영화 또는 관람 기록 추가·삭제
+         */
         post: operations["UserMovieController_toggle_v1"];
         delete?: never;
         options?: never;
@@ -493,10 +497,18 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 관람 기록 추가
+         * @description 영화 관람 기록 추가 및 관람일 저장
+         */
         post: operations["UserMovieController_addWatchedMovie_v1"];
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * 관람일 수정
+         * @description 기존 관람 기록의 관람일 수정
+         */
         patch: operations["UserMovieController_updateWatchedAt_v1"];
         trace?: never;
     };
@@ -513,6 +525,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * 관람 상세 정보 수정
+         * @description 관람 장소·방식·후기·평점 수정
+         */
         patch: operations["UserMovieController_updateViewingDetails_v1"];
         trace?: never;
     };
@@ -526,6 +542,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /**
+         * 관람 기록 삭제
+         * @description 영화 관람 기록 삭제
+         */
         delete: operations["UserMovieController_removeWatchedMovie_v1"];
         options?: never;
         head?: never;
@@ -539,6 +559,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 영화 보관 상태 조회
+         * @description 특정 영화의 보고 싶은 영화·관람 기록 여부 조회
+         */
         get: operations["UserMovieController_getMarks_v1"];
         put?: never;
         post?: never;
@@ -555,23 +579,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 보관 영화 개수 조회
+         * @description 보고 싶은 영화·관람 기록 개수 조회
+         */
         get: operations["UserMovieController_getCounts_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/user-movies/calendar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["UserMovieController_getCalendar_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -587,6 +599,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 연간 관람 통계 조회
+         * @description 특정 연도의 월별 관람 횟수·총 관람 수 조회
+         */
         get: operations["UserMovieController_getStats_v1"];
         put?: never;
         post?: never;
@@ -603,7 +619,31 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 보관 영화 목록 조회
+         * @description 보고 싶은 영화 또는 관람 기록을 cursor 단위로 조회
+         */
         get: operations["UserMovieController_listByKind_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user-movies/wish-detail/{tmdbId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 보고 싶은 영화 상세 정보 조회
+         * @description wish 모달에 필요한 영화 상세 정보 조회
+         */
+        get: operations["UserMovieController_getWishMovieDetail_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -621,6 +661,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 홈 화면 영화 표시 상태 수정
+         * @description 홈 화면 티켓 영역에 표시할 관람 영화 설정
+         */
         post: operations["UserMovieController_updateDisplay_v1"];
         delete?: never;
         options?: never;
@@ -635,6 +679,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 홈 화면 표시 영화 조회
+         * @description 홈 화면 티켓 영역에 표시된 관람 영화 조회
+         */
         get: operations["UserMovieController_listDisplayed_v1"];
         put?: never;
         post?: never;
@@ -651,12 +699,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 개봉일 알림 설정 조회
+         * @description 보고 싶은 영화의 개봉일 알림 설정 조회
+         */
         get: operations["UserMovieController_getReleaseNotification_v1"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * 개봉일 알림 설정 변경
+         * @description 보고 싶은 영화의 개봉일 알림 활성화·비활성화
+         */
         patch: operations["UserMovieController_updateReleaseNotification_v1"];
         trace?: never;
     };
@@ -669,6 +725,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 개봉일 알림 발송 실행
+         * @description GitHub Actions가 호출해 발송 대상 개봉일 알림을 처리함
+         */
         post: operations["ReleaseNotificationController_runForTest_v1"];
         delete?: never;
         options?: never;
@@ -857,22 +917,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/v1/guide": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GuideController_getGuide_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["GuideController_updateGuide_v1"];
         trace?: never;
     };
     "/v1/places/search": {
@@ -1399,6 +1443,17 @@ export interface components {
              */
             kind: "wish" | "watched";
         };
+        ToggleUserMovieResponseDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /**
+             * @example wish
+             * @enum {string}
+             */
+            kind: "wish" | "watched";
+            /** @example true */
+            active: boolean;
+        };
         AddWatchedMovieDto: {
             /** @example 550 */
             tmdbId: number;
@@ -1414,23 +1469,126 @@ export interface components {
         UpdateViewingDetailsDto: {
             /** @example 550 */
             tmdbId: number;
+            /**
+             * Format: uuid
+             * @example 0198f4c4-7f2d-7b1d-a8f7-3d8e1d1c2a10
+             */
+            cinemaId?: string | null;
             /** @example 2026-09-02 */
-            watchedAt?: Record<string, never> | null;
+            watchedAt?: string | null;
             /**
              * @example home
              * @enum {string|null}
              */
             viewingType?: "theater" | "home" | "other" | null;
             /** @example 친구 집 */
-            viewingTypeCustom?: Record<string, never> | null;
+            viewingTypeCustom?: string | null;
             /** @example Netflix */
-            viewingPlatform?: Record<string, never> | null;
+            viewingPlatform?: string | null;
             /** @example 집 */
-            viewingLocation?: Record<string, never> | null;
+            viewingPlace?: string | null;
             /** @example 영상미가 인상 깊었던 영화 */
-            review?: Record<string, never> | null;
+            review?: string | null;
             /** @example 8 */
-            rating?: Record<string, never> | null;
+            rating?: number | null;
+        };
+        UserMovieMarksResponseDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /** @example true */
+            wish: boolean;
+            /** @example false */
+            watched: boolean;
+        };
+        UserMovieCountsResponseDto: {
+            /** @example 12 */
+            wish: number;
+            /** @example 8 */
+            watched: number;
+        };
+        UserMovieMonthlyStatDto: {
+            /** @example 1 */
+            month: number;
+            /** @example 3 */
+            count: number;
+        };
+        UserMovieStatsResponseDto: {
+            /** @example 2026 */
+            year: number;
+            /** @example 24 */
+            total: number;
+            monthly: components["schemas"]["UserMovieMonthlyStatDto"][];
+        };
+        Object: Record<string, never>;
+        MovieSummaryDto: {
+            /** @example 550 */
+            id: number;
+            /** @example 파이트 클럽 */
+            title: string;
+            /** @example Fight Club */
+            original_title?: string;
+            /** @example en */
+            original_language?: string;
+            /** @example 한 남자가 반복되는 일상에서 벗어나기 위해... */
+            overview: string;
+            /** @example /poster.jpg */
+            poster_path: string | null;
+            /** @example 1999-10-15 */
+            release_date: string;
+            /** @example 데이비드 핀처 */
+            director: string | null;
+            /**
+             * @example [
+             *       "브래드 피트"
+             *     ]
+             */
+            cast?: string[];
+            /** @example https://www.youtube.com/watch?v=example */
+            trailerUrl?: string | null;
+            /** @enum {string|null} */
+            videoType?: "trailer" | null;
+        };
+        UserMovieListItemDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            watchedAt: string | null;
+            /** @enum {string|null} */
+            viewingType: "theater" | "home" | "other" | null;
+            viewingTypeCustom: string | null;
+            viewingPlatform: string | null;
+            viewingPlace: string | null;
+            /** Format: uuid */
+            cinemaId: string | null;
+            review: string | null;
+            rating: number | null;
+            movie: components["schemas"]["MovieSummaryDto"];
+        };
+        UserMovieListResponseDto: {
+            items: components["schemas"]["UserMovieListItemDto"][];
+            /** @example true */
+            hasNext: boolean;
+            /** Format: uuid */
+            nextCursor: string | null;
+        };
+        WishMovieDetailResponseDto: {
+            /**
+             * @example [
+             *       18,
+             *       53
+             *     ]
+             */
+            genre_ids: number[];
+            /** @example 1999-10-15 */
+            firstReleaseDate?: string | null;
+            /**
+             * @example [
+             *       "2026-09-16"
+             *     ]
+             */
+            reReleaseDates?: string[];
         };
         UpdateDisplayDto: {
             /** @example 550 */
@@ -1448,6 +1606,29 @@ export interface components {
              */
             wallSlot: number;
         };
+        UserMovieDisplayResponseDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /**
+             * @example watched
+             * @enum {string}
+             */
+            kind: "wish" | "watched";
+            /** @example true */
+            isDisplayed: boolean;
+            /** @example 1 */
+            wallSlot: number | null;
+        };
+        DisplayedUserMovieDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /** @example 1 */
+            wallSlot: number;
+            movie: components["schemas"]["MovieSummaryDto"];
+        };
+        UserMovieDisplayedResponseDto: {
+            items: components["schemas"]["DisplayedUserMovieDto"][];
+        };
         UpdateReleaseNotificationDto: {
             /** @example 550 */
             tmdbId: number;
@@ -1458,6 +1639,23 @@ export interface components {
              * @example 2026-09-16
              */
             releaseDate: string;
+        };
+        ReleaseNotificationFailureDto: {
+            /** Format: uuid */
+            notificationId: string;
+            /** @example 550 */
+            tmdbId: number;
+            /** @example 메일 발송에 실패했습니다. */
+            reason: string;
+        };
+        ReleaseNotificationRunResponseDto: {
+            /** @example 10 */
+            total: number;
+            /** @example 9 */
+            sent: number;
+            /** @example 1 */
+            failed: number;
+            failures: components["schemas"]["ReleaseNotificationFailureDto"][];
         };
         MovieChartItemDto: {
             /** @example 20251234 */
@@ -1592,18 +1790,50 @@ export interface components {
             /** @example 백필 시작: 2026-09-01 ~ 2026-09-14 */
             message: string;
         };
-        UpdateLobbyGuideStepDto: {
-            /** @example upcoming */
-            id: string;
-            /** @example SCREEN */
-            kicker: string;
-            /** @example 스크린에서 만날 영화를 저장해요 */
-            title: string;
-            /** @example 개봉 예정작 중 마음에 드는 영화는 ‘보고 싶어요’로 저장해요. */
-            body: string;
+        PublicProfileResponseDto: {
+            /**
+             * @description 프로필 닉네임
+             * @example cinemo_user
+             */
+            nickname: string;
+            /**
+             * @description 프로필 공개 여부
+             * @example true
+             */
+            profilePublic: boolean;
+            /** @description 아바타 설정 */
+            avatarConfig?: Record<string, never>;
+            /**
+             * @description 프로필 소개
+             * @example 영화를 좋아합니다.
+             */
+            bio?: Record<string, never> | null;
+            /**
+             * @description 관심 태그
+             * @example [
+             *       "스릴러",
+             *       "액션"
+             *     ]
+             */
+            tags?: string[];
         };
-        UpdateLobbyGuideDto: {
-            steps: components["schemas"]["UpdateLobbyGuideStepDto"][];
+        PlaceSearchResultDto: {
+            /** @example 123456789 */
+            id: string;
+            /** @example CGV 압구정 */
+            name: string;
+            /** @example 영화관 */
+            category: string;
+            /** @example 서울 강남구 압구정동 123 */
+            address: string;
+            /** @example 서울 강남구 논현로 123 */
+            roadAddress: string;
+            /** @example https://place.map.kakao.com/123456789 */
+            placeUrl: string;
+            /** @example 127.0286 */
+            longitude: number;
+            /** @example 37.5263 */
+            latitude: number;
         };
         TogglePostcardReactionDto: {
             /**
@@ -1686,7 +1916,6 @@ export interface components {
              */
             districtsCount: number;
         };
-        Object: Record<string, never>;
         LegalDongAreaResponseDto: {
             /**
              * @description 10자리 법정동 코드
@@ -2492,7 +2721,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ToggleUserMovieResponseDto"];
+                };
             };
         };
     };
@@ -2593,7 +2824,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieMarksResponseDto"];
+                };
             };
         };
     };
@@ -2610,27 +2843,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    UserMovieController_getCalendar_v1: {
-        parameters: {
-            query: {
-                year: number;
-                month: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": components["schemas"]["UserMovieCountsResponseDto"];
                 };
-                content?: never;
             };
         };
     };
@@ -2649,19 +2864,19 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieStatsResponseDto"];
+                };
             };
         };
     };
     UserMovieController_listByKind_v1: {
         parameters: {
             query: {
-                kind: string;
-                page: number;
-                limit: number;
-                search: string;
-                year: string;
-                month: string;
+                kind: "wish" | "watched";
+                take?: components["schemas"]["Object"];
+                /** @description 다음 페이지 조회에 사용할 마지막 UserMovie id */
+                cursor?: string;
             };
             header?: never;
             path?: never;
@@ -2673,7 +2888,30 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieListResponseDto"];
+                };
+            };
+        };
+    };
+    UserMovieController_getWishMovieDetail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tmdbId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishMovieDetailResponseDto"];
+                };
             };
         };
     };
@@ -2694,7 +2932,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieDisplayResponseDto"];
+                };
             };
         };
     };
@@ -2711,7 +2951,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieDisplayedResponseDto"];
+                };
             };
         };
     };
@@ -2767,11 +3009,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ReleaseNotificationRunResponseDto"];
+                };
             };
         };
     };
@@ -3024,49 +3268,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description 공개 프로필 조회 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    GuideController_getGuide_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": components["schemas"]["PublicProfileResponseDto"];
                 };
-                content?: never;
-            };
-        };
-    };
-    GuideController_updateGuide_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateLobbyGuideDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -3085,7 +3294,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlaceSearchResultDto"][];
+                };
             };
         };
     };

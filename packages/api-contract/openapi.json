@@ -704,6 +704,7 @@
     },
     "/v1/user-movies/toggle": {
       "post": {
+        "description": "보고 싶은 영화 또는 관람 기록 추가·삭제",
         "operationId": "UserMovieController_toggle_v1",
         "parameters": [],
         "requestBody": {
@@ -718,7 +719,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleUserMovieResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -726,6 +734,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화 보관 상태 토글",
         "tags": [
           "user-movies"
         ]
@@ -733,6 +742,7 @@
     },
     "/v1/user-movies/watched-at": {
       "post": {
+        "description": "영화 관람 기록 추가 및 관람일 저장",
         "operationId": "UserMovieController_addWatchedMovie_v1",
         "parameters": [],
         "requestBody": {
@@ -755,11 +765,13 @@
             "bearer": []
           }
         ],
+        "summary": "관람 기록 추가",
         "tags": [
           "user-movies"
         ]
       },
       "patch": {
+        "description": "기존 관람 기록의 관람일 수정",
         "operationId": "UserMovieController_updateWatchedAt_v1",
         "parameters": [],
         "requestBody": {
@@ -782,6 +794,7 @@
             "bearer": []
           }
         ],
+        "summary": "관람일 수정",
         "tags": [
           "user-movies"
         ]
@@ -789,6 +802,7 @@
     },
     "/v1/user-movies/viewing-details": {
       "patch": {
+        "description": "관람 장소·방식·후기·평점 수정",
         "operationId": "UserMovieController_updateViewingDetails_v1",
         "parameters": [],
         "requestBody": {
@@ -811,6 +825,7 @@
             "bearer": []
           }
         ],
+        "summary": "관람 상세 정보 수정",
         "tags": [
           "user-movies"
         ]
@@ -818,6 +833,7 @@
     },
     "/v1/user-movies/watched-at/{tmdbId}": {
       "delete": {
+        "description": "영화 관람 기록 삭제",
         "operationId": "UserMovieController_removeWatchedMovie_v1",
         "parameters": [
           {
@@ -839,6 +855,7 @@
             "bearer": []
           }
         ],
+        "summary": "관람 기록 삭제",
         "tags": [
           "user-movies"
         ]
@@ -846,6 +863,7 @@
     },
     "/v1/user-movies/marks": {
       "get": {
+        "description": "특정 영화의 보고 싶은 영화·관람 기록 여부 조회",
         "operationId": "UserMovieController_getMarks_v1",
         "parameters": [
           {
@@ -859,7 +877,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieMarksResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -867,6 +892,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화 보관 상태 조회",
         "tags": [
           "user-movies"
         ]
@@ -874,11 +900,19 @@
     },
     "/v1/user-movies/counts": {
       "get": {
+        "description": "보고 싶은 영화·관람 기록 개수 조회",
         "operationId": "UserMovieController_getCounts_v1",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieCountsResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -886,42 +920,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "user-movies"
-        ]
-      }
-    },
-    "/v1/user-movies/calendar": {
-      "get": {
-        "operationId": "UserMovieController_getCalendar_v1",
-        "parameters": [
-          {
-            "name": "year",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "month",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
+        "summary": "보관 영화 개수 조회",
         "tags": [
           "user-movies"
         ]
@@ -929,6 +928,7 @@
     },
     "/v1/user-movies/stats": {
       "get": {
+        "description": "특정 연도의 월별 관람 횟수·총 관람 수 조회",
         "operationId": "UserMovieController_getStats_v1",
         "parameters": [
           {
@@ -942,7 +942,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieStatsResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -950,6 +957,7 @@
             "bearer": []
           }
         ],
+        "summary": "연간 관람 통계 조회",
         "tags": [
           "user-movies"
         ]
@@ -957,6 +965,7 @@
     },
     "/v1/user-movies": {
       "get": {
+        "description": "보고 싶은 영화 또는 관람 기록을 cursor 단위로 조회",
         "operationId": "UserMovieController_listByKind_v1",
         "parameters": [
           {
@@ -964,53 +973,50 @@
             "required": true,
             "in": "query",
             "schema": {
-              "type": "string"
+              "example": "watched",
+              "type": "string",
+              "enum": [
+                "wish",
+                "watched"
+              ]
             }
           },
           {
-            "name": "page",
-            "required": true,
+            "name": "take",
+            "required": false,
             "in": "query",
             "schema": {
-              "type": "number"
+              "minimum": 1,
+              "maximum": 30,
+              "default": 9,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
             }
           },
           {
-            "name": "limit",
-            "required": true,
+            "name": "cursor",
+            "required": false,
             "in": "query",
+            "description": "다음 페이지 조회에 사용할 마지막 UserMovie id",
             "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "search",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "year",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "month",
-            "required": true,
-            "in": "query",
-            "schema": {
+              "format": "uuid",
               "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieListResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1018,6 +1024,44 @@
             "bearer": []
           }
         ],
+        "summary": "보관 영화 목록 조회",
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
+    "/v1/user-movies/wish-detail/{tmdbId}": {
+      "get": {
+        "description": "wish 모달에 필요한 영화 상세 정보 조회",
+        "operationId": "UserMovieController_getWishMovieDetail_v1",
+        "parameters": [
+          {
+            "name": "tmdbId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WishMovieDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "보고 싶은 영화 상세 정보 조회",
         "tags": [
           "user-movies"
         ]
@@ -1025,6 +1069,7 @@
     },
     "/v1/user-movies/display": {
       "post": {
+        "description": "홈 화면 티켓 영역에 표시할 관람 영화 설정",
         "operationId": "UserMovieController_updateDisplay_v1",
         "parameters": [],
         "requestBody": {
@@ -1039,7 +1084,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieDisplayResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1047,6 +1099,7 @@
             "bearer": []
           }
         ],
+        "summary": "홈 화면 영화 표시 상태 수정",
         "tags": [
           "user-movies"
         ]
@@ -1054,11 +1107,19 @@
     },
     "/v1/user-movies/displayed": {
       "get": {
+        "description": "홈 화면 티켓 영역에 표시된 관람 영화 조회",
         "operationId": "UserMovieController_listDisplayed_v1",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieDisplayedResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1066,6 +1127,7 @@
             "bearer": []
           }
         ],
+        "summary": "홈 화면 표시 영화 조회",
         "tags": [
           "user-movies"
         ]
@@ -1073,6 +1135,7 @@
     },
     "/v1/user-movies/release-notification": {
       "get": {
+        "description": "보고 싶은 영화의 개봉일 알림 설정 조회",
         "operationId": "UserMovieController_getReleaseNotification_v1",
         "parameters": [
           {
@@ -1094,11 +1157,13 @@
             "bearer": []
           }
         ],
+        "summary": "개봉일 알림 설정 조회",
         "tags": [
           "user-movies"
         ]
       },
       "patch": {
+        "description": "보고 싶은 영화의 개봉일 알림 활성화·비활성화",
         "operationId": "UserMovieController_updateReleaseNotification_v1",
         "parameters": [],
         "requestBody": {
@@ -1121,6 +1186,7 @@
             "bearer": []
           }
         ],
+        "summary": "개봉일 알림 설정 변경",
         "tags": [
           "user-movies"
         ]
@@ -1128,6 +1194,7 @@
     },
     "/v1/release-notifications/cron": {
       "post": {
+        "description": "GitHub Actions가 호출해 발송 대상 개봉일 알림을 처리함",
         "operationId": "ReleaseNotificationController_runForTest_v1",
         "parameters": [
           {
@@ -1141,10 +1208,18 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseNotificationRunResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "개봉일 알림 발송 실행",
         "tags": [
           "release-notifications"
         ]
@@ -1479,57 +1554,18 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "profiles"
-        ]
-      }
-    },
-    "/v1/guide": {
-      "get": {
-        "operationId": "GuideController_getGuide_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "guide"
-        ]
-      },
-      "patch": {
-        "operationId": "GuideController_updateGuide_v1",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateLobbyGuideDto"
+            "description": "공개 프로필 조회",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProfileResponseDto"
+                }
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
         "tags": [
-          "guide"
+          "profiles"
         ]
       }
     },
@@ -1549,7 +1585,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceSearchResultDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2721,6 +2767,32 @@
           "kind"
         ]
       },
+      "ToggleUserMovieResponseDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "wish",
+              "watched"
+            ],
+            "example": "wish"
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "tmdbId",
+          "kind",
+          "active"
+        ]
+      },
       "AddWatchedMovieDto": {
         "type": "object",
         "properties": {
@@ -2762,8 +2834,14 @@
             "type": "number",
             "example": 550
           },
+          "cinemaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "example": "0198f4c4-7f2d-7b1d-a8f7-3d8e1d1c2a10"
+          },
           "watchedAt": {
-            "type": "object",
+            "type": "string",
             "example": "2026-09-02",
             "nullable": true
           },
@@ -2778,27 +2856,27 @@
             "example": "home"
           },
           "viewingTypeCustom": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "example": "친구 집"
           },
           "viewingPlatform": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "example": "Netflix"
           },
-          "viewingLocation": {
-            "type": "object",
+          "viewingPlace": {
+            "type": "string",
             "nullable": true,
             "example": "집"
           },
           "review": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "example": "영상미가 인상 깊었던 영화"
           },
           "rating": {
-            "type": "object",
+            "type": "number",
             "nullable": true,
             "minimum": 1,
             "maximum": 10,
@@ -2807,6 +2885,285 @@
         },
         "required": [
           "tmdbId"
+        ]
+      },
+      "UserMovieMarksResponseDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "wish": {
+            "type": "boolean",
+            "example": true
+          },
+          "watched": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "tmdbId",
+          "wish",
+          "watched"
+        ]
+      },
+      "UserMovieCountsResponseDto": {
+        "type": "object",
+        "properties": {
+          "wish": {
+            "type": "number",
+            "example": 12
+          },
+          "watched": {
+            "type": "number",
+            "example": 8
+          }
+        },
+        "required": [
+          "wish",
+          "watched"
+        ]
+      },
+      "UserMovieMonthlyStatDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "number",
+            "example": 1
+          },
+          "count": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "month",
+          "count"
+        ]
+      },
+      "UserMovieStatsResponseDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number",
+            "example": 2026
+          },
+          "total": {
+            "type": "number",
+            "example": 24
+          },
+          "monthly": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserMovieMonthlyStatDto"
+            }
+          }
+        },
+        "required": [
+          "year",
+          "total",
+          "monthly"
+        ]
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "MovieSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 550
+          },
+          "title": {
+            "type": "string",
+            "example": "파이트 클럽"
+          },
+          "original_title": {
+            "type": "string",
+            "example": "Fight Club"
+          },
+          "original_language": {
+            "type": "string",
+            "example": "en"
+          },
+          "overview": {
+            "type": "string",
+            "example": "한 남자가 반복되는 일상에서 벗어나기 위해..."
+          },
+          "poster_path": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster.jpg"
+          },
+          "release_date": {
+            "type": "string",
+            "example": "1999-10-15"
+          },
+          "director": {
+            "type": "string",
+            "nullable": true,
+            "example": "데이비드 핀처"
+          },
+          "cast": {
+            "example": [
+              "브래드 피트"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trailerUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://www.youtube.com/watch?v=example"
+          },
+          "videoType": {
+            "type": "string",
+            "enum": [
+              "trailer"
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "overview",
+          "poster_path",
+          "release_date",
+          "director"
+        ]
+      },
+      "UserMovieListItemDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "watchedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "viewingType": {
+            "type": "string",
+            "enum": [
+              "theater",
+              "home",
+              "other"
+            ],
+            "nullable": true
+          },
+          "viewingTypeCustom": {
+            "type": "string",
+            "nullable": true
+          },
+          "viewingPlatform": {
+            "type": "string",
+            "nullable": true
+          },
+          "viewingPlace": {
+            "type": "string",
+            "nullable": true
+          },
+          "cinemaId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 10
+          },
+          "movie": {
+            "$ref": "#/components/schemas/MovieSummaryDto"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "updatedAt",
+          "watchedAt",
+          "viewingType",
+          "viewingTypeCustom",
+          "viewingPlatform",
+          "viewingPlace",
+          "cinemaId",
+          "review",
+          "rating",
+          "movie"
+        ]
+      },
+      "UserMovieListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserMovieListItemDto"
+            }
+          },
+          "hasNext": {
+            "type": "boolean",
+            "example": true
+          },
+          "nextCursor": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "hasNext",
+          "nextCursor"
+        ]
+      },
+      "WishMovieDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "genre_ids": {
+            "example": [
+              18,
+              53
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "firstReleaseDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "1999-10-15"
+          },
+          "reReleaseDates": {
+            "example": [
+              "2026-09-16"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "genre_ids"
         ]
       },
       "UpdateDisplayDto": {
@@ -2841,6 +3198,73 @@
           "wallSlot"
         ]
       },
+      "UserMovieDisplayResponseDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "wish",
+              "watched"
+            ],
+            "example": "watched"
+          },
+          "isDisplayed": {
+            "type": "boolean",
+            "example": true
+          },
+          "wallSlot": {
+            "type": "number",
+            "nullable": true,
+            "example": 1
+          }
+        },
+        "required": [
+          "tmdbId",
+          "kind",
+          "isDisplayed",
+          "wallSlot"
+        ]
+      },
+      "DisplayedUserMovieDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "wallSlot": {
+            "type": "number",
+            "example": 1
+          },
+          "movie": {
+            "$ref": "#/components/schemas/MovieSummaryDto"
+          }
+        },
+        "required": [
+          "tmdbId",
+          "wallSlot",
+          "movie"
+        ]
+      },
+      "UserMovieDisplayedResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisplayedUserMovieDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "UpdateReleaseNotificationDto": {
         "type": "object",
         "properties": {
@@ -2862,6 +3286,57 @@
           "tmdbId",
           "enabled",
           "releaseDate"
+        ]
+      },
+      "ReleaseNotificationFailureDto": {
+        "type": "object",
+        "properties": {
+          "notificationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "reason": {
+            "type": "string",
+            "example": "메일 발송에 실패했습니다."
+          }
+        },
+        "required": [
+          "notificationId",
+          "tmdbId",
+          "reason"
+        ]
+      },
+      "ReleaseNotificationRunResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "example": 10
+          },
+          "sent": {
+            "type": "number",
+            "example": 9
+          },
+          "failed": {
+            "type": "number",
+            "example": 1
+          },
+          "failures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReleaseNotificationFailureDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "sent",
+          "failed",
+          "failures"
         ]
       },
       "MovieChartItemDto": {
@@ -3186,47 +3661,91 @@
           "message"
         ]
       },
-      "UpdateLobbyGuideStepDto": {
+      "PublicProfileResponseDto": {
         "type": "object",
         "properties": {
-          "id": {
+          "nickname": {
             "type": "string",
-            "example": "upcoming"
+            "description": "프로필 닉네임",
+            "example": "cinemo_user"
           },
-          "kicker": {
-            "type": "string",
-            "example": "SCREEN"
+          "profilePublic": {
+            "type": "boolean",
+            "description": "프로필 공개 여부",
+            "example": true
           },
-          "title": {
-            "type": "string",
-            "example": "스크린에서 만날 영화를 저장해요"
+          "avatarConfig": {
+            "type": "object",
+            "description": "아바타 설정"
           },
-          "body": {
-            "type": "string",
-            "example": "개봉 예정작 중 마음에 드는 영화는 ‘보고 싶어요’로 저장해요."
-          }
-        },
-        "required": [
-          "id",
-          "kicker",
-          "title",
-          "body"
-        ]
-      },
-      "UpdateLobbyGuideDto": {
-        "type": "object",
-        "properties": {
-          "steps": {
-            "minItems": 1,
-            "maxItems": 20,
+          "bio": {
+            "type": "object",
+            "description": "프로필 소개",
+            "nullable": true,
+            "example": "영화를 좋아합니다."
+          },
+          "tags": {
+            "description": "관심 태그",
+            "example": [
+              "스릴러",
+              "액션"
+            ],
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UpdateLobbyGuideStepDto"
+              "type": "string"
             }
           }
         },
         "required": [
-          "steps"
+          "nickname",
+          "profilePublic"
+        ]
+      },
+      "PlaceSearchResultDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123456789"
+          },
+          "name": {
+            "type": "string",
+            "example": "CGV 압구정"
+          },
+          "category": {
+            "type": "string",
+            "example": "영화관"
+          },
+          "address": {
+            "type": "string",
+            "example": "서울 강남구 압구정동 123"
+          },
+          "roadAddress": {
+            "type": "string",
+            "example": "서울 강남구 논현로 123"
+          },
+          "placeUrl": {
+            "type": "string",
+            "example": "https://place.map.kakao.com/123456789"
+          },
+          "longitude": {
+            "type": "number",
+            "example": 127.0286
+          },
+          "latitude": {
+            "type": "number",
+            "example": 37.5263
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "address",
+          "roadAddress",
+          "placeUrl",
+          "longitude",
+          "latitude"
         ]
       },
       "TogglePostcardReactionDto": {
@@ -3380,10 +3899,6 @@
           "regionsCount",
           "districtsCount"
         ]
-      },
-      "Object": {
-        "type": "object",
-        "properties": {}
       },
       "LegalDongAreaResponseDto": {
         "type": "object",

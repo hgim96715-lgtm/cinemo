@@ -1,6 +1,12 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PlacesService } from './places.service';
+import { PlaceSearchResultDto } from './dto/place-search-result.dto';
 
 @ApiTags('places')
 @ApiBearerAuth()
@@ -14,6 +20,7 @@ export class PlacesController {
     required: true,
     example: 'CGV 압구정',
   })
+  @ApiOkResponse({ type: [PlaceSearchResultDto] })
   search(@Query('q') query?: string) {
     return this.placesService.search(query ?? '');
   }

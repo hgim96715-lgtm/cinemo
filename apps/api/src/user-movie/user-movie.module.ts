@@ -5,11 +5,18 @@ import { TmdbModule } from '../tmdb/tmdb.module';
 import { AuthModule } from '../auth/auth.module';
 
 import { ReleaseNotificationController } from './release-notification.controller';
-import { ReleaseNotificationService } from './release-notification.service';
+import { UserMovieStatsService } from './user-movie-stats.service';
+import { UserMovieDisplayService } from './user-movie-display.service';
+import { UserMovieReleaseNotificationService } from './user-movie-release-notification.service';
 
 @Module({
   imports: [TmdbModule, AuthModule],
   controllers: [UserMovieController, ReleaseNotificationController],
-  providers: [UserMovieService, ReleaseNotificationService],
+  providers: [
+    UserMovieService,
+    UserMovieStatsService,
+    UserMovieDisplayService,
+    UserMovieReleaseNotificationService,
+  ],
 })
 export class UserMovieModule {}

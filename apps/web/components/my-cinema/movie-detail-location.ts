@@ -1,4 +1,4 @@
-import type { PlaceSearchResult } from '@/lib/places-api';
+import type { PlaceSearchResult } from '@cinemo/api-contract';
 
 export type RecentLocation = Pick<
   PlaceSearchResult,

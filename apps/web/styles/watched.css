@@ -1,0 +1,430 @@
+/* 관람 기록: 포스터 목록 대신 한 편의 관람 티켓처럼 표시 */
+
+.my-cinema--shelf .my-cinema-movie-grid.my-cinema-movie-grid--watched {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.watched-record-skeleton-grid {
+  pointer-events: none;
+}
+
+.watched-record-skeleton-line {
+  display: block;
+  height: 0.7rem;
+  border-radius: 0.2rem;
+}
+
+.watched-record-skeleton-kicker {
+  width: 7.5rem;
+  height: 0.75rem;
+}
+
+.watched-record-skeleton-title {
+  width: 58%;
+  height: 1.44rem;
+  margin-inline: auto;
+}
+
+.watched-record-skeleton-label {
+  width: 2.4rem;
+  height: 0.75rem;
+}
+
+.watched-record-skeleton-value {
+  width: 5.5rem;
+  height: 0.98rem;
+}
+
+.watched-record-skeleton-value--short {
+  width: 4.2rem;
+}
+
+.watched-record-skeleton-rating {
+  width: 3.3rem;
+  height: 1.1rem;
+}
+
+.watched-record-skeleton-review {
+  width: 88%;
+  height: 3.8rem;
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap {
+  display: flex;
+  height: 100%;
+  min-height: 23.5rem;
+  width: 100%;
+  aspect-ratio: auto;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgb(230 202 101 / 0.34);
+  border-radius: 0.5rem;
+  background:
+    linear-gradient(135deg, rgb(230 202 101 / 0.07), transparent 38%),
+    rgb(20 18 21 / 0.88);
+  box-shadow:
+    inset 0 0 0 1px rgb(230 202 101 / 0.06),
+    0 0.8rem 1.8rem rgb(0 0 0 / 0.2);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-poster {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.2 / 1;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0;
+  background: #0d0e12;
+  box-shadow: none;
+}
+
+.my-cinema-movie-grid--watched .my-cinema-movie-poster img,
+.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap:hover
+  .my-cinema-movie-poster
+  img {
+  object-fit: contain;
+  object-position: center;
+  transform: none
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap:hover,
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap:focus-visible {
+  border-color: var(--lobby-red, #ad4f59);
+  box-shadow:
+    inset 0 0 0 1px rgb(173 79 89 / 0.24),
+    0 0.8rem 1.8rem rgb(0 0 0 / 0.2);
+  transform: none !important;
+}
+
+.my-cinema-movie-grid--watched .my-cinema-movie-info {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+  padding: 0.8rem 0.85rem 0.9rem;
+  border-top: 1px dashed rgb(230 202 101 / 0.3);
+  transform: none;
+}
+
+.my-cinema-movie-grid--watched .my-cinema-movie-info .my-cinema-movie-meta {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  min-height: 0;
+  gap: 0.65rem;
+  overflow: visible;
+  text-align: left;
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-title {
+  display: block;
+  overflow: hidden;
+  color: var(--lobby-fg);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap:hover
+  .my-cinema-movie-info,
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap:focus-visible
+  .my-cinema-movie-info {
+  transform: none !important;
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid.my-cinema-movie-grid--watched
+  .my-cinema-movie-card-wrap:focus-within
+  .my-cinema-movie-info {
+  transform: none !important;
+}
+
+.my-cinema-watched-kicker {
+  color: rgb(230 202 101 / 0.72);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+}
+
+.my-cinema-watched-details {
+  display: flex;
+  flex: 0 0 auto;
+  min-height: 0;
+  min-width: 0;
+  flex-direction: column;
+  overflow: visible;
+  gap: 0.75rem;
+}
+
+.my-cinema-watched-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  gap: 0.45rem;
+  color: rgb(243 239 230 / 0.58);
+  font-size: 0.75rem;
+}
+
+.my-cinema-watched-date,
+.my-cinema-watched-location {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.22rem;
+  overflow: hidden;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgb(230 202 101 / 0.16);
+}
+
+.my-cinema-watched-date small,
+.my-cinema-watched-location small {
+  color: rgb(230 202 101 / 0.64);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+}
+
+.my-cinema-watched-date strong,
+.my-cinema-watched-location strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: rgb(243 239 230 / 0.86);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-cinema-watched-location {
+  color: rgb(230 202 101 / 0.72);
+}
+
+.my-cinema-watched-location strong {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  color: rgb(230 202 101 / 0.78);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+}
+
+.my-cinema-watched-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--lobby-gold);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.my-cinema-watched-rating.is-empty {
+  color: rgb(243 239 230 / 0.24);
+}
+
+.my-cinema-watched-review {
+  display: -webkit-box;
+  overflow: hidden;
+  flex: 0 0 3.8rem;
+  min-height: 3.8rem;
+  margin: 0;
+  color: rgb(243 239 230 / 0.68);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  line-clamp: 5;
+}
+
+.my-cinema-shelf-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  height: 2.2rem;
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgb(230 202 101 / 0.28);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--lobby-gold, #e6ca65);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.my-cinema-shelf-add:hover,
+.my-cinema-shelf-add:focus-visible {
+  border-color: var(--lobby-red, #ad4f59);
+}
+
+.my-cinema-shelf-add:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.my-cinema-shelf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.15rem;
+}
+
+.my-cinema-shelf-search {
+  position: relative;
+  display: flex;
+  flex: 1 1 14rem;
+  max-width: 20rem;
+}
+
+.my-cinema-shelf-search input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.2rem;
+  padding: 0.5rem 2.35rem 0.5rem 0.7rem;
+  border: 1px solid rgb(230 202 101 / 0.28);
+  border-radius: 0.3rem;
+  color: var(--lobby-fg);
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.my-cinema-shelf-search input::placeholder {
+  color: rgb(243 239 230 / 0.42);
+}
+
+.my-cinema-shelf-search input:hover,
+.my-cinema-shelf-search input:focus-visible {
+  border-color: var(--lobby-red, #ad4f59);
+  background: rgb(173 79 89 / 0.06);
+}
+
+.my-cinema-shelf-search input:focus-visible {
+  outline: 1px solid rgb(173 79 89 / 0.45);
+  outline-offset: 2px;
+}
+
+.my-cinema-shelf-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--lobby-gold, #e6ca65);
+  background: transparent;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.my-cinema-shelf-search-clear:hover {
+  border-color: transparent;
+  color: var(--cinemo-fg);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.my-cinema-shelf-search-clear:focus-visible {
+  outline: 1px solid var(--cinemo-gold);
+  outline-offset: 2px;
+}
+
+@media (max-width: 40rem) {
+  .my-cinema--shelf .my-cinema-movie-grid.my-cinema-movie-grid--watched {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .my-cinema--shelf
+    .my-cinema-movie-grid.my-cinema-movie-grid--watched
+    .my-cinema-movie-card-wrap {
+    height: 100%;
+    min-height: 26rem;
+    width: min(100%, 24rem);
+    margin-inline: auto;
+  }
+
+  .my-cinema--shelf
+    .my-cinema-movie-grid.my-cinema-movie-grid--watched
+    .my-cinema-movie-poster {
+    aspect-ratio: 1.2 / 1;
+  }
+
+  .my-cinema-movie-grid--watched .my-cinema-movie-info {
+    padding: 0.85rem 0.9rem 1rem;
+  }
+
+  .my-cinema-shelf-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .my-cinema-shelf-search {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  .my-cinema-shelf-add {
+    align-self: stretch;
+    width: 100%;
+  }
+}
+
+@media (min-width: 40.01rem) and (max-width: 60rem) {
+  .my-cinema--shelf .my-cinema-movie-grid.my-cinema-movie-grid--watched {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.my-cinema--shelf
+  .watched-record-skeleton-card
+  .my-cinema-movie-info {
+  box-sizing: border-box;
+  flex: 0 0 14.5rem;
+  min-height: 14.5rem;
+}

@@ -1,5 +1,6 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PlaceSearchResultDto } from './dto/place-search-result.dto';
 
 type KakaoPlaceDocument = {
   id: string;
@@ -16,22 +17,11 @@ type KakaoKeywordResponse = {
   documents: KakaoPlaceDocument[];
 };
 
-export type PlaceSearchResult = {
-  id: string;
-  name: string;
-  category: string;
-  address: string;
-  roadAddress: string;
-  placeUrl: string;
-  longitude: number;
-  latitude: number;
-};
-
 @Injectable()
 export class PlacesService {
   constructor(private readonly configService: ConfigService) {}
 
-  async search(query: string): Promise<PlaceSearchResult[]> {
+  async search(query: string): Promise<PlaceSearchResultDto[]> {
     const keyword = query.trim();
     if (keyword.length < 2) {
       return [];

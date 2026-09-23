@@ -25,8 +25,7 @@ export function PosterPickerModal({
   onRemove,
   isPending = false,
 }: PosterPickerModalProps) {
-  const { handleOpenAutoFocus, handleCloseAutoFocus } =
-    useDialogFocusRestore();
+  const { handleOpenAutoFocus, handleCloseAutoFocus } = useDialogFocusRestore();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<MovieSearchItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -75,11 +74,11 @@ export function PosterPickerModal({
       <Dialog.Portal>
         <Dialog.Overlay className="poster-picker-overlay" />
         <Dialog.Content
-        className="poster-picker-modal"
-        aria-busy={isPending}
-        onOpenAutoFocus={handleOpenAutoFocus}
-        onCloseAutoFocus={handleCloseAutoFocus}
-        onEscapeKeyDown={(event) => {
+          className="poster-picker-modal"
+          aria-busy={isPending}
+          onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
+          onEscapeKeyDown={(event) => {
             if (isPending) event.preventDefault();
           }}
         >
@@ -94,86 +93,99 @@ export function PosterPickerModal({
             </button>
           </Dialog.Close>
 
-          <p className="my-cinema-kicker">POSTER WALL</p>
+          <p className="movie-detail-kicker">WATCHED RECORD</p>
           <Dialog.Title asChild>
             <h2>영화 포스터 고르기</h2>
           </Dialog.Title>
 
-        <input
-          type="search"
-          value={query}
-          onChange={(event) => handleQueryChange(event.target.value)}
-          placeholder="영화 제목을 검색하세요"
-          autoFocus
-          disabled={isPending}
-        />
-
-        {isPending || (loading && normalizedQuery.length >= 2) ? (
-          <p
-            className="poster-picker-message poster-picker-message--loading"
-            role="status"
-          >
-            <LoaderCircle
-              className="poster-picker-spinner"
-              size={18}
-              strokeWidth={1.8}
-              aria-hidden="true"
+          <div className="poster-picker-search">
+            <input
+              type="text"
+              value={query}
+              onChange={(event) => handleQueryChange(event.target.value)}
+              placeholder="영화 제목을 검색하세요"
+              autoFocus
+              disabled={isPending}
             />
-            <span>
-              {isPending ? '관람 기록을 저장하는 중…' : '영화를 찾는 중…'}
-            </span>
-          </p>
-        ) : results.length === 0 ? (
-          <p className="poster-picker-message">
-            두 글자 이상 입력하면 영화를 검색할 수 있어요.
-          </p>
-        ) : (
-          <div className="poster-picker-results">
-            {results.map((movie) => {
-              const poster = tmdbPosterUrl(movie.poster_path, 'w185');
 
-              return (
-                <button
-                  key={movie.id}
-                  type="button"
-                  className="poster-picker-result"
-                  onClick={() => void onSelect(movie)}
-                  disabled={isPending}
-                >
-                  {poster ? (
-                    <Image
-                      src={poster}
-                      alt={movie.title}
-                      width={185}
-                      height={278}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="poster-picker-empty">NO POSTER</span>
-                  )}
-
-                  <span>
-                    <strong>{movie.title}</strong>
-                    <small>
-                      {movie.release_date?.slice(0, 4) || '연도 없음'}
-                    </small>
-                  </span>
-                </button>
-              );
-            })}
+            {query ? (
+              <button
+                type="button"
+                className="poster-picker-search-clear"
+                onClick={() => handleQueryChange('')}
+                disabled={isPending}
+                aria-label="영화 검색어 지우기"
+              >
+                <X size={16} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            ) : null}
           </div>
-        )}
 
-        {onRemove ? (
-          <button
-            type="button"
-            className="poster-picker-remove"
-            onClick={onRemove}
-            disabled={isPending}
-          >
-            이 포스터 전시 해제
-          </button>
-        ) : null}
+          {isPending || (loading && normalizedQuery.length >= 2) ? (
+            <p
+              className="poster-picker-message poster-picker-message--loading"
+              role="status"
+            >
+              <LoaderCircle
+                className="poster-picker-spinner"
+                size={18}
+                strokeWidth={1.8}
+                aria-hidden="true"
+              />
+              <span>
+                {isPending ? '관람 기록을 저장하는 중…' : '영화를 찾는 중…'}
+              </span>
+            </p>
+          ) : results.length === 0 ? (
+            <p className="poster-picker-message">
+              두 글자 이상 입력하면 영화를 검색할 수 있어요.
+            </p>
+          ) : (
+            <div className="poster-picker-results">
+              {results.map((movie) => {
+                const poster = tmdbPosterUrl(movie.poster_path, 'w342');
+
+                return (
+                  <button
+                    key={movie.id}
+                    type="button"
+                    className="poster-picker-result"
+                    onClick={() => void onSelect(movie)}
+                    disabled={isPending}
+                  >
+                    {poster ? (
+                      <Image
+                        src={poster}
+                        alt={movie.title}
+                        width={185}
+                        height={278}
+                        priority
+                      />
+                    ) : (
+                      <span className="poster-picker-empty">NO POSTER</span>
+                    )}
+                    <span>
+                      <strong>{movie.title}</strong>
+                      <small>
+                        {movie.release_date?.slice(0, 4) || '연도 없음'}
+                      </small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {onRemove ? (
+            <button
+              type="button"
+              className="poster-picker-remove"
+              onClick={onRemove}
+              disabled={isPending}
+            >
+              이 포스터 전시 해제
+            </button>
+          ) : null}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

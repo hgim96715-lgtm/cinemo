@@ -1,14 +1,16 @@
+import type { UserMovieKind } from '@cinemo/shared';
 import type {
   ToggleUserMovieResult,
-  UserMovieCalendar,
   UserMovieCounts,
-  UserMovieKind,
+  UserMovieDisplayResult,
+  UserMovieDisplayedResponse,
   UserMovieListPage,
   UserMovieMarks,
   UserMovieStats,
-  UserMovieViewingDetails,
-} from '@cinemo/shared';
-import type { MovieSummary } from '@cinemo/api-contract';
+  UpdateViewingDetails,
+  UpdateDisplayDto,
+  WishMovieDetailResponse,
+} from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
 
 export function toggleUserMovieRequest(
@@ -32,25 +34,17 @@ export function getUserMovieMarksRequest(token: string, tmdbId: number) {
 export function listUserMoviesRequest(
   token: string,
   kind: UserMovieKind,
-  page = 1,
-  limit = 24,
-  filters?: {
-    search?: string;
-    year?: number;
-    month?: number;
-  },
+  take = 9,
+  cursor?: string,
 ) {
   const params = new URLSearchParams({
     kind,
-    page: String(page),
-    limit: String(limit),
+    take: String(take),
   });
 
-  const search = filters?.search?.trim();
-
-  if (search) params.set('search', search);
-  if (filters?.year) params.set('year', String(filters.year));
-  if (filters?.month) params.set('month', String(filters.month));
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
 
   return apiFetch<UserMovieListPage>(`/user-movies?${params.toString()}`, {
     token,
@@ -61,24 +55,9 @@ export function getUserMovieCountsRequest(token: string) {
   return apiFetch<UserMovieCounts>('/user-movies/counts', { token });
 }
 
-export type UpdateDisplayBody = {
-  tmdbId: number;
-  kind: 'watched';
-  isDisplayed: boolean;
-  wallSlot: number;
-};
-
-export type UserMovieDisplayResult = {
-  tmdbId: number;
-  kind: 'watched';
-  isDisplayed: boolean;
-  wallSlot: number | null;
-  displayOrder: number | null;
-};
-
 export function updateUserMovieDisplayRequest(
   token: string,
-  body: UpdateDisplayBody,
+  body: UpdateDisplayDto,
 ) {
   return apiFetch<UserMovieDisplayResult>('/user-movies/display', {
     method: 'POST',
@@ -87,28 +66,10 @@ export function updateUserMovieDisplayRequest(
   });
 }
 
-export type DisplayedUserMovie = {
-  tmdbId: number;
-  wallSlot: number;
-  displayOrder: number | null;
-  movie: MovieSummary;
-};
-
 export function listDisplayedUserMoviesRequest(token: string) {
-  return apiFetch<{ items: DisplayedUserMovie[] }>('/user-movies/displayed', {
+  return apiFetch<UserMovieDisplayedResponse>('/user-movies/displayed', {
     token,
   });
-}
-
-export function getUserMovieCalendarRequest(
-  token: string,
-  year: number,
-  month: number,
-) {
-  return apiFetch<UserMovieCalendar>(
-    `/user-movies/calendar?year=${year}&month=${month}`,
-    { token },
-  );
 }
 
 export function addWatchedMovieRequest(
@@ -146,14 +107,12 @@ export function removeWatchedMovieRequest(token: string, tmdbId: number) {
   });
 }
 
-type UpdateUserMovieScreeningInput = UserMovieViewingDetails & {
-  watchedAt: string | null;
-};
+type UpdateUserMovieViewingDetailsInput = Omit<UpdateViewingDetails, 'tmdbId'>;
 
 export function updateViewingDetailsRequest(
   token: string,
   tmdbId: number,
-  details: UpdateUserMovieScreeningInput,
+  details: UpdateUserMovieViewingDetailsInput,
 ) {
   return apiFetch('/user-movies/viewing-details', {
     method: 'PATCH',
@@ -163,6 +122,13 @@ export function updateViewingDetailsRequest(
       ...details,
     }),
   });
+}
+
+export function getWishMovieDetailRequest(token: string, tmdbId: number) {
+  return apiFetch<WishMovieDetailResponse>(
+    `/user-movies/wish-detail/${tmdbId}`,
+    { token },
+  );
 }
 
 export type MovieReleaseNotificationResult = {

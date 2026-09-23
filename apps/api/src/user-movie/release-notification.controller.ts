@@ -4,18 +4,19 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiHeader, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 
 import { EnvKeys } from '../config/env.keys';
 import { ConfigService } from '@nestjs/config';
-import { ReleaseNotificationService } from './release-notification.service';
+import { UserMovieReleaseNotificationService } from './user-movie-release-notification.service';
+import { ReleaseNotificationRunResponseDto } from './dto/release-notification-run-response.dto';
 
 @ApiTags('release-notifications')
 @Controller('release-notifications')
 export class ReleaseNotificationController {
   constructor(
-    private readonly releaseNotificationService: ReleaseNotificationService,
+    private readonly releaseNotificationService: UserMovieReleaseNotificationService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -26,6 +27,11 @@ export class ReleaseNotificationController {
   })
   @Public()
   @Post('cron')
+  @ApiOperation({
+    summary: '개봉일 알림 발송 실행',
+    description: 'GitHub Actions가 호출해 발송 대상 개봉일 알림을 처리함',
+  })
+  @ApiOkResponse({ type: ReleaseNotificationRunResponseDto })
   async runForTest(@Headers('x-cron-secret') secret: string | undefined) {
     const cronSecret = this.configService.getOrThrow<string>(
       EnvKeys.CRON_SECRET,

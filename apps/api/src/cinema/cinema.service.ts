@@ -152,4 +152,20 @@ export class CinemaService {
       brands,
     };
   }
+
+  // user movie
+  async findCinemaById(id: string) {
+    return this.prisma.cinema.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        brand: true,
+        address: true,
+        roadAddress: true,
+        latitude: true,
+        longitude: true,
+      },
+    });
+  }
 }

@@ -11,10 +11,11 @@ export type CinemoSelectOption = {
 
 type CinemoSelectProps = {
   value: string;
-  options: CinemoSelectOption[];
+  options: readonly CinemoSelectOption[];
   onChange: (value: string) => void;
   ariaLabel: string;
   placeholder?: string;
+  disabled?: boolean;
 };
 
 const EMPTY_VALUE = '__cinemo_empty__';
@@ -25,6 +26,7 @@ export function CinemoSelect({
   onChange,
   ariaLabel,
   placeholder,
+  disabled = false,
 }: CinemoSelectProps) {
   return (
     <div className="cinemo-select">
@@ -37,6 +39,7 @@ export function CinemoSelect({
         <Select.Trigger
           className="cinemo-select-trigger"
           aria-label={ariaLabel}
+          disabled={disabled}
         >
           <Select.Value placeholder={placeholder ?? options[0]?.label} />
           <Select.Icon>

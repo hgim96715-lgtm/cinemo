@@ -1,4 +1,5 @@
 import { MapPin } from 'lucide-react';
+import type { PlaceSearchResult } from '@cinemo/api-contract';
 import {
   Controller,
   type Control,
@@ -7,39 +8,42 @@ import {
   type UseFormRegister,
   type UseFormSetValue,
 } from 'react-hook-form';
-import type { PlaceSearchResult } from '@/lib/places-api';
+import { CinemoSelect } from '@/components/common/CinemoSelect';
 import {
-  type MovieScreeningFormValues,
+  type WatchedRecordFormValues,
   VIEWING_PLATFORM_OPTIONS,
   VIEWING_TYPE_OPTIONS,
-} from './movie-detail-form';
-import { MovieDetailSelect } from './MovieDetailSelect';
+} from './watched-record-form';
 
-type MovieDetailSubmitHandler = ReturnType<
-  UseFormHandleSubmit<MovieScreeningFormValues>
->;
-
-type MovieDetailScreeningFormProps = {
-  control: Control<MovieScreeningFormValues>;
-  errors: FieldErrors<MovieScreeningFormValues>;
-  register: UseFormRegister<MovieScreeningFormValues>;
-  setValue: UseFormSetValue<MovieScreeningFormValues>;
-  onSubmit: MovieDetailSubmitHandler;
-  todayKst: string;
-  isSubmitting: boolean;
-  selectedViewingType: MovieScreeningFormValues['viewingType'];
-  viewingPlatformMode: MovieScreeningFormValues['viewingPlatformMode'];
-  selectedViewingPlatform: string;
-  viewingDetailsError: string | null;
-  isLocationFocused: boolean;
-  onLocationFocus: () => void;
-  onLocationBlur: () => void;
-  visibleLocationSuggestions: PlaceSearchResult[];
-  isSearchingPlaces: boolean;
-  onLocationSelect: (location: PlaceSearchResult) => void;
+type WatchedPlaceOption = PlaceSearchResult & {
+  cinemaId?: string;
 };
 
-export function MovieDetailScreeningForm({
+type WatchedRecordSubmitHandler = ReturnType<
+  UseFormHandleSubmit<WatchedRecordFormValues>
+>;
+
+type WatchedRecordFormProps = {
+  control: Control<WatchedRecordFormValues>;
+  errors: FieldErrors<WatchedRecordFormValues>;
+  register: UseFormRegister<WatchedRecordFormValues>;
+  setValue: UseFormSetValue<WatchedRecordFormValues>;
+  onSubmit: WatchedRecordSubmitHandler;
+  todayKst: string;
+  isSubmitting: boolean;
+  selectedViewingType: WatchedRecordFormValues['viewingType'];
+  viewingPlatformMode: WatchedRecordFormValues['viewingPlatformMode'];
+  selectedViewingPlatform: string;
+  viewingDetailsError: string | null;
+  isPlaceFocused: boolean;
+  onPlaceFocus: () => void;
+  onPlaceBlur: () => void;
+  visiblePlaceSuggestions: WatchedPlaceOption[];
+  isSearchingPlaces: boolean;
+  onPlaceSelect: (place: WatchedPlaceOption) => void;
+};
+
+export function WatchedRecordForm({
   control,
   errors,
   register,
@@ -51,23 +55,19 @@ export function MovieDetailScreeningForm({
   viewingPlatformMode,
   selectedViewingPlatform,
   viewingDetailsError,
-  isLocationFocused,
-  onLocationFocus,
-  onLocationBlur,
-  visibleLocationSuggestions,
+  isPlaceFocused,
+  onPlaceFocus,
+  onPlaceBlur,
+  visiblePlaceSuggestions,
   isSearchingPlaces,
-  onLocationSelect,
-}: MovieDetailScreeningFormProps) {
+  onPlaceSelect,
+}: WatchedRecordFormProps) {
   return (
     <form
       className="movie-detail-screening"
-      aria-labelledby="my-screening-title"
+      aria-label="관람 기록 입력"
       onSubmit={onSubmit}
     >
-      <p className="movie-detail-kicker" id="my-screening-title">
-        MY SCREENING
-      </p>
-
       <label>
         <span>관람일</span>
         <input
@@ -83,7 +83,7 @@ export function MovieDetailScreeningForm({
 
       <label className="movie-detail-viewing-type-field">
         <span>관람 방식</span>
-        <MovieDetailSelect
+        <CinemoSelect
           value={selectedViewingType}
           options={VIEWING_TYPE_OPTIONS}
           ariaLabel="관람 방식 선택"
@@ -91,7 +91,7 @@ export function MovieDetailScreeningForm({
           onChange={(value) => {
             setValue(
               'viewingType',
-              value as MovieScreeningFormValues['viewingType'],
+              value as WatchedRecordFormValues['viewingType'],
               {
                 shouldDirty: true,
                 shouldValidate: true,
@@ -120,7 +120,7 @@ export function MovieDetailScreeningForm({
 
       <label className="movie-detail-platform-field">
         <span>플랫폼</span>
-        <MovieDetailSelect
+        <CinemoSelect
           value={
             viewingPlatformMode === 'custom' ? 'other' : selectedViewingPlatform
           }
@@ -170,50 +170,50 @@ export function MovieDetailScreeningForm({
         <span>관람 장소</span>
         <MapPin size={16} strokeWidth={1.5} aria-hidden />
         <input
-          {...register('viewingLocation')}
+          {...register('viewingPlace')}
           placeholder="CGV,롯데시네마,메가박스 등"
           maxLength={100}
           disabled={isSubmitting}
-          onFocus={onLocationFocus}
-          onBlur={onLocationBlur}
+          onFocus={onPlaceFocus}
+          onBlur={onPlaceBlur}
         />
-        {errors.viewingLocation?.message ? (
-          <small role="alert">{errors.viewingLocation.message}</small>
+        {errors.viewingPlace?.message ? (
+          <small role="alert">{errors.viewingPlace.message}</small>
         ) : null}
         {isSearchingPlaces ? (
-          <small className="movie-detail-location-status">
+          <small className="movie-detail-place-status">
             장소를 찾는 중…
           </small>
         ) : null}
 
         {!isSearchingPlaces &&
-        isLocationFocused &&
-        visibleLocationSuggestions.length > 0 ? (
+        isPlaceFocused &&
+        visiblePlaceSuggestions.length > 0 ? (
           <div
-            className="movie-detail-location-suggestions"
+            className="movie-detail-place-suggestions"
             role="listbox"
             aria-label="관람 장소 추천"
           >
-            {visibleLocationSuggestions.map((location) => (
+            {visiblePlaceSuggestions.map((place) => (
               <button
-                key={location.id}
+                key={place.id}
                 type="button"
                 role="option"
                 aria-selected={false}
-                className="movie-detail-location-option"
+                className="movie-detail-place-option"
                 onPointerDown={(event) => {
                   event.preventDefault();
-                  onLocationSelect(location);
+                  onPlaceSelect(place);
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    onLocationSelect(location);
+                    onPlaceSelect(place);
                   }
                 }}
               >
-                <strong>{location.name}</strong>
-                <span>{location.roadAddress || location.address}</span>
+                <strong>{place.name}</strong>
+                <span>{place.roadAddress || place.address}</span>
               </button>
             ))}
           </div>
@@ -241,16 +241,8 @@ export function MovieDetailScreeningForm({
           <div className="movie-detail-rating">
             <div className="movie-detail-rating-heading">
               <span>평점</span>
-              <strong>
-                {field.value ? (
-                  <button
-                    type="button"
-                    onClick={() => field.onChange(null)}
-                    disabled={isSubmitting}
-                  >
-                    평점 지우기
-                  </button>
-                ) : null}
+              <strong className="movie-detail-rating-value" aria-live="polite">
+                {field.value ? `${field.value}점` : '—'}
               </strong>
             </div>
 
@@ -263,8 +255,14 @@ export function MovieDetailScreeningForm({
                     key={score}
                     type="button"
                     className={score <= (field.value ?? 0) ? 'is-filled' : ''}
-                    onClick={() => field.onChange(score)}
-                    aria-label={`${score}점`}
+                    onClick={() =>
+                      field.onChange(field.value === score ? null : score)
+                    }
+                    aria-label={
+                      field.value === score
+                        ? `${score}점 선택 해제`
+                        : `${score}점`
+                    }
                     aria-pressed={score === field.value}
                     disabled={isSubmitting}
                   />

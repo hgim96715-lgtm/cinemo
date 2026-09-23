@@ -1,0 +1,39 @@
+.home-ticket-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid rgb(230 202 101 / 0.34);
+    border-radius: 50%;
+    color: var(--lobby-gold, #e6ca65);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .home-ticket-toggle:hover:not(:disabled),
+  .home-ticket-toggle:focus-visible {
+    border-color: var(--lobby-red, #ad4f59);
+    color: var(--lobby-gold, #e6ca65);
+    background: rgb(173 79 89 / 0.1);
+  }
+
+  .home-ticket-toggle:focus-visible {
+    outline: 1px solid rgb(173 79 89 / 0.5);
+    outline-offset: 3px;
+  }
+
+.home-ticket-toggle--active {
+  border-color: var(--lobby-gold, #e6ca65);
+  color: var(--lobby-gold, #e6ca65);
+  background: rgb(230 202 101 / 0.12);
+}
+
+  .home-ticket-toggle:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }

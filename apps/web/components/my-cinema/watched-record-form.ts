@@ -1,11 +1,8 @@
-import type {
-  UserMovieViewingDetails,
-  UserMovieViewingType,
-} from '@cinemo/shared';
+import type { UserMovieViewingType } from '@cinemo/shared';
 import { z } from 'zod';
 import { kstDateKey } from '@/lib/date-kst';
 
-export const movieScreeningSchema = z.object({
+export const watchedRecordSchema = z.object({
   watchedAt: z
     .string()
     .min(1, '관람일을 선택하세요.')
@@ -26,7 +23,7 @@ export const movieScreeningSchema = z.object({
     .string()
     .trim()
     .max(40, '플랫폼은 40자까지 입력할 수 있어요.'),
-  viewingLocation: z
+  viewingPlace: z
     .string()
     .trim()
     .max(100, '관람 장소는 100자까지 입력할 수 있어요.'),
@@ -34,7 +31,7 @@ export const movieScreeningSchema = z.object({
   rating: z.number().int().min(1).max(10).nullable(),
 });
 
-export type MovieScreeningFormValues = z.infer<typeof movieScreeningSchema>;
+export type WatchedRecordFormValues = z.infer<typeof watchedRecordSchema>;
 
 export const VIEWING_PLATFORM_OPTIONS = [
   'Netflix',
@@ -51,10 +48,6 @@ export const VIEWING_TYPE_OPTIONS = [
   { value: 'other', label: '기타' },
 ] as const;
 
-export type SavedScreeningDetails = UserMovieViewingDetails & {
-  watchedAt: string | null;
-};
-
 export function isCustomViewingPlatform(value: string | null | undefined) {
   return Boolean(
     value &&
@@ -66,6 +59,6 @@ export function isCustomViewingPlatform(value: string | null | undefined) {
 
 export function getViewingTypeValue(
   value: UserMovieViewingType | null | undefined,
-): MovieScreeningFormValues['viewingType'] {
+): WatchedRecordFormValues['viewingType'] {
   return value ?? '';
 }

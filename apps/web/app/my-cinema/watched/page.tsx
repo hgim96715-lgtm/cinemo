@@ -1,8 +1,11 @@
 'use client';
 
-import { MovieShelf } from '@/components/my-cinema/MovieShelf';
+import { UserMovieShelf } from '@/components/my-cinema/UserMovieShelf';
 import '@/styles/my-cinema.css';
+import '@/styles/poster-picker-modal.css';
+import '@/styles/watched.css';
 import '@/styles/movie-detail-modal.css';
+import '@/styles/confirm-modal.css';
 import '@/styles/moviechart-modal.css';
 import '@/styles/lobby.css';
 import '@/styles/common.css';
@@ -11,5 +14,5 @@ import '@/styles/cinemo-nav.css';
 import '@/styles/cinemo-page-header.css';
 
 export default function WatchedShelfPage() {
-  return <MovieShelf kind="watched" title="관람 기록" />;
+  return <UserMovieShelf kind="watched" title="관람 기록" />;
 }
