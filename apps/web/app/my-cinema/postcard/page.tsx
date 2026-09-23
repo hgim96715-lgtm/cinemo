@@ -106,6 +106,9 @@ export default function MyPostcardPage() {
           description="내가 만든 엽서와 보관한 엽서를 모아보세요."
           nav={
             <CinemoNav
+              leftHref="/my-cinema"
+              leftLabel="MY CINEMA"
+              leftAriaLabel="MY CINEMA로 이동"
               showRightLink
               rightHref="/postcard"
               rightLabel="CINEMO POSTCARD"
@@ -212,6 +215,9 @@ export default function MyPostcardPage() {
         description="내가 만든 엽서와 보관한 엽서를 모아보세요."
         nav={
           <CinemoNav
+            leftHref="/my-cinema"
+            leftLabel="MY CINEMA"
+            leftAriaLabel="MY CINEMA로 이동"
             showRightLink
             rightHref="/postcard"
             rightLabel="CINEMO POSTCARD"
