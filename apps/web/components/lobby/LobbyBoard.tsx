@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, Calendar, Minus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
 import type { LobbyBoardResponse } from '@cinemo/shared';
 import {
   getLobbyBoardRequest,
   recordLobbyVisitRequest,
 } from '@/lib/lobby-board-api';
-import { kstLobbyDateLabel } from '@/lib/date-kst';
 import { formatAudienceCount } from '@/lib/format-audience';
 import { useAuthStore } from '@/lib/auth-store';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
@@ -125,7 +124,6 @@ export function LobbyBoard() {
   const hydrated = useAuthStore((s) => s.hydrated);
   const [board, setBoard] = useState<LobbyBoardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [dateLabel, setDateLabel] = useState(kstLobbyDateLabel);
   const [loading, setLoading] = useState(true);
   const [boardMode, setBoardMode] = useState<'box-office' | 'upcoming'>(
     'box-office',
@@ -189,34 +187,10 @@ export function LobbyBoard() {
     };
   }, [accessToken, hydrated]);
 
-  useEffect(() => {
-    const timerId = window.setInterval(() => {
-      setDateLabel(kstLobbyDateLabel());
-    }, 60_000);
-    return () => {
-      window.clearInterval(timerId);
-    };
-  }, []);
-
   return (
     <section className="lobby-board-block">
-      <div className="lobby-board-lights" aria-hidden>
-        <span className="lobby-lamp">
-          <span className="lobby-lamp-stem" />
-          <span className="lobby-lamp-shade" />
-        </span>
-        <span className="lobby-lamp">
-          <span className="lobby-lamp-stem" />
-          <span className="lobby-lamp-shade" />
-        </span>
-      </div>
-      <h1 className="lobby-board-brand">CINEMO</h1>
-      <p className="lobby-board-date">
-        <Calendar className="lobby-board-date-icon" aria-hidden />
-        <span suppressHydrationWarning>{dateLabel || '—'}</span>
-      </p>
-      {error ? <p className="lobby-board-date">{error}</p> : null}
       <div className="lobby-board" aria-label="전광판">
+        {error ? <p className="lobby-board-error">{error}</p> : null}
         <div className="lobby-board-tabs" role="tablist">
           <button
             type="button"

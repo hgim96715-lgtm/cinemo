@@ -9,19 +9,16 @@
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
-  height: 100dvh;
+  height: auto;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 0.75rem 1rem 1rem;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   color: var(--lobby-fg);
-  background: #0a0b0e;
+  background: #121212;
   transition: background 900ms ease;
-}
-
-.lobby--lit {
-  background: #101218;
 }
 
 .lobby-atmosphere {
@@ -30,25 +27,74 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(42% 28% at 50% 16%, rgb(212 181 106 / 0.05), transparent 70%),
-    linear-gradient(90deg, rgb(0 0 0 / 0.42) 0%, transparent 16%, transparent 84%, rgb(0 0 0 / 0.42) 100%);
+    radial-gradient(42% 28% at 50% 14%, rgb(173 79 89 / 0.08), transparent 68%),
+    radial-gradient(34% 26% at 50% 46%, rgb(230 202 101 / 0.08), transparent 70%),
+    linear-gradient(90deg, rgb(0 0 0 / 0.34) 0%, transparent 16%, transparent 84%, rgb(0 0 0 / 0.34) 100%);
   transition: background 900ms ease;
-}
-
-.lobby--lit .lobby-atmosphere {
-  background:
-    radial-gradient(40% 26% at 50% 14%, rgb(212 181 106 / 0.22), transparent 68%),
-    radial-gradient(36% 28% at 50% 48%, rgb(212 181 106 / 0.1), transparent 70%),
-    linear-gradient(90deg, rgb(0 0 0 / 0.36) 0%, transparent 16%, transparent 84%, rgb(0 0 0 / 0.36) 100%);
 }
 
 .lobby-stage {
   width: min(100%, 54rem);
-  max-height: calc(100dvh - 2.5rem);
+  max-height: none;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.25rem;
+  padding-top: 0;
+}
+
+/* 홈도 다른 페이지와 같은 공통 헤더 흐름을 사용함 */
+.lobby-page-header {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+}
+
+.lobby-page-header > .cinemo-nav {
+  width: 100%;
+  margin-bottom: clamp(1.35rem, 4vw, 2.4rem);
+  text-align: left;
+}
+
+.lobby-page-header .cinemo-page-eyebrow {
+  margin-bottom: 0.55rem;
+}
+
+.lobby-page-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  line-height: 1;
+  color: var(--lobby-fg);
+}
+
+.lobby-page-header > .lobby-page-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0.75rem 0 0;
+  color: rgb(230 202 101 / 0.86);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+.lobby-page-date-icon {
+  width: 0.78rem;
+  height: 0.78rem;
+  flex-shrink: 0;
+  stroke-width: 2;
+}
+
+.lobby-board-error {
+  margin: 0 0 0.65rem;
+  color: rgb(217 137 137 / 0.9);
+  font-size: 0.72rem;
+  text-align: center;
 }
 
 /* ── 02. 전광판 — 조명 → CINEMO → 날짜 → 통계 탭 ── */
@@ -99,10 +145,6 @@
   }
 }
 
-.lobby--lit .lobby-board-loading {
-  color: rgb(212 181 106 / 0.78);
-}
-
 .lobby-lamp {
   display: flex;
   flex-direction: column;
@@ -123,13 +165,6 @@
   transition: background 900ms ease, box-shadow 900ms ease;
 }
 
-.lobby--lit .lobby-lamp-shade {
-  background: rgb(212 181 106 / 0.92);
-  box-shadow:
-    0 0 18px rgb(212 181 106 / 0.45),
-    0 10px 28px rgb(212 181 106 / 0.16);
-}
-
 .lobby-board-brand {
   margin: 0 0 0.2rem;
   font-family: var(--font-display), Georgia, serif;
@@ -140,10 +175,6 @@
   line-height: 1;
   color: rgb(243 239 230 / 0.55);
   transition: color 900ms ease;
-}
-
-.lobby--lit .lobby-board-brand {
-  color: var(--lobby-fg);
 }
 
 .lobby-board-date {
@@ -167,24 +198,16 @@
   opacity: 0.85;
 }
 
-.lobby--lit .lobby-board-date {
-  color: rgb(212 181 106 / 0.78);
-}
-
 .lobby-board {
   width: 100%;
   min-height: 15.6rem;
   box-sizing: border-box;
-  padding: 0.6rem 0 0;
+  padding: 0.95rem 0 0;
   border: 0;
   background: transparent;
   text-align: center;
-  opacity: 0.48;
-  transition: opacity 900ms ease;
-}
-
-.lobby--lit .lobby-board {
   opacity: 1;
+  transition: opacity 900ms ease;
 }
 
 .lobby-board-slots {
@@ -254,7 +277,7 @@
 }
 
 .lobby-chart-label {
-  color: rgb(243 239 230 / 0.48);
+  color: rgb(230 202 101 / 0.78);
   font-size: 0.62rem;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -266,18 +289,9 @@
   box-sizing: border-box;
   overflow: hidden;
   padding: 0.55rem 0.65rem;
-  border: 1px solid rgb(243 239 230 / 0.12);
+  border: 1px solid rgb(243 239 230 / 0.16);
   border-radius: 0.55rem;
-  background: rgb(0 0 0 / 0.28);
-}
-
-.lobby--lit .lobby-chart-viz {
-  border-color: rgb(212 181 106 / 0.28);
   background: rgb(0 0 0 / 0.35);
-}
-
-.lobby--lit .lobby-chart-label {
-  color: rgb(212 181 106 / 0.78);
 }
 
 /* ── 03. 차트 빈 상태 ── */
@@ -299,11 +313,6 @@
   color: rgb(243 239 230 / 0.72);
 }
 
-.lobby--lit .lobby-chart-stat-primary {
-  color: rgb(243 232 200 / 0.95);
-  text-shadow: 0 0 12px rgb(212 181 106 / 0.25);
-}
-
 .lobby-chart-stat-secondary {
   margin: 0;
   font-size: 0.62rem;
@@ -312,10 +321,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.lobby--lit .lobby-chart-stat-secondary {
-  color: rgb(212 181 106 / 0.58);
 }
 
 /* ── 04. 통계 목록 ── */
@@ -590,8 +595,8 @@
   justify-content: center;
   gap: 0.85rem;
   width: 100%;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: auto;
   margin-top: 0.35rem;
   padding-bottom: 0.35rem;
 }
@@ -605,10 +610,6 @@
   margin-bottom: 0.15rem;
   opacity: 0.78;
   transition: opacity 900ms ease;
-}
-
-.lobby--lit .lobby-staff {
-  opacity: 1;
 }
 
 .lobby-staff-person {
@@ -760,12 +761,6 @@
   box-shadow: inset 0 1px 0 rgb(212 181 106 / 0.2);
 }
 
-.lobby--lit .lobby-staff-head,
-.lobby--lit .lobby-staff-body,
-.lobby--lit .lobby-staff-cap {
-  border-color: rgb(232 205 140 / 0.7);
-}
-
 .lobby-staff .lobby-face {
   position: relative;
   display: grid;
@@ -821,20 +816,12 @@
   background: rgb(243 239 230 / 0.55);
 }
 
-.lobby--lit .lobby-face-eye {
-  background: rgb(212 181 106 / 0.85);
-}
-
 .lobby-face-mouth {
   width: 0.42rem;
   height: 0.22rem;
   border: 1.5px solid rgb(243 239 230 / 0.5);
   border-top: none;
   border-radius: 0 0 0.5rem 0.5rem;
-}
-
-.lobby--lit .lobby-face-mouth {
-  border-color: rgb(212 181 106 / 0.75);
 }
 
 .lobby-desk {
@@ -867,15 +854,6 @@
   box-shadow:
     0 14px 34px rgb(0 0 0 / 0.45),
     inset 0 1px 0 rgb(201 164 92 / 0.28),
-    inset 0 -10px 18px rgb(0 0 0 / 0.28);
-}
-
-.lobby--lit .lobby-desk {
-  border-color: rgb(201 164 92 / 0.5);
-  box-shadow:
-    0 16px 38px rgb(0 0 0 / 0.5),
-    0 0 28px rgb(201 164 92 / 0.08),
-    inset 0 1px 0 rgb(212 181 106 / 0.35),
     inset 0 -10px 18px rgb(0 0 0 / 0.28);
 }
 
@@ -1168,106 +1146,6 @@
   }
 }
 
-/* 로비 주요 이동 공간 */
-.lobby-feature-links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem;
-  width: 100%;
-  margin: 0.8rem auto 0;
-}
-
-.lobby-feature-card {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto auto;
-  gap: 0.18rem 0.8rem;
-  align-items: center;
-  min-width: 0;
-  min-height: 7.1rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid rgb(212 181 106 / 0.34);
-  border-radius: 0.8rem;
-  color: var(--lobby-fg);
-  background:
-    linear-gradient(135deg, rgb(212 181 106 / 0.1), rgb(20 19 18 / 0.72)),
-    rgb(20 19 18 / 0.78);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
-  text-decoration: none;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    transform 180ms ease;
-}
-
-.lobby-feature-card:hover,
-.lobby-feature-card:focus-visible {
-  border-color: var(--lobby-gold);
-  background:
-    linear-gradient(135deg, rgb(212 181 106 / 0.18), rgb(20 19 18 / 0.82)),
-    rgb(20 19 18 / 0.82);
-  outline: none;
-  transform: translateY(-2px);
-}
-
-.lobby-feature-kicker {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  overflow: hidden;
-  color: var(--lobby-gold);
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lobby-feature-card strong {
-  grid-column: 1;
-  grid-row: 2;
-  min-width: 0;
-  overflow: hidden;
-  font-size: 0.92rem;
-  font-weight: 600;
-  line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lobby-feature-description {
-  grid-column: 1;
-  grid-row: 3;
-  min-width: 0;
-  overflow: hidden;
-  color: var(--lobby-muted);
-  font-size: 0.72rem;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lobby-feature-icon {
-  grid-column: 2;
-  grid-row: 2 / 4;
-  align-self: center;
-  justify-self: end;
-  color: var(--lobby-gold);
-}
-
-@media (max-width: 620px) {
-  .lobby-feature-links {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-    margin-top: 0.65rem;
-  }
-
-  .lobby-feature-card {
-    min-height: 6.25rem;
-    padding: 0.8rem 0.9rem;
-  }
-}
-
 /* ── 06. 손님 정보와 MY CINEMA ── */
 .lobby-guest {
   position: relative;
@@ -1279,13 +1157,9 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0.15rem 0;
-  opacity: 0.5;
+  opacity: 1;
   transition: opacity 900ms ease;
   flex-shrink: 0;
-}
-
-.lobby--lit .lobby-guest {
-  opacity: 1;
 }
 
 .lobby-speech {
@@ -1392,11 +1266,6 @@
   transform: translateY(-1px);
 }
 
-.lobby--lit .lobby-mat {
-  border-color: rgb(212 181 106 / 0.55);
-  background: rgb(212 181 106 / 0.1);
-}
-
 .lobby-mat-label {
   max-width: 100%;
   overflow: hidden;
@@ -1449,11 +1318,6 @@
   border: 1px solid rgb(243 239 230 / 0.22);
   border-radius: 0.5rem 0.5rem 0.15rem 0.15rem;
   background: rgb(255 255 255 / 0.04);
-}
-
-.lobby--lit .lobby-guest-head,
-.lobby--lit .lobby-guest-body {
-  border-color: rgb(212 181 106 / 0.42);
 }
 
 .lobby-guest-name {
@@ -1664,7 +1528,7 @@
 
   .lobby-chart-row {
     display: grid;
-    grid-template-columns: 1.6rem 2.8rem minmax(0, 1fr) 3.4rem;
+    grid-template-columns: 1.6rem 2.2rem 2.8rem minmax(0, 1fr);
     grid-template-rows: 1fr;
     align-items: center;
     gap: 0.45rem;
@@ -1681,12 +1545,12 @@
   }
 
   .lobby-chart-row-poster {
-    grid-column: 2;
+    grid-column: 3;
     grid-row: 1;
   }
 
   .lobby-chart-row-info {
-    grid-column: 3;
+    grid-column: 4;
     grid-row: 1;
     align-self: center;
   }
@@ -1695,13 +1559,13 @@
   .lobby-rank-down,
   .lobby-rank-same,
   .lobby-rank-new {
-    grid-column: 4;
+    grid-column: 2;
     grid-row: 1;
   }
 
   .lobby-board-skeleton-row {
     display: grid;
-    grid-template-columns: 1.6rem 2.8rem minmax(0, 1fr) 3.4rem;
+    grid-template-columns: 1.6rem 2.2rem 2.8rem minmax(0, 1fr);
     grid-template-rows: 1fr;
     align-items: center;
     gap: 0.45rem;
@@ -1718,17 +1582,17 @@
   }
 
   .lobby-board-skeleton-poster {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .lobby-board-skeleton-info {
     grid-column: 3;
     grid-row: 1;
   }
 
-  .lobby-board-skeleton-change {
+  .lobby-board-skeleton-info {
     grid-column: 4;
+    grid-row: 1;
+  }
+
+  .lobby-board-skeleton-change {
+    grid-column: 2;
     grid-row: 1;
   }
 
@@ -1751,5 +1615,392 @@
     width: 100%;
     justify-self: center;
     padding: 0.65rem 0.8rem 0.75rem;
+  }
+}
+
+/* ── CINEMO palette: cinema red + muted gold + soft gray ── */
+.lobby {
+  --lobby-red: #ad4f59;
+  --lobby-red-soft: rgb(173 79 89 / 0.12);
+  --lobby-gold: #e6ca65;
+  --lobby-fg: #ffffff;
+  --lobby-muted: #b0b0b0;
+}
+
+.lobby-board-tabs {
+  gap: 0.8rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.lobby-board-tabs button:hover,
+.lobby-board-tabs button:focus-visible {
+  border-color: transparent;
+  color: rgb(243 239 230 / 0.86);
+}
+
+.lobby-board-tabs button.is-active {
+  position: relative;
+  border-color: transparent;
+  background: transparent;
+  color: var(--lobby-gold);
+  box-shadow: none;
+}
+
+.lobby-board-tabs button.is-active::after {
+  position: absolute;
+  right: 18%;
+  bottom: 0.05rem;
+  left: 18%;
+  height: 1px;
+  border-radius: 999px;
+  background: var(--lobby-red);
+  box-shadow: 0 0 6px rgb(173 79 89 / 0.24);
+  content: '';
+}
+
+.lobby-mat {
+  border-color: rgb(243 239 230 / 0.18);
+  background: rgb(243 239 230 / 0.035);
+}
+
+.lobby-mat:hover {
+  border-color: rgb(173 79 89 / 0.62);
+  background: rgb(173 79 89 / 0.07);
+}
+
+.lobby-mat-label {
+  color: rgb(230 202 101 / 0.92);
+}
+
+.lobby-mat:hover .lobby-mat-label {
+  color: #f3dc83;
+}
+
+/* 프로필과 MY CINEMA를 하나의 개인 영역으로 묶음 */
+.lobby-guest {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgb(243 239 230 / 0.16);
+  border-radius: 0.8rem;
+  background:
+    linear-gradient(135deg, rgb(173 79 89 / 0.045), transparent 45%),
+    rgb(20 19 18 / 0.8);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
+}
+
+.lobby-guest-identity {
+  width: 100%;
+  padding: 0;
+  color: inherit;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.lobby-mat {
+  width: 100%;
+  min-height: 5.2rem;
+  padding: 0.9rem 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0.18rem 0.8rem;
+  border: 0;
+  border-left: 1px solid rgb(243 239 230 / 0.14);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+}
+
+.lobby-mat-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.lobby-mat-description {
+  grid-column: 1;
+  grid-row: 2;
+  text-align: left;
+}
+
+.lobby-mat-icon {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+  color: var(--lobby-gold);
+}
+
+@media (max-width: 620px) {
+  .lobby-chart-row,
+  .lobby-board-skeleton-row {
+    grid-template-columns: 1.6rem 2.8rem minmax(0, 1fr) 3.4rem;
+  }
+
+  .lobby-chart-row-rank,
+  .lobby-board-skeleton-rank {
+    grid-column: 1;
+    grid-row: 1;
+    position: static;
+    margin: 0;
+    justify-self: start;
+  }
+
+  .lobby-chart-row-poster,
+  .lobby-board-skeleton-poster {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .lobby-chart-row-info,
+  .lobby-board-skeleton-info {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .lobby-rank-up,
+  .lobby-rank-down,
+  .lobby-rank-same,
+  .lobby-rank-new,
+  .lobby-board-skeleton-change {
+    grid-column: 4;
+    grid-row: 1;
+    position: static;
+    margin: 0;
+    justify-self: end;
+  }
+
+  .lobby-guest {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+    width: 100%;
+  }
+
+  .lobby-mat {
+    min-height: 4rem;
+    padding: 0.8rem 0 0;
+    border-top: 1px solid rgb(243 239 230 / 0.14);
+    border-left: 0;
+  }
+
+}
+
+/* 최종 대비·강조 규칙 */
+.lobby-board-date,
+.lobby-chart-row-count {
+  color: rgb(230 202 101 / 0.86);
+}
+
+.lobby-chart-label,
+.lobby-chart-stat-secondary,
+.lobby-upcoming-description,
+.lobby-mat-description {
+  color: #b0b0b0;
+}
+
+.lobby-chart-row-rank {
+  color: rgb(243 239 230 / 0.62);
+}
+
+.lobby-chart-row:first-child .lobby-chart-row-rank {
+  color: #e6ca65;
+  text-shadow: 0 0 10px rgb(230 202 101 / 0.28);
+}
+
+/* 홈 개인 영역: 아바타 대신 CINEMO 티켓 */
+.lobby-guest {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.lobby-ticket {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  width: 100%;
+  min-height: 6.2rem;
+  overflow: visible;
+  padding: 0.95rem 1rem 0.95rem 1.15rem;
+  border: 1px solid rgb(230 202 101 / 0.46);
+  border-radius: 0.45rem;
+  color: var(--lobby-fg);
+  background:
+    linear-gradient(135deg, rgb(196 30 58 / 0.06), transparent 45%),
+    rgb(20 19 18 / 0.82);
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+  box-shadow: inset 0 0 0 1px rgb(230 202 101 / 0.12);
+}
+
+.lobby-ticket::before {
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  right: 8.4rem;
+  border-left: 1px dashed rgb(230 202 101 / 0.34);
+  content: '';
+}
+
+.lobby-ticket::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 0.78rem;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 0 50%, #121212 0 0.34rem, transparent 0.36rem),
+    radial-gradient(circle at 100% 50%, #121212 0 0.34rem, transparent 0.36rem);
+  content: '';
+  transform: translateY(-50%);
+}
+
+.lobby-ticket:hover,
+.lobby-ticket:focus-visible {
+  border-color: rgb(173 79 89 / 0.7);
+  background:
+    linear-gradient(135deg, rgb(173 79 89 / 0.12), transparent 48%),
+    rgb(20 19 18 / 0.88);
+  box-shadow: inset 0 0 0 1px rgb(230 202 101 / 0.2);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.lobby-ticket-main,
+.lobby-ticket-side {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.lobby-ticket-main {
+  justify-content: center;
+  gap: 0.28rem;
+  padding-right: 1rem;
+  text-align: left;
+}
+
+.lobby-ticket-eyebrow {
+  color: rgb(230 202 101 / 0.76);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+}
+
+.lobby-ticket-main strong {
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 1.02rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-ticket-description {
+  overflow: hidden;
+  color: #b0b0b0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-ticket-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  color: rgb(243 239 230 / 0.55);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.lobby-ticket-meta span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22rem;
+}
+
+.lobby-ticket-meta small {
+  color: rgb(230 202 101 / 0.72);
+  font-size: inherit;
+  letter-spacing: 0.12em;
+}
+
+.lobby-ticket-side {
+  align-items: center;
+  justify-content: center;
+  width: 7.5rem;
+  gap: 0.25rem;
+  padding-left: 1.1rem;
+  text-align: center;
+}
+
+.lobby-ticket-icon {
+  color: var(--lobby-gold);
+}
+
+.lobby-ticket-label {
+  color: rgb(230 202 101 / 0.92);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.lobby-ticket-number {
+  color: rgb(243 239 230 / 0.46);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.lobby-ticket-barcode {
+  display: block;
+  width: 2.8rem;
+  height: 0.65rem;
+  background: repeating-linear-gradient(
+    90deg,
+    rgb(230 202 101 / 0.72) 0 1px,
+    transparent 1px 3px,
+    rgb(230 202 101 / 0.72) 3px 5px,
+    transparent 5px 7px
+  );
+  opacity: 0.52;
+}
+
+@media (max-width: 620px) {
+  .lobby-ticket {
+    min-height: 5.7rem;
+    padding-inline: 0.9rem;
+  }
+
+  .lobby-ticket::before {
+    right: 6.5rem;
+  }
+
+  .lobby-ticket-side {
+    width: 5.8rem;
+    padding-left: 0.75rem;
+  }
+
+  .lobby-ticket-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
   }
 }

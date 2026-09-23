@@ -9,7 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { registerRequest } from '@/lib/auth-api';
-import { useGuideStore } from '@/lib/guide-store';
 import {
   useEmailAvailability,
   useNicknameAvailability,
@@ -84,7 +83,6 @@ function AvailabilityMessage({
 export default function RegisterPage() {
   const router = useRouter();
   const setSession = useAuthStore((state) => state.setSession);
-  const requestGuide = useGuideStore((state) => state.requestGuide);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
@@ -151,7 +149,6 @@ export default function RegisterPage() {
       );
 
       setSession(data.accessToken, data.user);
-      requestGuide();
       router.push('/');
     } catch (error: unknown) {
       setError('root.server', {

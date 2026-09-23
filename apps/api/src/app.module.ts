@@ -22,7 +22,6 @@ import { AdminModule } from './admin/admin.module';
 import { AiController } from './ai/ai.controller';
 import { AiModule } from './ai/ai.module';
 import { ProfilesModule } from './profiles/profiles.module';
-import { GuideModule } from './guide/guide.module';
 import { PlacesModule } from './places/places.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PostcardModule } from './postcard/postcard.module';
@@ -60,7 +59,6 @@ import { CinemaModule } from './cinema/cinema.module';
     AdminModule,
     AiModule,
     ProfilesModule,
-    GuideModule,
     PlacesModule,
     PostcardModule,
     KobisModule,

@@ -8,11 +8,6 @@ async function pause(page: Page, ms: number) {
 
 async function openHome(page: Page) {
   await page.goto('/');
-
-  const skipGuide = page.getByRole('button', { name: '건너뛰기' });
-  if (await skipGuide.isVisible().catch(() => false)) {
-    await skipGuide.click();
-  }
 }
 
 async function openCinemaMap(page: Page) {

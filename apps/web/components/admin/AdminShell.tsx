@@ -16,7 +16,6 @@ const NAV_GROUPS = [
     label: '관리',
     links: [
       { href: '/admin/users', label: '사용자 관리' },
-      { href: '/admin/guide', label: '로비 가이드' },
     ],
   },
 ] as const;

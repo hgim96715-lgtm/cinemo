@@ -440,13 +440,3 @@ model AdminHourlyStat {
     @@id([date, hour])
     @@map("admin_hourly_stats")
 }
-
-model LobbyGuide {
-    id        String   @id @default(uuid(7)) @db.Uuid
-    key       String   @unique @default("guide") @db.VarChar(16)
-    steps     Json     @default("[]")
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-    @@map("lobby_guides")
-}

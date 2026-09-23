@@ -15,7 +15,6 @@ export default function AuthLayout({
           <Link href="/" className="auth-brand">
             CINEMO
           </Link>
-          <p className="auth-tagline">불 꺼진 매표소</p>
         </header>
         {children}
       </div>

@@ -66,8 +66,8 @@
 }
 
 .auth-social-btn--naver {
-  border-color: rgb(3 199 90 / 0.36);
-  background: rgb(3 199 90 / 0.13);
+  border-color: rgb(230 202 101 / 0.22);
+  background: rgb(243 239 230 / 0.035);
 }
 
 .auth-social-btn--naver img {
@@ -75,8 +75,8 @@
 }
 
 .auth-social-btn--apple {
-  border-color: rgb(243 239 230 / 0.28);
-  background: rgb(243 239 230 / 0.13);
+  border-color: rgb(230 202 101 / 0.22);
+  background: rgb(243 239 230 / 0.035);
 }
 
 .auth-social-btn--apple img {
@@ -84,8 +84,8 @@
 }
 
 .auth-social-btn--kakao {
-  border-color: rgb(254 229 0 / 0.3);
-  background: rgb(254 229 0 / 0.08);
+  border-color: rgb(230 202 101 / 0.22);
+  background: rgb(243 239 230 / 0.035);
   opacity: 0.9;
 }
 
@@ -105,7 +105,7 @@
 
 .auth-social-btn:not(:disabled):hover {
   border-color: var(--auth-gold-soft);
-  background: rgb(212 181 106 / 0.1);
+  background: rgb(230 202 101 / 0.1);
   transform: translateY(-1px);
 }
 
