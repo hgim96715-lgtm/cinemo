@@ -1,6 +1,6 @@
 'use client';
 
-import type { AvatarConfig, ProfileConfig } from '@cinemo/shared';
+import type { ProfileConfig } from '@cinemo/shared';
 import { create } from 'zustand';
 
 export type AuthUser = {
@@ -10,7 +10,6 @@ export type AuthUser = {
   role: 'user' | 'admin';
   lastLoginProvider: 'email' | 'google' | 'naver' | 'kakao' | 'apple' | null;
   isTestAccount: boolean;
-  avatarConfig: AvatarConfig;
   bio: string | null;
   profilePublic: boolean;
   tags: string[];

@@ -1,591 +1,249 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
-  DEFAULT_AVATAR,
-  type AvatarConfig,
-  type UserMovieCounts,
-} from '@cinemo/shared';
-import type { MovieSearchItem, MovieSummary } from '@cinemo/api-contract';
-import { useAuthStore, type UpdateProfileInput } from '@/lib/auth-store';
-import { updateAvatarRequest, updateProfileRequest } from '@/lib/auth-api';
-import { AvatarFigure } from '@/components/my-cinema/AvatarFigure';
-import { WardrobeModal } from '@/components/my-cinema/WardrobeModal';
+  BarChart3,
+  CalendarDays,
+  Film,
+  Heart,
+  Images,
+  LifeBuoy,
+  LibraryBig,
+  LogOut,
+  PencilLine,
+  Settings,
+} from 'lucide-react';
+import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { ProfileModal } from '@/components/my-cinema/ProfileModal';
-import {
-  addWatchedMovieRequest,
-  getUserMovieCountsRequest,
-  listDisplayedUserMoviesRequest,
-  listUserMoviesRequest,
-  removeWatchedMovieRequest,
-  updateUserMovieDisplayRequest,
-  updateWatchedAtRequest,
-} from '@/lib/user-movie-api';
+import { updateProfileRequest } from '@/lib/auth-api';
+import { useAuthStore } from '@/lib/auth-store';
 import '@/styles/my-cinema.css';
 import '@/styles/lobby.css';
-import '@/styles/avatar.css';
-import '@/styles/profile.css';
 import '@/styles/common.css';
 import '@/styles/cinemo-nav.css';
-import {
-  CalendarDays,
-  Clapperboard,
-  Heart,
-  Phone,
-  Popcorn,
-  Plus,
-  Shirt,
-  ArrowUpRight,
-  Mail,
-} from 'lucide-react';
-import { tmdbPosterUrl } from '@/lib/tmdb-image';
-import { PosterPickerModal } from '@/components/my-cinema/PosterPickerModal';
-import { MovieCalendarModal } from '@/components/my-cinema/MovieCalendarModal';
-import {
-  formatKstDateKey,
-  formatKstMonthDay,
-  kstDateKey,
-  kstYear,
-} from '@/lib/date-kst';
-import { WatchedDateEditModal } from '@/components/my-cinema/WatchedDateEditModal';
-import { ConfirmModal } from '@/components/common/ConfirmModal';
-import { MovieStatsPanel } from '@/components/my-cinema/MovieStatsPanel';
-import '@/styles/confirm-modal.css';
-import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import '@/styles/cinemo-page-header.css';
 
 export default function MyCinemaPage() {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const setUser = useAuthStore((s) => s.setUser);
-  const clearSession = useAuthStore((s) => s.clearSession);
   const hydrated = useAuthStore((s) => s.hydrated);
-  const [counts, setCounts] = useState<UserMovieCounts | null>(null);
-  const [latestScreeningDay, setLatestScreeningDay] = useState<string | null>(
-    null,
-  );
-  const [wardrobeOpen, setWardrobeOpen] = useState(false);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const user = useAuthStore((s) => s.user);
+  const clearSession = useAuthStore((s) => s.clearSession);
+  const setUser = useAuthStore((s) => s.setUser);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const avatarConfig = user?.avatarConfig ?? DEFAULT_AVATAR;
-
-  const [posterPickerOpen, setPosterPickerOpen] = useState(false);
-  const [selectedWallSlot, setSelectedWallSlot] = useState<number | null>(null);
-  const [selectedPosters, setSelectedPosters] = useState<
-    Record<number, MovieSummary>
-  >({});
-
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
-  const [calendarAddDate, setCalendarAddDate] = useState<string | null>(null);
-  const [calendarAddError, setCalendarAddError] = useState<string | null>(null);
-  const [isCalendarAdding, startCalendarTransition] = useTransition();
-  const [calendarDeleteTarget, setCalendarDeleteTarget] = useState<
-    number | null
-  >(null);
-  const [calendarEditTarget, setCalendarEditTarget] = useState<{
-    tmdbId: number;
-    watchedAt: string;
-  } | null>(null);
-  const [isCalendarEditing, startCalendarEditTransition] = useTransition();
+  const [ticketDate, setTicketDate] = useState('');
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!accessToken) router.replace('/login?next=/my-cinema');
+    const timer = window.setTimeout(() => {
+      setTicketDate(
+        new Intl.DateTimeFormat('en-CA', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date()),
+      );
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && !accessToken) {
+      router.replace('/login?next=/my-cinema');
+    }
   }, [hydrated, accessToken, router]);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    const token = accessToken;
-    let cancelled = false;
-    async function loadCounts() {
-      try {
-        const res = await getUserMovieCountsRequest(token);
-        if (!cancelled) setCounts(res);
-      } catch {
-        if (!cancelled) setCounts(null);
-      }
-    }
-    void loadCounts();
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
-
-  useEffect(() => {
-    if (!accessToken) return;
-
-    const token = accessToken;
-    let cancelled = false;
-
-    async function loadLatestScreening() {
-      try {
-        const response = await listUserMoviesRequest(token, 'watched', 1, 1);
-        const watchedAt = response.items[0]?.watchedAt;
-
-        if (!cancelled) {
-          setLatestScreeningDay(
-            watchedAt ? formatKstMonthDay(watchedAt) : null,
-          );
-        }
-      } catch {
-        if (!cancelled) setLatestScreeningDay(null);
-      }
-    }
-
-    void loadLatestScreening();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, calendarRefreshKey]);
-
-  useEffect(() => {
-    if (!accessToken) return;
-    const token = accessToken;
-    let cancelled = false;
-    async function loadDisplayedPosters() {
-      try {
-        const response = await listDisplayedUserMoviesRequest(token);
-        if (cancelled) return;
-        const posters = response.items.reduce<Record<number, MovieSummary>>(
-          (current, item) => {
-            current[item.wallSlot] = item.movie;
-            return current;
-          },
-          {},
-        );
-        setSelectedPosters(posters);
-      } catch {
-        if (!cancelled) setSelectedPosters({});
-      }
-    }
-    void loadDisplayedPosters();
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
-
-  async function handleSaveAvatar(config: AvatarConfig) {
-    if (!accessToken || !user) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const updated = await updateAvatarRequest(accessToken, config);
-      setUser(updated);
-      setWardrobeOpen(false);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : String(error));
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleSaveProfile(
-    profile: UpdateProfileInput & { nickname?: string },
-  ) {
-    if (!accessToken || !user) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const updated = await updateProfileRequest(accessToken, profile);
-      setUser(updated);
-      setProfileOpen(false);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : String(error));
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  if (!user) {
-    return (
-      <main className="my-cinema">
-        <p className="my-cinema-copy my-cinema-message">
-          MY CINEMA는 로그인 후 이용할 수 있어요.
-        </p>
-        <div className="my-cinema-actions">
-          <Link href="/login" className="lobby-btn lobby-btn--primary">
-            입장하기
-          </Link>
-          <Link href="/" className="lobby-btn">
-            CINEMO LOBBY
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
-  const todayLabel = formatKstDateKey(kstDateKey());
-  const todayShortLabel = formatKstMonthDay(new Date());
-  const currentKstYear = kstYear();
-  const showLatestScreeningDay =
-    latestScreeningDay && latestScreeningDay !== todayShortLabel;
-  function openPosterPicker(wallSlot: number) {
-    setSelectedWallSlot(wallSlot);
-    setPosterPickerOpen(true);
-  }
-
-  async function handlePosterSelected(movie: MovieSearchItem) {
-    if (!accessToken || selectedWallSlot === null || saving) return;
-    const wallSlot = selectedWallSlot;
-    setSaving(true);
-    setError(null);
-
-    try {
-      await updateUserMovieDisplayRequest(accessToken, {
-        tmdbId: movie.id,
-        kind: 'watched',
-        isDisplayed: true,
-        wallSlot,
-      });
-
-      setSelectedPosters((current) => ({
-        ...current,
-        [wallSlot]: { ...movie, director: null },
-      }));
-
-      setPosterPickerOpen(false);
-      setSelectedWallSlot(null);
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : '포스터를 저장하지 못했습니다.',
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handlePosterRemoved() {
-    if (
-      !accessToken ||
-      selectedWallSlot === null ||
-      !selectedPosters[selectedWallSlot] ||
-      saving
-    )
-      return;
-
-    const wallSlot = selectedWallSlot;
-    const movie = selectedPosters[wallSlot];
-    setSaving(true);
-    setError(null);
-
-    try {
-      await updateUserMovieDisplayRequest(accessToken, {
-        tmdbId: movie.id,
-        kind: 'watched',
-        isDisplayed: false,
-        wallSlot,
-      });
-
-      setSelectedPosters((current) => {
-        const next = { ...current };
-        delete next[wallSlot];
-        return next;
-      });
-      setPosterPickerOpen(false);
-      setSelectedWallSlot(null);
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : '포스터를 전시 해제하지 못했습니다.',
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function handleCalendarMovieSelect(movie: MovieSearchItem) {
-    if (!calendarAddDate || !accessToken || isCalendarAdding) return;
-
-    startCalendarTransition(async () => {
-      try {
-        await addWatchedMovieRequest(accessToken, movie.id, calendarAddDate);
-
-        startCalendarTransition(() => {
-          setCalendarRefreshKey((current) => current + 1);
-          setCalendarAddDate(null);
-        });
-      } catch {
-        startCalendarTransition(() => {
-          setCalendarAddDate(null);
-          setCalendarAddError('관람 영화 추가에 실패했어요.');
-        });
-      }
-    });
-  }
-
-  async function handleCalendarMovieDelete(tmdbId: number) {
-    if (!accessToken) return;
-    try {
-      await removeWatchedMovieRequest(accessToken, tmdbId);
-      setCalendarRefreshKey((current) => current + 1);
-    } catch {
-      setCalendarAddError('관람기록 삭제에 실패했어요.');
-    }
-  }
-
-  function handleCalendarMovieEdit(tmdbId: number, watchedAt: string) {
-    setCalendarEditTarget({ tmdbId, watchedAt });
-  }
-
-  function handleCalendarMovieEditSave(watchedAt: string) {
-    if (!calendarEditTarget || !accessToken || isCalendarEditing) return;
-
-    startCalendarEditTransition(async () => {
-      try {
-        await updateWatchedAtRequest(
-          accessToken,
-          calendarEditTarget.tmdbId,
-          watchedAt,
-        );
-
-        startCalendarEditTransition(() => {
-          setCalendarRefreshKey((current) => current + 1);
-          setCalendarEditTarget(null);
-        });
-      } catch {
-        startCalendarEditTransition(() => {
-          setCalendarAddError('관람일 수정에 실패했어요.');
-        });
-      }
-    });
-  }
-
-  function logout() {
+  function handleLogout() {
     clearSession();
-    router.push('/');
+    router.replace('/');
+  }
+
+  if (!hydrated || !accessToken) {
+    return null;
   }
 
   return (
     <main className="my-cinema my-cinema--dashboard">
       <CinemoPageHeader
-        className="my-cinema-header my-cinema-dashboard-header"
+        className="my-cinema-dashboard-header"
         eyebrow="MY CINEMA"
-        eyebrowClassName="my-cinema-kicker"
-        titleClassName="my-cinema-title my-cinema-dashboard-brand"
-        title={
-          <>
-            <Clapperboard size={30} strokeWidth={1.35} aria-hidden="true" />
-            <span>{user.nickname}</span>
-          </>
-        }
-        description="내가 본 영화와 취향을 한눈에 모아보는 공간"
+        title="나의 영화 공간"
+        description="좋아하는 영화를 한곳에서 관리하는 개인 공간"
+        titleClassName="my-cinema-title"
         descriptionClassName="my-cinema-dashboard-lede"
+        leading={
+          <div className="my-cinema-dashboard-brand">
+            <LibraryBig size={16} strokeWidth={1.8} aria-hidden="true" />
+          </div>
+        }
       />
 
       <div className="my-cinema-dashboard">
-        <section className="my-cinema-profile-card" aria-label="내 프로필">
-          <div className="my-cinema-profile-copy">
-            <p className="my-cinema-dashboard-kicker">MY CINEMA PROFILE</p>
-            <h2>{user.nickname}</h2>
-            <p>오늘은 어떤 영화를 기록해볼까?</p>
-          </div>
-
-          <div className="my-cinema-profile-figure">
-            <button
-              type="button"
-              className={`my-cinema-me-speech${user.bio?.trim() ? '' : ' my-cinema-me-speech--hint'}`}
-              onClick={() => setProfileOpen(true)}
-            >
-              <span className="my-cinema-me-speech-text">
-                {user.bio?.trim()
-                  ? user.bio.trim()
-                  : '프로필 작성하려면 클릭하세요'}
-              </span>
-            </button>
-            <div className="my-cinema-me-avatar">
-              <AvatarFigure config={avatarConfig} />
-            </div>
-          </div>
-
-          <div className="my-cinema-profile-footer">
-            {user.tags.length > 0 ? (
-              <ul className="my-cinema-me-tags" aria-label="내 태그">
-                {user.tags.slice(0, 5).map((tag) => (
-                  <li key={tag} className="my-cinema-me-tag">
-                    #{tag}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="my-cinema-profile-empty">아직 취향 태그가 없음</p>
-            )}
-            <div className="my-cinema-profile-actions">
-              <button type="button" onClick={() => setProfileOpen(true)}>
-                프로필 수정
-              </button>
-              <button
-                type="button"
-                className="my-cinema-profile-logout"
-                onClick={logout}
-              >
-                로그아웃
-              </button>
-              <button
-                type="button"
-                onClick={() => setWardrobeOpen(true)}
-                aria-label="스타일룸 열기"
-              >
-                <Shirt size={17} strokeWidth={1.5} aria-hidden="true" />
-                스타일룸
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="my-cinema-summary-grid" aria-label="영화 기록 요약">
-          <article className="my-cinema-summary-card">
-            <Popcorn size={22} strokeWidth={1.4} aria-hidden />
-            <span>WATCHED</span>
-            <strong>{counts?.watched ?? '—'}</strong>
-            <small>관람 기록</small>
-          </article>
-          <article className="my-cinema-summary-card">
-            <Heart size={22} strokeWidth={1.4} aria-hidden />
-            <span>WISHLIST</span>
-            <strong>{counts?.wish ?? '—'}</strong>
-            <small>보고 싶은 영화</small>
-          </article>
-          <button
-            type="button"
-            className="my-cinema-summary-card my-cinema-summary-card--calendar"
-            onClick={() => setCalendarOpen(true)}
-            aria-label="영화 달력 열기"
-          >
-            <CalendarDays size={22} strokeWidth={1.4} aria-hidden />
-            <span>MOVIE CALENDAR</span>
-            <strong>{todayShortLabel}</strong>
-            <small>
-              {showLatestScreeningDay
-                ? `최근 관람 ${latestScreeningDay}`
-                : todayLabel}
-            </small>
-            <ArrowUpRight size={17} strokeWidth={1.6} aria-hidden />
-          </button>
-        </section>
-
-        <section className="my-cinema-dashboard-grid" aria-label="영화 분석">
-          {accessToken ? (
-            <MovieStatsPanel token={accessToken} year={currentKstYear} />
-          ) : null}
-          <section className="my-cinema-insight-card">
-            <div>
-              <p className="my-cinema-dashboard-kicker">NEXT TO EXPLORE</p>
-              <h2>내 영화 취향 더 알아보기</h2>
-              <p>
-                관람 기록이 쌓이면 장르·플랫폼·관람 장소별 분석을 추가할 수
-                있습니다.
+        <section
+          className="my-cinema-profile-card"
+          aria-labelledby="profile-heading"
+        >
+          <div className="my-cinema-profile-main">
+            <div className="my-cinema-profile-copy">
+              <div className="my-cinema-profile-heading-row">
+                <p className="my-cinema-dashboard-kicker">PROFILE</p>
+                <div className="my-cinema-profile-heading-actions">
+                  <button
+                    className="my-cinema-profile-edit"
+                    type="button"
+                    onClick={() => setProfileOpen(true)}
+                  >
+                    <PencilLine size={13} aria-hidden="true" />
+                    수정
+                  </button>
+                  <button
+                    className="my-cinema-profile-logout"
+                    type="button"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={13} aria-hidden="true" />
+                    로그아웃
+                  </button>
+                </div>
+              </div>
+              <h2 id="profile-heading">{user?.nickname ?? '영화 기록자'}</h2>
+              <p className="my-cinema-profile-bio">
+                {user?.bio?.trim() || '나만의 취향과 영화 기록을 쌓아가는 중'}
               </p>
             </div>
-            <div className="my-cinema-insight-lines" aria-hidden>
-              <span />
-              <span />
-              <span />
+
+            <div className="my-cinema-profile-footer">
+              <span className="my-cinema-profile-visibility">
+                <small>PROFILE</small>
+                {user?.profilePublic ? 'PUBLIC' : 'PRIVATE'}
+              </span>
+              <div className="my-cinema-profile-tags" aria-label="프로필 태그">
+                {user?.tags?.length ? (
+                  user.tags
+                    .slice(0, 5)
+                    .map((tag) => <span key={tag}>#{tag}</span>)
+                ) : (
+                  <span className="is-empty">태그를 아직 정하지 않았어요</span>
+                )}
+              </div>
             </div>
-          </section>
+          </div>
+
+          <div className="my-cinema-profile-stub" aria-label="티켓 정보">
+            <span className="my-cinema-profile-stub-label">MY CINEMA</span>
+            <span className="my-cinema-profile-date">
+              {ticketDate || '----.--.--'}
+            </span>
+            <span className="my-cinema-profile-barcode" aria-hidden="true" />
+          </div>
         </section>
 
         <section
           className="my-cinema-wall-card"
-          aria-label="영화 포스터 전시 공간"
+          aria-labelledby="collection-heading"
         >
           <div className="my-cinema-section-heading">
             <div>
-              <p className="my-cinema-dashboard-kicker">MY FILM WALL</p>
-              <h2>영화를 걸어보세요</h2>
+              <p className="my-cinema-dashboard-kicker">COLLECTION</p>
+              <h2 id="collection-heading">개인 컬렉션</h2>
             </div>
-            <p>MY CINEMA에 남겨두고 싶은 포스터</p>
+            <p>나의 영화 활동</p>
           </div>
-          <div className="my-cinema-poster-wall">
-            {[1, 2, 3].map((wallSlot) => {
-              const movie = selectedPosters[wallSlot];
-              const posterUrl = movie?.poster_path
-                ? tmdbPosterUrl(movie.poster_path, 'w342')
-                : null;
 
-              return (
-                <button
-                  key={wallSlot}
-                  type="button"
-                  disabled={saving}
-                  className={`my-cinema-poster-frame${movie ? '' : ' my-cinema-poster-frame--empty'}`}
-                  onClick={() => openPosterPicker(wallSlot)}
-                >
-                  {posterUrl ? (
-                    <Image
-                      className="my-cinema-selected-poster"
-                      src={posterUrl}
-                      alt={movie.title}
-                      fill
-                      sizes="(max-width: 40rem) 33vw, 20vw"
-                      aria-label={`${movie.title} 포스터 교체`}
-                    />
-                  ) : movie ? (
-                    <span>{movie.title}</span>
-                  ) : (
-                    <>
-                      <span>
-                        <Plus size={24} strokeWidth={1.35} aria-hidden />
-                      </span>
-                      <small>영화를 걸어보세요</small>
-                    </>
-                  )}
-                </button>
-              );
-            })}
+          <div className="my-cinema-tool-grid">
+            <Link className="my-cinema-tool-card" href="/my-cinema/watched">
+              <Film size={18} aria-hidden="true" />
+              <span>관람 기록</span>
+              <small>본 영화 모아보기</small>
+            </Link>
+            <Link className="my-cinema-tool-card" href="/my-cinema/wish">
+              <Heart size={18} aria-hidden="true" />
+              <span>보고 싶은 영화</span>
+              <small>관심 영화 모아보기</small>
+            </Link>
+            <Link className="my-cinema-tool-card" href="/my-cinema/postcard">
+              <Images size={18} aria-hidden="true" />
+              <span>MY POSTCARD</span>
+              <small>영화 문장 기록</small>
+            </Link>
+            <div
+              className="my-cinema-tool-card is-disabled"
+              aria-disabled="true"
+            >
+              <CalendarDays size={18} aria-hidden="true" />
+              <span>영화 캘린더</span>
+              <small>관람 일정 연결 예정</small>
+            </div>
           </div>
         </section>
 
-        <nav className="my-cinema-tool-grid" aria-label="MY CINEMA 메뉴">
-          <Link href="/my-cinema/watched" className="my-cinema-tool-card">
-            <Popcorn size={21} strokeWidth={1.4} aria-hidden />
-            <span>관람 기록</span>
-            <small>본 영화 관리</small>
-          </Link>
-          <Link href="/my-cinema/wish" className="my-cinema-tool-card">
-            <Heart size={21} strokeWidth={1.4} aria-hidden />
-            <span>보고 싶은 영화</span>
-            <small>다음 영화 찾기</small>
-          </Link>
-          <Link href="/my-cinema/postcard" className="my-cinema-tool-card">
-            <Mail size={21} strokeWidth={1.4} aria-hidden />
-            <span>MY POSTCARD</span>
-            <small>내 엽서 보관</small>
-          </Link>
-          <button
-            type="button"
-            className="my-cinema-tool-card is-disabled"
-            disabled
-            title="고객센터 준비 중"
-          >
-            <Phone size={21} strokeWidth={1.4} aria-hidden />
-            <span>고객센터</span>
-            <small>준비 중</small>
-          </button>
-        </nav>
+        <section
+          className="my-cinema-wall-card"
+          aria-labelledby="insights-heading"
+        >
+          <div className="my-cinema-section-heading">
+            <div>
+              <p className="my-cinema-dashboard-kicker">INSIGHTS</p>
+              <h2 id="insights-heading">나의 영화 통계</h2>
+            </div>
+            <p>취향 분석</p>
+          </div>
+
+          <div className="my-cinema-tool-grid">
+            <div
+              className="my-cinema-tool-card is-disabled"
+              aria-disabled="true"
+            >
+              <BarChart3 size={18} aria-hidden="true" />
+              <span>월별 관람 기록</span>
+              <small>언제 영화를 많이 봤는지</small>
+            </div>
+            <div
+              className="my-cinema-tool-card is-disabled"
+              aria-disabled="true"
+            >
+              <Film size={18} aria-hidden="true" />
+              <span>감독·장르 분석</span>
+              <small>좋아하는 영화 취향 분석</small>
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="my-cinema-wall-card"
+          aria-labelledby="support-heading"
+        >
+          <div className="my-cinema-section-heading">
+            <div>
+              <p className="my-cinema-dashboard-kicker">MORE</p>
+              <h2 id="support-heading">설정 및 도움말</h2>
+            </div>
+          </div>
+
+          <div className="my-cinema-tool-grid">
+            <div
+              className="my-cinema-tool-card is-disabled"
+              aria-disabled="true"
+            >
+              <Settings size={18} aria-hidden="true" />
+              <span>설정</span>
+              <small>계정·공개 범위 관리</small>
+            </div>
+            <div
+              className="my-cinema-tool-card is-disabled"
+              aria-disabled="true"
+            >
+              <LifeBuoy size={18} aria-hidden="true" />
+              <span>고객센터</span>
+              <small>서비스 이용 도움말</small>
+            </div>
+          </div>
+        </section>
       </div>
 
-      {error ? <p className="my-cinema-copy">{error}</p> : null}
-
-      {wardrobeOpen ? (
-        <WardrobeModal
-          initial={avatarConfig}
-          onSave={(config) => void handleSaveAvatar(config)}
-          onClose={() => setWardrobeOpen(false)}
-        />
-      ) : null}
-
-      {profileOpen ? (
+      {profileOpen && accessToken && user ? (
         <ProfileModal
           initial={{
             nickname: user.nickname,
@@ -593,79 +251,12 @@ export default function MyCinemaPage() {
             profilePublic: user.profilePublic,
             tags: user.tags,
           }}
-          onSave={(profile) => void handleSaveProfile(profile)}
+          onSave={async (input) => {
+            const updatedUser = await updateProfileRequest(accessToken, input);
+            setUser(updatedUser);
+            setProfileOpen(false);
+          }}
           onClose={() => setProfileOpen(false)}
-        />
-      ) : null}
-
-      {posterPickerOpen && accessToken && selectedWallSlot !== null ? (
-        <PosterPickerModal
-          token={accessToken}
-          onSelect={handlePosterSelected}
-          onClose={() => {
-            setPosterPickerOpen(false);
-            setSelectedWallSlot(null);
-          }}
-          onRemove={
-            selectedPosters[selectedWallSlot]
-              ? () => void handlePosterRemoved()
-              : undefined
-          }
-        />
-      ) : null}
-
-      {calendarAddDate && accessToken ? (
-        <PosterPickerModal
-          token={accessToken}
-          isPending={isCalendarAdding}
-          onClose={() => setCalendarAddDate(null)}
-          onSelect={handleCalendarMovieSelect}
-        />
-      ) : null}
-
-      {calendarOpen && accessToken ? (
-        <MovieCalendarModal
-          key={calendarRefreshKey}
-          token={accessToken}
-          onClose={() => setCalendarOpen(false)}
-          onAdd={(date) => setCalendarAddDate(date)}
-          onEdit={handleCalendarMovieEdit}
-          onDelete={(tmdbId) => setCalendarDeleteTarget(tmdbId)}
-        />
-      ) : null}
-
-      {calendarEditTarget && accessToken ? (
-        <WatchedDateEditModal
-          initialDate={calendarEditTarget.watchedAt.slice(0, 10)}
-          isPending={isCalendarEditing}
-          onClose={() => setCalendarEditTarget(null)}
-          onSave={handleCalendarMovieEditSave}
-        />
-      ) : null}
-
-      {calendarAddError ? (
-        <ConfirmModal
-          open
-          title="관람 기록 처리 실패"
-          description={calendarAddError}
-          onClose={() => setCalendarAddError(null)}
-          onConfirm={() => setCalendarAddError(null)}
-          confirmLabel="닫기"
-          cancelLabel=""
-        />
-      ) : null}
-      {calendarDeleteTarget !== null ? (
-        <ConfirmModal
-          open
-          title="관람 기록 삭제"
-          description="이 관람 기록을 삭제할까요?"
-          onClose={() => setCalendarDeleteTarget(null)}
-          onConfirm={async () => {
-            await handleCalendarMovieDelete(calendarDeleteTarget);
-            setCalendarDeleteTarget(null);
-          }}
-          confirmLabel="삭제하기"
-          tone="danger"
         />
       ) : null}
     </main>

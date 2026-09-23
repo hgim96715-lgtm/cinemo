@@ -44,7 +44,6 @@ model User {
     nickname                  String                     @unique
     role                      UserRole                   @default(user)
     lastLoginProvider         LoginProvider?
-    avatarConfig              Json?
     bio                       String?                    @db.VarChar(200)
     profilePublic             Boolean                    @default(false) @map("profile_public")
     tags                      String[]                   @default([])

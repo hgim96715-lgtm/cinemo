@@ -8,19 +8,14 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import {
-  ADMIN_AVATAR,
-  DEFAULT_AVATAR,
   DEFAULT_PROFILE,
   normalizeProfileTags,
-  PublicProfile,
-  type AvatarConfig,
 } from '@cinemo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import type { JwtPayload } from './jwt-payload';
 import { AdminService } from '../admin/admin.service';
-import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import {
   AuthProvider,
   LoginProvider,
@@ -35,6 +30,18 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const BCRYPT_ROUNDS = 10;
 
+type PublicProfile =
+  | {
+      nickname: string;
+      profilePublic: true;
+      bio: string | null;
+      tags: string[];
+    }
+  | {
+      nickname: string;
+      profilePublic: false;
+    };
+
 const AUTH_USER_SELECT = {
   id: true,
   email: true,
@@ -42,7 +49,6 @@ const AUTH_USER_SELECT = {
   role: true,
   lastLoginProvider: true,
   isTestAccount: true,
-  avatarConfig: true,
   bio: true,
   profilePublic: true,
   tags: true,
@@ -55,19 +61,10 @@ type AuthUserRow = {
   role: 'user' | 'admin';
   lastLoginProvider: 'email' | 'google' | 'naver' | 'kakao' | 'apple' | null;
   isTestAccount: boolean;
-  avatarConfig?: unknown;
   bio?: string | null;
   profilePublic: boolean;
   tags?: string[];
 };
-
-function toAvatarConfig(
-  value: unknown,
-  role: AuthUserRow['role'] = 'user',
-): AvatarConfig {
-  if (value && typeof value === 'object') return value as AvatarConfig;
-  return role === 'admin' ? ADMIN_AVATAR : DEFAULT_AVATAR;
-}
 
 function toAuthUser(user: AuthUserRow) {
   return {
@@ -77,7 +74,6 @@ function toAuthUser(user: AuthUserRow) {
     role: user.role,
     lastLoginProvider: user.lastLoginProvider,
     isTestAccount: user.isTestAccount,
-    avatarConfig: toAvatarConfig(user.avatarConfig, user.role),
     bio: user.bio ?? DEFAULT_PROFILE.bio,
     profilePublic: user.profilePublic ?? DEFAULT_PROFILE.profilePublic,
     tags: normalizeProfileTags(user.tags ?? []),
@@ -297,42 +293,6 @@ export class AuthService {
     return this.isAvailable({ nickname: normalized });
   }
 
-  async updateAvatar(userId: string, dto: UpdateAvatarDto) {
-    const currentUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { avatarConfig: true, role: true },
-    });
-    if (!currentUser) throw new NotFoundException('사용자를 찾을 수 없습니다.');
-    const previousAvatar = toAvatarConfig(
-      currentUser.avatarConfig,
-      currentUser.role,
-    );
-
-    const avatarConfig: AvatarConfig = {
-      ...previousAvatar,
-      hat: dto.hat ?? previousAvatar.hat,
-      hatColor: dto.hatColor ?? previousAvatar.hatColor,
-      skinColor: dto.skinColor ?? previousAvatar.skinColor,
-      eyeStyle: dto.eyeStyle ?? previousAvatar.eyeStyle,
-      eyebrowStyle: dto.eyebrowStyle ?? previousAvatar.eyebrowStyle,
-      glassesStyle: dto.glassesStyle ?? previousAvatar.glassesStyle,
-      hairStyle: dto.hairStyle ?? previousAvatar.hairStyle,
-      blushColor:
-        dto.blushColor !== undefined
-          ? dto.blushColor
-          : previousAvatar.blushColor,
-      mouthStyle: dto.mouthStyle ?? previousAvatar.mouthStyle,
-      outfit: dto.outfit !== undefined ? dto.outfit : previousAvatar.outfit,
-    };
-
-    const user = await this.prisma.user.update({
-      where: { id: userId },
-      data: { avatarConfig: avatarConfig as unknown as Prisma.InputJsonValue },
-      select: AUTH_USER_SELECT,
-    });
-    return toAuthUser(user);
-  }
-
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const data: Prisma.UserUpdateInput = {};
     if (dto.nickname !== undefined) {
@@ -365,7 +325,6 @@ export class AuthService {
       select: {
         nickname: true,
         profilePublic: true,
-        avatarConfig: true,
         bio: true,
         tags: true,
       },
@@ -377,7 +336,6 @@ export class AuthService {
     return {
       nickname: user.nickname,
       profilePublic: true,
-      avatarConfig: toAvatarConfig,
       bio: user.bio,
       tags: normalizeProfileTags(user.tags ?? []),
     };

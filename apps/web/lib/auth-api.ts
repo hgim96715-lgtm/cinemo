@@ -1,4 +1,4 @@
-import { PublicProfile, type AvatarConfig } from '@cinemo/shared';
+import type { PublicProfileResponse } from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
 import type { AuthUser, UpdateProfileInput } from './auth-store';
 
@@ -37,14 +37,6 @@ export function exchangeOAuthCodeRequest(code: string) {
   });
 }
 
-export function updateAvatarRequest(token: string, avatar: AvatarConfig) {
-  return apiFetch<AuthUser>('/auth/avatar', {
-    method: 'PATCH',
-    token,
-    body: JSON.stringify(avatar),
-  });
-}
-
 export function updateProfileRequest(
   token: string,
   profile: UpdateProfileInput,
@@ -57,7 +49,9 @@ export function updateProfileRequest(
 }
 
 export function getPublicProfileRequest(nickname: string) {
-  return apiFetch<PublicProfile>(`/profiles/${encodeURIComponent(nickname)}`);
+  return apiFetch<PublicProfileResponse>(
+    `/profiles/${encodeURIComponent(nickname)}`,
+  );
 }
 
 export function checkEmailRequest(email: string) {

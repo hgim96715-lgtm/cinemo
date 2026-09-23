@@ -260,22 +260,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/auth/avatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["AuthController_updateAvatar_v1"];
-        trace?: never;
-    };
     "/v1/auth/profile": {
         parameters: {
             query?: never;
@@ -1319,7 +1303,6 @@ export interface components {
             email: string;
         };
         ResetPasswordDto: Record<string, never>;
-        UpdateAvatarDto: Record<string, never>;
         UpdateProfileDto: Record<string, never>;
         MovieDetailDto: {
             /** @example 550 */
@@ -1801,8 +1784,6 @@ export interface components {
              * @example true
              */
             profilePublic: boolean;
-            /** @description 아바타 설정 */
-            avatarConfig?: Record<string, never>;
             /**
              * @description 프로필 소개
              * @example 영화를 좋아합니다.
@@ -2423,27 +2404,6 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_updateAvatar_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAvatarDto"];
-            };
-        };
         responses: {
             200: {
                 headers: {

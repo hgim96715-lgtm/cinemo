@@ -313,35 +313,6 @@
         ]
       }
     },
-    "/v1/auth/avatar": {
-      "patch": {
-        "operationId": "AuthController_updateAvatar_v1",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAvatarDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "auth"
-        ]
-      }
-    },
     "/v1/auth/profile": {
       "patch": {
         "operationId": "AuthController_updateProfile_v1",
@@ -2454,10 +2425,6 @@
         "type": "object",
         "properties": {}
       },
-      "UpdateAvatarDto": {
-        "type": "object",
-        "properties": {}
-      },
       "UpdateProfileDto": {
         "type": "object",
         "properties": {}
@@ -3673,10 +3640,6 @@
             "type": "boolean",
             "description": "프로필 공개 여부",
             "example": true
-          },
-          "avatarConfig": {
-            "type": "object",
-            "description": "아바타 설정"
           },
           "bio": {
             "type": "object",
