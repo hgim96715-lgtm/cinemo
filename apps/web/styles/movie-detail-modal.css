@@ -78,8 +78,11 @@
 
 .watched-record-modal-poster {
   position: relative;
-  width: 5.5rem;
-  aspect-ratio: 2 / 3;
+  width: 5rem;
+  height: 7rem;
+  min-height: 7rem;
+  flex: 0 0 auto;
+  aspect-ratio: 5 / 7;
   margin: 0.65rem auto 0.55rem;
   overflow: hidden;
   border: 1px solid rgb(243 239 230 / 0.16);
@@ -90,8 +93,19 @@
 
 .watched-record-modal-poster img {
   display: block;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
+}
+
+.watched-record-modal-poster > span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--cinemo-muted);
+  font-size: 0.68rem;
 }
 
 .watched-record-modal > .movie-detail-kicker {
@@ -579,10 +593,12 @@
   overflow: visible;
 }
 
-.movie-detail-calendar-button:hover {
-  border-color: var(--lobby-red, var(--cinemo-red, #ad4f59));
-  background: transparent;
-  color: var(--lobby-gold, var(--cinemo-gold, #d4b56a));
+@media (hover: hover) {
+  .movie-detail-calendar-button:hover {
+    border-color: var(--lobby-red, var(--cinemo-red, #ad4f59));
+    background: transparent;
+    color: var(--lobby-gold, var(--cinemo-gold, #d4b56a));
+  }
 }
 
 .movie-detail-calendar-button:focus-visible {
@@ -717,10 +733,16 @@
   transform: translateX(-50%) rotate(45deg);
 }
 
-.movie-detail-calendar-button:hover .movie-detail-tooltip,
 .movie-detail-calendar-button:focus-visible .movie-detail-tooltip {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+@media (hover: hover) {
+  .movie-detail-calendar-button:hover .movie-detail-tooltip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .movie-detail-notification-button:focus-visible .movie-detail-tooltip {
@@ -843,6 +865,31 @@
 @media (max-width: 40rem) {
   .movie-detail-actions {
     gap: 0.6rem;
+  }
+}
+
+@media (max-width: 70rem) {
+  .movie-detail-calendar-button .movie-detail-tooltip {
+    top: auto;
+    right: auto;
+    bottom: calc(100% + 0.55rem);
+    left: calc(50% + 0.75rem);
+    max-width: min(12rem, calc(100vw - 2rem));
+    transform: translate(-50%, 0.25rem);
+  }
+
+  .movie-detail-calendar-button:focus-visible .movie-detail-tooltip {
+    transform: translate(-50%, 0);
+  }
+
+  .movie-detail-calendar-button .movie-detail-tooltip::after {
+    left: 35%;
+  }
+
+  @media (hover: hover) {
+    .movie-detail-calendar-button:hover .movie-detail-tooltip {
+      transform: translate(-50%, 0);
+    }
   }
 }
 

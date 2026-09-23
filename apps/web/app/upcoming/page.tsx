@@ -323,6 +323,15 @@ function UpcomingPageContent() {
         })()
       : null;
 
+    if (notificationPromise) {
+      void notificationPromise.then((notification) => {
+        setReleaseNotificationById((current) => ({
+          ...current,
+          [tmdbId]: notification?.enabled ?? false,
+        }));
+      });
+    }
+
     try {
       const movie = await getMovieDetailRequest(tmdbId);
 
@@ -332,16 +341,6 @@ function UpcomingPageContent() {
         isReleaseDateConfirmed: upcomingMovie?.isReleaseDateConfirmed ?? false,
       });
 
-      if (notificationPromise) {
-        void (async () => {
-          const notification = await notificationPromise;
-
-          setReleaseNotificationById((current) => ({
-            ...current,
-            [tmdbId]: notification?.enabled ?? false,
-          }));
-        })();
-      }
     } finally {
       setLoadingDetailId(null);
     }
@@ -356,7 +355,13 @@ function UpcomingPageContent() {
     }
 
     const tmdbId = detailMovie.id;
-    const enabled = !(releaseNotificationById[tmdbId] ?? false);
+    const previousEnabled = releaseNotificationById[tmdbId] ?? false;
+    const enabled = !previousEnabled;
+
+    setReleaseNotificationById((current) => ({
+      ...current,
+      [tmdbId]: enabled,
+    }));
 
     try {
       await updateMovieReleaseNotificationRequest(
@@ -371,6 +376,10 @@ function UpcomingPageContent() {
         [tmdbId]: enabled,
       }));
     } catch (error: unknown) {
+      setReleaseNotificationById((current) => ({
+        ...current,
+        [tmdbId]: previousEnabled,
+      }));
       setError(
         getUserFacingErrorMessage(error, '개봉일 알림 설정에 실패했어요.'),
       );

@@ -391,16 +391,18 @@ export function WatchedRecordModal({
             WATCHED RECORD
           </Dialog.Title>
 
-          {poster ? (
-            <div className="watched-record-modal-poster">
+          <div className="watched-record-modal-poster">
+            {poster ? (
               <Image
                 src={poster}
                 alt={`${movie.title} 포스터`}
                 fill
                 sizes="88px"
               />
-            </div>
-          ) : null}
+            ) : (
+              <span>포스터 없음</span>
+            )}
+          </div>
 
           <h2>{movie.title}</h2>
 

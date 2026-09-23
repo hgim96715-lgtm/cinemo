@@ -110,6 +110,9 @@ export function MovieDetailModal({
   const todayKst = kstDateKey();
   const isReleased =
     Boolean(movie.release_date) && movie.release_date <= todayKst;
+  const isNotificationEnabled = Boolean(
+    marks?.wish && releaseNotificationEnabled,
+  );
   const poster = tmdbPosterUrl(movie.poster_path, 'w342');
   const [placeSuggestions, setPlaceSuggestions] = useState<PlaceSearchResult[]>(
     [],
@@ -541,12 +544,12 @@ export function MovieDetailModal({
                       type="button"
                       className={`movie-detail-notification-button${
                         marks?.wish ? ' is-wish' : ''
-                      }${releaseNotificationEnabled ? ' is-on' : ''}${
+                      }${isNotificationEnabled ? ' is-on' : ''}${
                         showNotificationTooltip ? ' is-tooltip-visible' : ''
                       }`}
-                      aria-pressed={releaseNotificationEnabled}
+                      aria-pressed={isNotificationEnabled}
                       aria-label={
-                        releaseNotificationEnabled
+                        isNotificationEnabled
                           ? '개봉일 알림 해제'
                           : '개봉일 알림 설정'
                       }
@@ -564,7 +567,7 @@ export function MovieDetailModal({
                         className="movie-detail-tooltip"
                         role="tooltip"
                       >
-                        {releaseNotificationEnabled
+                        {isNotificationEnabled
                           ? '알림 해제'
                           : '알림 설정'}
                       </span>

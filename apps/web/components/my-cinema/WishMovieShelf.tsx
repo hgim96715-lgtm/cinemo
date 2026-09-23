@@ -1,7 +1,7 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Heart } from 'lucide-react';
 import Image from 'next/image';
 import type {
@@ -44,6 +44,7 @@ export function WishMovieShelf({ title }: Props) {
   const [isWishDetailLoading, setIsWishDetailLoading] = useState(false);
   const [wishReleaseNotificationEnabled, setWishReleaseNotificationEnabled] =
     useState(false);
+  const wishDetailRequestIdRef = useRef(0);
   const [watchedModalMovie, setWatchedModalMovie] =
     useState<WatchedRecordMovie | null>(null);
   const [displayLimitModalOpen, setDisplayLimitModalOpen] = useState(false);
@@ -68,6 +69,8 @@ export function WishMovieShelf({ title }: Props) {
   const loginModalOpen = hydrated && !accessToken && !loginPromptDismissed;
 
   async function handleWishMovieClick(item: UserMovieListItem) {
+    const requestId = wishDetailRequestIdRef.current + 1;
+    wishDetailRequestIdRef.current = requestId;
     setWishDetailMovie(item.movie);
     setWishReleaseNotificationEnabled(false);
     setIsWishDetailLoading(Boolean(accessToken));
@@ -76,28 +79,30 @@ export function WishMovieShelf({ title }: Props) {
       return;
     }
 
+    const notificationPromise = getMovieReleaseNotificationRequest(
+      accessToken,
+      item.tmdbId,
+    ).catch(() => null);
+
+    void notificationPromise.then((notification) => {
+      if (wishDetailRequestIdRef.current !== requestId) return;
+      setWishReleaseNotificationEnabled(notification?.enabled ?? false);
+    });
+
     try {
       const detail = await getWishMovieDetailRequest(accessToken, item.tmdbId);
+
+      if (wishDetailRequestIdRef.current !== requestId) return;
 
       setWishDetailMovie((current) =>
         current ? { ...current, ...detail } : current,
       );
-
-      void (async () => {
-        try {
-          const notification = await getMovieReleaseNotificationRequest(
-            accessToken,
-            item.tmdbId,
-          );
-          setWishReleaseNotificationEnabled(notification.enabled);
-        } catch {
-          setWishReleaseNotificationEnabled(false);
-        }
-      })();
     } catch {
       // 상세 조회가 실패해도 목록에서 받은 기본 영화 정보로 모달을 표시함
     } finally {
-      setIsWishDetailLoading(false);
+      if (wishDetailRequestIdRef.current === requestId) {
+        setIsWishDetailLoading(false);
+      }
     }
   }
 
