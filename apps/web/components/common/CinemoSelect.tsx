@@ -48,6 +48,7 @@ export function CinemoSelect({
           className="cinemo-select-trigger"
           aria-label={ariaLabel}
           disabled={disabled}
+          onClick={(event) => event.stopPropagation()}
         >
           <Select.Value placeholder={placeholder ?? options[0]?.label} />
           <Select.Icon>
@@ -71,6 +72,7 @@ export function CinemoSelect({
                   key={itemValue}
                   value={itemValue}
                   className="cinemo-select-option"
+                  onSelect={() => setIsOpen(false)}
                 >
                   <Select.ItemText>{option.label}</Select.ItemText>
 

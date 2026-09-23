@@ -441,6 +441,23 @@
   }
 }
 
+@media (min-width: 40.01rem) and (max-width: 70rem) {
+  .cinemo-page-header.my-cinema-shelf-header {
+    margin-bottom: 1rem;
+  }
+
+  .my-cinema-shelf-toolbar {
+    justify-content: center;
+    width: min(100%, 52rem);
+    margin-inline: auto;
+  }
+
+  .my-cinema-shelf-search {
+    flex: 1 1 20rem;
+    max-width: 26rem;
+  }
+}
+
 @media (min-width: 40.01rem) and (max-width: 60rem) {
   .my-cinema--shelf .my-cinema-movie-grid.my-cinema-movie-grid--watched {
     grid-template-columns: repeat(2, minmax(0, 1fr));

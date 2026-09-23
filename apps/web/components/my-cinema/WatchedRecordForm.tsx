@@ -15,7 +15,7 @@ import {
   VIEWING_PLATFORM_OPTIONS,
   VIEWING_TYPE_OPTIONS,
 } from './watched-record-form';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 
 type WatchedPlaceOption = PlaceSearchResult & {
@@ -79,6 +79,7 @@ export function WatchedRecordForm({
   onPlaceSelect,
 }: WatchedRecordFormProps) {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const isPlaceSuggestionsPointerDown = useRef(false);
   const watchedAt = useWatch({ control, name: 'watchedAt' });
   const selectedDate = parseDateKey(watchedAt);
   const maxDate = parseDateKey(todayKst);
@@ -225,22 +226,38 @@ export function WatchedRecordForm({
           maxLength={100}
           disabled={isSubmitting}
           onFocus={onPlaceFocus}
-          onBlur={onPlaceBlur}
+          onBlur={() => {
+            if (isPlaceSuggestionsPointerDown.current) return;
+            onPlaceBlur();
+          }}
         />
         {errors.viewingPlace?.message ? (
           <small role="alert">{errors.viewingPlace.message}</small>
         ) : null}
-        {isSearchingPlaces ? (
+        {isSearchingPlaces && visiblePlaceSuggestions.length === 0 ? (
           <small className="movie-detail-place-status">장소를 찾는 중…</small>
         ) : null}
 
-        {!isSearchingPlaces &&
-        isPlaceFocused &&
-        visiblePlaceSuggestions.length > 0 ? (
+        {isPlaceFocused && visiblePlaceSuggestions.length > 0 ? (
           <div
             className="movie-detail-place-suggestions"
             role="listbox"
             aria-label="관람 장소 추천"
+            onPointerDownCapture={() => {
+              isPlaceSuggestionsPointerDown.current = true;
+            }}
+            onPointerUpCapture={() => {
+              isPlaceSuggestionsPointerDown.current = false;
+            }}
+            onPointerCancel={() => {
+              isPlaceSuggestionsPointerDown.current = false;
+            }}
+            onTouchStartCapture={() => {
+              isPlaceSuggestionsPointerDown.current = true;
+            }}
+            onTouchEndCapture={() => {
+              isPlaceSuggestionsPointerDown.current = false;
+            }}
           >
             {visiblePlaceSuggestions.map((place) => (
               <button
@@ -303,9 +320,6 @@ export function WatchedRecordForm({
                     key={score}
                     type="button"
                     className={score <= (field.value ?? 0) ? 'is-filled' : ''}
-                    onClick={() =>
-                      field.onChange(field.value === score ? null : score)
-                    }
                     aria-label={
                       field.value === score
                         ? `${score}점 선택 해제`
@@ -313,6 +327,12 @@ export function WatchedRecordForm({
                     }
                     aria-pressed={score === field.value}
                     disabled={isSubmitting}
+                    onClick={(event) => {
+                      field.onChange(field.value === score ? null : score);
+                      if (event.detail > 0) {
+                        event.currentTarget.blur();
+                      }
+                    }}
                   />
                 );
               })}

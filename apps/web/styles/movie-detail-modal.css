@@ -89,7 +89,9 @@
 }
 
 .watched-record-modal-poster img {
-  object-fit: cover;
+  display: block;
+  object-fit: contain;
+  object-position: center;
 }
 
 .watched-record-modal > .movie-detail-kicker {
@@ -445,7 +447,7 @@
 }
 
 @media (hover: hover) {
-  .movie-detail-interest-icon:hover {
+  .movie-detail-interest-icon.is-on:hover {
     border: 0;
     background: transparent;
     color: var(--lobby-red, #ad4f59);
@@ -711,10 +713,16 @@
   transform: translate(-50%, 0);
 }
 
-.movie-detail-notification-button:hover .movie-detail-tooltip,
 .movie-detail-notification-button:focus-visible .movie-detail-tooltip {
   opacity: 1;
   transform: translate(0, 50%);
+}
+
+@media (hover: hover) {
+  .movie-detail-notification-button:hover .movie-detail-tooltip {
+    opacity: 1;
+    transform: translate(0, 50%);
+  }
 }
 
 .movie-detail-sr-only {
@@ -911,7 +919,7 @@
 }
 
 @media (hover: hover) {
-  .movie-detail-interest-inline:hover {
+  .movie-detail-interest-inline.is-on:hover {
     border: 0 !important;
     background: transparent !important;
     color: var(--lobby-red, #ad4f59) !important;
@@ -1266,13 +1274,17 @@
   grid-row: 3;
   display: grid;
   gap: 0.1rem;
+  min-height: 0;
   max-height: 10rem;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   margin-top: 0.05rem;
   padding: 0.25rem;
   border: 1px solid rgb(243 239 230 / 0.14);
   border-radius: 0.55rem;
   background: rgb(243 239 230 / 0.035);
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .movie-detail-place-option {
@@ -1373,12 +1385,21 @@
     transform 160ms ease;
 }
 
-.movie-detail-rating-bar button:hover,
 .movie-detail-rating-bar button:focus-visible {
-  border-color: var(--lobby-red, #ad4f59);
-  outline: none;
-  box-shadow: 0 0 0 3px rgb(173 79 89 / 0.14);
-  transform: scale(1.08);
+  border-color: var(--lobby-gold);
+  outline: 2px solid var(--lobby-gold);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgb(212 181 106 / 0.14);
+  transform: none;
+}
+
+@media (hover: hover) {
+  .movie-detail-rating-bar button:hover {
+    border-color: var(--lobby-red, #ad4f59);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(173 79 89 / 0.14);
+    transform: scale(1.08);
+  }
 }
 
 .movie-detail-rating-bar button.is-filled {

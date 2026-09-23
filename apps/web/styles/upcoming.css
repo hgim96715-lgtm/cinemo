@@ -375,8 +375,8 @@
   transform: translateY(0);
 }
 
-.upcoming-interest-button:hover:not(:disabled) svg,
-.upcoming-interest-button:active:not(:disabled) svg {
+.upcoming-interest-button.is-on:hover:not(:disabled) svg,
+.upcoming-interest-button.is-on:active:not(:disabled) svg {
   fill: var(--lobby-red, #ad4f59);
   color: var(--lobby-red, #ad4f59);
 }

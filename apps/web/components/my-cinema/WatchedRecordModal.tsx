@@ -232,48 +232,66 @@ export function WatchedRecordModal({
 
     if (!open || !shouldSearch || query.length < 2) {
       setPlaceSuggestions([]);
+      setIsSearchingPlaces(false);
       return;
     }
 
     let cancelled = false;
+    let cinemaPlaces: WatchedPlaceOption[] = [];
+    let placeResults: PlaceSearchResult[] = [];
+
+    const publishSuggestions = () => {
+      if (!cancelled) {
+        setPlaceSuggestions(mergePlaceOptions(cinemaPlaces, placeResults));
+      }
+    };
+
+    setPlaceSuggestions([]);
+    setIsSearchingPlaces(true);
+
     const timer = window.setTimeout(async () => {
-      setIsSearchingPlaces(true);
+      const cinemaRequest = searchCinemasRequest(query).then(
+        (cinemas) => {
+          if (cancelled) return;
 
-      try {
-        const [cinemaResult, placeResult] = await Promise.allSettled([
-          searchCinemasRequest(query),
-          accessToken
-            ? searchPlacesRequest(accessToken, query)
-            : Promise.resolve([]),
-        ]);
+          cinemaPlaces = cinemas.map(toCinemaPlace);
 
-        if (cancelled) {
-          return;
-        }
+          const exactCinema = cinemaPlaces.find(
+            (cinema) =>
+              normalizePlaceName(cinema.name) === normalizePlaceName(query),
+          );
 
-        const cinemas =
-          cinemaResult.status === 'fulfilled'
-            ? cinemaResult.value.map(toCinemaPlace)
-            : [];
+          if (exactCinema?.cinemaId) {
+            setSelectedCinemaId(exactCinema.cinemaId);
+            setSelectedCinemaName(exactCinema.name);
+          }
 
-        const places =
-          placeResult.status === 'fulfilled' ? placeResult.value : [];
+          publishSuggestions();
+        },
+        () => {
+          publishSuggestions();
+        },
+      );
 
-        const exactCinema = cinemas.find(
-          (cinema) =>
-            normalizePlaceName(cinema.name) === normalizePlaceName(query),
-        );
+      const placeRequest = (
+        accessToken
+          ? searchPlacesRequest(accessToken, query)
+          : Promise.resolve([])
+      ).then(
+        (places) => {
+          if (cancelled) return;
+          placeResults = places;
+          publishSuggestions();
+        },
+        () => {
+          publishSuggestions();
+        },
+      );
 
-        if (exactCinema?.cinemaId) {
-          setSelectedCinemaId(exactCinema.cinemaId);
-          setSelectedCinemaName(exactCinema.name);
-        }
+      await Promise.all([cinemaRequest, placeRequest]);
 
-        setPlaceSuggestions(mergePlaceOptions(cinemas, places));
-      } finally {
-        if (!cancelled) {
-          setIsSearchingPlaces(false);
-        }
+      if (!cancelled) {
+        setIsSearchingPlaces(false);
       }
     }, 250);
 

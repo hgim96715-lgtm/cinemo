@@ -529,7 +529,12 @@ export function MovieDetailModal({
                           : '개봉일 알림 설정'
                       }
                       aria-describedby={`movie-notification-tooltip-${movie.id}`}
-                      onClick={handleNotificationClick}
+                      onClick={(event) => {
+                        handleNotificationClick();
+                        if (event.detail > 0) {
+                          event.currentTarget.blur();
+                        }
+                      }}
                     >
                       <Bell size={17} aria-hidden />
                       <span
