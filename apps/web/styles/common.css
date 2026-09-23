@@ -59,3 +59,12 @@ button[class*="-close"]:disabled {
   outline: 2px solid #d4b56a;
   outline-offset: 3px;
 }
+
+/* iOS Safari의 입력 시 자동 확대 방지 */
+@media (max-width: 40rem) {
+  input:not([type='hidden']):not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
