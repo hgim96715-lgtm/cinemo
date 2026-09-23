@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import type { UserMovieStats } from '@cinemo/shared';
+import type { UserMovieStats } from '@cinemo/api-contract';
 import { getUserMovieStatsRequest } from '@/lib/user-movie-api';
 
 type Props = {
