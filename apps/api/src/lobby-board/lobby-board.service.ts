@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { BoardBoxOfficeMovie, LobbyBoardResponse } from '@cinemo/shared';
 import { kstDateKey, todayKstDate } from '../lib/date-kst';
 import { TmdbService } from '../tmdb/tmdb.service';
 import { AdminService } from '../admin/admin.service';
@@ -11,8 +10,12 @@ import type {
   KobisDailyBoxOfficeMovie,
   KobisUpcomingMovie,
 } from '../kobis/kobis.service';
+import {
+  BoardBoxOfficeMovieDto,
+  LobbyBoardResponseDto,
+} from './dto/lobby-board.dto';
 
-type MovieChartMovie = BoardBoxOfficeMovie & {
+type MovieChartMovie = BoardBoxOfficeMovieDto & {
   kobisMovieCd: string;
   tmdbId: number | null;
   releaseDate: string | null;
@@ -210,7 +213,7 @@ export class LobbyBoardService {
     return { ok: true as const };
   }
 
-  async getBoard(): Promise<LobbyBoardResponse> {
+  async getBoard(): Promise<LobbyBoardResponseDto> {
     const [upcomingResult, boxOfficeMovies] = await Promise.all([
       this.getUpcomingMovies(undefined, 1, 30),
       this.getDailyBoxOfficeMovies(),
@@ -225,11 +228,21 @@ export class LobbyBoardService {
       .slice(0, 5)
       .map((movie, index) => ({
         rank: index + 1,
-        ...movie,
+        tmdbId: movie.tmdbId,
+        title: movie.title,
+        releaseDate: movie.releaseDate,
+        interestCount: movie.interestCount,
+        posterPath: movie.posterPath,
       }));
 
     return {
-      boxOfficeMovies: boxOfficeMovies.slice(0, 3),
+      boxOfficeMovies: boxOfficeMovies.slice(0, 3).map((movie) => ({
+        rank: movie.rank,
+        title: movie.title,
+        audienceCount: movie.audienceCount,
+        rankChange: movie.rankChange,
+        posterPath: movie.posterPath,
+      })),
       upcomingInterestMovies,
     };
   }
@@ -320,6 +333,9 @@ export class LobbyBoardService {
   }
 
   async getUpcomingMovies(month?: string, page = 1, limit = 10) {
+    // DB 연결 실패를 빈 결과로 오인하지 않도록 조회 시작 시 연결 상태를 확인한다.
+    await this.prisma.$queryRaw`SELECT 1`;
+
     const today = kstDateKey();
     const oneYearLater = new Date(`${today}T00:00:00+09:00`);
     oneYearLater.setUTCDate(oneYearLater.getUTCDate() + 365);

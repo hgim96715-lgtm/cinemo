@@ -2,6 +2,7 @@ import { MapPin } from 'lucide-react';
 import type { PlaceSearchResult } from '@cinemo/api-contract';
 import {
   Controller,
+  useWatch,
   type Control,
   type FieldErrors,
   type UseFormHandleSubmit,
@@ -14,6 +15,8 @@ import {
   VIEWING_PLATFORM_OPTIONS,
   VIEWING_TYPE_OPTIONS,
 } from './watched-record-form';
+import { useState } from 'react';
+import { DayPicker } from 'react-day-picker';
 
 type WatchedPlaceOption = PlaceSearchResult & {
   cinemaId?: string;
@@ -22,6 +25,19 @@ type WatchedPlaceOption = PlaceSearchResult & {
 type WatchedRecordSubmitHandler = ReturnType<
   UseFormHandleSubmit<WatchedRecordFormValues>
 >;
+
+function parseDateKey(value: string) {
+  if (!value) return undefined;
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+function toDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 type WatchedRecordFormProps = {
   control: Control<WatchedRecordFormValues>;
@@ -62,20 +78,54 @@ export function WatchedRecordForm({
   isSearchingPlaces,
   onPlaceSelect,
 }: WatchedRecordFormProps) {
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const watchedAt = useWatch({ control, name: 'watchedAt' });
+  const selectedDate = parseDateKey(watchedAt);
+  const maxDate = parseDateKey(todayKst);
+
   return (
     <form
       className="movie-detail-screening"
       aria-label="관람 기록 입력"
       onSubmit={onSubmit}
     >
-      <label>
+      <label className="movie-detail-date-field">
         <span>관람일</span>
-        <input
-          type="date"
-          max={todayKst}
-          {...register('watchedAt')}
+
+        <input type="hidden" {...register('watchedAt')} />
+
+        <button
+          type="button"
+          className="movie-detail-date-trigger"
+          aria-expanded={isDatePickerOpen}
           disabled={isSubmitting}
-        />
+          onClick={() => setIsDatePickerOpen((previous) => !previous)}
+        >
+          {watchedAt ? watchedAt.replaceAll('-', '.') : '관람일 선택'}
+        </button>
+
+        {isDatePickerOpen ? (
+          <div className="movie-detail-date-picker">
+            <DayPicker
+              mode="single"
+              selected={selectedDate}
+              defaultMonth={selectedDate ?? maxDate}
+              disabled={maxDate ? { after: maxDate } : undefined}
+              onSelect={(date) => {
+                if (!date) return;
+
+                setValue('watchedAt', toDateKey(date), {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                  shouldValidate: true,
+                });
+
+                setIsDatePickerOpen(false);
+              }}
+            />
+          </div>
+        ) : null}
+
         {errors.watchedAt?.message ? (
           <small role="alert">{errors.watchedAt.message}</small>
         ) : null}
@@ -181,9 +231,7 @@ export function WatchedRecordForm({
           <small role="alert">{errors.viewingPlace.message}</small>
         ) : null}
         {isSearchingPlaces ? (
-          <small className="movie-detail-place-status">
-            장소를 찾는 중…
-          </small>
+          <small className="movie-detail-place-status">장소를 찾는 중…</small>
         ) : null}
 
         {!isSearchingPlaces &&

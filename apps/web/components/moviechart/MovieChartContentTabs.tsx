@@ -212,7 +212,7 @@ export function MovieChartContentTabs({
                         className="movie-chart-trailer-button"
                         onClick={() => onSelectTrailer(movie)}
                       >
-                        <Play size={14} fill="currentColor" aria-hidden />
+                        <Play size={14} aria-hidden />
                         예고편
                       </button>
                     ) : null}
@@ -239,15 +239,7 @@ export function MovieChartContentTabs({
         <Tabs.Content className="movie-chart-tab-panel" value="trend">
           {historyLoading ? (
             <MovieChartHistorySkeleton />
-          ) : historyError ? (
-            <p className="movie-chart-stats-error" role="alert">
-              {historyError}
-            </p>
-          ) : history.length === 0 ? (
-            <p className="movie-chart-stats-empty" role="status">
-              표시할 차트 데이터가 없습니다.
-            </p>
-          ) : (
+          ) : historyError || history.length === 0 ? null : (
             <MovieChartHistoryChart history={history} />
           )}
         </Tabs.Content>

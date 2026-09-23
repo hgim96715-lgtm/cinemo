@@ -2,9 +2,9 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Hash, UserRound, X } from 'lucide-react';
+import { Hash, X } from 'lucide-react';
 import { useRef, useState, type KeyboardEvent } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, useWatch, type SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import {
   PROFILE_BIO_MAX,
@@ -55,38 +55,37 @@ function addTagToList(tags: string[], raw: string): string[] {
 }
 export function ProfileModal({ initial, onSave, onClose }: Props) {
   const {
-    watch,
+    control,
+    register,
     setValue,
+    getValues,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: initial,
   });
-  const form = watch();
+  const watchedForm = useWatch<ProfileFormValues>({
+    control,
+    defaultValue: initial,
+  });
+  const form: ProfileFormValues = {
+    nickname: watchedForm.nickname ?? initial.nickname,
+    bio: watchedForm.bio ?? initial.bio,
+    profilePublic: watchedForm.profilePublic ?? initial.profilePublic,
+    tags: watchedForm.tags ?? initial.tags,
+  };
 
   const [tagInput, setTagInput] = useState('');
   const [tagHint, setTagHint] = useState<string | null>(null);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const tagComposing = useRef(false);
 
-  function updateForm(partial: Partial<ProfileFormValues>) {
-    if (partial.nickname !== undefined) {
-      setValue('nickname', partial.nickname, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-
-    if (partial.bio !== undefined) {
-      setValue('bio', partial.bio, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
+  function updateForm(
+    partial: Partial<Pick<ProfileFormValues, 'profilePublic' | 'tags'>>,
+  ) {
     if (partial.profilePublic !== undefined) {
       setValue('profilePublic', partial.profilePublic, {
         shouldDirty: true,
@@ -143,7 +142,7 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
     tryAddTag(tagInput);
   }
   async function validateNickname(
-    nicknameValue = form.nickname,
+    nicknameValue = getValues('nickname'),
   ): Promise<boolean> {
     const nickname = nicknameValue.trim();
 
@@ -169,19 +168,15 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
   }
 
   const handleSave: SubmitHandler<ProfileFormValues> = async (values) => {
-    setSaving(true);
-    try {
-      const nicknameAvailable = await validateNickname(values.nickname);
-      if (!nicknameAvailable) return;
-      await onSave({
-        nickname: values.nickname.trim(),
-        bio: values.bio.trim() === '' ? null : values.bio.trim(),
-        profilePublic: values.profilePublic,
-        tags: values.tags,
-      });
-    } finally {
-      setSaving(false);
-    }
+    const nicknameAvailable = await validateNickname(values.nickname);
+    if (!nicknameAvailable) return;
+
+    await onSave({
+      nickname: values.nickname.trim(),
+      bio: values.bio.trim() === '' ? null : values.bio.trim(),
+      profilePublic: values.profilePublic,
+      tags: values.tags,
+    });
   };
   const tagCount = form.tags.length;
   const nicknameMessage = nicknameError ?? errors.nickname?.message?.toString();
@@ -198,7 +193,10 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
       <Dialog.Portal>
         <Dialog.Overlay className="profile-modal-overlay" />
 
-        <Dialog.Content className="profile-modal">
+        <Dialog.Content
+          className="profile-modal"
+          onPointerDownOutside={(event) => event.preventDefault()}
+        >
           <Dialog.Close asChild>
             <button
               type="button"
@@ -210,22 +208,20 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
           </Dialog.Close>
 
           <div className="profile-modal-heading">
-            <div className="profile-modal-icon" aria-hidden="true">
-              <UserRound size={18} />
-            </div>
+            <div className="profile-modal-heading-copy">
+              <p className="profile-modal-eyebrow">PROFILE</p>
 
-            <div>
               <Dialog.Title asChild>
                 <h2>프로필 편집</h2>
               </Dialog.Title>
-
-              <Dialog.Description>
-                영화 취향과 공개 범위를 설정할 수 있습니다.
-              </Dialog.Description>
             </div>
           </div>
 
-          <div className="profile-preview">
+          <form
+            className="profile-modal-form"
+            onSubmit={handleSubmit(handleSave)}
+          >
+            <div className="profile-preview">
             <p className="profile-preview-label">미리보기</p>
 
             {form.profilePublic ? (
@@ -265,9 +261,9 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
                 <p className="profile-card-note">비공개 · 닉네임만 공개</p>
               </div>
             )}
-          </div>
+            </div>
 
-          <div className="profile-form">
+            <div className="profile-form">
             <div className="profile-form-row">
               <label className="profile-form-label" htmlFor="profile-nickname">
                 닉네임
@@ -276,14 +272,12 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
               <input
                 id="profile-nickname"
                 className="profile-input"
-                value={form.nickname}
                 maxLength={32}
                 aria-invalid={Boolean(nicknameMessage)}
-                onChange={(event) => {
-                  setNicknameError(null);
-                  updateForm({ nickname: event.target.value });
-                }}
-                onBlur={() => void validateNickname()}
+                {...register('nickname', {
+                  onChange: () => setNicknameError(null),
+                  onBlur: () => void validateNickname(),
+                })}
               />
 
               {nicknameMessage ? (
@@ -299,11 +293,10 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
               <textarea
                 id="profile-bio"
                 className="profile-textarea"
-                value={form.bio}
                 maxLength={PROFILE_BIO_MAX}
                 rows={3}
                 placeholder="영화 취향, 요즘 보는 OTT…"
-                onChange={(event) => updateForm({ bio: event.target.value })}
+                {...register('bio')}
               />
 
               {errors.bio?.message ? (
@@ -441,24 +434,18 @@ export function ProfileModal({ initial, onSave, onClose }: Props) {
                 </span>
               </button>
             </div>
-          </div>
+            </div>
 
-          <div className="profile-modal-actions">
-            <Dialog.Close asChild>
-              <button type="button" className="profile-modal-button">
-                취소
-              </button>
-            </Dialog.Close>
-
+            <div className="profile-modal-actions">
             <button
-              type="button"
+              type="submit"
               className="profile-modal-button profile-modal-button--primary"
-              disabled={saving}
-              onClick={() => void handleSubmit(handleSave)()}
+              disabled={isSubmitting}
             >
-              {saving ? '저장 중…' : '저장'}
+              {isSubmitting ? '저장 중…' : '저장'}
             </button>
-          </div>
+            </div>
+          </form>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

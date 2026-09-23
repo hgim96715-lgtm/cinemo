@@ -2,6 +2,7 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback, useState } from 'react';
+import { Heart } from 'lucide-react';
 import Image from 'next/image';
 import type {
   UserMovieListItem,
@@ -105,12 +106,15 @@ export function WishMovieShelf({ title }: Props) {
       return;
     }
 
+    // 영화가 목록에서 사라지는 동작이므로 모달은 API 응답을 기다리지 않고 닫음
+    setWishDetailMovie(null);
+
     try {
       await toggleUserMovieRequest(accessToken, tmdbId, 'wish');
-      setWishDetailMovie(null);
-      await loadMovies();
     } catch {
-      // 목록 갱신 시 오류는 다음 조회에서 다시 확인함
+      // 실패해도 현재 서버 목록을 다시 받아 화면 상태를 복구함
+    } finally {
+      await loadMovies();
     }
   }
 
@@ -120,6 +124,10 @@ export function WishMovieShelf({ title }: Props) {
     }
 
     const enabled = !wishReleaseNotificationEnabled;
+    const previousEnabled = wishReleaseNotificationEnabled;
+
+    // 버튼 상태는 즉시 바꾸고, 실패할 때만 이전 상태로 되돌림
+    setWishReleaseNotificationEnabled(enabled);
 
     try {
       await updateMovieReleaseNotificationRequest(
@@ -128,9 +136,8 @@ export function WishMovieShelf({ title }: Props) {
         enabled,
         wishDetailMovie.release_date,
       );
-      setWishReleaseNotificationEnabled(enabled);
     } catch {
-      setWishReleaseNotificationEnabled(false);
+      setWishReleaseNotificationEnabled(previousEnabled);
     }
   }
 
@@ -142,7 +149,6 @@ export function WishMovieShelf({ title }: Props) {
         title="홈 티켓이 가득 찼어요"
         description="홈 티켓은 최대 3편까지 표시할 수 있어요."
         confirmLabel="확인"
-        cancelLabel=""
         onConfirm={() => setDisplayLimitModalOpen(false)}
         onClose={() => setDisplayLimitModalOpen(false)}
       />
@@ -188,21 +194,29 @@ export function WishMovieShelf({ title }: Props) {
 
                     <div className="my-cinema-movie-info">
                       <div className="my-cinema-wish-info">
+                        <div className="my-cinema-wish-kicker-row">
+                          <span className="my-cinema-wish-kicker">CINEMO · WISH</span>
+                          <span className="my-cinema-movie-facts">
+                            개봉{' '}
+                            {movie.release_date
+                              ? movie.release_date.replaceAll('-', '.')
+                              : '개봉일 미정'}
+                          </span>
+                        </div>
                         <div className="my-cinema-wish-title-row">
                           <span className="my-cinema-movie-title">{movie.title}</span>
                           <span
                             className="my-cinema-wish-heart"
                             aria-label="보고 싶은 영화"
                           >
-                            ♥
+                            <Heart
+                              size={16}
+                              strokeWidth={1.8}
+                              fill="currentColor"
+                              aria-hidden
+                            />
                           </span>
                         </div>
-                        <span className="my-cinema-movie-facts">
-                          개봉{' '}
-                          {movie.release_date
-                            ? movie.release_date.replaceAll('-', '.')
-                            : '개봉일 미정'}
-                        </span>
                       </div>
                     </div>
                   </button>
@@ -236,7 +250,6 @@ export function WishMovieShelf({ title }: Props) {
         >
           <MovieDetailModal
             movie={wishDetailMovie}
-            variant="wish"
             isDetailLoading={isWishDetailLoading}
             marks={{ wish: true, watched: false }}
             showWatchedMark

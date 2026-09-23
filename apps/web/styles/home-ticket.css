@@ -15,11 +15,19 @@
       color 180ms ease;
   }
 
+  .home-ticket-toggle.cinemo-icon-action {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--cinemo-gold);
+  }
+
   .home-ticket-toggle:hover:not(:disabled),
   .home-ticket-toggle:focus-visible {
-    border-color: var(--lobby-red, #ad4f59);
-    color: var(--lobby-gold, #e6ca65);
-    background: rgb(173 79 89 / 0.1);
+    border-color: transparent;
+    color: var(--cinemo-red);
+    background: transparent;
   }
 
   .home-ticket-toggle:focus-visible {
@@ -28,9 +36,9 @@
   }
 
 .home-ticket-toggle--active {
-  border-color: var(--lobby-gold, #e6ca65);
-  color: var(--lobby-gold, #e6ca65);
-  background: rgb(230 202 101 / 0.12);
+  border-color: transparent;
+  color: var(--cinemo-red);
+  background: transparent;
 }
 
   .home-ticket-toggle:disabled {

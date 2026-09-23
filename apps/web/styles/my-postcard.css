@@ -59,8 +59,9 @@
 }
 
 .postcard-card-actions .postcard-card-edit-button {
-  border-color: rgb(212 181 106 / 0.32);
-  color: var(--postcard-gold);
+  border-color: color-mix(in srgb, var(--postcard-gold) 62%, var(--postcard-muted));
+  color: color-mix(in srgb, var(--postcard-gold) 72%, var(--postcard-muted));
+  background: transparent;
 }
 
 .postcard-card-actions .postcard-card-bookmark-remove-button {
@@ -76,9 +77,15 @@
 }
 
 .postcard-card-actions .postcard-card-edit-button:hover {
-  border-color: rgb(212 181 106 / 0.68);
-  background: rgb(212 181 106 / 0.1);
-  color: var(--postcard-paper);
+  border-color: var(--postcard-red);
+  background: transparent;
+  color: color-mix(in srgb, var(--postcard-gold) 72%, var(--postcard-muted));
+}
+
+.postcard-card-actions .postcard-card-edit-button:active {
+  border-color: var(--postcard-red);
+  background: transparent;
+  color: color-mix(in srgb, var(--postcard-gold) 72%, var(--postcard-muted));
 }
 
 .postcard-card-actions button:focus-visible {
@@ -93,20 +100,6 @@
   height: 1.8rem;
   place-items: center;
   padding: 0;
-  border-color: rgb(212 181 106 / 0.28);
-  color: rgb(212 181 106 / 0.68);
-  background: rgb(212 181 106 / 0.035);
-}
-
-.postcard-card-actions .postcard-card-pin-button:hover,
-.postcard-card-actions .postcard-card-pin-button.is-pinned {
-  border-color: rgb(212 181 106 / 0.62);
-  color: rgb(212 181 106 / 0.78);
-  background: rgb(212 181 106 / 0.07);
-}
-
-.postcard-card-actions .postcard-card-pin-button.is-pinned {
-  box-shadow: none;
 }
 
 .postcard-card-copy {
@@ -114,7 +107,8 @@
 }
 
 .postcard-card-more-button {
-  margin-top: 0.45rem;
+  align-self: flex-start;
+  margin: 0.45rem 0 0.6rem;
   padding: 0;
   border: 0;
   color: var(--postcard-gold);
@@ -126,8 +120,7 @@
 
 .postcard-card-more-button:hover {
   color: var(--postcard-paper);
-  text-decoration: underline;
-  text-underline-offset: 0.2rem;
+  text-decoration: none;
 }
 
 .postcard-card-more-button:focus-visible {
@@ -149,16 +142,16 @@
   text-align: center;
 }
 
-.postcard-detail-eyebrow {
+.postcard-detail-modal .postcard-detail-eyebrow {
   margin: 0 0 0.45rem;
-  color: var(--postcard-gold);
+  color: var(--cinemo-gold);
   font-size: 0.7rem;
   letter-spacing: 0.14em;
 }
 
-.postcard-detail-heading h2 {
+.postcard-detail-modal .postcard-detail-heading h2 {
   margin: 0;
-  color: var(--postcard-paper);
+  color: var(--cinemo-fg);
   font-size: 1.08rem;
   line-height: 1.4;
 }
@@ -172,6 +165,23 @@
   margin-top: 1.1rem;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-color: rgb(243 239 230 / 0.24) transparent;
+  scrollbar-width: thin;
+}
+
+.postcard-detail-body::-webkit-scrollbar {
+  width: 0.38rem;
+}
+
+.postcard-detail-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.postcard-detail-body::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgb(243 239 230 / 0.24);
+  background-clip: padding-box;
 }
 
 .postcard-detail-poster {
@@ -203,27 +213,27 @@
   white-space: pre-wrap;
 }
 
-.postcard-detail-text {
-  color: var(--postcard-paper);
+.postcard-detail-modal .postcard-detail-text {
+  color: var(--cinemo-fg);
   font-family: var(--font-display-kr), serif;
   font-size: 1.05rem;
   line-height: 1.75;
 }
 
-.postcard-detail-original-text {
+.postcard-detail-modal .postcard-detail-original-text {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--postcard-line);
-  color: var(--postcard-muted);
+  color: var(--cinemo-muted);
   font-size: 0.8rem;
   line-height: 1.6;
 }
 
 .my-postcard-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: stretch;
-  gap: 0.65rem;
+  gap: 0.5rem;
   width: min(100%, 38rem);
   margin: 0 auto clamp(1.25rem, 3vw, 1.75rem);
 }
@@ -233,73 +243,106 @@
 }
 
 .my-postcard-tabs {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
   width: 100%;
-  border: 1px solid rgb(212 181 106 / 0.28);
-  border-radius: 0.65rem;
-  background: rgb(8 9 12 / 0.42);
-  overflow: hidden;
+  background: transparent;
 }
 
 .my-postcard-tabs button {
+  position: relative;
   min-height: 2.9rem;
   border: 0;
-  border-right: 1px solid rgb(212 181 106 / 0.16);
+  border-radius: 0;
   background: transparent;
   color: var(--postcard-muted);
   font: inherit;
   font-size: 0.86rem;
   cursor: pointer;
-    transition:
-      background-color 160ms ease,
+  transition:
     color 160ms ease;
-}
-
-.my-postcard-tabs button:last-child {
-  border-right: 0;
 }
 
 .my-postcard-tabs button:hover,
 .my-postcard-tabs button.is-active {
-  background: rgb(212 181 106 / 0.1);
+  background: transparent;
+}
+
+.my-postcard-tabs button:hover {
   color: var(--postcard-paper);
 }
 
 .my-postcard-tabs button.is-active {
-  box-shadow: inset 0 -2px var(--postcard-gold);
+  color: var(--postcard-gold);
+}
+
+.my-postcard-tabs button.is-active::after {
+  position: absolute;
+  right: 18%;
+  bottom: 0.05rem;
+  left: 18%;
+  height: 1px;
+  border-radius: 999px;
+  background: var(--postcard-red);
+  box-shadow: 0 0 6px rgb(173 79 89 / 0.24);
+  content: '';
 }
 
 .my-postcard-create-button {
-  display: inline-grid;
-  place-items: center;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
   align-self: stretch;
-  width: 2.9rem;
+  width: auto;
+  min-width: max-content;
   min-height: 2.9rem;
   height: auto;
-  padding: 0;
-  border: 1px solid rgb(212 181 106 / 0.42);
-  border-radius: 0.55rem;
-  background: rgb(212 181 106 / 0.08);
-  color: var(--postcard-gold);
+  padding: 0 0.55rem;
   font: inherit;
+  color: var(--postcard-gold);
   cursor: pointer;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+  white-space: nowrap;
 }
 
-.my-postcard-create-button:hover {
-  border-color: var(--postcard-gold);
-  background: rgb(212 181 106 / 0.16);
-  color: var(--postcard-paper);
-  transform: translateY(-1px);
+.my-postcard-create-button span {
+  color: var(--postcard-gold);
+  font-size: 0.72rem;
+}
+
+.my-postcard-create-button:hover:not(:disabled),
+.my-postcard-create-button:active:not(:disabled) {
+  border-color: transparent;
+  background: transparent;
+  color: var(--postcard-gold);
+  transform: none;
+}
+
+.my-postcard-create-button:hover:not(:disabled)::after,
+.my-postcard-create-button:active:not(:disabled)::after,
+.my-postcard-create-button:focus-visible::after {
+  position: absolute;
+  right: 0.25rem;
+  bottom: 0.05rem;
+  left: 0.25rem;
+  height: 1px;
+  border-radius: 999px;
+  background: var(--postcard-red);
+  box-shadow: 0 0 6px rgb(173 79 89 / 0.24);
+  content: '';
+}
+
+.my-postcard-create-button:hover:not(:disabled) > svg,
+.my-postcard-create-button:active:not(:disabled) > svg,
+.my-postcard-create-button:focus-visible > svg {
+  color: var(--postcard-red);
 }
 
 .my-postcard-create-button:focus-visible {
-  outline: 2px solid var(--postcard-gold);
+  outline: 2px solid var(--postcard-red);
   outline-offset: 3px;
 }
 
@@ -320,12 +363,19 @@
 
 @media (max-width: 30rem) {
   .my-postcard-toolbar {
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
 
   .my-postcard-create-button {
-    width: 2.7rem;
+    width: auto;
+    min-width: max-content;
     min-height: 2.7rem;
+    padding-inline: 0.45rem;
+    gap: 0.25rem;
+  }
+
+  .my-postcard-create-button span {
+    font-size: 0.68rem;
   }
 
   .my-postcard-tabs button {

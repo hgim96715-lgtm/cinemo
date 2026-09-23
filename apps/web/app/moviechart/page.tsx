@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Clapperboard } from 'lucide-react';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
+import { ErrorModal } from '@/components/common/ErrorModal';
 import { MovieChartTrailerModal } from '@/components/moviechart/MovieChartTrailerModal';
 import { MovieChartListSkeleton } from '@/components/moviechart/MovieChartListSkeleton';
 import { MovieChartContentTabs } from '@/components/moviechart/MovieChartContentTabs';
@@ -10,6 +13,11 @@ import {
   getMovieChartHistoryRequest,
   getMovieChartRequest,
 } from '@/lib/lobby-board-api';
+import {
+  listUserMoviesRequest,
+  toggleUserMovieRequest,
+} from '@/lib/user-movie-api';
+import { useAuthStore } from '@/lib/auth-store';
 import { formatKstLongDate } from '@/lib/date-kst';
 import '@/styles/common.css';
 import '@/styles/cinemo-nav.css';
@@ -26,8 +34,11 @@ import type {
 import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
+import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 
 export default function MovieChartPage() {
+  const router = useRouter();
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [movies, setMovies] = useState<MovieChartItem[]>([]);
   const [selectedTrailer, setSelectedTrailer] = useState<MovieChartItem | null>(
     null,
@@ -37,11 +48,57 @@ export default function MovieChartPage() {
   const [targetDate, setTargetDate] = useState<string | null>(null);
   const [history, setHistory] = useState<MovieChartHistoryResponse>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historyEmpty, setHistoryEmpty] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   const [detailMovie, setDetailMovie] = useState<MovieDetail | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
   const [modealError, setModalError] = useState<string | null>(null);
+  const [wishMovieIds, setWishMovieIds] = useState<Set<number>>(new Set());
+
+  const activeError = error
+    ? { title: '영화 차트 조회 실패', message: error }
+    : historyError
+      ? { title: '영화 차트 흐름 조회 실패', message: historyError }
+      : historyEmpty
+        ? {
+            title: '영화 차트 흐름 조회 실패',
+            message: '차트 데이터를 불러오지 못했습니다.',
+          }
+        : modealError
+          ? { title: '영화 상세 조회 실패', message: modealError }
+          : null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadWishMovieIds() {
+      if (!accessToken) {
+        setWishMovieIds(new Set());
+        return;
+      }
+
+      try {
+        const response = await listUserMoviesRequest(accessToken, 'wish');
+
+        if (!cancelled) {
+          setWishMovieIds(
+            new Set(response.items.map((item) => item.tmdbId)),
+          );
+        }
+      } catch {
+        if (!cancelled) {
+          setWishMovieIds(new Set());
+        }
+      }
+    }
+
+    void loadWishMovieIds();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,9 +114,7 @@ export default function MovieChartPage() {
       } catch (error) {
         if (!cancelled) {
           setError(
-            error instanceof Error
-              ? error.message
-              : '영화 차트를 불러오지 못했습니다.',
+            getUserFacingErrorMessage(error, '영화 차트를 불러오지 못했습니다.'),
           );
         }
       } finally {
@@ -87,6 +142,7 @@ export default function MovieChartPage() {
 
     async function loadMovieChartHistory() {
       setHistoryError(null);
+      setHistoryEmpty(false);
       setHistoryLoading(true);
 
       try {
@@ -94,14 +150,17 @@ export default function MovieChartPage() {
 
         if (!cancelled) {
           setHistory(response);
+          setHistoryEmpty(response.length === 0);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setHistoryError(
-            error instanceof Error
-              ? error.message
-              : '영화 차트 흐름을 불러오지 못했습니다.',
+            getUserFacingErrorMessage(
+              error,
+              '영화 차트 흐름을 불러오지 못했습니다.',
+            ),
           );
+          setHistoryEmpty(false);
         }
       } finally {
         if (!cancelled) {
@@ -126,19 +185,76 @@ export default function MovieChartPage() {
       setDetailMovie(movie);
     } catch (error: unknown) {
       setModalError(
-        error instanceof Error ? error.message : '모달이 열리지 않습니다.',
+        getUserFacingErrorMessage(error, '영화 상세 정보를 불러오지 못했습니다.'),
       );
     } finally {
       setLoadingDetailId(null);
     }
   }
 
+  async function handleWishToggle(tmdbId: number) {
+    if (!accessToken) {
+      router.push('/login?next=/moviechart');
+      return;
+    }
+
+    const previousWishMovieIds = wishMovieIds;
+    const optimisticWishMovieIds = new Set(previousWishMovieIds);
+
+    if (optimisticWishMovieIds.has(tmdbId)) {
+      optimisticWishMovieIds.delete(tmdbId);
+    } else {
+      optimisticWishMovieIds.add(tmdbId);
+    }
+
+    setWishMovieIds(optimisticWishMovieIds);
+
+    try {
+      const result = await toggleUserMovieRequest(accessToken, tmdbId, 'wish');
+      setWishMovieIds((current) => {
+        const next = new Set(current);
+
+        if (result.active) {
+          next.add(tmdbId);
+        } else {
+          next.delete(tmdbId);
+        }
+
+        return next;
+      });
+    } catch {
+      setWishMovieIds(previousWishMovieIds);
+    }
+  }
+
   return (
     <main className="movie-chart-page">
+      {activeError ? (
+        <ErrorModal
+          open
+          eyebrow="FAIL"
+          title={activeError.title}
+          description={activeError.message}
+          onClose={() => {
+            if (error) {
+              setError(null);
+            } else if (historyError) {
+              setHistoryError(null);
+            } else {
+              setModalError(null);
+            }
+          }}
+        />
+      ) : null}
       <CinemoPageHeader
         className="movie-chart-header"
         eyebrow="MOVIE CHART"
         eyebrowClassName="movie-chart-kicker"
+        leading={
+          <span className="movie-chart-leading" aria-hidden="true">
+            <Clapperboard size={22} strokeWidth={1.7} />
+          </span>
+        }
         title="오늘의 영화 순위"
         description="누적 관객 수와 전일 대비 순위를 확인해보세요."
         nav={
@@ -170,7 +286,6 @@ export default function MovieChartPage() {
       </CinemoPageHeader>
 
       {loading ? <MovieChartListSkeleton /> : null}
-      {error ? <p>{error}</p> : null}
       {!loading && !error ? (
         <MovieChartContentTabs
           movies={movies}
@@ -202,6 +317,15 @@ export default function MovieChartPage() {
             movie={detailMovie}
             showWatchedMark={false}
             showCalendar={false}
+            marks={{
+              wish: wishMovieIds.has(detailMovie.id),
+              watched: false,
+            }}
+            onToggleMark={(kind) => {
+              if (kind === 'wish') {
+                void handleWishToggle(detailMovie.id);
+              }
+            }}
             onClose={() => setDetailMovie(null)}
           />
         </Dialog.Root>

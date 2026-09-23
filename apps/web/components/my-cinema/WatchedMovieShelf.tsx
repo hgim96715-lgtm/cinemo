@@ -95,7 +95,6 @@ export function WatchedMovieShelf({ title }: Props) {
         title="홈 티켓이 가득 찼어요"
         description="홈 티켓은 최대 3편까지 표시할 수 있어요."
         confirmLabel="확인"
-        cancelLabel=""
         onConfirm={() => setDisplayLimitModalOpen(false)}
         onClose={() => setDisplayLimitModalOpen(false)}
       />
@@ -114,7 +113,7 @@ export function WatchedMovieShelf({ title }: Props) {
             {titleQuery ? (
               <button
                 type="button"
-                className="my-cinema-shelf-search-clear"
+                className="cinemo-icon-action my-cinema-shelf-search-clear"
                 onClick={() => setTitleQuery('')}
                 aria-label="검색어 지우기"
               >

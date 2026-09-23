@@ -69,6 +69,29 @@
   text-indent: 0.2em;
   line-height: 1;
   color: var(--lobby-fg);
+  text-shadow: 0 0 1.2rem rgb(212 181 106 / 0.12);
+  animation: lobby-title-glow 6s ease-in-out infinite;
+}
+
+@keyframes lobby-title-glow {
+  0%,
+  20%,
+  100% {
+    color: var(--lobby-fg);
+    text-shadow: 0 0 1.2rem rgb(212 181 106 / 0.12);
+  }
+
+  45%,
+  70% {
+    color: var(--lobby-gold);
+    text-shadow: 0 0 1.8rem rgb(212 181 106 / 0.32);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lobby-page-title {
+    animation: none;
+  }
 }
 
 .lobby-page-header > .lobby-page-date {
@@ -274,6 +297,7 @@
   justify-content: flex-end;
   min-height: 1rem;
   margin-bottom: 0.38rem;
+  padding-right: 0.5rem;
 }
 
 .lobby-chart-label {

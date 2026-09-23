@@ -1,22 +1,17 @@
 // apps/web/lib/postcard-api.ts
 
-import type { PostcardCommentItem, PostcardItem } from '@cinemo/shared';
+import type {
+  PostcardCommentItem,
+  PostcardDeleteResponse,
+  PostcardItem,
+  PostcardSummary,
+  PostcardToggleBookmarkResponse,
+  PostcardTogglePinnedResponse,
+  PostcardToggleReactionResponse,
+} from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
 
-export type PostcardSummary = Pick<
-  PostcardItem,
-  | 'id'
-  | 'tmdbId'
-  | 'nickname'
-  | 'movieTitle'
-  | 'originalText'
-  | 'text'
-  | 'posterPath'
-  | 'isPublic'
-  | 'isPinned'
-  | 'createdAt'
-  | 'updatedAt'
->;
+export type { PostcardSummary } from '@cinemo/api-contract';
 
 export type CreatePostcardInput = {
   tmdbId: number;
@@ -74,7 +69,7 @@ export function updatePostcardRequest(
 }
 
 export function deletePostcardRequest(token: string, postcardId: string) {
-  return apiFetch<{ deleted: boolean; id: string }>(
+  return apiFetch<PostcardDeleteResponse>(
     `/postcards/${encodeURIComponent(postcardId)}`,
     {
       method: 'DELETE',
@@ -87,7 +82,7 @@ export function togglePostcardBookmarkRequest(
   token: string,
   postcardId: string,
 ) {
-  return apiFetch<{ bookmarked: boolean }>(
+  return apiFetch<PostcardToggleBookmarkResponse>(
     `/postcards/${encodeURIComponent(postcardId)}/bookmark`,
     {
       method: 'POST',
@@ -96,7 +91,7 @@ export function togglePostcardBookmarkRequest(
   );
 }
 export function togglePostcardPinRequest(token: string, postcardId: string) {
-  return apiFetch<{ id: string; isPinned: boolean }>(
+  return apiFetch<PostcardTogglePinnedResponse>(
     `/postcards/${encodeURIComponent(postcardId)}/pin`,
     {
       method: 'POST',
@@ -110,7 +105,7 @@ export function togglePostcardReactionRequest(
   postcardId: string,
   emoji: string,
 ) {
-  return apiFetch<{ emoji: string; reacted: boolean }>(
+  return apiFetch<PostcardToggleReactionResponse>(
     `/postcards/${encodeURIComponent(postcardId)}/reaction`,
     {
       method: 'POST',
@@ -167,7 +162,7 @@ export function deletePostcardCommentRequest(
   postcardId: string,
   commentId: string,
 ) {
-  return apiFetch<{ deleted: boolean; id: string }>(
+  return apiFetch<PostcardDeleteResponse>(
     `/postcards/${encodeURIComponent(postcardId)}/comments/${encodeURIComponent(commentId)}`,
     {
       method: 'DELETE',
@@ -182,7 +177,7 @@ export function togglePostcardCommentReactionRequest(
   commentId: string,
   emoji: string,
 ) {
-  return apiFetch<{ emoji: string; reacted: boolean }>(
+  return apiFetch<PostcardToggleReactionResponse>(
     `/postcards/${encodeURIComponent(postcardId)}/comments/${encodeURIComponent(commentId)}/reaction`,
     {
       method: 'POST',

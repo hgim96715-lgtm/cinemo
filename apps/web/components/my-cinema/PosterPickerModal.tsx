@@ -81,6 +81,7 @@ export function PosterPickerModal({
           onEscapeKeyDown={(event) => {
             if (isPending) event.preventDefault();
           }}
+          onPointerDownOutside={(event) => event.preventDefault()}
         >
           <Dialog.Close asChild>
             <button

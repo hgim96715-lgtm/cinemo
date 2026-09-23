@@ -5,9 +5,10 @@ html {
 }
 
 .my-cinema {
-  --lobby-fg: #f3efe6;
-  --lobby-muted: #8f877a;
-  --lobby-gold: #d4b56a;
+  --lobby-fg: var(--cinemo-fg);
+  --lobby-muted: var(--cinemo-muted);
+  --lobby-gold: var(--cinemo-gold);
+  --lobby-red: var(--cinemo-red);
 
   min-height: 100dvh;
   display: flex;
@@ -777,15 +778,17 @@ html {
     color 180ms ease;
 }
 
-.my-cinema-mark:hover {
-  border-color: rgb(212 181 106 / 0.62);
-  background: rgb(212 181 106 / 0.1);
-  color: var(--lobby-gold);
-  transform: translateY(-0.12rem);
-}
-
 .my-cinema-mark:active {
   transform: scale(0.92);
+}
+
+@media (hover: hover) {
+  .my-cinema-mark:hover {
+    border-color: rgb(212 181 106 / 0.62);
+    background: rgb(212 181 106 / 0.1);
+    color: var(--lobby-gold);
+    transform: translateY(-0.12rem);
+  }
 }
 
 .my-cinema-mark.is-on {
@@ -798,6 +801,13 @@ html {
 .my-cinema-mark:focus-visible {
   outline: 2px solid var(--lobby-gold);
   outline-offset: 0.2rem;
+}
+
+@media (hover: none) {
+  /* 모바일 터치 후 비활성 버튼에 focus 외곽선이 상태처럼 남지 않도록 함 */
+  .my-cinema-mark:not(.is-on):focus-visible {
+    outline: none;
+  }
 }
 
 .my-cinema-mark svg {
@@ -1145,6 +1155,18 @@ html {
 
 .my-cinema-shelf-header {
   margin-bottom: 0;
+}
+
+.my-cinema-shelf-leading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.7rem;
+  color: var(--cinemo-gold);
+}
+
+.my-cinema-shelf-leading.is-wish {
+  color: var(--cinemo-red);
 }
 
 .my-cinema-shelf-nav-only,
@@ -2243,7 +2265,7 @@ button.my-cinema-profile-edit:hover,
 button.my-cinema-profile-edit:focus-visible {
   border-color: rgb(211 142 130 / 0.72);
   background: rgb(211 142 130 / 0.12);
-  color: #edb8ad;
+  color: rgb(230 202 101 / 0.72);
   outline: none;
 }
 
@@ -2260,11 +2282,12 @@ button.my-cinema-profile-edit:focus-visible {
 
 .my-cinema-profile-footer {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  padding-top: 0.85rem;
+  padding-top: 1.15rem;
   border-top: 1px dashed rgb(230 202 101 / 0.32);
 }
 
@@ -2291,7 +2314,7 @@ button.my-cinema-profile-edit:focus-visible {
 
 .my-cinema-profile-date {
   color: rgb(243 239 230 / 0.55);
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   letter-spacing: 0.08em;
   white-space: nowrap;
 }
@@ -2510,6 +2533,7 @@ button.my-cinema-profile-edit:focus-visible {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.9rem;
+  padding-inline: 0.375rem;
 }
 
 .my-cinema-section-heading h2 {
@@ -2627,12 +2651,27 @@ button.my-cinema-profile-edit:focus-visible {
     justify-self: center;
   }
 
+  .my-cinema-profile-date {
+    position: relative;
+    top: 0.625rem;
+    font-size: 0.9rem;
+  }
+
   .my-cinema-profile-copy {
     order: 0;
   }
 
   .my-cinema-profile-footer {
+    flex-direction: column;
     order: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding-top: 1.45rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .my-cinema-profile-tags {
     justify-content: center;
   }
 
@@ -2718,6 +2757,10 @@ button.my-cinema-profile-edit:focus-visible {
 
 .my-cinema--dashboard .my-cinema-tool-card svg {
   color: var(--lobby-gold);
+}
+
+.my-cinema--dashboard .my-cinema-tool-card--wish svg {
+  color: var(--lobby-red, #ad4f59);
 }
 
 .my-cinema--dashboard .my-cinema-section-heading > p,

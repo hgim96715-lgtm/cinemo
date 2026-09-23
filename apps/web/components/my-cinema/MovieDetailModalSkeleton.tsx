@@ -11,6 +11,7 @@ export function MovieDetailModalSkeleton() {
       <Dialog.Content
         className="movie-detail-modal movie-detail-modal--loading"
         aria-describedby={undefined}
+        onPointerDownOutside={(event) => event.preventDefault()}
       >
         <Dialog.Close asChild>
           <button
@@ -29,8 +30,9 @@ export function MovieDetailModalSkeleton() {
         <div className="movie-detail-content" aria-busy="true">
           <div className="movie-detail-skeleton-poster" />
 
+          <span className="movie-detail-skeleton-line movie-detail-skeleton-kicker" />
+
           <div className="movie-detail-skeleton-info">
-            <span className="movie-detail-skeleton-line is-short" />
             <span className="movie-detail-skeleton-line is-title" />
             <span className="movie-detail-skeleton-line" />
             <span className="movie-detail-skeleton-line is-wide" />

@@ -1,19 +1,10 @@
 'use client';
 
 import type { ProfileConfig } from '@cinemo/shared';
+import type { AuthUser as ApiAuthUser } from '@cinemo/api-contract';
 import { create } from 'zustand';
 
-export type AuthUser = {
-  id: string;
-  email: string;
-  nickname: string;
-  role: 'user' | 'admin';
-  lastLoginProvider: 'email' | 'google' | 'naver' | 'kakao' | 'apple' | null;
-  isTestAccount: boolean;
-  bio: string | null;
-  profilePublic: boolean;
-  tags: string[];
-};
+export type AuthUser = ApiAuthUser;
 export type UpdateProfileInput = Partial<ProfileConfig> & { nickname?: string };
 
 type AuthState = {

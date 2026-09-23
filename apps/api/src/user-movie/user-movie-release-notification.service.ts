@@ -9,6 +9,7 @@ import {
 } from '../lib/date-kst';
 import { UpdateReleaseNotificationDto } from './dto/update-release-notification.dto';
 import { ReleaseNotificationRunResponseDto } from './dto/release-notification-run-response.dto';
+import type { ReleaseNotificationResponseDto } from './dto/release-notification-response.dto';
 
 @Injectable()
 export class UserMovieReleaseNotificationService {
@@ -22,7 +23,10 @@ export class UserMovieReleaseNotificationService {
     private readonly mailService: MailService,
   ) {}
 
-  async getReleaseNotification(userId: string, tmdbId: number) {
+  async getReleaseNotification(
+    userId: string,
+    tmdbId: number,
+  ): Promise<ReleaseNotificationResponseDto> {
     const notification = await this.prisma.movieReleaseNotification.findUnique({
       where: { userId_tmdbId: { userId, tmdbId } },
     });
@@ -38,7 +42,7 @@ export class UserMovieReleaseNotificationService {
   async updateReleaseNotification(
     userId: string,
     dto: UpdateReleaseNotificationDto,
-  ) {
+  ): Promise<ReleaseNotificationResponseDto> {
     const wish = await this.prisma.userMovie.findUnique({
       where: {
         userId_tmdbId_kind: {
@@ -88,7 +92,7 @@ export class UserMovieReleaseNotificationService {
       tmdbId: notification.tmdbId,
       enabled: notification.enabled,
       releaseDate,
-      sentAt: notification.sentAt,
+      sentAt: notification.sentAt?.toISOString() ?? null,
     };
   }
 

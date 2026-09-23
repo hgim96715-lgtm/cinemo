@@ -29,7 +29,7 @@ export class ReleaseNotificationController {
   @Post('cron')
   @ApiOperation({
     summary: '개봉일 알림 발송 실행',
-    description: 'GitHub Actions가 호출해 발송 대상 개봉일 알림을 처리함',
+    description: 'GitHub Actions 호출을 통한 발송 대상 개봉일 알림 처리',
   })
   @ApiOkResponse({ type: ReleaseNotificationRunResponseDto })
   async runForTest(@Headers('x-cron-secret') secret: string | undefined) {

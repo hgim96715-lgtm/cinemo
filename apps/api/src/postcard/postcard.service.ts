@@ -9,12 +9,49 @@ import { UpdatePostcardDto } from './dto/update-postcard.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostcardCommentDto } from './dto/create-postcard-comment.dto';
 import { UpdatePostcardCommentDto } from './dto/update-postcard-comment.dto';
+import { PostcardCommentResponseDto } from './dto/postcard-comment-response.dto';
+import { PostcardDeleteResponseDto } from './dto/postcard-delete-response.dto';
+import { PostcardItemResponseDto } from './dto/postcard-item-response.dto';
+import { PostcardSummaryResponseDto } from './dto/postcard-summary-response.dto';
+import { PostcardToggleBookmarkResponseDto } from './dto/postcard-toggle-bookmark-response.dto';
+import { PostcardTogglePinnedResponseDto } from './dto/postcard-toggle-pinned-response.dto';
+import { PostcardToggleReactionResponseDto } from './dto/postcard-toggle-reaction-response.dto';
 
 @Injectable()
 export class PostcardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findPublic(userId?: string) {
+  private toPostcardSummaryResponse(postcard: {
+    id: string;
+    tmdbId: number;
+    movieTitle: string | null;
+    originalText: string | null;
+    text: string;
+    posterPath: string | null;
+    isPublic: boolean;
+    isPinned: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+      nickname: string;
+    };
+  }): PostcardSummaryResponseDto {
+    return {
+      id: postcard.id,
+      tmdbId: postcard.tmdbId,
+      nickname: postcard.user.nickname,
+      movieTitle: postcard.movieTitle,
+      originalText: postcard.originalText,
+      text: postcard.text,
+      posterPath: postcard.posterPath,
+      isPublic: postcard.isPublic,
+      isPinned: postcard.isPinned,
+      createdAt: postcard.createdAt.toISOString(),
+      updatedAt: postcard.updatedAt.toISOString(),
+    };
+  }
+
+  async findPublic(userId?: string): Promise<PostcardItemResponseDto[]> {
     const postcards = await this.prisma.postcard.findMany({
       where: {
         isPublic: true,
@@ -31,6 +68,7 @@ export class PostcardService {
         text: true,
         posterPath: true,
         isPublic: true,
+        isPinned: true,
         createdAt: true,
         updatedAt: true,
         user: {
@@ -93,6 +131,7 @@ export class PostcardService {
         nickname: postcard.user.nickname,
         isOwner: postcard.userId === userId,
         isBookmarked: bookmarkedIds.has(postcard.id),
+        isPinned: postcard.isPinned,
         reactionCounts: Array.from(reactionMap, ([emoji, value]) => ({
           emoji,
           count: value.count,
@@ -104,8 +143,8 @@ export class PostcardService {
     });
   }
 
-  async findMine(userId: string) {
-    return this.prisma.postcard.findMany({
+  async findMine(userId: string): Promise<PostcardSummaryResponseDto[]> {
+    const postcards = await this.prisma.postcard.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -119,11 +158,18 @@ export class PostcardService {
         isPinned: true,
         createdAt: true,
         updatedAt: true,
+        user: {
+          select: {
+            nickname: true,
+          },
+        },
       },
     });
+
+    return postcards.map((postcard) => this.toPostcardSummaryResponse(postcard));
   }
 
-  async findBookmarked(userId: string) {
+  async findBookmarked(userId: string): Promise<PostcardSummaryResponseDto[]> {
     const bookmarks = await this.prisma.postcardBookmark.findMany({
       where: { userId, postcard: { isPublic: true } },
       orderBy: { createdAt: 'desc' },
@@ -137,6 +183,7 @@ export class PostcardService {
             text: true,
             posterPath: true,
             isPublic: true,
+            isPinned: true,
             createdAt: true,
             updatedAt: true,
             user: {
@@ -148,17 +195,15 @@ export class PostcardService {
         },
       },
     });
-    return bookmarks.map(({ postcard }) => {
-      const { user, ...postcardData } = postcard;
-
-      return {
-        ...postcardData,
-        nickname: user.nickname,
-      };
-    });
+    return bookmarks.map(({ postcard }) =>
+      this.toPostcardSummaryResponse(postcard),
+    );
   }
 
-  async togglePinned(userId: string, postcardId: string) {
+  async togglePinned(
+    userId: string,
+    postcardId: string,
+  ): Promise<PostcardTogglePinnedResponseDto> {
     return this.prisma.$transaction(async (tx) => {
       const postcard = await tx.postcard.findUnique({
         where: { id: postcardId },
@@ -204,7 +249,10 @@ export class PostcardService {
     });
   }
 
-  async toggleBookmark(userId: string, postcardId: string) {
+  async toggleBookmark(
+    userId: string,
+    postcardId: string,
+  ): Promise<PostcardToggleBookmarkResponseDto> {
     return this.prisma.$transaction(async (tx) => {
       const postcard = await tx.postcard.findUnique({
         where: { id: postcardId },
@@ -237,7 +285,11 @@ export class PostcardService {
     });
   }
 
-  async toggleReaction(userId: string, postcardId: string, emoji: string) {
+  async toggleReaction(
+    userId: string,
+    postcardId: string,
+    emoji: string,
+  ): Promise<PostcardToggleReactionResponseDto> {
     const normalizedEmoji = emoji.trim();
     if (!normalizedEmoji) {
       throw new BadRequestException('이모지를 입력해야 합니다.');
@@ -295,8 +347,11 @@ export class PostcardService {
     });
   }
 
-  async create(userId: string, dto: CreatePostcardDto) {
-    return this.prisma.postcard.create({
+  async create(
+    userId: string,
+    dto: CreatePostcardDto,
+  ): Promise<PostcardSummaryResponseDto> {
+    const postcard = await this.prisma.postcard.create({
       data: {
         userId,
         tmdbId: dto.tmdbId,
@@ -306,10 +361,33 @@ export class PostcardService {
         posterPath: dto.posterPath?.trim() || null,
         isPublic: dto.isPublic ?? true,
       },
+      select: {
+        id: true,
+        tmdbId: true,
+        movieTitle: true,
+        originalText: true,
+        text: true,
+        posterPath: true,
+        isPublic: true,
+        isPinned: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            nickname: true,
+          },
+        },
+      },
     });
+
+    return this.toPostcardSummaryResponse(postcard);
   }
 
-  async update(userId: string, id: string, dto: UpdatePostcardDto) {
+  async update(
+    userId: string,
+    id: string,
+    dto: UpdatePostcardDto,
+  ): Promise<PostcardSummaryResponseDto> {
     const postcard = await this.prisma.postcard.findUnique({
       where: { id },
       select: { userId: true },
@@ -340,13 +418,35 @@ export class PostcardService {
       }),
     };
 
-    return this.prisma.postcard.update({
+    const updatedPostcard = await this.prisma.postcard.update({
       where: { id },
       data,
+      select: {
+        id: true,
+        tmdbId: true,
+        movieTitle: true,
+        originalText: true,
+        text: true,
+        posterPath: true,
+        isPublic: true,
+        isPinned: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            nickname: true,
+          },
+        },
+      },
     });
+
+    return this.toPostcardSummaryResponse(updatedPostcard);
   }
 
-  async remove(userId: string, id: string) {
+  async remove(
+    userId: string,
+    id: string,
+  ): Promise<PostcardDeleteResponseDto> {
     const postcard = await this.prisma.postcard.findUnique({
       where: { id },
       select: { userId: true },
@@ -370,7 +470,10 @@ export class PostcardService {
     };
   }
 
-  async findComments(postcardId: string, userId?: string) {
+  async findComments(
+    postcardId: string,
+    userId?: string,
+  ): Promise<PostcardCommentResponseDto[]> {
     const postcard = await this.prisma.postcard.findUnique({
       where: { id: postcardId },
       select: { id: true, isPublic: true },
@@ -421,18 +524,34 @@ export class PostcardService {
       const { reactions, replies, ...commentData } = comment;
 
       return {
-        ...commentData,
+        id: commentData.id,
+        postcardId: commentData.postcardId,
+        userId: commentData.userId,
+        parentId: commentData.parentId,
+        text: commentData.text,
+        user: commentData.user,
         reactionCount: reactions.length,
-        reacted: Boolean(userId && reactions.some((reaction) => reaction.userId === userId)),
+        reacted: Boolean(
+          userId && reactions.some((reaction) => reaction.userId === userId),
+        ),
+        createdAt: commentData.createdAt.toISOString(),
+        updatedAt: commentData.updatedAt.toISOString(),
         replies: replies.map((reply) => {
           const { reactions: replyReactions, ...replyData } = reply;
 
           return {
-            ...replyData,
+            id: replyData.id,
+            postcardId: replyData.postcardId,
+            userId: replyData.userId,
+            parentId: replyData.parentId,
+            text: replyData.text,
+            user: replyData.user,
             reactionCount: replyReactions.length,
             reacted: Boolean(
               userId && replyReactions.some((reaction) => reaction.userId === userId),
             ),
+            createdAt: replyData.createdAt.toISOString(),
+            updatedAt: replyData.updatedAt.toISOString(),
             replies: [],
           };
         }),
@@ -446,7 +565,7 @@ export class PostcardService {
     userId: string,
     postcardId: string,
     dto: CreatePostcardCommentDto,
-  ) {
+  ): Promise<PostcardCommentResponseDto> {
     const text = dto.text.trim();
 
     if (!text) {
@@ -480,34 +599,35 @@ export class PostcardService {
         parentId: dto.parentId ?? null,
         text,
       },
-      include: {
+      select: {
+        id: true,
+        postcardId: true,
+        userId: true,
+        parentId: true,
+        text: true,
+        createdAt: true,
+        updatedAt: true,
         user: {
           select: {
             id: true,
             nickname: true,
           },
         },
-        replies: {
-          orderBy: {
-            createdAt: 'asc',
-          },
-          include: {
-            user: {
-              select: {
-                id: true,
-                nickname: true,
-              },
-            },
-          },
-        },
       },
     });
 
     return {
-      ...comment,
+      id: comment.id,
+      postcardId: comment.postcardId,
+      userId: comment.userId,
+      parentId: comment.parentId,
+      text: comment.text,
+      user: comment.user,
       reactionCount: 0,
       reacted: false,
       replies: [],
+      createdAt: comment.createdAt.toISOString(),
+      updatedAt: comment.updatedAt.toISOString(),
     };
   }
 
@@ -515,7 +635,7 @@ export class PostcardService {
     userId: string,
     commentId: string,
     dto: UpdatePostcardCommentDto,
-  ) {
+  ): Promise<PostcardCommentResponseDto> {
     const text = dto.text?.trim();
     if (!text) {
       throw new BadRequestException('댓글 내용을 입력해야 합니다.');
@@ -530,14 +650,53 @@ export class PostcardService {
     if (comment.userId !== userId) {
       throw new ForbiddenException('본인이 작성한 댓글만 수정할 수 있습니다.');
     }
-    return this.prisma.postcardComment.update({
+    const updatedComment = await this.prisma.postcardComment.update({
       where: { id: commentId },
       data: {
         text,
       },
+      select: {
+        id: true,
+        postcardId: true,
+        userId: true,
+        parentId: true,
+        text: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+          },
+        },
+        reactions: {
+          select: {
+            userId: true,
+          },
+        },
+      },
     });
+
+    return {
+      id: updatedComment.id,
+      postcardId: updatedComment.postcardId,
+      userId: updatedComment.userId,
+      parentId: updatedComment.parentId,
+      text: updatedComment.text,
+      user: updatedComment.user,
+      replies: [],
+      reactionCount: updatedComment.reactions.length,
+      reacted: updatedComment.reactions.some(
+        (reaction) => reaction.userId === userId,
+      ),
+      createdAt: updatedComment.createdAt.toISOString(),
+      updatedAt: updatedComment.updatedAt.toISOString(),
+    };
   }
-  async removeComment(userId: string, commentId: string) {
+  async removeComment(
+    userId: string,
+    commentId: string,
+  ): Promise<PostcardDeleteResponseDto> {
     const comment = await this.prisma.postcardComment.findUnique({
       where: { id: commentId },
       select: { userId: true },
@@ -564,7 +723,7 @@ export class PostcardService {
     userId: string,
     commentId: string,
     emoji: string,
-  ) {
+  ): Promise<PostcardToggleReactionResponseDto> {
     const normalizedEmoji = emoji.trim();
 
     if (!normalizedEmoji) {

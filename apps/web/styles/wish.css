@@ -1,4 +1,10 @@
 /* 보고 싶은 영화: 포스터 아래에 간단한 정보가 이어지는 카드 */
+.my-cinema--shelf .my-cinema-movie-grid--wish {
+  width: min(100%, 72rem);
+  grid-template-columns: repeat(3, minmax(0, 18rem));
+  justify-content: center;
+}
+
 .wish-movie-skeleton-poster {
   width: 100%;
   aspect-ratio: 2 / 3;
@@ -106,7 +112,26 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.65rem;
+}
+
+.my-cinema-wish-kicker-row {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.my-cinema-wish-kicker {
+  min-width: 0;
+  overflow: hidden;
+  color: rgb(212 181 106 / 0.72);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .my-cinema-wish-title-row {
@@ -114,7 +139,6 @@
   align-items: flex-start;
   justify-content: space-between;
   min-width: 0;
-  min-height: 2.9rem;
   gap: 0.5rem;
 }
 
@@ -135,23 +159,64 @@
 }
 
 .my-cinema-wish-heart {
+  display: inline-flex;
   flex: 0 0 auto;
-  color: var(--lobby-gold, #e6ca65);
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.08rem;
+  color: var(--cinemo-red);
+  line-height: 1;
+  transition: color 180ms ease;
+}
+
+.my-cinema--shelf
+  .my-cinema-movie-grid--wish
+  .my-cinema-movie-card-wrap:hover
+  .my-cinema-wish-heart,
+.my-cinema--shelf
+  .my-cinema-movie-grid--wish
+  .my-cinema-movie-card-wrap:focus-visible
+  .my-cinema-wish-heart {
+  color: var(--cinemo-red);
+}
+
+.my-cinema-wish-heart svg {
+  display: block;
 }
 
 .my-cinema--shelf
   .my-cinema-movie-grid--wish
   .my-cinema-movie-facts {
+  flex: 0 0 auto;
   display: block;
-  color: rgb(230 202 101 / 0.78);
+  margin-top: 0;
+  color: rgb(212 181 106 / 0.78);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   line-height: 1.3;
+  text-align: right;
+  white-space: nowrap;
 }
 
 @media (max-width: 40rem) {
   .my-cinema--shelf .my-cinema-movie-grid--wish {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-cinema--shelf .my-cinema-movie-grid--wish {
     gap: 0.8rem 0.6rem;
+  }
+
+  .my-cinema--shelf
+    .my-cinema-movie-grid--wish
+    .my-cinema-movie-card-wrap
+    .my-cinema-movie-poster,
+  .my-cinema--shelf
+    .my-cinema-movie-grid--wish
+    .wish-movie-skeleton-poster {
+    aspect-ratio: 5 / 7;
   }
 
   .my-cinema--shelf .my-cinema-movie-grid--wish .my-cinema-movie-info {
@@ -161,6 +226,18 @@
 
   .my-cinema--shelf .my-cinema-movie-grid--wish .my-cinema-movie-title {
     font-size: clamp(0.9rem, 4vw, 1.05rem);
+  }
+}
+
+@media (min-width: 40.0625rem) and (max-width: 60rem) {
+  .my-cinema--shelf .my-cinema-movie-grid--wish {
+    grid-template-columns: repeat(2, minmax(0, 18rem));
+  }
+}
+
+@media (min-width: 70.0625rem) {
+  .my-cinema--shelf .my-cinema-shelf-scroll {
+    width: min(100%, 72rem);
   }
 }
 

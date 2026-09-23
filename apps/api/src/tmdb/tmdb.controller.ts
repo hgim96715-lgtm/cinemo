@@ -10,6 +10,7 @@ import {
 import {
   ApiBearerAuth,
   ApiOkResponse,
+  ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,6 +30,7 @@ export class TmdbController {
 
   @Public()
   @Get('movie/:movieId')
+  @ApiOperation({ summary: '영화 상세 조회' })
   @ApiOkResponse({ type: MovieDetailDto })
   getMovie(
     @Param('movieId', ParseIntPipe) movieId: number,
@@ -38,6 +40,7 @@ export class TmdbController {
 
   @Public()
   @Get('debug/movie/:movieId/raw')
+  @ApiOperation({ summary: 'TMDB 영화 원본 응답 조회' })
   getRawMovieResponse(
     @Param('movieId', ParseIntPipe) movieId: number,
   ): Promise<unknown> {
@@ -53,6 +56,7 @@ export class TmdbController {
   }
 
   @Get('genres')
+  @ApiOperation({ summary: '영화 장르 목록 조회' })
   @ApiOkResponse({ type: MovieGenresResponseDto })
   @ApiQuery({ name: 'language', required: false, example: 'ko' })
   getMovieGenres(
@@ -62,6 +66,7 @@ export class TmdbController {
   }
 
   @Get('discover')
+  @ApiOperation({ summary: '영화 탐색 목록 조회' })
   @ApiOkResponse({ type: MovieDiscoverResponseDto })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   discover(
@@ -71,6 +76,7 @@ export class TmdbController {
   }
 
   @Get('search')
+  @ApiOperation({ summary: '영화 검색' })
   @ApiOkResponse({ type: MovieSearchResponseDto })
   @ApiQuery({ name: 'q', required: true, example: '인셉션' })
   @ApiQuery({ name: 'page', required: false, example: 1 })

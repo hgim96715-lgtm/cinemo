@@ -6,7 +6,7 @@ export function MovieChartListSkeleton() {
       aria-label="영화 차트를 불러오는 중"
     >
       <div className="movie-chart-tabs movie-chart-tabs--skeleton" aria-hidden="true">
-        <span className="movie-chart-tab movie-chart-tab--skeleton movie-chart-tab--active">
+        <span className="movie-chart-tab movie-chart-tab--skeleton">
           현재 순위
         </span>
         <span className="movie-chart-tab movie-chart-tab--skeleton">

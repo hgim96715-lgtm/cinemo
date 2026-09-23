@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvKeys } from '../config/env.keys';
+import type { KobisMovieInfoResponseDto } from './dto/kobis-movie-info-response.dto';
+import type { KobisMovieSearchResponseDto } from './dto/kobis-movie-search-response.dto';
 
 export type KobisUpcomingMovie = {
   titles: string[];
@@ -39,7 +41,7 @@ export class KobisService {
     this.apiKey = this.configService.get<string>(EnvKeys.KOBIS_API_KEY)?.trim();
   }
 
-  async getMovieInfo(movieCd: string): Promise<unknown> {
+  async getMovieInfo(movieCd: string): Promise<KobisMovieInfoResponseDto> {
     if (!this.apiKey) {
       throw new Error('KOBIS API 키가 없습니다.');
     }
@@ -55,10 +57,10 @@ export class KobisService {
       throw new Error(`KOBIS 영화 상세 요청 실패 (${response.status})`);
     }
 
-    return response.json();
+    return response.json() as Promise<KobisMovieInfoResponseDto>;
   }
 
-  async searchMovies(movieName: string): Promise<unknown> {
+  async searchMovies(movieName: string): Promise<KobisMovieSearchResponseDto> {
     if (!this.apiKey) {
       throw new Error('KOBIS API 키가 없습니다.');
     }
@@ -75,7 +77,7 @@ export class KobisService {
       throw new Error(`KOBIS 영화 검색 요청 실패 (${response.status})`);
     }
 
-    return response.json();
+    return response.json() as Promise<KobisMovieSearchResponseDto>;
   }
 
   async getUpcomingMovies(

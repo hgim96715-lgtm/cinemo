@@ -4,7 +4,6 @@ import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch, type SubmitHandler } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
@@ -14,33 +13,10 @@ import {
   useNicknameAvailability,
 } from './useAvailabilityQuery';
 import type { AvailabilityStatus } from './useAvailabilityQuery';
-
-const registerSchema = z
-  .object({
-    email: z.email({
-      error: '이메일 형식을 확인해 주세요.',
-    }),
-    nickname: z
-      .string()
-      .min(2, {
-        error: '닉네임은 2자 이상이어야 합니다.',
-      })
-      .max(20, {
-        error: '닉네임은 20자 이하이어야 합니다.',
-      }),
-    password: z.string().min(8, {
-      error: '비밀번호는 8자 이상이어야 합니다.',
-    }),
-    passwordConfirm: z.string().min(8, {
-      error: '비밀번호를 다시 입력해 주세요.',
-    }),
-  })
-  .refine((values) => values.password === values.passwordConfirm, {
-    path: ['passwordConfirm'],
-    error: '비밀번호가 일치하지 않습니다.',
-  });
-
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from '@/components/auth/auth-form';
 
 function AvailabilityMessage({
   status,
@@ -286,7 +262,11 @@ export default function RegisterPage() {
           ) : null}
         </div>
 
-        <button className="auth-submit" type="submit" disabled={isSubmitting}>
+        <button
+          className="cinemo-button cinemo-button--primary"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? '가입 중…' : '회원가입하기'}
         </button>
       </form>

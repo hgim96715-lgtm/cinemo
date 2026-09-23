@@ -6,7 +6,5 @@ export const LOBBY_ROOMS = {
 export type LobbyRoomId = (typeof LOBBY_ROOMS)[keyof typeof LOBBY_ROOMS];
 
 export * from "./user-movie";
-export * from "./lobby-board";
 export * from "./admin";
 export * from "./profile";
-export * from "./postcard";

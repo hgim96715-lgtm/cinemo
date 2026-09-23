@@ -32,6 +32,12 @@ export type UpcomingMovie = components["schemas"]["UpcomingMovieDto"];
 export type UpcomingMoviesResponse =
   components["schemas"]["UpcomingMoviesResponseDto"];
 
+export type LobbyBoardResponse =
+  components["schemas"]["LobbyBoardResponseDto"];
+
+export type LobbyVisitResponse =
+  components["schemas"]["LobbyVisitResponseDto"];
+
 export type CinemaResponse = components["schemas"]["CinemaResponseDto"];
 
 export type LegalDongArea = components["schemas"]["LegalDongAreaResponseDto"];
@@ -46,6 +52,29 @@ export type PlaceSearchResult = components["schemas"]["PlaceSearchResultDto"];
 
 export type CinemaAnalysisResponse =
   components["schemas"]["CinemaAnalysisResponseDto"];
+
+export type AuthUser = components["schemas"]["AuthUserResponseDto"];
+
+export type AuthResponse = components["schemas"]["AuthResponseDto"];
+
+export type AvailabilityResponse =
+  components["schemas"]["AvailabilityResponseDto"];
+
+export type MessageResponse = components["schemas"]["MessageResponseDto"];
+
+export type MovieQuoteSuggestion =
+  components["schemas"]["MovieQuoteSuggestionResponseDto"];
+
+export type RecommendMovieQuotesInput =
+  components["schemas"]["RecommendMovieQuotesDto"];
+
+export type HealthResponse = components["schemas"]["HealthResponseDto"];
+
+export type KobisMovieInfoResponse =
+  components["schemas"]["KobisMovieInfoResponseDto"];
+
+export type KobisMovieSearchResponse =
+  components["schemas"]["KobisMovieSearchResponseDto"];
 
 export type PublicProfileResponse =
   components["schemas"]["PublicProfileResponseDto"];
@@ -65,6 +94,12 @@ export type UserMovieCounts =
 
 export type UserMovieStats = components["schemas"]["UserMovieStatsResponseDto"];
 
+export type UserMovieRecord =
+  components["schemas"]["UserMovieRecordResponseDto"];
+
+export type ReleaseNotificationResponse =
+  components["schemas"]["ReleaseNotificationResponseDto"];
+
 export type UpdateDisplayDto = components["schemas"]["UpdateDisplayDto"];
 
 export type UserMovieDisplayResult =
@@ -83,3 +118,29 @@ export type ReleaseNotificationRunResult =
 
 export type WishMovieDetailResponse =
   components["schemas"]["WishMovieDetailResponseDto"];
+
+export type PostcardReactionSummary =
+  components["schemas"]["PostcardReactionResponseDto"];
+
+export type PostcardItem = components["schemas"]["PostcardItemResponseDto"];
+
+export type PostcardSummary =
+  components["schemas"]["PostcardSummaryResponseDto"];
+
+export type PostcardTogglePinnedResponse =
+  components["schemas"]["PostcardTogglePinnedResponseDto"];
+
+export type PostcardToggleBookmarkResponse =
+  components["schemas"]["PostcardToggleBookmarkResponseDto"];
+
+export type PostcardToggleReactionResponse =
+  components["schemas"]["PostcardToggleReactionResponseDto"];
+
+export type PostcardCommentAuthor =
+  components["schemas"]["PostcardCommentAuthorResponseDto"];
+
+export type PostcardCommentItem =
+  components["schemas"]["PostcardCommentResponseDto"];
+
+export type PostcardDeleteResponse =
+  components["schemas"]["PostcardDeleteResponseDto"];

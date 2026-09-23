@@ -2,6 +2,7 @@
 
 import * as Select from '@radix-ui/react-select';
 import { Check, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 import '@/styles/cinemo-select.css';
 
 export type CinemoSelectOption = {
@@ -16,6 +17,7 @@ type CinemoSelectProps = {
   ariaLabel: string;
   placeholder?: string;
   disabled?: boolean;
+  menuClassName?: string;
 };
 
 const EMPTY_VALUE = '__cinemo_empty__';
@@ -27,14 +29,20 @@ export function CinemoSelect({
   ariaLabel,
   placeholder,
   disabled = false,
+  menuClassName,
 }: CinemoSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="cinemo-select">
       <Select.Root
         value={value || EMPTY_VALUE}
-        onValueChange={(nextValue) =>
-          onChange(nextValue === EMPTY_VALUE ? '' : nextValue)
-        }
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        onValueChange={(nextValue) => {
+          onChange(nextValue === EMPTY_VALUE ? '' : nextValue);
+          setIsOpen(false);
+        }}
       >
         <Select.Trigger
           className="cinemo-select-trigger"
@@ -47,7 +55,7 @@ export function CinemoSelect({
           </Select.Icon>
         </Select.Trigger>
         <Select.Content
-          className="cinemo-select-menu"
+          className={`cinemo-select-menu${menuClassName ? ` ${menuClassName}` : ''}`}
           position="popper"
           side="bottom"
           align="start"

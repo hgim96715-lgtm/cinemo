@@ -35,6 +35,10 @@ import { BackfillResponseDto } from './dto/backfill-response.dto';
 import { MovieChartStatsResponseDto } from './dto/movie-chart-stats.dto';
 import { MovieChartHistoryItemDto } from './dto/movie-chart-history.dto';
 import { UpcomingMoviesResponseDto } from './dto/upcoming-movie.dto';
+import {
+  LobbyBoardResponseDto,
+  LobbyVisitResponseDto,
+} from './dto/lobby-board.dto';
 import { kstDateKey } from '../lib/date-kst';
 import { ConfigService } from '@nestjs/config';
 import { EnvKeys } from '../config/env.keys';
@@ -52,12 +56,15 @@ export class LobbyBoardController {
 
   @Public()
   @Get('board')
-  getBoard() {
+  @ApiOperation({ summary: '로비 보드 조회' })
+  @ApiOkResponse({ type: LobbyBoardResponseDto })
+  getBoard(): Promise<LobbyBoardResponseDto> {
     return this.lobbyBoardService.getBoard();
   }
 
   @Public()
   @Get('movie-chart')
+  @ApiOperation({ summary: '현재 영화 차트 조회' })
   @ApiOkResponse({ type: MovieChartResponseDto })
   getMovieChart() {
     return this.lobbyBoardService.getMovieChart();
@@ -65,6 +72,7 @@ export class LobbyBoardController {
 
   @Public()
   @Get('movie-chart/history')
+  @ApiOperation({ summary: '영화 차트 이력 조회' })
   @ApiOkResponse({ type: [MovieChartHistoryItemDto] })
   getMovieChartHistory(@Query() query: MovieChartHistoryQueryDto) {
     return this.movieChartSnapshotService.getSnapshots(query.from, query.to);
@@ -72,6 +80,7 @@ export class LobbyBoardController {
 
   @Public()
   @Get('movie-chart/stats')
+  @ApiOperation({ summary: '영화 차트 통계 조회' })
   @ApiOkResponse({ type: MovieChartStatsResponseDto })
   getMovieChartStats(@Query() query: MovieChartHistoryQueryDto) {
     return this.movieChartSnapshotService.getStats(query.from, query.to);
@@ -79,6 +88,7 @@ export class LobbyBoardController {
 
   @Public()
   @Get('upcoming')
+  @ApiOperation({ summary: '개봉 예정 영화 조회' })
   @ApiOkResponse({ type: UpcomingMoviesResponseDto })
   getUpcomingMovies(
     @Query('month') month: string | undefined,
@@ -90,6 +100,8 @@ export class LobbyBoardController {
 
   @Post('visit')
   @ApiBearerAuth()
+  @ApiOperation({ summary: '로비 방문 기록' })
+  @ApiOkResponse({ type: LobbyVisitResponseDto })
   @ApiUnauthorizedResponse({ description: '로그인이 필요합니다' })
   @ApiForbiddenResponse({ description: '접근 권한이 없습니다' })
   recordVisit(@UserId() userId: string) {
@@ -102,7 +114,7 @@ export class LobbyBoardController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: '영화 차트 과거 데이터 백필',
-    description: '지정한 기간의 KOBIS 데이터를 백그라운드에서 수집합니다.',
+    description: '지정 기간 KOBIS 데이터의 백그라운드 수집',
   })
   @ApiAcceptedResponse({
     type: BackfillResponseDto,

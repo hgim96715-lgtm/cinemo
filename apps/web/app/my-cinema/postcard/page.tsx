@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Plus, Star, X } from 'lucide-react';
+import { Images, Plus, Star, X } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import {
   CreatePostcardInput,
@@ -29,9 +29,11 @@ import '@/styles/postcard-create-modal.css';
 import '@/styles/confirm-modal.css';
 import { PostcardCreateModal } from '@/components/postcard/PostcardCreateModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { ErrorModal } from '@/components/common/ErrorModal';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
 import { formatKstDate } from '@/lib/date-kst';
+import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 
 type Tab = 'mine' | 'bookmarked';
 
@@ -74,9 +76,7 @@ export default function MyPostcardPage() {
       } catch (error: unknown) {
         if (!cancelled) {
           setError(
-            error instanceof Error
-              ? error.message
-              : '엽서를 불러오지 못했습니다.',
+            getUserFacingErrorMessage(error, '엽서를 불러오지 못했습니다.'),
           );
         }
       } finally {
@@ -102,6 +102,11 @@ export default function MyPostcardPage() {
           className="postcard-page-header"
           eyebrow="MY POSTCARD"
           eyebrowClassName="postcard-page-eyebrow"
+          leading={
+            <span className="postcard-page-leading" aria-hidden="true">
+              <Images size={22} strokeWidth={1.7} />
+            </span>
+          }
           title="내 엽서함"
           description="내가 만든 엽서와 보관한 엽서를 모아보세요."
           nav={
@@ -122,7 +127,6 @@ export default function MyPostcardPage() {
           title="로그인이 필요해요"
           description="내 엽서함을 이용하려면 로그인해 주세요."
           confirmLabel="로그인하기"
-          cancelLabel="취소"
           onConfirm={() =>
             router.push('/login?next=/my-cinema/postcard')
           }
@@ -207,10 +211,24 @@ export default function MyPostcardPage() {
 
   return (
     <main className="postcard-page my-postcard-page">
+      {error ? (
+        <ErrorModal
+          open={Boolean(error)}
+          eyebrow="FAIL"
+          title="엽서 데이터 조회 실패"
+          description={error}
+          onClose={() => setError(null)}
+        />
+      ) : null}
       <CinemoPageHeader
         className="postcard-page-header"
         eyebrow="MY POSTCARD"
         eyebrowClassName="postcard-page-eyebrow"
+        leading={
+          <span className="postcard-page-leading" aria-hidden="true">
+            <Images size={22} strokeWidth={1.7} />
+          </span>
+        }
         title="내 엽서함"
         description="내가 만든 엽서와 보관한 엽서를 모아보세요."
         nav={
@@ -227,9 +245,7 @@ export default function MyPostcardPage() {
       />
 
       <div
-        className={`my-postcard-toolbar${
-          activeTab === 'mine' ? ' has-create' : ''
-        }`}
+        className="my-postcard-toolbar has-create"
       >
         <div className="my-postcard-tabs" role="tablist">
           <button
@@ -253,23 +269,20 @@ export default function MyPostcardPage() {
           </button>
         </div>
 
-        {activeTab === 'mine' ? (
-          <button
-            type="button"
-            className="my-postcard-create-button"
-            aria-label="엽서 만들기"
-            onClick={() => setCreateModalOpen(true)}
-          >
-            <Plus size={19} strokeWidth={1.6} aria-hidden />
-          </button>
-        ) : null}
+        <button
+          type="button"
+          className="cinemo-icon-action my-postcard-create-button"
+          aria-label="엽서 추가"
+          onClick={() => setCreateModalOpen(true)}
+        >
+          <Plus size={19} strokeWidth={1.6} aria-hidden />
+          <span>엽서 추가</span>
+        </button>
       </div>
 
       {loading ? (
         <PostcardListSkeleton />
-      ) : error ? (
-        <p className="postcard-empty">{error}</p>
-      ) : postcards.length === 0 ? (
+      ) : error ? null : postcards.length === 0 ? (
         <p className="postcard-empty">
           {activeTab === 'mine'
             ? '아직 만든 엽서가 없습니다.'
@@ -335,7 +348,7 @@ export default function MyPostcardPage() {
                   <div className="postcard-card-actions">
                     <button
                       type="button"
-                      className={`cinemo-button postcard-card-pin-button${
+                      className={`cinemo-button cinemo-icon-action postcard-card-pin-button${
                         postcard.isPinned ? ' is-pinned' : ''
                       }`}
                       aria-label={
@@ -401,6 +414,7 @@ export default function MyPostcardPage() {
               aria-describedby={undefined}
               onOpenAutoFocus={handleOpenAutoFocus}
               onCloseAutoFocus={handleCloseAutoFocus}
+              onPointerDownOutside={(event) => event.preventDefault()}
             >
               <Dialog.Close asChild>
                 <button
@@ -413,7 +427,7 @@ export default function MyPostcardPage() {
               </Dialog.Close>
 
               <div className="postcard-detail-heading">
-                <p className="postcard-detail-eyebrow">POSTCARD</p>
+                <p className="postcard-detail-eyebrow">POSTCARD MESSAGE</p>
                 <Dialog.Title asChild>
                   <h2>{detailPostcard.movieTitle ?? '제목 없는 영화'}</h2>
                 </Dialog.Title>
@@ -459,7 +473,6 @@ export default function MyPostcardPage() {
         title="엽서를 삭제하시겠습니까?"
         description="삭제한 엽서는 다시 복구할 수 없습니다."
         confirmLabel="삭제"
-        cancelLabel="취소"
         tone="danger"
         onConfirm={() => void handleDeletePostcard()}
         onClose={() => setDeleteTargetId(null)}
@@ -470,7 +483,6 @@ export default function MyPostcardPage() {
         title="대표 엽서는 최대 3개까지 고정할 수 있어요."
         description="기존 대표 엽서의 별표를 해제한 뒤 다시 고정해 주세요."
         confirmLabel="확인"
-        cancelLabel=""
         onConfirm={() => setPinLimitModalOpen(false)}
         onClose={() => setPinLimitModalOpen(false)}
       />

@@ -79,13 +79,21 @@ function SocialCallback() {
       {error}
     </p>
   ) : (
-    <p className="auth-status">로그인 처리 중…</p>
+    <p className="auth-status" role="status" aria-live="polite">
+      로그인 처리 중…
+    </p>
   );
 }
 
 export default function GoogleCallbackPage() {
   return (
-    <Suspense fallback={<p className="auth-status">로그인 처리 중…</p>}>
+    <Suspense
+      fallback={
+        <p className="auth-status" role="status" aria-live="polite">
+          로그인 처리 중…
+        </p>
+      }
+    >
       <SocialCallback />
     </Suspense>
   );

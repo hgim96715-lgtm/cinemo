@@ -17,7 +17,7 @@ export function HomeTicketToggle({
   return (
     <button
       type="button"
-      className={`home-ticket-toggle${
+      className={`cinemo-icon-action home-ticket-toggle${
         isDisplayed ? ' home-ticket-toggle--active' : ''
       }`}
       aria-label={isDisplayed ? '홈 티켓에서 제거' : '홈 티켓에 표시'}

@@ -4,7 +4,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { X } from 'lucide-react';
 import type { MovieSearchItem } from '@cinemo/api-contract';
 import type { CreatePostcardInput, PostcardSummary } from '@/lib/postcard-api';
@@ -16,21 +15,10 @@ import { searchMoviesRequest } from '@/lib/tmdb-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { useAuthStore } from '@/lib/auth-store';
 import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
-
-const postcardSchema = z.object({
-  originalText: z
-    .string()
-    .trim()
-    .max(1000, '원문은 1000자까지 입력할 수 있습니다.'),
-  text: z
-    .string()
-    .trim()
-    .min(1, '엽서 내용을 입력해 주세요.')
-    .max(1000, '엽서 내용은 1000자까지 입력할 수 있습니다.'),
-  isPublic: z.boolean(),
-});
-
-type PostcardFormValues = z.infer<typeof postcardSchema>;
+import {
+  postcardSchema,
+  type PostcardFormValues,
+} from './postcard-form';
 
 type Props = {
   open: boolean;
@@ -65,8 +53,10 @@ export function PostcardCreateModal({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<PostcardFormValues>({
+    mode: 'onBlur',
     resolver: zodResolver(postcardSchema),
     defaultValues: {
+      tmdbId: null,
       originalText: '',
       text: '',
       isPublic: true,
@@ -83,6 +73,7 @@ export function PostcardCreateModal({
     setServerError(null);
 
     reset({
+      tmdbId: postcardToEdit?.tmdbId ?? null,
       originalText: postcardToEdit?.originalText ?? '',
       text: postcardToEdit?.text ?? '',
       isPublic: postcardToEdit?.isPublic ?? true,
@@ -180,8 +171,7 @@ export function PostcardCreateModal({
       !selectedMovie &&
       query.trim() === (postcardToEdit.movieTitle ?? '').trim();
 
-    const movieId =
-      selectedMovie?.id ?? (keepsInitialMovie ? postcardToEdit?.tmdbId : null);
+    const movieId = values.tmdbId;
 
     if (!movieId) {
       setServerError('영화를 선택해 주세요.');
@@ -236,11 +226,7 @@ export function PostcardCreateModal({
           className="postcard-create-modal"
           onOpenAutoFocus={handleOpenAutoFocus}
           onCloseAutoFocus={handleCloseAutoFocus}
-          onPointerDownOutside={(event) => {
-            if (isSubmitting || loadingMovies || loadingSuggestions) {
-              event.preventDefault();
-            }
-          }}
+          onPointerDownOutside={(event) => event.preventDefault()}
           onEscapeKeyDown={(event) => {
             if (isSubmitting || loadingMovies || loadingSuggestions) {
               event.preventDefault();
@@ -262,14 +248,8 @@ export function PostcardCreateModal({
           <p className="postcard-create-modal-eyebrow">CINEMO POSTCARD</p>
 
           <Dialog.Title asChild>
-            <h2>기억할 문장을 적어보세요</h2>
+            <h2>영화의 한 문장을 담아보세요</h2>
           </Dialog.Title>
-
-          <Dialog.Description asChild>
-            <p>
-            영화에서 오래 남은 문장을 한 장의 엽서로 기록해요.
-            </p>
-          </Dialog.Description>
         </header>
 
         <div className="postcard-create-modal-body">
@@ -280,19 +260,47 @@ export function PostcardCreateModal({
             }}
             className="postcard-create-modal-search"
           >
-            <input
-              type="search"
-              value={query}
-              placeholder="영화 제목을 검색해 주세요."
-              onChange={(event) => {
-                const nextQuery = event.target.value;
+            <div className="postcard-create-modal-search-field">
+              <input
+                type="search"
+                value={query}
+                placeholder="영화 제목을 검색해 주세요."
+                onChange={(event) => {
+                  const nextQuery = event.target.value;
 
-                setQuery(nextQuery);
-                setSelectedMovie(null);
-                setMovies([]);
-                setSuggestions([]);
-              }}
-            />
+                  setQuery(nextQuery);
+                  setSelectedMovie(null);
+                  setMovies([]);
+                  setSuggestions([]);
+                  setValue('tmdbId', null, {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+                }}
+              />
+
+              {query ? (
+                <button
+                  type="button"
+                  className="cinemo-icon-action postcard-create-modal-search-clear"
+                  aria-label="검색어 지우기"
+                  onClick={() => {
+                    setQuery('');
+                    setSelectedMovie(null);
+                    setMovies([]);
+                    setSuggestions([]);
+                    setValue('tmdbId', null, {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                >
+                  <X size={14} strokeWidth={1.8} aria-hidden />
+                </button>
+              ) : null}
+            </div>
 
             <button type="submit" disabled={loadingMovies || !query.trim()}>
               {loadingMovies ? '검색 중...' : '검색'}
@@ -315,6 +323,11 @@ export function PostcardCreateModal({
                     setSelectedMovie(movie);
                     setMovies([]);
                     setSuggestions([]);
+                    setValue('tmdbId', movie.id, {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                      shouldValidate: true,
+                    });
                   }}
                 >
                   <strong>{movie.title}</strong>
@@ -456,15 +469,16 @@ export function PostcardCreateModal({
             ) : null}
 
             <div className="postcard-create-modal-actions">
-              <button type="submit" disabled={isSubmitting || !selectedTitle}>
+              <button
+                type="submit"
+                className="postcard-create-modal-submit"
+                disabled={isSubmitting || !selectedTitle}
+              >
                 {isSubmitting
                   ? '저장 중...'
                   : postcardToEdit
                     ? '엽서 수정'
                     : '엽서 만들기'}
-              </button>
-              <button type="button" disabled={isSubmitting} onClick={onClose}>
-                취소
               </button>
             </div>
           </form>

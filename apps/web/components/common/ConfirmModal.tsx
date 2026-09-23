@@ -10,9 +10,9 @@ type ConfirmModalProps = {
   title: string;
   description: string;
   eyebrow?: string;
+  eyebrowTone?: 'default' | 'danger';
   icon?: ReactNode;
   confirmLabel?: string;
-  cancelLabel?: string;
   tone?: 'default' | 'danger';
   onConfirm: () => void;
   onClose: () => void;
@@ -23,9 +23,9 @@ export function ConfirmModal({
   title,
   description,
   eyebrow,
+  eyebrowTone = 'default',
   icon,
   confirmLabel = '확인',
-  cancelLabel = '취소',
   tone = 'default',
   onConfirm,
   onClose,
@@ -49,6 +49,7 @@ export function ConfirmModal({
           className={`confirm-modal confirm-modal--${tone}`}
           onOpenAutoFocus={handleOpenAutoFocus}
           onCloseAutoFocus={handleCloseAutoFocus}
+          onPointerDownOutside={(event) => event.preventDefault()}
         >
           <Dialog.Close asChild>
             <button
@@ -69,7 +70,15 @@ export function ConfirmModal({
 
             <div className="confirm-modal-heading-copy">
               {eyebrow ? (
-                <p className="confirm-modal-eyebrow">{eyebrow}</p>
+                <p
+                  className={`confirm-modal-eyebrow${
+                    eyebrowTone === 'danger'
+                      ? ' confirm-modal-eyebrow--danger'
+                      : ''
+                  }`}
+                >
+                  {eyebrow}
+                </p>
               ) : null}
 
               <Dialog.Title asChild>
@@ -91,11 +100,6 @@ export function ConfirmModal({
               {confirmLabel}
             </button>
 
-            {cancelLabel ? (
-              <Dialog.Close asChild>
-                <button type="button">{cancelLabel}</button>
-              </Dialog.Close>
-            ) : null}
           </div>
         </Dialog.Content>
       </Dialog.Portal>

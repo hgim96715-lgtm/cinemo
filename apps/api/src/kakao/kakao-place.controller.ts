@@ -21,7 +21,7 @@ export class KakaoPlaceController {
   @Get('cinemas')
   @ApiOperation({
     summary: '지역별 영화관 검색',
-    description: '카카오 Local API를 사용해 입력한 지역의 영화관을 검색함',
+    description: '카카오 Local API를 사용한 입력 지역의 영화관 검색',
   })
   @ApiOkResponse({
     type: [KakaoCinemaPlaceDto],
@@ -35,7 +35,7 @@ export class KakaoPlaceController {
   @Roles('admin')
   @ApiOperation({
     summary: '지역별 영화관 검색 결과 저장',
-    description: '카카오 장소 검색 결과를 Cinema 테이블에 저장하거나 갱신함',
+    description: '카카오 장소 검색 결과의 Cinema 테이블 저장·갱신',
   })
   @ApiOkResponse({
     type: KakaoCinemaSyncResponseDto,

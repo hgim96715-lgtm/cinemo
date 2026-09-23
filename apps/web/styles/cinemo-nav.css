@@ -18,7 +18,7 @@
   padding: 0.45rem 0.7rem;
   border: 1px solid transparent;
   border-radius: 0.65rem;
-  color: #958d82;
+  color: var(--cinemo-muted, #958d82);
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-decoration: none;
@@ -29,26 +29,50 @@
     transform 180ms ease;
 }
 
-.cinemo-nav-link:hover,
 .cinemo-nav-link:focus-visible {
-  border-color: rgb(212 181 106 / 0.4);
-  color: #f3efe6;
+  border-color: var(--cinemo-red, #ad4f59);
+  color: var(--cinemo-gold, #d4b56a);
   outline: none;
   transform: translateY(-1px);
 }
 
 .cinemo-nav-link--primary {
-  border-color: rgb(212 181 106 / 0.38);
-  background: rgb(212 181 106 / 0.08);
-  color: #d4b56a;
+  border-color: var(--cinemo-border-gold, rgb(212 181 106 / 0.45));
+  background: transparent;
+  color: var(--cinemo-gold, #d4b56a);
 }
 
-.cinemo-nav-link--primary:hover,
 .cinemo-nav-link--primary:focus-visible,
 .cinemo-nav-link--primary.is-active {
-  border-color: rgb(212 181 106 / 0.7);
-  background: rgb(212 181 106 / 0.14);
-  color: #f3d98f;
+  border-color: var(--cinemo-red, #ad4f59);
+  background: transparent;
+  color: var(--cinemo-gold, #d4b56a);
+}
+
+@media (hover: hover) {
+  .cinemo-nav-link:hover {
+    border-color: var(--cinemo-red, #ad4f59);
+    color: var(--cinemo-gold, #d4b56a);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  .cinemo-nav-link--primary:hover {
+    border-color: var(--cinemo-red, #ad4f59);
+    background: transparent;
+    color: var(--cinemo-gold, #d4b56a);
+  }
+}
+
+@media (hover: none) {
+  /* 터치 후 남는 비활성 링크의 focus 스타일 제거 */
+  .cinemo-nav-link:not(.is-active):focus-visible {
+    border-color: transparent;
+    background: transparent;
+    color: var(--cinemo-muted, #958d82);
+    outline: none;
+    transform: none;
+  }
 }
 
 @media (max-width: 30rem) {

@@ -4,26 +4,13 @@ import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPasswordRequest } from '@/lib/auth-api';
 import { Eye, EyeOff } from 'lucide-react';
-
-const resetPasswordSchema = z
-  .object({
-    newPassword: z.string().min(8, {
-      error: '비밀번호는 8자 이상이어야 합니다.',
-    }),
-    confirmPassword: z.string().min(8, {
-      error: '비밀번호를 다시 입력해 주세요.',
-    }),
-  })
-  .refine((values) => values.newPassword === values.confirmPassword, {
-    path: ['confirmPassword'],
-    error: '비밀번호가 일치하지 않습니다.',
-  });
-
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+import {
+  resetPasswordSchema,
+  type ResetPasswordFormValues,
+} from '@/components/auth/auth-form';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -39,6 +26,8 @@ function ResetPasswordForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormValues>({
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       newPassword: '',
@@ -74,7 +63,7 @@ function ResetPasswordForm() {
         <p className="auth-status">비밀번호가 변경되었어요.</p>
         <button
           type="button"
-          className="auth-submit"
+          className="cinemo-button cinemo-button--primary"
           onClick={() => router.replace('/login')}
         >
           로그인하러 가기
@@ -162,7 +151,11 @@ function ResetPasswordForm() {
           ) : null}
         </label>
 
-        <button className="auth-submit" type="submit" disabled={isSubmitting}>
+        <button
+          className="cinemo-button cinemo-button--primary"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? '변경 중…' : '비밀번호 변경'}
         </button>
       </form>

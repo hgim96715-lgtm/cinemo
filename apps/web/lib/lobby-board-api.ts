@@ -1,5 +1,5 @@
-import type { LobbyBoardResponse } from '@cinemo/shared';
 import type {
+  LobbyBoardResponse,
   MovieChartHistoryResponse,
   MovieChartResponse,
   MovieChartStatsResponse,

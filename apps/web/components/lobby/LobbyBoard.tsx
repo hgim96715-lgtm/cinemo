@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
-import type { LobbyBoardResponse } from '@cinemo/shared';
+import type { LobbyBoardResponse } from '@cinemo/api-contract';
 import {
   getLobbyBoardRequest,
   recordLobbyVisitRequest,
@@ -12,6 +12,8 @@ import { useAuthStore } from '@/lib/auth-store';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import Image from 'next/image';
 import { LobbyBoardSkeleton } from './LobbyBoardSkeleton';
+import { ErrorModal } from '@/components/common/ErrorModal';
+import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 
 type ChartMovie = {
   tmdbId: number;
@@ -168,9 +170,10 @@ export function LobbyBoard() {
       } catch (error) {
         if (!cancelled) {
           setError(
-            error instanceof Error
-              ? error.message
-              : '데이터를 불러오는데 실패했습니다.',
+            getUserFacingErrorMessage(
+              error,
+              '데이터를 불러오는데 실패했습니다.',
+            ),
           );
         }
       } finally {
@@ -190,7 +193,15 @@ export function LobbyBoard() {
   return (
     <section className="lobby-board-block">
       <div className="lobby-board" aria-label="전광판">
-        {error ? <p className="lobby-board-error">{error}</p> : null}
+        {error ? (
+          <ErrorModal
+            open={Boolean(error)}
+            eyebrow="FAIL"
+            title="로비 데이터 조회 실패"
+            description={error}
+            onClose={() => setError(null)}
+          />
+        ) : null}
         <div className="lobby-board-tabs" role="tablist">
           <button
             type="button"

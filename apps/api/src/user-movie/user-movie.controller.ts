@@ -36,6 +36,8 @@ import { UserMovieStatsResponseDto } from './dto/user-movie-stats-response.dto';
 import { UserMovieDisplayResponseDto } from './dto/user-movie-display-response.dto';
 import { UserMovieDisplayedResponseDto } from './dto/user-movie-displayed-response.dto';
 import { WishMovieDetailResponseDto } from './dto/wish-movie-detail-response.dto';
+import { UserMovieRecordResponseDto } from './dto/user-movie-record-response.dto';
+import { ReleaseNotificationResponseDto } from './dto/release-notification-response.dto';
 
 @ApiTags('user-movies')
 @ApiBearerAuth()
@@ -63,6 +65,7 @@ export class UserMovieController {
     summary: '관람 기록 추가',
     description: '영화 관람 기록 추가 및 관람일 저장',
   })
+  @ApiOkResponse({ type: UserMovieRecordResponseDto })
   addWatchedMovie(@UserId() userId: string, @Body() dto: AddWatchedMovieDto) {
     return this.userMovieService.addWatchedMovie(
       userId,
@@ -76,6 +79,7 @@ export class UserMovieController {
     summary: '관람일 수정',
     description: '기존 관람 기록의 관람일 수정',
   })
+  @ApiOkResponse({ type: UserMovieRecordResponseDto })
   updateWatchedAt(@UserId() userId: string, @Body() dto: UpdateWatchedAtDto) {
     return this.userMovieService.updateWatchedAt(
       userId,
@@ -89,6 +93,7 @@ export class UserMovieController {
     summary: '관람 상세 정보 수정',
     description: '관람 장소·방식·후기·평점 수정',
   })
+  @ApiOkResponse({ type: UserMovieRecordResponseDto })
   updateViewingDetails(
     @UserId() userId: string,
     @Body() dto: UpdateViewingDetailsDto,
@@ -101,6 +106,7 @@ export class UserMovieController {
     summary: '관람 기록 삭제',
     description: '영화 관람 기록 삭제',
   })
+  @ApiOkResponse({ type: ToggleUserMovieResponseDto })
   removeWatchedMovie(
     @UserId() userId: string,
     @Param('tmdbId', ParseIntPipe) tmdbId: number,
@@ -197,6 +203,7 @@ export class UserMovieController {
     summary: '개봉일 알림 설정 조회',
     description: '보고 싶은 영화의 개봉일 알림 설정 조회',
   })
+  @ApiOkResponse({ type: ReleaseNotificationResponseDto })
   getReleaseNotification(
     @UserId() userId: string,
     @Query('tmdbId', ParseIntPipe) tmdbId: number,
@@ -212,6 +219,7 @@ export class UserMovieController {
     summary: '개봉일 알림 설정 변경',
     description: '보고 싶은 영화의 개봉일 알림 활성화·비활성화',
   })
+  @ApiOkResponse({ type: ReleaseNotificationResponseDto })
   updateReleaseNotification(
     @UserId() userId: string,
     @Body() dto: UpdateReleaseNotificationDto,

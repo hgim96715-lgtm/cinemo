@@ -1,12 +1,12 @@
-import type { PublicProfileResponse } from '@cinemo/api-contract';
+import type {
+  AuthResponse,
+  AuthUser,
+  AvailabilityResponse,
+  MessageResponse,
+  PublicProfileResponse,
+} from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
-import type { AuthUser, UpdateProfileInput } from './auth-store';
-
-export type AuthResponse = {
-  accessToken: string;
-  user: AuthUser;
-  message: string;
-};
+import type { UpdateProfileInput } from './auth-store';
 
 export function loginRequest(email: string, password: string) {
   return apiFetch<AuthResponse>('/auth/login', {
@@ -55,26 +55,26 @@ export function getPublicProfileRequest(nickname: string) {
 }
 
 export function checkEmailRequest(email: string) {
-  return apiFetch<{ available: boolean }>(
+  return apiFetch<AvailabilityResponse>(
     `/auth/check-email?email=${encodeURIComponent(email)}`,
   );
 }
 
 export function checkNicknameRequest(nickname: string) {
-  return apiFetch<{ available: boolean }>(
+  return apiFetch<AvailabilityResponse>(
     `/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`,
   );
 }
 
 export function requestPasswordReset(email: string) {
-  return apiFetch<{ message: string }>('/auth/password-reset/request', {
+  return apiFetch<MessageResponse>('/auth/password-reset/request', {
     method: 'POST',
     body: JSON.stringify({ email }),
   });
 }
 
 export function resetPasswordRequest(token: string, newPassword: string) {
-  return apiFetch<{ message: string }>('/auth/password-reset/confirm', {
+  return apiFetch<MessageResponse>('/auth/password-reset/confirm', {
     method: 'POST',
     body: JSON.stringify({ token, newPassword }),
   });

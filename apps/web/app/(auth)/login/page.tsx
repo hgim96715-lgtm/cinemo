@@ -1,26 +1,38 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 import { loginRequest } from '@/lib/auth-api';
+import { loginSchema, type LoginFormValues } from '@/components/auth/auth-form';
 
-const loginSchema = z.object({
-  email: z.email({
-    error: '이메일 형식을 확인해 주세요.',
-  }),
-  password: z.string().min(8, {
-    error: '비밀번호는 8자 이상이어야 합니다.',
-  }),
-});
+const recentLoginProviderKey = 'cinemo_recent_login_provider';
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+function subscribeToRecentLoginProvider(onStoreChange: () => void) {
+  window.addEventListener('storage', onStoreChange);
+  return () => window.removeEventListener('storage', onStoreChange);
+}
+
+function getRecentLoginProvider() {
+  return window.localStorage.getItem(recentLoginProviderKey);
+}
+
+function getServerRecentLoginProvider() {
+  return null;
+}
+
+function navigateToOAuth(provider: 'google' | 'naver' | 'kakao') {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3050';
+
+  // OAuth 서버로 이동하는 외부 전체 페이지 전환임
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.assign(`${apiUrl}/v1/auth/${provider}`);
+}
 
 function LoginForm() {
   const router = useRouter();
@@ -28,8 +40,10 @@ function LoginForm() {
   const next = searchParams.get('next');
   const setSession = useAuthStore((s) => s.setSession);
   const [showPassword, setShowPassword] = useState(false);
-  const [recentLoginProvider, setRecentLoginProvider] = useState<string | null>(
-    null,
+  const recentLoginProvider = useSyncExternalStore(
+    subscribeToRecentLoginProvider,
+    getRecentLoginProvider,
+    getServerRecentLoginProvider,
   );
   const isRecentProvider = (provider: string) =>
     recentLoginProvider === provider;
@@ -40,6 +54,8 @@ function LoginForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -52,7 +68,7 @@ function LoginForm() {
       const data = await loginRequest(values.email, values.password);
       setSession(data.accessToken, data.user);
       localStorage.setItem(
-        'cinemo_recent_login_provider',
+        recentLoginProviderKey,
         data.user.lastLoginProvider ?? 'email',
       );
       const destination =
@@ -69,12 +85,6 @@ function LoginForm() {
       });
     }
   };
-
-  useEffect(() => {
-    setRecentLoginProvider(
-      localStorage.getItem('cinemo_recent_login_provider'),
-    );
-  }, []);
 
   return (
     <>
@@ -134,7 +144,11 @@ function LoginForm() {
           ) : null}
         </div>
 
-        <button className="auth-submit" type="submit" disabled={isSubmitting}>
+        <button
+          className="cinemo-button cinemo-button--primary"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? '입장 중…' : '입장하기'}
         </button>
       </form>
@@ -153,12 +167,7 @@ function LoginForm() {
                 ? 'Google로 로그인, 최근 로그인 방식'
                 : 'Google로 로그인'
             }
-            onClick={() => {
-              const apiUrl =
-                process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3050';
-
-              window.location.href = `${apiUrl}/v1/auth/google`;
-            }}
+            onClick={() => navigateToOAuth('google')}
           >
             <Image src="/brand/google.svg" alt="" width={20} height={20} />
           </button>
@@ -175,12 +184,7 @@ function LoginForm() {
                 ? '네이버로 로그인, 최근 로그인 방식'
                 : '네이버로 로그인'
             }
-            onClick={() => {
-              const apiUrl =
-                process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3050';
-
-              window.location.href = `${apiUrl}/v1/auth/naver`;
-            }}
+            onClick={() => navigateToOAuth('naver')}
           >
             <Image src="/brand/naver.svg" alt="" width={20} height={20} />
           </button>
@@ -211,12 +215,7 @@ function LoginForm() {
                 ? '카카오톡으로 로그인, 최근 로그인 방식'
                 : '카카오톡으로 로그인'
             }
-            onClick={() => {
-              const apiUrl =
-                process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3050';
-
-              window.location.href = `${apiUrl}/v1/auth/kakao`;
-            }}
+            onClick={() => navigateToOAuth('kakao')}
             disabled
           >
             <Image src="/brand/kakao.svg" alt="" width={22} height={22} />

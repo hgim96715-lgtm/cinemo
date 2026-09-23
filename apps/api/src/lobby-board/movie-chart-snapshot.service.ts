@@ -64,6 +64,9 @@ export class MovieChartSnapshotService {
   }
 
   async getSnapshots(fromDate: string, toDate: string) {
+    // DB 연결 실패를 빈 차트 이력으로 오인하지 않도록 조회 전에 확인한다.
+    await this.prisma.$queryRaw`SELECT 1`;
+
     const from = toKstDate(new Date(`${fromDate}T00:00:00+09:00`));
     const to = toKstDate(new Date(`${toDate}T00:00:00+09:00`));
 

@@ -158,8 +158,11 @@ export default function MyCinemaPage() {
               <span>관람 기록</span>
               <small>본 영화 모아보기</small>
             </Link>
-            <Link className="my-cinema-tool-card" href="/my-cinema/wish">
-              <Heart size={18} aria-hidden="true" />
+            <Link
+              className="my-cinema-tool-card my-cinema-tool-card--wish"
+              href="/my-cinema/wish"
+            >
+              <Heart size={18} fill="currentColor" aria-hidden="true" />
               <span>보고 싶은 영화</span>
               <small>관심 영화 모아보기</small>
             </Link>

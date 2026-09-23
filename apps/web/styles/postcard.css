@@ -3,6 +3,7 @@
   --postcard-ink: #17171a;
   --postcard-muted: #958d82;
   --postcard-gold: #d4b56a;
+  --postcard-red: var(--cinemo-red, #ad4f59);
   --postcard-line: rgb(243 239 230 / 0.14);
 
   min-height: 100dvh;
@@ -27,6 +28,14 @@
   font-size: 0.8rem;
   letter-spacing: 0.32em;
   text-indent: 0.32em;
+}
+
+.postcard-page-leading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.7rem;
+  color: var(--postcard-gold);
 }
 
 .postcard-page-header h1 {
@@ -167,10 +176,10 @@
   width: min(100%, 10rem);
   margin-top: 0.15rem;
   padding: 0.7rem 1rem;
-  border: 1px solid rgb(212 181 106 / 0.28);
+  border: 1px solid rgb(212 181 106 / 0.45);
   border-radius: 0.35rem;
   color: var(--postcard-gold);
-  background: rgb(212 181 106 / 0.06);
+  background: transparent;
   font: 500 0.82rem/1.2 var(--font-ui), sans-serif;
   cursor: pointer;
   transition:
@@ -180,8 +189,9 @@
 }
 
 .postcard-load-more:hover {
-  border-color: rgb(212 181 106 / 0.5);
-  background: rgb(212 181 106 / 0.12);
+  border-color: var(--postcard-red);
+  background: transparent;
+  color: var(--postcard-gold);
 }
 
 .postcard-load-more:focus-visible {
@@ -400,16 +410,17 @@
       transform 160ms ease;
   }
 
-  .postcard-reaction-button:hover {
-    border-color: rgb(243 239 230 / 0.14);
-    background: rgb(212 181 106 / 0.1);
-    color: var(--postcard-paper);
+  .postcard-reaction-button:hover,
+  .postcard-reaction-button:active {
+    border-color: var(--postcard-red);
+    background: transparent;
+    color: var(--postcard-gold);
   }
 
   .postcard-reaction-button.is-selected {
-    border-color: var(--postcard-gold);
-    background: rgb(212 181 106 / 0.14);
-    color: var(--postcard-paper);
+    border-color: var(--postcard-red);
+    background: transparent;
+    color: var(--postcard-gold);
   }
 
   .postcard-reaction-button:disabled {
@@ -441,10 +452,11 @@
 }
 
 .postcard-reaction-add:hover,
+.postcard-reaction-add:active,
 .postcard-reaction-add[aria-expanded='true'] {
-  border-color: rgb(212 181 106 / 0.55);
+  border-color: var(--postcard-red);
   color: var(--postcard-gold);
-  background: rgb(212 181 106 / 0.08);
+  background: transparent;
 }
 
 .postcard-reaction-add:focus-visible {
@@ -483,12 +495,13 @@
 }
 
 .postcard-reaction-picker-button:hover {
-  background: rgb(212 181 106 / 0.12);
+  color: var(--postcard-red);
+  background: transparent;
 }
 
 .postcard-reaction-picker-button.is-selected {
-  color: var(--postcard-gold);
-  background: rgb(212 181 106 / 0.12);
+  color: var(--postcard-red);
+  background: transparent;
 }
 
 .postcard-reaction-picker-button small {
@@ -522,13 +535,13 @@
 }
 
 .postcard-bookmark-button:hover {
-  color: var(--postcard-gold);
-  background: rgb(212 181 106 / 0.08);
+  color: var(--postcard-red);
+  background: transparent;
 }
 
 .postcard-bookmark-button.is-bookmarked:hover {
-  color: var(--postcard-gold);
-  background: rgb(212 181 106 / 0.1);
+  color: var(--postcard-red);
+  background: transparent;
 }
 
 .postcard-bookmark-button:focus-visible {
@@ -557,7 +570,7 @@
 }
 
 .postcard-comment-toggle:hover {
-  color: var(--postcard-paper);
+  color: var(--postcard-red);
 }
 
 .postcard-comment-toggle:focus-visible {
@@ -634,8 +647,9 @@
 }
 
 .postcard-comment-form button:hover:not(:disabled) {
-  border-color: rgb(212 181 106 / 0.58);
-  background: rgb(212 181 106 / 0.1);
+  border-color: var(--postcard-red);
+  background: transparent;
+  color: var(--postcard-gold);
 }
 
 .postcard-comment-form button:disabled {
@@ -721,7 +735,7 @@
 
 .postcard-comment-heart:hover,
 .postcard-comment-heart.is-reacted {
-  color: var(--postcard-gold);
+  color: var(--postcard-red);
 }
 
 .postcard-comment-heart:focus-visible,
@@ -743,7 +757,7 @@
 }
 
 .postcard-comment-text-button:hover {
-  color: var(--postcard-paper);
+  color: var(--postcard-red);
 }
 
 .postcard-comment-text-button.is-danger:hover {
@@ -943,7 +957,7 @@
 }
 
 .postcard-comment-replies-toggle:hover {
-  color: var(--postcard-gold);
+  color: var(--postcard-red);
 }
 
 .postcard-comment-more,
@@ -965,7 +979,7 @@
 
 .postcard-comment-more:hover,
 .postcard-comment-reply-button:hover {
-  color: var(--postcard-gold);
+  color: var(--postcard-red);
 }
 
 .postcard-comment-reply-form {
@@ -1002,8 +1016,8 @@
 }
 
 .postcard-comment-reply-form button:hover:not(:disabled) {
-  border-color: rgb(212 181 106 / 0.5);
-  color: var(--postcard-paper);
+  border-color: var(--postcard-red);
+  color: var(--postcard-gold);
 }
 
 .postcard-comment-reply-form button:disabled {

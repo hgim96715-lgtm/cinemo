@@ -27,6 +27,10 @@ import { createHash, randomBytes } from 'crypto';
 import { MailService } from './mail.service';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import type { AuthResponseDto } from './dto/auth-response.dto';
+import type { AuthUserResponseDto } from './dto/auth-user-response.dto';
+import type { AvailabilityResponseDto } from './dto/availability-response.dto';
+import type { MessageResponseDto } from './dto/message-response.dto';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -89,7 +93,10 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  private async buildAuthResponse(user: AuthUserRow, message: string) {
+  private async buildAuthResponse(
+    user: AuthUserRow,
+    message: string,
+  ): Promise<AuthResponseDto> {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
     return {
@@ -120,7 +127,7 @@ export class AuthService {
     return rawCode;
   }
 
-  async exchangeOAuthLoginCode(rawCode: string) {
+  async exchangeOAuthLoginCode(rawCode: string): Promise<AuthResponseDto> {
     const codeHash = createHash('sha256').update(rawCode).digest('hex');
     const now = new Date();
 
@@ -156,7 +163,7 @@ export class AuthService {
     return this.buildAuthResponse(user, 'Google 로그인 성공');
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const email = dto.email.trim().toLowerCase();
     const nickname = dto.nickname.trim();
     const [existingByEmail, existingByNickname] = await Promise.all([
@@ -177,7 +184,7 @@ export class AuthService {
     return this.buildAuthResponse(user, '회원가입 성공');
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email.trim().toLowerCase() },
     });
@@ -265,7 +272,7 @@ export class AuthService {
     return updatedUser;
   }
 
-  async getMe(userId: string) {
+  async getMe(userId: string): Promise<AuthUserResponseDto> {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: AUTH_USER_SELECT,
@@ -281,19 +288,22 @@ export class AuthService {
     return { available: !existing };
   }
 
-  async checkEmail(email: string) {
+  async checkEmail(email: string): Promise<AvailabilityResponseDto> {
     const normalized = email.trim().toLowerCase();
     if (!normalized) return { available: false };
     return this.isAvailable({ email: normalized });
   }
 
-  async checkNickname(nickname: string) {
+  async checkNickname(nickname: string): Promise<AvailabilityResponseDto> {
     const normalized = nickname.trim();
     if (!normalized) return { available: false };
     return this.isAvailable({ nickname: normalized });
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto) {
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ): Promise<AuthUserResponseDto> {
     const data: Prisma.UserUpdateInput = {};
     if (dto.nickname !== undefined) {
       const nickname = dto.nickname.trim();
@@ -345,13 +355,13 @@ export class AuthService {
   async requestPasswordReset(
     dto: RequestPasswordResetDto,
     frontendUrl: string,
-  ) {
+  ): Promise<MessageResponseDto> {
     const email = dto.email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     const message = '입력한 이메일로 비밀번호 재설정 안내를 확인해 주세요.';
     if (!user) {
-      return message;
+      return { message };
     }
     const rawToken = randomBytes(30).toString('base64url');
     const tokenHash = createHash('sha256').update(rawToken).digest('hex');
@@ -380,7 +390,7 @@ export class AuthService {
     return { message };
   }
 
-  async resetPassword(dto: ResetPasswordDto) {
+  async resetPassword(dto: ResetPasswordDto): Promise<MessageResponseDto> {
     const tokenHash = createHash('sha256').update(dto.token).digest('hex');
 
     const resetToken = await this.prisma.passwordResetToken.findFirst({

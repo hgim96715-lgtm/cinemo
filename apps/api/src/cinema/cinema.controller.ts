@@ -18,7 +18,7 @@ export class CinemaController {
   @ApiOperation({
     summary: '영화관 조회',
     description:
-      'region이 있으면 해당 지역의 영화관을 조회하고, 없으면 전체 영화관을 조회함',
+      'region 기준 해당 지역 영화관 또는 전체 영화관 조회',
   })
   @ApiOkResponse({ type: CinemaPageResponseDto })
   findCinemas(@Query() query: CinemaQueryDto) {
@@ -32,7 +32,7 @@ export class CinemaController {
   @Get('search')
   @ApiOperation({
     summary: '전국 영화관 검색',
-    description: '이름·브랜드·주소 기준으로 DB의 영화관을 검색함',
+    description: '이름·브랜드·주소 기준 DB 영화관 검색',
   })
   @ApiOkResponse({ type: [CinemaResponseDto] })
   searchCinemas(@Query() query: CinemaSearchQueryDto) {
@@ -40,6 +40,7 @@ export class CinemaController {
   }
 
   @Get('analysis')
+  @ApiOperation({ summary: '영화관 데이터 분석 조회' })
   @ApiOkResponse({ type: CinemaAnalysisResponseDto })
   findCinemaAnalysis(): Promise<CinemaAnalysisResponseDto> {
     return this.cinemaService.findCinemaAnalysis();

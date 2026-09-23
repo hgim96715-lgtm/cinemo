@@ -7,7 +7,7 @@ import {
   type MouseEvent,
 } from 'react';
 import Image from 'next/image';
-import type { PostcardItem } from '@cinemo/shared';
+import type { PostcardItem } from '@cinemo/api-contract';
 import { useAuthStore } from '@/lib/auth-store';
 import {
   getPublicPostcardsRequest,
@@ -16,12 +16,14 @@ import {
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { ErrorModal } from '@/components/common/ErrorModal';
 import { PostcardReactionBar } from '@/components/postcard/PostcardReactionBar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, Images } from 'lucide-react';
 import { PostcardCommentSection } from '@/components/postcard/PostcardCommentSection';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
 import { formatKstDate } from '@/lib/date-kst';
+import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 
 export function PostcardPageContent() {
   const router = useRouter();
@@ -60,9 +62,7 @@ export function PostcardPageContent() {
       } catch (error: unknown) {
         if (!cancelled) {
           setError(
-            error instanceof Error
-              ? error.message
-              : '엽서를 불러오지 못했습니다.',
+            getUserFacingErrorMessage(error, '엽서를 불러오지 못했습니다.'),
           );
         }
       } finally {
@@ -130,6 +130,11 @@ export function PostcardPageContent() {
           className="postcard-page-header"
           eyebrow="CINEMO POSTCARD"
           eyebrowClassName="postcard-page-eyebrow"
+          leading={
+            <span className="postcard-page-leading" aria-hidden="true">
+              <Images size={22} strokeWidth={1.7} />
+            </span>
+          }
           title="CINEMO 엽서"
           description="영화에서 기억할 문장을 한 장의 엽서로 남겨보세요."
           nav={
@@ -147,15 +152,26 @@ export function PostcardPageContent() {
     );
   }
 
-  if (error) {
-    return <main className="postcard-page">{error}</main>;
-  }
   return (
     <main className="postcard-page postcard-public-page">
+      {error ? (
+        <ErrorModal
+          open={Boolean(error)}
+          eyebrow="FAIL"
+          title="엽서 데이터 조회 실패"
+          description={error}
+          onClose={() => setError(null)}
+        />
+      ) : null}
       <CinemoPageHeader
         className="postcard-page-header"
         eyebrow="CINEMO POSTCARD"
         eyebrowClassName="postcard-page-eyebrow"
+        leading={
+          <span className="postcard-page-leading" aria-hidden="true">
+            <Images size={22} strokeWidth={1.7} />
+          </span>
+        }
         title="CINEMO 엽서"
         description="영화에서 기억할 문장을 한 장의 엽서로 남겨보세요."
         nav={
@@ -278,7 +294,6 @@ export function PostcardPageContent() {
         title="로그인이 필요해요"
         description="내 엽서함을 이용하거나 엽서에 댓글을 남기려면 로그인해 주세요."
         confirmLabel="로그인하기"
-        cancelLabel="취소"
         onConfirm={handleLoginConfirm}
         onClose={() => setLoginRequiredOpen(false)}
       />

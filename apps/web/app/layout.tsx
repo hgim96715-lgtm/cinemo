@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import {
   Geist,
@@ -50,6 +50,12 @@ const notoSansKr = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: 'CINEMO',
   description: '영화관 로비 · 영화 차트 · MY CINEMA',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

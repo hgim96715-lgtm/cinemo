@@ -37,6 +37,7 @@ export function WatchedDateEditModal({
           aria-describedby={undefined}
           onOpenAutoFocus={handleOpenAutoFocus}
           onCloseAutoFocus={handleCloseAutoFocus}
+          onPointerDownOutside={(event) => event.preventDefault()}
         >
         <header className="movie-calendar-header">
           <div>

@@ -352,6 +352,7 @@ export function WatchedRecordModal({
         <Dialog.Content
           className="movie-detail-modal watched-record-modal"
           aria-describedby={undefined}
+          onPointerDownOutside={(event) => event.preventDefault()}
         >
           <HomeTicketToggle
             isDisplayed={isDisplayed}
@@ -372,8 +373,6 @@ export function WatchedRecordModal({
             WATCHED RECORD
           </Dialog.Title>
 
-          <h2>{movie.title}</h2>
-
           {poster ? (
             <div className="watched-record-modal-poster">
               <Image
@@ -384,6 +383,8 @@ export function WatchedRecordModal({
               />
             </div>
           ) : null}
+
+          <h2>{movie.title}</h2>
 
           <WatchedRecordForm
             control={control}

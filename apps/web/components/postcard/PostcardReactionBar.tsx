@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, X } from 'lucide-react';
-import type { PostcardReactionSummary } from '@cinemo/shared';
+import type { PostcardReactionSummary } from '@cinemo/api-contract';
 import { useAuthStore } from '@/lib/auth-store';
 import { togglePostcardReactionRequest } from '@/lib/postcard-api';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';

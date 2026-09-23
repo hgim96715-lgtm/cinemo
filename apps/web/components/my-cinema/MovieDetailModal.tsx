@@ -76,7 +76,6 @@ type MovieModalMovie = MovieSummary &
 
 type MovieDetailModalProps = {
   movie: MovieModalMovie;
-  variant?: 'default' | 'wish';
   isDetailLoading?: boolean;
   screening?: UserMovieListItem;
   marks?: Pick<UserMovieMarks, 'wish' | 'watched'>;
@@ -91,7 +90,6 @@ type MovieDetailModalProps = {
 
 export function MovieDetailModal({
   movie,
-  variant = 'default',
   isDetailLoading = false,
   screening,
   marks,
@@ -339,8 +337,9 @@ export function MovieDetailModal({
       <Dialog.Portal>
         <Dialog.Overlay className="movie-detail-overlay" />
         <Dialog.Content
-          className={`movie-detail-modal movie-detail-modal--${variant}${largeText ? ' is-large-text' : ''}`}
+          className={`movie-detail-modal${largeText ? ' is-large-text' : ''}`}
           aria-describedby={undefined}
+          onPointerDownOutside={(event) => event.preventDefault()}
         >
           <Dialog.Close asChild>
             <button
@@ -353,6 +352,10 @@ export function MovieDetailModal({
           </Dialog.Close>
 
           <div className="movie-detail-content">
+            <p className="movie-detail-kicker movie-detail-kicker--top">
+              MOVIE DETAIL
+            </p>
+
             <div className="movie-detail-poster">
               {poster ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -363,10 +366,6 @@ export function MovieDetailModal({
             </div>
 
             <div className="movie-detail-info">
-              <p className="movie-detail-kicker">
-                {variant === 'wish' ? 'WISH MOVIE' : 'MOVIE DETAIL'}
-              </p>
-
               <Dialog.Title asChild>
                 <h2>{movie.title}</h2>
               </Dialog.Title>
@@ -487,8 +486,8 @@ export function MovieDetailModal({
                           type="button"
                           className="movie-detail-trailer-link"
                         >
-                          예고편 보기
                           <Play size={15} aria-hidden />
+                          예고편 보기
                         </button>
                       </Dialog.Trigger>
                       <MovieVideoModal
@@ -521,24 +520,34 @@ export function MovieDetailModal({
                     <button
                       type="button"
                       className={`movie-detail-notification-button${
-                        releaseNotificationEnabled ? ' is-on' : ''
-                      }`}
+                        marks?.wish ? ' is-wish' : ''
+                      }${releaseNotificationEnabled ? ' is-on' : ''}`}
                       aria-pressed={releaseNotificationEnabled}
                       aria-label={
                         releaseNotificationEnabled
                           ? '개봉일 알림 해제'
                           : '개봉일 알림 설정'
                       }
+                      aria-describedby={`movie-notification-tooltip-${movie.id}`}
                       onClick={handleNotificationClick}
                     >
                       <Bell size={17} aria-hidden />
+                      <span
+                        id={`movie-notification-tooltip-${movie.id}`}
+                        className="movie-detail-tooltip"
+                        role="tooltip"
+                      >
+                        {releaseNotificationEnabled
+                          ? '알림 해제'
+                          : '알림 설정'}
+                      </span>
                     </button>
                   ) : null}
                 </div>
               ) : null}
 
               <div className="movie-detail-text-controls">
-                <span>설명 글자 크기</span>
+                <span>설명 크기</span>
 
                 <button
                   type="button"
@@ -616,7 +625,6 @@ export function MovieDetailModal({
         title="보고 싶은 영화로 저장해 주세요"
         description="개봉일 알림은 보고 싶은 영화로 저장한 작품에서만 설정할 수 있어요."
         confirmLabel="보고 싶어요 추가"
-        cancelLabel="취소"
         onClose={() => setShowNotificationGuide(false)}
         onConfirm={() => {
           onToggleMark?.('wish');

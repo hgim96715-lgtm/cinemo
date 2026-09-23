@@ -1,21 +1,10 @@
+import type {
+  MovieQuoteSuggestion,
+  RecommendMovieQuotesInput,
+} from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
 
-export type MovieQuoteSuggestion = {
-  originalText: string;
-  koreanText: string;
-  originalLanguage: string;
-  isPopular: boolean;
-  source: string | null;
-};
-
-export type RecommendMovieQuotesInput = {
-  tmdbId: number;
-  title: string;
-  originalTitle: string | null;
-  originalLanguage: string | null;
-  releaseYear: number | null;
-  overview: string | null;
-};
+export type { MovieQuoteSuggestion, RecommendMovieQuotesInput };
 
 export function recommendMovieQuotesRequest(
   token: string,

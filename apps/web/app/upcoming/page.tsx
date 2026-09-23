@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Heart, Sparkles } from 'lucide-react';
+import { CalendarClock, Heart } from 'lucide-react';
 import {
   getUpcomingMoviesRequest,
   type UpcomingMovie,
@@ -34,8 +34,11 @@ import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { MovieDetailModalSkeleton } from '@/components/my-cinema/MovieDetailModalSkeleton';
 import { CinemoNav } from '@/components/common/CinemoNav';
 import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { ErrorModal } from '@/components/common/ErrorModal';
 import { UpcomingMovieListSkeleton } from '@/components/upcoming/UpcomingMovieListSkeleton';
 import { kstDateKey, kstYearMonth } from '@/lib/date-kst';
+import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 
 type UpcomingPeriod = {
   key: string;
@@ -81,6 +84,8 @@ function UpcomingPageContent() {
   );
   const [interestedIds, setInterestedIds] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [hasLoadError, setHasLoadError] = useState(false);
+  const [emptyModalOpen, setEmptyModalOpen] = useState(false);
 
   const periods = getUpcomingPeriods();
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
@@ -115,6 +120,8 @@ function UpcomingPageContent() {
 
       setLoading(true);
       setError(null);
+      setHasLoadError(false);
+      setEmptyModalOpen(false);
       setPage(1);
 
       try {
@@ -127,16 +134,21 @@ function UpcomingPageContent() {
         if (!cancelled) {
           setMovies(sortUpcomingMovies(result.items));
           setHasNext(result.hasNext);
+          setHasLoadError(false);
+          setEmptyModalOpen(result.items.length === 0);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setError(
-            error instanceof Error
-              ? error.message
-              : '개봉 예정작을 불러오지 못했어요.',
+            getUserFacingErrorMessage(
+              error,
+              '개봉 예정작을 불러오지 못했어요.',
+            ),
           );
           setMovies([]);
           setHasNext(false);
+          setHasLoadError(true);
+          setEmptyModalOpen(false);
         }
       } finally {
         if (!cancelled) {
@@ -168,6 +180,10 @@ function UpcomingPageContent() {
       setMovies((current) => sortUpcomingMovies([...current, ...result.items]));
       setPage(nextPage);
       setHasNext(result.hasNext);
+    } catch (error: unknown) {
+      setError(
+        getUserFacingErrorMessage(error, '개봉 예정작을 더 불러오지 못했어요.'),
+      );
     } finally {
       setLoadingMore(false);
     }
@@ -356,15 +372,33 @@ function UpcomingPageContent() {
       }));
     } catch (error: unknown) {
       setError(
-        error instanceof Error
-          ? error.message
-          : '개봉일 알림 설정에 실패했어요.',
+        getUserFacingErrorMessage(error, '개봉일 알림 설정에 실패했어요.'),
       );
     }
   }
 
   return (
     <main className="lobby upcoming-lobby lobby--lit">
+      {emptyModalOpen ? (
+        <ConfirmModal
+          open={emptyModalOpen}
+          eyebrow="COMING SOON"
+          title="개봉 예정작이 없어요"
+          description="선택한 기간에 등록된 개봉 예정작이 없습니다."
+          confirmLabel="확인"
+          onConfirm={() => setEmptyModalOpen(false)}
+          onClose={() => setEmptyModalOpen(false)}
+        />
+      ) : null}
+      {error ? (
+        <ErrorModal
+          open={Boolean(error)}
+          eyebrow="FAIL"
+          title="요청 처리 실패"
+          description={error}
+          onClose={() => setError(null)}
+        />
+      ) : null}
       <section className="lobby-stage upcoming-page">
         <CinemoPageHeader
           className="upcoming-header"
@@ -372,7 +406,7 @@ function UpcomingPageContent() {
           eyebrowClassName="lobby-destination-kicker"
           title="곧 스크린에서 만날 영화"
           description="개봉일을 확인하고 미리 찜해보세요"
-          leading={<Sparkles size={28} strokeWidth={1.8} aria-hidden />}
+          leading={<CalendarClock size={28} strokeWidth={1.8} aria-hidden />}
           nav={
             <CinemoNav
               rightHref="/my-cinema/wish"
@@ -407,11 +441,7 @@ function UpcomingPageContent() {
         >
           {loading ? (
             <UpcomingMovieListSkeleton />
-          ) : error ? (
-            <p>{error}</p>
-          ) : movies.length === 0 ? (
-            <p>현재 개봉 예정작이 없어요.</p>
-          ) : (
+          ) : error || hasLoadError || movies.length === 0 ? null : (
             sortUpcomingMovies(movies).map((movie, index) => {
               const poster = tmdbPosterUrl(movie.posterPath, 'w185');
               const interested = interestedIds.includes(movie.tmdbId);
@@ -470,7 +500,9 @@ function UpcomingPageContent() {
                     <div className="upcoming-card-actions">
                       <button
                         type="button"
-                        className="upcoming-interest-button"
+                        className={`upcoming-interest-button${
+                          interested ? ' is-on' : ''
+                        }`}
                         aria-pressed={interested}
                         disabled={toggling}
                         onClick={() => void handleInterestClick(movie.tmdbId)}

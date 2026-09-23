@@ -7,6 +7,8 @@ import type {
   UserMovieListPage,
   UserMovieMarks,
   UserMovieStats,
+  UserMovieRecord,
+  ReleaseNotificationResponse,
   UpdateViewingDetails,
   UpdateDisplayDto,
   WishMovieDetailResponse,
@@ -77,7 +79,7 @@ export function addWatchedMovieRequest(
   tmdbId: number,
   watchedAt: string,
 ) {
-  return apiFetch('/user-movies/watched-at', {
+  return apiFetch<UserMovieRecord>('/user-movies/watched-at', {
     method: 'POST',
     token,
     body: JSON.stringify({ tmdbId, watchedAt }),
@@ -93,7 +95,7 @@ export function updateWatchedAtRequest(
   tmdbId: number,
   watchedAt: string,
 ) {
-  return apiFetch('/user-movies/watched-at', {
+  return apiFetch<UserMovieRecord>('/user-movies/watched-at', {
     method: 'PATCH',
     token,
     body: JSON.stringify({ tmdbId, watchedAt }),
@@ -101,7 +103,7 @@ export function updateWatchedAtRequest(
 }
 
 export function removeWatchedMovieRequest(token: string, tmdbId: number) {
-  return apiFetch(`/user-movies/watched-at/${tmdbId}`, {
+  return apiFetch<ToggleUserMovieResult>(`/user-movies/watched-at/${tmdbId}`, {
     method: 'DELETE',
     token,
   });
@@ -114,7 +116,7 @@ export function updateViewingDetailsRequest(
   tmdbId: number,
   details: UpdateUserMovieViewingDetailsInput,
 ) {
-  return apiFetch('/user-movies/viewing-details', {
+  return apiFetch<UserMovieRecord>('/user-movies/viewing-details', {
     method: 'PATCH',
     token,
     body: JSON.stringify({
@@ -131,18 +133,11 @@ export function getWishMovieDetailRequest(token: string, tmdbId: number) {
   );
 }
 
-export type MovieReleaseNotificationResult = {
-  tmdbId: number;
-  enabled: boolean;
-  releaseDate: string;
-  sentAt: string | null;
-};
-
 export function getMovieReleaseNotificationRequest(
   token: string,
   tmdbId: number,
 ) {
-  return apiFetch<MovieReleaseNotificationResult>(
+  return apiFetch<ReleaseNotificationResponse>(
     `/user-movies/release-notification?tmdbId=${tmdbId}`,
     { token },
   );
@@ -154,7 +149,7 @@ export function updateMovieReleaseNotificationRequest(
   enabled: boolean,
   releaseDate: string,
 ) {
-  return apiFetch<MovieReleaseNotificationResult>(
+  return apiFetch<ReleaseNotificationResponse>(
     '/user-movies/release-notification',
     {
       method: 'PATCH',

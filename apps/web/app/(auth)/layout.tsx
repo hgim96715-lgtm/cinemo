@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import '@/styles/common.css';
 import '@/styles/auth.css';
 import '@/styles/login.css';
 import '@/styles/register.css';

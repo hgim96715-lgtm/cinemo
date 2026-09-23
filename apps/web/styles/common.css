@@ -1,8 +1,31 @@
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 :root {
   --cinemo-fg: #f3efe6;
   --cinemo-muted: #958d82;
   --cinemo-gold: #d4b56a;
+  --cinemo-red: #ad4f59;
   --cinemo-ink: #17171a;
+  --cinemo-border-subtle: rgb(243 239 230 / 0.16);
+  --cinemo-border-muted: rgb(243 239 230 / 0.24);
+  --cinemo-border-gold: rgb(212 181 106 / 0.45);
+  --cinemo-border-active: var(--cinemo-red);
+  --cinemo-focus-ring: var(--cinemo-gold);
+
+  /* 화면별 스타일이 같은 브랜드 색상을 공유하도록 연결 */
+  --lobby-fg: var(--cinemo-fg);
+  --lobby-muted: var(--cinemo-muted);
+  --lobby-gold: var(--cinemo-gold);
+  --lobby-red: var(--cinemo-red);
 }
 
 /* 클릭 가능한 요소는 공통으로 포인터 커서 적용 */
@@ -55,9 +78,115 @@ button[class*="-close"]:disabled {
     opacity 160ms ease;
 }
 
-.cinemo-button:focus-visible {
-  outline: 2px solid #d4b56a;
+.cinemo-button--primary {
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0.65rem 1rem;
+  border-color: var(--cinemo-gold);
+  color: var(--cinemo-gold);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cinemo-button--primary:hover:not(:disabled) {
+  border-color: var(--cinemo-red);
+  background: transparent;
+  color: var(--cinemo-gold);
+}
+
+.cinemo-button--primary:active:not(:disabled) {
+  border-color: var(--cinemo-red);
+  background: var(--cinemo-red);
+  color: var(--cinemo-fg);
+}
+
+.cinemo-button--primary:focus-visible {
+  border-color: var(--cinemo-red);
+  outline: 2px solid var(--cinemo-red);
   outline-offset: 3px;
+}
+
+.cinemo-button--primary:disabled {
+  cursor: not-allowed;
+  border-color: var(--cinemo-red);
+  background: var(--cinemo-red);
+  color: var(--cinemo-fg);
+  opacity: 1;
+}
+
+.cinemo-button:focus-visible {
+  outline: 2px solid var(--cinemo-focus-ring);
+  outline-offset: 3px;
+}
+
+/* 하트·별처럼 아이콘 자체로 상태를 표현하는 공통 액션 */
+.cinemo-icon-action {
+  border: 0;
+  background: transparent;
+  color: var(--cinemo-gold);
+  transition:
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.cinemo-icon-action:hover:not(:disabled),
+.cinemo-icon-action:active:not(:disabled),
+.cinemo-icon-action[aria-pressed='true'] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--cinemo-red);
+  transform: none;
+}
+
+.cinemo-icon-action:focus-visible {
+  outline: 2px solid var(--cinemo-red);
+  outline-offset: 3px;
+}
+
+/* 모바일 viewport를 넘지 않도록 모달의 외곽 크기를 padding 포함으로 계산 */
+:where(
+    .movie-detail-modal,
+    .postcard-create-modal,
+    .movie-calendar-modal,
+    .poster-picker-modal,
+    .movie-chart-trailer-modal,
+    .profile-modal,
+    .confirm-modal,
+    .postcard-detail-modal,
+    .admin-seed-modal
+  ) {
+  box-sizing: border-box;
+}
+
+/* 모달 입력 라벨은 입력 박스 테두리와 시각적으로 분리함 */
+:where(
+    .movie-detail-screening > label > span:first-child,
+    .postcard-create-modal-label,
+    .movie-calendar-edit-modal > label,
+    .profile-form-label
+  ) {
+  padding-inline: 0.375rem;
+}
+
+@media (max-width: 40rem) {
+  :where(
+      .movie-detail-modal,
+      .postcard-create-modal,
+      .movie-calendar-modal,
+      .poster-picker-modal,
+      .movie-chart-trailer-modal,
+      .profile-modal,
+      .confirm-modal,
+      .postcard-detail-modal,
+      .admin-seed-modal
+    ) {
+    max-width: calc(100vw - 1.3rem);
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* iOS Safari의 입력 시 자동 확대 방지 */
@@ -65,6 +194,7 @@ button[class*="-close"]:disabled {
   input:not([type='hidden']):not([type='checkbox']):not([type='radio']),
   textarea,
   select {
-    font-size: 16px;
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
   }
 }

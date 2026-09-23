@@ -4,10 +4,27 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { UserMovieKind } from '@cinemo/shared';
+import type {
+  UserMovieKind,
+  UserMovieViewingType,
+} from '@cinemo/shared';
 import { kstDateKey } from '../lib/date-kst';
 import { UpdateViewingDetailsDto } from './dto/update-viewing-details.dto';
 import { TmdbService } from '../tmdb/tmdb.service';
+import type { UserMovieRecordResponseDto } from './dto/user-movie-record-response.dto';
+
+const USER_MOVIE_RECORD_SELECT = {
+  tmdbId: true,
+  kind: true,
+  watchedAt: true,
+  viewingType: true,
+  viewingTypeCustom: true,
+  viewingPlatform: true,
+  viewingPlace: true,
+  cinemaId: true,
+  review: true,
+  rating: true,
+} as const;
 
 @Injectable()
 export class UserMovieService {
@@ -15,6 +32,32 @@ export class UserMovieService {
     private readonly prisma: PrismaService,
     private readonly tmdbService: TmdbService,
   ) {}
+
+  private toRecordResponse(row: {
+    tmdbId: number;
+    kind: UserMovieKind;
+    watchedAt: Date | null;
+    viewingType: UserMovieViewingType | null;
+    viewingTypeCustom: string | null;
+    viewingPlatform: string | null;
+    viewingPlace: string | null;
+    cinemaId: string | null;
+    review: string | null;
+    rating: number | null;
+  }): UserMovieRecordResponseDto {
+    return {
+      tmdbId: row.tmdbId,
+      kind: row.kind,
+      watchedAt: row.watchedAt?.toISOString() ?? null,
+      viewingType: row.viewingType,
+      viewingTypeCustom: row.viewingTypeCustom,
+      viewingPlatform: row.viewingPlatform,
+      viewingPlace: row.viewingPlace,
+      cinemaId: row.cinemaId,
+      review: row.review,
+      rating: row.rating,
+    };
+  }
 
   private parseWatchedDate(watchedAt: string) {
     const watchedDate = new Date(`${watchedAt}T12:00:00+09:00`);
@@ -54,10 +97,14 @@ export class UserMovieService {
     return { tmdbId, kind, active: true };
   }
 
-  async addWatchedMovie(userId: string, tmdbId: number, watchedAt: string) {
+  async addWatchedMovie(
+    userId: string,
+    tmdbId: number,
+    watchedAt: string,
+  ): Promise<UserMovieRecordResponseDto> {
     const watchedDate = this.parseWatchedDate(watchedAt);
 
-    return this.prisma.userMovie.upsert({
+    const row = await this.prisma.userMovie.upsert({
       where: {
         userId_tmdbId_kind: {
           userId,
@@ -74,20 +121,30 @@ export class UserMovieService {
       update: {
         watchedAt: watchedDate,
       },
+      select: USER_MOVIE_RECORD_SELECT,
     });
+
+    return this.toRecordResponse(row);
   }
 
-  async updateWatchedAt(userId: string, tmdbId: number, watchedAt: string) {
+  async updateWatchedAt(
+    userId: string,
+    tmdbId: number,
+    watchedAt: string,
+  ): Promise<UserMovieRecordResponseDto> {
     const watchedDate = this.parseWatchedDate(watchedAt);
     const existing = await this.prisma.userMovie.findUnique({
       where: { userId_tmdbId_kind: { userId, tmdbId, kind: 'watched' } },
     });
     if (!existing) throw new NotFoundException('관람 기록을 찾을 수 없습니다.');
 
-    return this.prisma.userMovie.update({
+    const row = await this.prisma.userMovie.update({
       where: { id: existing.id },
       data: { watchedAt: watchedDate },
+      select: USER_MOVIE_RECORD_SELECT,
     });
+
+    return this.toRecordResponse(row);
   }
 
   async removeWatchedMovie(userId: string, tmdbId: number) {
@@ -101,7 +158,10 @@ export class UserMovieService {
     return { tmdbId, kind: 'watched', active: false };
   }
 
-  async updateViewingDetails(userId: string, dto: UpdateViewingDetailsDto) {
+  async updateViewingDetails(
+    userId: string,
+    dto: UpdateViewingDetailsDto,
+  ): Promise<UserMovieRecordResponseDto> {
     const existing = await this.prisma.userMovie.findUnique({
       where: {
         userId_tmdbId_kind: {
@@ -118,7 +178,7 @@ export class UserMovieService {
       watchedDate = dto.watchedAt ? this.parseWatchedDate(dto.watchedAt) : null;
     }
 
-    return this.prisma.userMovie.update({
+    const row = await this.prisma.userMovie.update({
       where: { id: existing.id },
       data: {
         ...(watchedDate !== undefined ? { watchedAt: watchedDate } : {}),
@@ -150,7 +210,10 @@ export class UserMovieService {
           : {}),
         ...(dto.rating !== undefined ? { rating: dto.rating } : {}),
       },
+      select: USER_MOVIE_RECORD_SELECT,
     });
+
+    return this.toRecordResponse(row);
   }
 
   async getMarks(userId: string, tmdbId: number) {

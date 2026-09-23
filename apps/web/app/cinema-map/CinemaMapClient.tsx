@@ -10,11 +10,11 @@ import '@/styles/cinemo-select.css';
 import '@/styles/cinemo-nav.css';
 import '@/styles/cinemo-page-header.css';
 import '@/styles/confirm-modal.css';
-import { Navigation } from 'lucide-react';
+import { MapPinned, Navigation, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { CinemoSelect } from '@/components/common/CinemoSelect';
 import { CinemoPageHeader } from '@/components/common/CinemoPageHeader';
-import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { ErrorModal } from '@/components/common/ErrorModal';
 import type {
   CinemaAnalysisResponse,
   CinemaPageResponse,
@@ -29,8 +29,9 @@ import {
 } from '@/lib/cinema-api';
 import { CinemaAnalysisCharts } from './CinemaAnalysisCharts';
 import type { CinemaMapCinema } from './cinema-map-data';
+import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 
-const CINEMA_PAGE_SIZE = 20;
+const CINEMA_PAGE_SIZE = 6;
 
 const CinemaMapCanvas = dynamic(
   () => import('./CinemaMapCanvas').then((module) => module.CinemaMapCanvas),
@@ -92,14 +93,14 @@ export default function CinemaMapPage() {
 
         if (!cancelled) {
           setRegionAreas(response);
-          setSelectedRegion(response[0]?.name ?? '');
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setRegionAreasError(
-            error instanceof Error
-              ? error.message
-              : '지역 목록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.',
+            getUserFacingErrorMessage(
+              error,
+              '지역 목록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.',
+            ),
           );
         }
       } finally {
@@ -135,9 +136,7 @@ export default function CinemaMapPage() {
       } catch (error: unknown) {
         if (!cancelled) {
           setAnalysisError(
-            error instanceof Error
-              ? error.message
-              : '영화관 분석을 불러오지 못했어요.',
+            getUserFacingErrorMessage(error, '영화관 분석을 불러오지 못했어요.'),
           );
         }
       } finally {
@@ -167,15 +166,26 @@ export default function CinemaMapPage() {
           CINEMA_PAGE_SIZE,
         );
         if (!cancelled) {
+          console.log('[CinemaMap][list]', {
+            region: selectedRegion || '전체 지역',
+            page: response.page,
+            totalPages: response.totalPages,
+            totalCount: response.totalCount,
+            items: response.items.map((cinema) => ({
+              id: cinema.id,
+              brand: cinema.brand,
+              name: cinema.name,
+              address: cinema.roadAddress ?? cinema.address,
+              position: [cinema.latitude, cinema.longitude],
+            })),
+          });
           setCinemas(response.items);
           setCinemaPage(response);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setSearchError(
-            error instanceof Error
-              ? error.message
-              : '영화관 검색에 실패했어요.',
+            getUserFacingErrorMessage(error, '영화관 목록을 불러오지 못했어요.'),
           );
         }
       } finally {
@@ -206,9 +216,7 @@ export default function CinemaMapPage() {
         if (!cancelled) {
           setSearchedCinemas([]);
           setSearchError(
-            error instanceof Error
-              ? error.message
-              : '영화관 검색에 실패했어요.',
+            getUserFacingErrorMessage(error, '영화관 검색에 실패했어요.'),
           );
         }
       } finally {
@@ -264,15 +272,51 @@ export default function CinemaMapPage() {
         ] as [number, number])
       : undefined;
 
+  const cinemasFallbackCenter = useMemo<[number, number] | undefined>(() => {
+    const positions = cinemas
+      .map((cinema) => [cinema.latitude, cinema.longitude] as const)
+      .filter(
+        ([latitude, longitude]) =>
+          Number.isFinite(latitude) && Number.isFinite(longitude),
+      );
+
+    if (positions.length === 0) {
+      return undefined;
+    }
+
+    const totals = positions.reduce(
+      (sum, [latitude, longitude]) => ({
+        latitude: sum.latitude + latitude,
+        longitude: sum.longitude + longitude,
+      }),
+      { latitude: 0, longitude: 0 },
+    );
+
+    return [
+      totals.latitude / positions.length,
+      totals.longitude / positions.length,
+    ];
+  }, [cinemas]);
+
   const isAllRegions = selectedRegion === '';
 
-  const selectedCenter: [number, number] =
-    isAllRegions || isGlobalSearch
-      ? [36.5, 127.8]
-      : (regionCenter ?? [37.5665, 126.978]);
+  const hasJejuCinema = cinemas.some((cinema) =>
+    `${cinema.roadAddress ?? ''} ${cinema.address ?? ''}`.includes('제주'),
+  );
 
-  const selectedZoom =
-    isAllRegions || isGlobalSearch ? 7 : (selectedRegionData?.zoom ?? 11);
+  const isJejuAllRegion = isAllRegions && hasJejuCinema;
+
+  const selectedCenter: [number, number] = isJejuAllRegion
+    ? [35.746512, 127.792969]
+    : isAllRegions || isGlobalSearch
+      ? [36.5, 127.8]
+      : (regionCenter ?? cinemasFallbackCenter ?? [36.5, 127.8]);
+
+  const selectedZoom = isJejuAllRegion
+    ? 5
+    : isAllRegions || isGlobalSearch
+      ? 6
+      : (selectedRegionData?.zoom ?? 8);
 
   const cinemasForDisplay = cinemaSearchQuery.trim()
     ? searchedCinemas
@@ -290,6 +334,19 @@ export default function CinemaMapPage() {
     [cinemasForDisplay],
   );
 
+  const mapItemsSignature = visibleCinemas
+    .map(
+      (cinema) =>
+        `${cinema.id}:${cinema.position[0].toFixed(6)},${cinema.position[1].toFixed(6)}`,
+    )
+    .join('|');
+
+  const fitMapToItems = !isAllRegions || isGlobalSearch;
+
+  const mapFitKey = isGlobalSearch
+    ? `search:${mapItemsSignature}`
+    : `region:${selectedRegion}:page:${cinemaPageNumber}:items:${mapItemsSignature}`;
+
   const cinemaCount = isGlobalSearch
     ? visibleCinemas.length
     : (cinemaPage?.totalCount ?? 0);
@@ -299,6 +356,11 @@ export default function CinemaMapPage() {
       <CinemoPageHeader
         className="cinema-map-header"
         eyebrow="CINEMO CINEMA MAP"
+        leading={
+          <span className="cinema-map-leading" aria-hidden="true">
+            <MapPinned size={22} strokeWidth={1.7} />
+          </span>
+        }
         title="지역별 영화관 탐색"
         description="지역을 선택해 주변 영화관을 확인해보세요."
       />
@@ -326,18 +388,19 @@ export default function CinemaMapPage() {
                 cinemas={visibleCinemas}
                 focusCinemaId={focusedCinemaId}
                 isLoading={isCinemasLoading || isSearchLoading}
+                mapFitKey={mapFitKey}
+                mapResetKey={cinemaPageNumber}
+                fitToItems={fitMapToItems}
               />
             </div>
 
             <aside className="cinema-map-panel">
               {regionAreasError ? (
-                <ConfirmModal
+                <ErrorModal
                   open={Boolean(regionAreasError)}
+                  eyebrow="FAIL"
                   title="지역 목록 조회 실패"
                   description={regionAreasError}
-                  confirmLabel="확인"
-                  cancelLabel=""
-                  onConfirm={() => setRegionAreasError(null)}
                   onClose={() => setRegionAreasError(null)}
                 />
               ) : null}
@@ -352,11 +415,10 @@ export default function CinemaMapPage() {
                     value={selectedRegion}
                     options={regionOptions}
                     ariaLabel="지역 선택"
+                    menuClassName="cinema-map-select-menu"
                     onChange={(value) => {
                       setFocusedCinemaId(null);
                       setIsCinemasLoading(true);
-                      setCinemas([]);
-                      setCinemaPage(null);
                       setCinemaPageNumber(1);
                       setCinemaSearchQuery('');
                       setSelectedRegion(value);
@@ -368,17 +430,33 @@ export default function CinemaMapPage() {
                   >
                     영화관 검색
                   </label>
-                  <input
-                    className="cinema-map-search"
-                    type="search"
-                    value={cinemaSearchQuery}
-                    onChange={(event) => {
-                      setFocusedCinemaId(null);
-                      setCinemaSearchQuery(event.target.value);
-                    }}
-                    placeholder="영화관 이름, 주소, 브랜드 검색"
-                    aria-label="영화관 검색"
-                  />
+                  <div className="cinema-map-search-wrap">
+                    <input
+                      className="cinema-map-search"
+                      id="cinema-search"
+                      type="search"
+                      value={cinemaSearchQuery}
+                      onChange={(event) => {
+                        setFocusedCinemaId(null);
+                        setCinemaSearchQuery(event.target.value);
+                      }}
+                      placeholder="영화관 이름, 주소, 브랜드 검색"
+                      aria-label="영화관 검색"
+                    />
+                    {cinemaSearchQuery ? (
+                      <button
+                        type="button"
+                        className="cinemo-icon-action cinema-map-search-clear"
+                        onClick={() => {
+                          setFocusedCinemaId(null);
+                          setCinemaSearchQuery('');
+                        }}
+                        aria-label="영화관 검색어 지우기"
+                      >
+                        <X size={16} strokeWidth={1.8} aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
                   <div className="cinema-map-heading">
                     <h2>
                       {isGlobalSearch
@@ -386,29 +464,20 @@ export default function CinemaMapPage() {
                         : selectedRegionTitle}
                     </h2>
 
-                    {isCinemasLoading || isSearchLoading ? (
-                      <span
-                        className="cinema-map-count cinema-map-count--placeholder"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <span
-                        className="cinema-map-count"
-                        aria-label={`${cinemaCount}개 영화관`}
-                      >
-                        {isGlobalSearch ? '검색 결과' : '영화관'} {cinemaCount}
-                        개
-                      </span>
-                    )}
+                    <span
+                      className="cinema-map-count"
+                      aria-label={`${cinemaCount}개 영화관`}
+                      aria-busy={isCinemasLoading || isSearchLoading}
+                    >
+                      {isGlobalSearch ? '검색 결과' : '영화관'} {cinemaCount}개
+                    </span>
                   </div>
                   {searchError ? (
-                    <ConfirmModal
+                    <ErrorModal
                       open={Boolean(searchError)}
+                      eyebrow="FAIL"
                       title="영화관 검색 실패"
                       description={searchError}
-                      confirmLabel="확인"
-                      cancelLabel=""
-                      onConfirm={() => setSearchError(null)}
                       onClose={() => setSearchError(null)}
                     />
                   ) : (isCinemasLoading || isSearchLoading) &&
@@ -421,7 +490,11 @@ export default function CinemaMapPage() {
                       영화관을 불러오는 중...
                     </p>
                   ) : visibleCinemas.length > 0 ? (
-                    <ul className="cinema-map-list">
+                    <ul
+                      className={`cinema-map-list${
+                        isGlobalSearch ? ' cinema-map-list--global-search' : ''
+                      }`}
+                    >
                       {visibleCinemas.map((cinema) => (
                         <li key={cinema.id} className="cinema-map-list-item">
                           <span className="cinema-map-brand">
@@ -547,9 +620,13 @@ export default function CinemaMapPage() {
                 분석 데이터를 불러오는 중...
               </p>
             ) : analysisError ? (
-              <p className="cinema-analysis-status" role="alert">
-                {analysisError}
-              </p>
+              <ErrorModal
+                open={Boolean(analysisError)}
+                eyebrow="FAIL"
+                title="영화관 분석 조회 실패"
+                description={analysisError}
+                onClose={() => setAnalysisError(null)}
+              />
             ) : analysis ? (
               <CinemaAnalysisCharts analysis={analysis} />
             ) : null}

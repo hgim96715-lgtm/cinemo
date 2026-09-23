@@ -18,7 +18,6 @@ export function UserMovieShelfLoginModal({ open, onClose }: Props) {
       title="로그인이 필요해요"
       description="MY CINEMA는 로그인 후 이용할 수 있어요."
       confirmLabel="로그인"
-      cancelLabel="닫기"
       onConfirm={() => {
         onClose();
         router.replace('/login?next=/my-cinema');

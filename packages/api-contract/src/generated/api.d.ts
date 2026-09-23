@@ -11,6 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** API 서버 기본 응답 확인 */
         get: operations["AppController_getHello_v1"];
         put?: never;
         post?: never;
@@ -29,6 +30,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 영화 명대사 추천 */
         post: operations["AiController_recommendMovieQuotes_v1"];
         delete?: never;
         options?: never;
@@ -43,6 +45,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 이메일 중복 확인 */
         get: operations["AuthController_checkEmail_v1"];
         put?: never;
         post?: never;
@@ -59,6 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 닉네임 중복 확인 */
         get: operations["AuthController_checkNickname_v1"];
         put?: never;
         post?: never;
@@ -77,6 +81,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 회원가입 */
         post: operations["AuthController_register_v1"];
         delete?: never;
         options?: never;
@@ -93,6 +98,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 로그인 */
         post: operations["AuthController_login_v1"];
         delete?: never;
         options?: never;
@@ -107,6 +113,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Google 로그인 시작 */
         get: operations["AuthController_googleLogin_v1"];
         put?: never;
         post?: never;
@@ -123,6 +130,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Google 로그인 콜백 */
         get: operations["AuthController_googleCallback_v1"];
         put?: never;
         post?: never;
@@ -141,6 +149,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Google OAuth 코드 교환 */
         post: operations["AuthController_exchangeGoogleCode_v1"];
         delete?: never;
         options?: never;
@@ -155,6 +164,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Kakao 로그인 시작 */
         get: operations["AuthController_kakaoLogin_v1"];
         put?: never;
         post?: never;
@@ -171,6 +181,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Kakao 로그인 콜백 */
         get: operations["AuthController_kakaoCallback_v1"];
         put?: never;
         post?: never;
@@ -187,6 +198,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Naver 로그인 시작 */
         get: operations["AuthController_naverLogin_v1"];
         put?: never;
         post?: never;
@@ -203,6 +215,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Naver 로그인 콜백 */
         get: operations["AuthController_naverCallback_v1"];
         put?: never;
         post?: never;
@@ -221,6 +234,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 비밀번호 재설정 요청 */
         post: operations["AuthController_requestPasswordReset_v1"];
         delete?: never;
         options?: never;
@@ -237,6 +251,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 비밀번호 재설정 확정 */
         post: operations["AuthController_resetPassword_v1"];
         delete?: never;
         options?: never;
@@ -251,6 +266,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 내 사용자 정보 조회 */
         get: operations["AuthController_getMe_v1"];
         put?: never;
         post?: never;
@@ -273,6 +289,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** 내 프로필 수정 */
         patch: operations["AuthController_updateProfile_v1"];
         trace?: never;
     };
@@ -363,6 +380,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 서버 상태 확인 */
         get: operations["HealthController_healthCheck_v1"];
         put?: never;
         post?: never;
@@ -379,6 +397,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화 상세 조회 */
         get: operations["TmdbController_getMovie_v1"];
         put?: never;
         post?: never;
@@ -395,6 +414,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** TMDB 영화 원본 응답 조회 */
         get: operations["TmdbController_getRawMovieResponse_v1"];
         put?: never;
         post?: never;
@@ -411,6 +431,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화 장르 목록 조회 */
         get: operations["TmdbController_getMovieGenres_v1"];
         put?: never;
         post?: never;
@@ -427,6 +448,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화 탐색 목록 조회 */
         get: operations["TmdbController_discover_v1"];
         put?: never;
         post?: never;
@@ -443,6 +465,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화 검색 */
         get: operations["TmdbController_search_v1"];
         put?: never;
         post?: never;
@@ -711,7 +734,7 @@ export interface paths {
         put?: never;
         /**
          * 개봉일 알림 발송 실행
-         * @description GitHub Actions가 호출해 발송 대상 개봉일 알림을 처리함
+         * @description GitHub Actions 호출을 통한 발송 대상 개봉일 알림 처리
          */
         post: operations["ReleaseNotificationController_runForTest_v1"];
         delete?: never;
@@ -727,6 +750,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 로비 보드 조회 */
         get: operations["LobbyBoardController_getBoard_v1"];
         put?: never;
         post?: never;
@@ -743,6 +767,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 현재 영화 차트 조회 */
         get: operations["LobbyBoardController_getMovieChart_v1"];
         put?: never;
         post?: never;
@@ -759,6 +784,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화 차트 이력 조회 */
         get: operations["LobbyBoardController_getMovieChartHistory_v1"];
         put?: never;
         post?: never;
@@ -775,6 +801,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화 차트 통계 조회 */
         get: operations["LobbyBoardController_getMovieChartStats_v1"];
         put?: never;
         post?: never;
@@ -791,6 +818,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 개봉 예정 영화 조회 */
         get: operations["LobbyBoardController_getUpcomingMovies_v1"];
         put?: never;
         post?: never;
@@ -809,6 +837,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 로비 방문 기록 */
         post: operations["LobbyBoardController_recordVisit_v1"];
         delete?: never;
         options?: never;
@@ -827,7 +856,7 @@ export interface paths {
         put?: never;
         /**
          * 영화 차트 과거 데이터 백필
-         * @description 지정한 기간의 KOBIS 데이터를 백그라운드에서 수집합니다.
+         * @description 지정 기간 KOBIS 데이터의 백그라운드 수집
          */
         post: operations["LobbyBoardController_backfillMovieChart_v1"];
         delete?: never;
@@ -894,6 +923,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 공개 프로필 조회 */
         get: operations["ProfilesController_getProfile_v1"];
         put?: never;
         post?: never;
@@ -910,6 +940,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화관·관람 장소 검색 */
         get: operations["PlacesController_search_v1"];
         put?: never;
         post?: never;
@@ -1170,7 +1201,7 @@ export interface paths {
         };
         /**
          * 지역별 영화관 검색
-         * @description 카카오 Local API를 사용해 입력한 지역의 영화관을 검색함
+         * @description 카카오 Local API를 사용한 입력 지역의 영화관 검색
          */
         get: operations["KakaoPlaceController_searchCinemas_v1"];
         put?: never;
@@ -1192,7 +1223,7 @@ export interface paths {
         put?: never;
         /**
          * 지역별 영화관 검색 결과 저장
-         * @description 카카오 장소 검색 결과를 Cinema 테이블에 저장하거나 갱신함
+         * @description 카카오 장소 검색 결과의 Cinema 테이블 저장·갱신
          */
         post: operations["KakaoPlaceController_syncCinemas_v1"];
         delete?: never;
@@ -1210,7 +1241,7 @@ export interface paths {
         };
         /**
          * 영화관 조회
-         * @description region이 있으면 해당 지역의 영화관을 조회하고, 없으면 전체 영화관을 조회함
+         * @description region 기준 해당 지역 영화관 또는 전체 영화관 조회
          */
         get: operations["CinemaController_findCinemas_v1"];
         put?: never;
@@ -1230,7 +1261,7 @@ export interface paths {
         };
         /**
          * 전국 영화관 검색
-         * @description 이름·브랜드·주소 기준으로 DB의 영화관을 검색함
+         * @description 이름·브랜드·주소 기준 DB 영화관 검색
          */
         get: operations["CinemaController_searchCinemas_v1"];
         put?: never;
@@ -1248,6 +1279,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 영화관 데이터 분석 조회 */
         get: operations["CinemaController_findCinemaAnalysis_v1"];
         put?: never;
         post?: never;
@@ -1261,7 +1293,35 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        RecommendMovieQuotesDto: Record<string, never>;
+        RecommendMovieQuotesDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /** @example 파이트 클럽 */
+            title: string;
+            /** @example Fight Club */
+            originalTitle?: string | null;
+            /** @example en */
+            originalLanguage?: string | null;
+            /** @example 1999 */
+            releaseYear?: number | null;
+            overview?: string | null;
+        };
+        MovieQuoteSuggestionResponseDto: {
+            /** @example May the Force be with you. */
+            originalText: string;
+            /** @example 포스가 함께하기를. */
+            koreanText: string;
+            /** @example en */
+            originalLanguage: string;
+            /** @example true */
+            isPopular: boolean;
+            /** @example Star Wars */
+            source: string | null;
+        };
+        AvailabilityResponseDto: {
+            /** @example true */
+            available: boolean;
+        };
         RegisterDto: {
             /**
              * @description 이메일
@@ -1278,6 +1338,44 @@ export interface components {
              * @example test
              */
             nickname: string;
+        };
+        AuthUserResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example user@example.com */
+            email: string;
+            /** @example cinemo-user */
+            nickname: string;
+            /**
+             * @example user
+             * @enum {string}
+             */
+            role: "user" | "admin";
+            /**
+             * @example email
+             * @enum {string|null}
+             */
+            lastLoginProvider?: "email" | "google" | "naver" | "kakao" | "apple" | null;
+            /** @example false */
+            isTestAccount: boolean;
+            /** @example 영화를 좋아합니다. */
+            bio: string | null;
+            /** @example true */
+            profilePublic: boolean;
+            /**
+             * @example [
+             *       "SF",
+             *       "드라마"
+             *     ]
+             */
+            tags: string[];
+        };
+        AuthResponseDto: {
+            /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... */
+            accessToken: string;
+            user: components["schemas"]["AuthUserResponseDto"];
+            /** @example 로그인 성공 */
+            message: string;
         };
         LoginDto: {
             /**
@@ -1302,8 +1400,38 @@ export interface components {
              */
             email: string;
         };
-        ResetPasswordDto: Record<string, never>;
-        UpdateProfileDto: Record<string, never>;
+        MessageResponseDto: {
+            /** @example 처리가 완료되었습니다. */
+            message: string;
+        };
+        ResetPasswordDto: {
+            /** @description 비밀번호 재설정 토큰 */
+            token: string;
+            /**
+             * @description 새 비밀번호
+             * @example newPassword123
+             */
+            newPassword: string;
+        };
+        UpdateProfileDto: {
+            /** @example cinemo-user */
+            nickname?: string;
+            /** @example 영화를 좋아합니다. */
+            bio?: string | null;
+            /** @example true */
+            profilePublic?: boolean;
+            /**
+             * @example [
+             *       "SF",
+             *       "드라마"
+             *     ]
+             */
+            tags?: string[];
+        };
+        HealthResponseDto: {
+            /** @example true */
+            ok: boolean;
+        };
         MovieDetailDto: {
             /** @example 550 */
             id: number;
@@ -1442,6 +1570,26 @@ export interface components {
             tmdbId: number;
             /** @example 2026-09-02 */
             watchedAt: string;
+        };
+        UserMovieRecordResponseDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /**
+             * @example watched
+             * @enum {string}
+             */
+            kind: "wish" | "watched";
+            /** Format: date-time */
+            watchedAt: string | null;
+            /** @enum {string|null} */
+            viewingType?: "theater" | "home" | "other" | null;
+            viewingTypeCustom?: string | null;
+            viewingPlatform?: string | null;
+            viewingPlace?: string | null;
+            /** Format: uuid */
+            cinemaId?: string | null;
+            review?: string | null;
+            rating?: number | null;
         };
         UpdateWatchedAtDto: {
             /** @example 550 */
@@ -1612,6 +1760,16 @@ export interface components {
         UserMovieDisplayedResponseDto: {
             items: components["schemas"]["DisplayedUserMovieDto"][];
         };
+        ReleaseNotificationResponseDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /** @example true */
+            enabled: boolean;
+            /** Format: date */
+            releaseDate: string | null;
+            /** Format: date-time */
+            sentAt: string | null;
+        };
         UpdateReleaseNotificationDto: {
             /** @example 550 */
             tmdbId: number;
@@ -1639,6 +1797,39 @@ export interface components {
             /** @example 1 */
             failed: number;
             failures: components["schemas"]["ReleaseNotificationFailureDto"][];
+        };
+        BoardBoxOfficeMovieDto: {
+            /** @example 1 */
+            rank: number;
+            /** @example 오디세이 */
+            title: string;
+            /** @example 10333000 */
+            audienceCount: number;
+            /** @example 1 */
+            rankChange: number | null;
+            /** @example /poster-path.jpg */
+            posterPath: string | null;
+        };
+        BoardUpcomingInterestMovieDto: {
+            /** @example 1 */
+            rank: number;
+            /** @example 123456 */
+            tmdbId: number;
+            /** @example 오디세이 */
+            title: string;
+            /**
+             * Format: date
+             * @example 2026-09-25
+             */
+            releaseDate: string;
+            /** @example 12 */
+            interestCount: number;
+            /** @example /poster-path.jpg */
+            posterPath: string | null;
+        };
+        LobbyBoardResponseDto: {
+            boxOfficeMovies: components["schemas"]["BoardBoxOfficeMovieDto"][];
+            upcomingInterestMovies: components["schemas"]["BoardUpcomingInterestMovieDto"][];
         };
         MovieChartItemDto: {
             /** @example 20251234 */
@@ -1757,6 +1948,10 @@ export interface components {
             /** @example true */
             hasNext: boolean;
         };
+        LobbyVisitResponseDto: {
+            /** @example true */
+            ok: boolean;
+        };
         BackfillRangeDto: {
             /**
              * @description 백필 시작일
@@ -1772,6 +1967,124 @@ export interface components {
         BackfillResponseDto: {
             /** @example 백필 시작: 2026-09-01 ~ 2026-09-14 */
             message: string;
+        };
+        KobisNationDto: {
+            /** @example 한국 */
+            nationNm: string;
+        };
+        KobisGenreDto: {
+            /** @example 드라마 */
+            genreNm: string;
+        };
+        KobisDirectorDto: {
+            /** @example 봉준호 */
+            peopleNm: string;
+            /** @example Bong Joon-ho */
+            peopleNmEn?: string;
+        };
+        KobisActorDto: {
+            /** @example 송강호 */
+            peopleNm: string;
+            /** @example Song Kang-ho */
+            peopleNmEn?: string;
+            /** @example 기택 */
+            cast?: string;
+            /** @example Ki-taek */
+            castEn?: string;
+        };
+        KobisShowTypeDto: {
+            /** @example 상영형태 */
+            showTypeGroupNm: string;
+            /** @example 2D */
+            showTypeNm: string;
+        };
+        KobisAuditDto: {
+            /** @example 2020-MF00001 */
+            auditNo: string;
+            /** @example 15세이상관람가 */
+            watchGradeNm: string;
+        };
+        KobisStaffDto: {
+            /** @example 홍길동 */
+            peopleNm: string;
+            /** @example Hong Gil-dong */
+            peopleNmEn?: string;
+            /** @example 각본 */
+            staffRoleNm: string;
+        };
+        KobisMovieInfoDto: {
+            /** @example 20201234 */
+            movieCd: string;
+            /** @example 기생충 */
+            movieNm: string;
+            /** @example PARASITE */
+            movieNmEn?: string;
+            /** @example 기생충 */
+            movieNmOg?: string;
+            /** @example 132 */
+            showTm?: string;
+            /** @example 2019 */
+            prdtYear?: string;
+            /** @example 2019-05-30 */
+            openDt?: string;
+            /** @example 개봉 */
+            prdtStatNm?: string;
+            /** @example 장편 */
+            typeNm?: string;
+            nations: components["schemas"]["KobisNationDto"][];
+            genres: components["schemas"]["KobisGenreDto"][];
+            directors: components["schemas"]["KobisDirectorDto"][];
+            actors: components["schemas"]["KobisActorDto"][];
+            showTypes: components["schemas"]["KobisShowTypeDto"][];
+            audits: components["schemas"]["KobisAuditDto"][];
+            staffs: components["schemas"]["KobisStaffDto"][];
+        };
+        KobisMovieInfoResultDto: {
+            movieInfo: components["schemas"]["KobisMovieInfoDto"];
+        };
+        KobisMovieInfoResponseDto: {
+            movieInfoResult: components["schemas"]["KobisMovieInfoResultDto"];
+        };
+        KobisMovieListDirectorDto: {
+            /** @example 봉준호 */
+            peopleNm: string;
+            /** @example Bong Joon-ho */
+            peopleNmEn?: string;
+        };
+        KobisMovieListItemDto: {
+            /** @example 20201234 */
+            movieCd: string;
+            /** @example 기생충 */
+            movieNm: string;
+            /** @example PARASITE */
+            movieNmEn?: string;
+            /** @example 2019 */
+            prdtYear?: string;
+            /** @example 2019-05-30 */
+            openDt?: string;
+            /** @example 개봉 */
+            prdtStatNm?: string;
+            /** @example 장편 */
+            typeNm?: string;
+            /** @example 한국 */
+            nationAlt?: string;
+            /** @example 드라마 */
+            genreAlt?: string;
+            /** @example KOR */
+            repNationCd?: string;
+            /** @example 드라마 */
+            repGenreNm?: string;
+            directors: components["schemas"]["KobisMovieListDirectorDto"][];
+        };
+        KobisMovieListResultDto: {
+            /** @example 1 */
+            totCnt: string;
+            /** @example 영화진흥위원회 */
+            source: string;
+            movieList: components["schemas"]["KobisMovieListItemDto"][];
+        };
+        KobisMovieSearchResponseDto: {
+            movieListResult: components["schemas"]["KobisMovieListResultDto"];
         };
         PublicProfileResponseDto: {
             /**
@@ -1816,6 +2129,77 @@ export interface components {
             /** @example 37.5263 */
             latitude: number;
         };
+        PostcardReactionResponseDto: {
+            /** @example ❤️ */
+            emoji: string;
+            /** @example 3 */
+            count: number;
+            /** @example false */
+            reacted: boolean;
+        };
+        PostcardItemResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example 550 */
+            tmdbId: number;
+            /** @example cinemo_user */
+            nickname: string;
+            /** @example 파이트 클럽 */
+            movieTitle: string | null;
+            /** @example What we do repeatedly is what we are. */
+            originalText: string | null;
+            /** @example 우리가 반복해서 하는 일이 곧 우리다. */
+            text: string;
+            /** @example /poster-path.jpg */
+            posterPath: string | null;
+            /** @example true */
+            isPublic: boolean;
+            /** @example false */
+            isOwner: boolean;
+            /** @example false */
+            isBookmarked: boolean;
+            /** @example false */
+            isPinned: boolean;
+            reactionCounts: components["schemas"]["PostcardReactionResponseDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        PostcardSummaryResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example 550 */
+            tmdbId: number;
+            /** @example cinemo_user */
+            nickname: string;
+            /** @example 파이트 클럽 */
+            movieTitle: string | null;
+            /** @example What we do repeatedly is what we are. */
+            originalText: string | null;
+            /** @example 우리가 반복해서 하는 일이 곧 우리다. */
+            text: string;
+            /** @example /poster-path.jpg */
+            posterPath: string | null;
+            /** @example true */
+            isPublic: boolean;
+            /** @example false */
+            isPinned: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        PostcardTogglePinnedResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example true */
+            isPinned: boolean;
+        };
+        PostcardToggleBookmarkResponseDto: {
+            /** @example true */
+            bookmarked: boolean;
+        };
         TogglePostcardReactionDto: {
             /**
              * @description 엽서에 추가할 이모지
@@ -1858,6 +2242,34 @@ export interface components {
             /** @description 공개 엽서 여부 */
             isPublic?: boolean;
         };
+        PostcardCommentAuthorResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example cinemo_user */
+            nickname: string;
+        };
+        PostcardCommentResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            postcardId: string;
+            /** Format: uuid */
+            userId: string;
+            /** Format: uuid */
+            parentId: Record<string, never> | null;
+            /** @example 이 장면의 분위기가 정말 좋았어요. */
+            text: string;
+            user: components["schemas"]["PostcardCommentAuthorResponseDto"];
+            replies: components["schemas"]["PostcardCommentResponseDto"][];
+            /** @example 2 */
+            reactionCount: number;
+            /** @example false */
+            reacted: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         CreatePostcardCommentDto: {
             /** @example 이 장면의 분위기가 정말 좋았어요. */
             text: string;
@@ -1877,6 +2289,18 @@ export interface components {
              * @example 😊
              */
             emoji: string;
+        };
+        PostcardToggleReactionResponseDto: {
+            /** @example ❤️ */
+            emoji: string;
+            /** @example true */
+            reacted: boolean;
+        };
+        PostcardDeleteResponseDto: {
+            /** @example true */
+            deleted: boolean;
+            /** Format: uuid */
+            id: string;
         };
         LegalDongSyncResponseDto: {
             /**
@@ -2126,7 +2550,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": string;
+                };
             };
         };
     };
@@ -2143,11 +2569,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MovieQuoteSuggestionResponseDto"][];
+                };
             };
         };
     };
@@ -2166,7 +2594,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AvailabilityResponseDto"];
+                };
             };
         };
     };
@@ -2185,7 +2615,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AvailabilityResponseDto"];
+                };
             };
         };
     };
@@ -2202,11 +2634,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthResponseDto"];
+                };
             };
         };
     };
@@ -2223,11 +2657,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthResponseDto"];
+                };
             };
         };
     };
@@ -2278,11 +2714,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthResponseDto"];
+                };
             };
         };
     };
@@ -2367,11 +2805,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MessageResponseDto"];
+                };
             };
         };
     };
@@ -2388,11 +2828,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MessageResponseDto"];
+                };
             };
         };
     };
@@ -2409,7 +2851,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthUserResponseDto"];
+                };
             };
         };
     };
@@ -2430,7 +2874,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthUserResponseDto"];
+                };
             };
         };
     };
@@ -2556,7 +3002,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["HealthResponseDto"];
+                };
             };
         };
     };
@@ -2700,11 +3148,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieRecordResponseDto"];
+                };
             };
         };
     };
@@ -2725,7 +3175,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieRecordResponseDto"];
+                };
             };
         };
     };
@@ -2746,7 +3198,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserMovieRecordResponseDto"];
+                };
             };
         };
     };
@@ -2765,7 +3219,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ToggleUserMovieResponseDto"];
+                };
             };
         };
     };
@@ -2932,7 +3388,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ReleaseNotificationResponseDto"];
+                };
             };
         };
     };
@@ -2953,7 +3411,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ReleaseNotificationResponseDto"];
+                };
             };
         };
     };
@@ -2992,7 +3452,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LobbyBoardResponseDto"];
+                };
             };
         };
     };
@@ -3094,6 +3556,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LobbyVisitResponseDto"];
+                };
+            };
             /** @description 로그인이 필요합니다 */
             401: {
                 headers: {
@@ -3193,7 +3663,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["KobisMovieInfoResponseDto"];
+                };
             };
         };
     };
@@ -3213,7 +3685,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["KobisMovieSearchResponseDto"];
+                };
             };
         };
     };
@@ -3273,7 +3747,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardItemResponseDto"][];
+                };
             };
         };
     };
@@ -3294,7 +3770,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardSummaryResponseDto"];
+                };
             };
         };
     };
@@ -3311,7 +3789,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardSummaryResponseDto"][];
+                };
             };
         };
     };
@@ -3328,7 +3808,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardSummaryResponseDto"][];
+                };
             };
         };
     };
@@ -3347,7 +3829,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardTogglePinnedResponseDto"];
+                };
             };
         };
     };
@@ -3366,7 +3850,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardToggleBookmarkResponseDto"];
+                };
             };
         };
     };
@@ -3408,7 +3894,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardDeleteResponseDto"];
+                };
             };
         };
     };
@@ -3431,7 +3919,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardSummaryResponseDto"];
+                };
             };
         };
     };
@@ -3450,7 +3940,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardCommentResponseDto"][];
+                };
             };
         };
     };
@@ -3473,7 +3965,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardCommentResponseDto"];
+                };
             };
         };
     };
@@ -3492,7 +3986,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardDeleteResponseDto"];
+                };
             };
         };
     };
@@ -3515,7 +4011,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardCommentResponseDto"];
+                };
             };
         };
     };
@@ -3538,7 +4036,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PostcardToggleReactionResponseDto"];
+                };
             };
         };
     };

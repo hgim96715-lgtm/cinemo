@@ -7,11 +7,19 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
+        "summary": "API 서버 기본 응답 확인",
         "tags": [
-          "App"
+          "app"
         ]
       }
     },
@@ -30,8 +38,18 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieQuoteSuggestionResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -39,8 +57,9 @@
             "bearer": []
           }
         ],
+        "summary": "영화 명대사 추천",
         "tags": [
-          "Ai"
+          "ai"
         ]
       }
     },
@@ -59,9 +78,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "이메일 중복 확인",
         "tags": [
           "auth"
         ]
@@ -82,9 +109,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "닉네임 중복 확인",
         "tags": [
           "auth"
         ]
@@ -105,10 +140,18 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "회원가입",
         "tags": [
           "auth"
         ]
@@ -129,10 +172,18 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "로그인",
         "tags": [
           "auth"
         ]
@@ -147,6 +198,7 @@
             "description": ""
           }
         },
+        "summary": "Google 로그인 시작",
         "tags": [
           "auth"
         ]
@@ -161,6 +213,7 @@
             "description": ""
           }
         },
+        "summary": "Google 로그인 콜백",
         "tags": [
           "auth"
         ]
@@ -181,10 +234,18 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "Google OAuth 코드 교환",
         "tags": [
           "auth"
         ]
@@ -199,6 +260,7 @@
             "description": ""
           }
         },
+        "summary": "Kakao 로그인 시작",
         "tags": [
           "auth"
         ]
@@ -213,6 +275,7 @@
             "description": ""
           }
         },
+        "summary": "Kakao 로그인 콜백",
         "tags": [
           "auth"
         ]
@@ -227,6 +290,7 @@
             "description": ""
           }
         },
+        "summary": "Naver 로그인 시작",
         "tags": [
           "auth"
         ]
@@ -241,6 +305,7 @@
             "description": ""
           }
         },
+        "summary": "Naver 로그인 콜백",
         "tags": [
           "auth"
         ]
@@ -261,10 +326,18 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "비밀번호 재설정 요청",
         "tags": [
           "auth"
         ]
@@ -285,10 +358,18 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "비밀번호 재설정 확정",
         "tags": [
           "auth"
         ]
@@ -300,7 +381,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUserResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -308,6 +396,7 @@
             "bearer": []
           }
         ],
+        "summary": "내 사용자 정보 조회",
         "tags": [
           "auth"
         ]
@@ -329,7 +418,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUserResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -337,6 +433,7 @@
             "bearer": []
           }
         ],
+        "summary": "내 프로필 수정",
         "tags": [
           "auth"
         ]
@@ -485,11 +582,19 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "서버 상태 확인",
         "tags": [
-          "Health"
+          "health"
         ]
       }
     },
@@ -523,6 +628,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화 상세 조회",
         "tags": [
           "tmdb"
         ]
@@ -551,6 +657,7 @@
             "bearer": []
           }
         ],
+        "summary": "TMDB 영화 원본 응답 조회",
         "tags": [
           "tmdb"
         ]
@@ -587,6 +694,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화 장르 목록 조회",
         "tags": [
           "tmdb"
         ]
@@ -623,6 +731,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화 탐색 목록 조회",
         "tags": [
           "tmdb"
         ]
@@ -668,6 +777,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화 검색",
         "tags": [
           "tmdb"
         ]
@@ -727,8 +837,15 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieRecordResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -757,7 +874,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieRecordResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -788,7 +912,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieRecordResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -818,7 +949,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleUserMovieResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1120,7 +1258,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseNotificationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1149,7 +1294,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleaseNotificationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1165,7 +1317,7 @@
     },
     "/v1/release-notifications/cron": {
       "post": {
-        "description": "GitHub Actions가 호출해 발송 대상 개봉일 알림을 처리함",
+        "description": "GitHub Actions 호출을 통한 발송 대상 개봉일 알림 처리",
         "operationId": "ReleaseNotificationController_runForTest_v1",
         "parameters": [
           {
@@ -1202,9 +1354,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LobbyBoardResponseDto"
+                }
+              }
+            }
           }
         },
+        "summary": "로비 보드 조회",
         "tags": [
           "lobby"
         ]
@@ -1226,6 +1386,7 @@
             }
           }
         },
+        "summary": "현재 영화 차트 조회",
         "tags": [
           "lobby"
         ]
@@ -1271,6 +1432,7 @@
             }
           }
         },
+        "summary": "영화 차트 이력 조회",
         "tags": [
           "lobby"
         ]
@@ -1313,6 +1475,7 @@
             }
           }
         },
+        "summary": "영화 차트 통계 조회",
         "tags": [
           "lobby"
         ]
@@ -1351,6 +1514,7 @@
             }
           }
         },
+        "summary": "개봉 예정 영화 조회",
         "tags": [
           "lobby"
         ]
@@ -1361,6 +1525,16 @@
         "operationId": "LobbyBoardController_recordVisit_v1",
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LobbyVisitResponseDto"
+                }
+              }
+            }
+          },
           "401": {
             "description": "로그인이 필요합니다"
           },
@@ -1373,6 +1547,7 @@
             "bearer": []
           }
         ],
+        "summary": "로비 방문 기록",
         "tags": [
           "lobby"
         ]
@@ -1380,7 +1555,7 @@
     },
     "/v1/lobby/movie-chart/backfill": {
       "post": {
-        "description": "지정한 기간의 KOBIS 데이터를 백그라운드에서 수집합니다.",
+        "description": "지정 기간 KOBIS 데이터의 백그라운드 수집",
         "operationId": "LobbyBoardController_backfillMovieChart_v1",
         "parameters": [],
         "requestBody": {
@@ -1475,7 +1650,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KobisMovieInfoResponseDto"
+                }
+              }
+            }
           }
         },
         "summary": "KOBIS 영화 상세 원본 JSON 조회",
@@ -1501,7 +1683,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KobisMovieSearchResponseDto"
+                }
+              }
+            }
           }
         },
         "summary": "KOBIS 영화 이름 검색 원본 JSON 조회",
@@ -1535,6 +1724,7 @@
             }
           }
         },
+        "summary": "공개 프로필 조회",
         "tags": [
           "profiles"
         ]
@@ -1574,6 +1764,7 @@
             "bearer": []
           }
         ],
+        "summary": "영화관·관람 장소 검색",
         "tags": [
           "places"
         ]
@@ -1585,7 +1776,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostcardItemResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1613,7 +1814,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardSummaryResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1633,7 +1841,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostcardSummaryResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1653,7 +1871,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostcardSummaryResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1682,7 +1910,14 @@
         ],
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardTogglePinnedResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1711,7 +1946,14 @@
         ],
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardToggleBookmarkResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1789,7 +2031,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardSummaryResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1816,7 +2065,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardDeleteResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1845,7 +2101,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostcardCommentResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1882,7 +2148,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardCommentResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1921,7 +2194,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardCommentResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1948,7 +2228,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardDeleteResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1987,7 +2274,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostcardToggleReactionResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2134,7 +2428,7 @@
     },
     "/v1/kakao/places/cinemas": {
       "get": {
-        "description": "카카오 Local API를 사용해 입력한 지역의 영화관을 검색함",
+        "description": "카카오 Local API를 사용한 입력 지역의 영화관 검색",
         "operationId": "KakaoPlaceController_searchCinemas_v1",
         "parameters": [
           {
@@ -2171,7 +2465,7 @@
     },
     "/v1/kakao/places/cinemas/sync": {
       "post": {
-        "description": "카카오 장소 검색 결과를 Cinema 테이블에 저장하거나 갱신함",
+        "description": "카카오 장소 검색 결과의 Cinema 테이블 저장·갱신",
         "operationId": "KakaoPlaceController_syncCinemas_v1",
         "parameters": [
           {
@@ -2210,7 +2504,7 @@
     },
     "/v1/cinemas": {
       "get": {
-        "description": "region이 있으면 해당 지역의 영화관을 조회하고, 없으면 전체 영화관을 조회함",
+        "description": "region 기준 해당 지역 영화관 또는 전체 영화관 조회",
         "operationId": "CinemaController_findCinemas_v1",
         "parameters": [
           {
@@ -2274,7 +2568,7 @@
     },
     "/v1/cinemas/search": {
       "get": {
-        "description": "이름·브랜드·주소 기준으로 DB의 영화관을 검색함",
+        "description": "이름·브랜드·주소 기준 DB 영화관 검색",
         "operationId": "CinemaController_searchCinemas_v1",
         "parameters": [
           {
@@ -2325,6 +2619,7 @@
             }
           }
         },
+        "summary": "영화관 데이터 분석 조회",
         "tags": [
           "cinemas"
         ]
@@ -2350,7 +2645,84 @@
     "schemas": {
       "RecommendMovieQuotesDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "title": {
+            "type": "string",
+            "example": "파이트 클럽"
+          },
+          "originalTitle": {
+            "type": "string",
+            "nullable": true,
+            "example": "Fight Club"
+          },
+          "originalLanguage": {
+            "type": "string",
+            "nullable": true,
+            "example": "en"
+          },
+          "releaseYear": {
+            "type": "number",
+            "nullable": true,
+            "example": 1999
+          },
+          "overview": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "tmdbId",
+          "title"
+        ]
+      },
+      "MovieQuoteSuggestionResponseDto": {
+        "type": "object",
+        "properties": {
+          "originalText": {
+            "type": "string",
+            "example": "May the Force be with you."
+          },
+          "koreanText": {
+            "type": "string",
+            "example": "포스가 함께하기를."
+          },
+          "originalLanguage": {
+            "type": "string",
+            "example": "en"
+          },
+          "isPopular": {
+            "type": "boolean",
+            "example": true
+          },
+          "source": {
+            "type": "string",
+            "nullable": true,
+            "example": "Star Wars"
+          }
+        },
+        "required": [
+          "originalText",
+          "koreanText",
+          "originalLanguage",
+          "isPopular",
+          "source"
+        ]
+      },
+      "AvailabilityResponseDto": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "available"
+        ]
       },
       "RegisterDto": {
         "type": "object",
@@ -2375,6 +2747,97 @@
           "email",
           "password",
           "nickname"
+        ]
+      },
+      "AuthUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "cinemo-user"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ],
+            "example": "user"
+          },
+          "lastLoginProvider": {
+            "type": "string",
+            "enum": [
+              "email",
+              "google",
+              "naver",
+              "kakao",
+              "apple"
+            ],
+            "nullable": true,
+            "example": "email"
+          },
+          "isTestAccount": {
+            "type": "boolean",
+            "example": false
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true,
+            "example": "영화를 좋아합니다."
+          },
+          "profilePublic": {
+            "type": "boolean",
+            "example": true
+          },
+          "tags": {
+            "example": [
+              "SF",
+              "드라마"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "nickname",
+          "role",
+          "isTestAccount",
+          "bio",
+          "profilePublic",
+          "tags"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthUserResponseDto"
+          },
+          "message": {
+            "type": "string",
+            "example": "로그인 성공"
+          }
+        },
+        "required": [
+          "accessToken",
+          "user",
+          "message"
         ]
       },
       "LoginDto": {
@@ -2421,13 +2884,75 @@
           "email"
         ]
       },
+      "MessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "처리가 완료되었습니다."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
       "ResetPasswordDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "비밀번호 재설정 토큰"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "새 비밀번호",
+            "example": "newPassword123"
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
       },
       "UpdateProfileDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "example": "cinemo-user"
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true,
+            "example": "영화를 좋아합니다."
+          },
+          "profilePublic": {
+            "type": "boolean",
+            "example": true
+          },
+          "tags": {
+            "example": [
+              "SF",
+              "드라마"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "ok"
+        ]
       },
       "MovieDetailDto": {
         "type": "object",
@@ -2774,6 +3299,69 @@
         },
         "required": [
           "tmdbId",
+          "watchedAt"
+        ]
+      },
+      "UserMovieRecordResponseDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "wish",
+              "watched"
+            ],
+            "example": "watched"
+          },
+          "watchedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "viewingType": {
+            "type": "string",
+            "enum": [
+              "theater",
+              "home",
+              "other"
+            ],
+            "nullable": true
+          },
+          "viewingTypeCustom": {
+            "type": "string",
+            "nullable": true
+          },
+          "viewingPlatform": {
+            "type": "string",
+            "nullable": true
+          },
+          "viewingPlace": {
+            "type": "string",
+            "nullable": true
+          },
+          "cinemaId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "tmdbId",
+          "kind",
           "watchedAt"
         ]
       },
@@ -3232,6 +3820,35 @@
           "items"
         ]
       },
+      "ReleaseNotificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "releaseDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "tmdbId",
+          "enabled",
+          "releaseDate",
+          "sentAt"
+        ]
+      },
       "UpdateReleaseNotificationDto": {
         "type": "object",
         "properties": {
@@ -3304,6 +3921,100 @@
           "sent",
           "failed",
           "failures"
+        ]
+      },
+      "BoardBoxOfficeMovieDto": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "number",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "오디세이"
+          },
+          "audienceCount": {
+            "type": "number",
+            "example": 10333000
+          },
+          "rankChange": {
+            "type": "number",
+            "nullable": true,
+            "example": 1
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster-path.jpg"
+          }
+        },
+        "required": [
+          "rank",
+          "title",
+          "audienceCount",
+          "rankChange",
+          "posterPath"
+        ]
+      },
+      "BoardUpcomingInterestMovieDto": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "number",
+            "example": 1
+          },
+          "tmdbId": {
+            "type": "number",
+            "example": 123456
+          },
+          "title": {
+            "type": "string",
+            "example": "오디세이"
+          },
+          "releaseDate": {
+            "type": "string",
+            "example": "2026-09-25",
+            "format": "date"
+          },
+          "interestCount": {
+            "type": "number",
+            "example": 12
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster-path.jpg"
+          }
+        },
+        "required": [
+          "rank",
+          "tmdbId",
+          "title",
+          "releaseDate",
+          "interestCount",
+          "posterPath"
+        ]
+      },
+      "LobbyBoardResponseDto": {
+        "type": "object",
+        "properties": {
+          "boxOfficeMovies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardBoxOfficeMovieDto"
+            }
+          },
+          "upcomingInterestMovies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardUpcomingInterestMovieDto"
+            }
+          }
+        },
+        "required": [
+          "boxOfficeMovies",
+          "upcomingInterestMovies"
         ]
       },
       "MovieChartItemDto": {
@@ -3597,6 +4308,18 @@
           "hasNext"
         ]
       },
+      "LobbyVisitResponseDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
       "BackfillRangeDto": {
         "type": "object",
         "properties": {
@@ -3626,6 +4349,352 @@
         },
         "required": [
           "message"
+        ]
+      },
+      "KobisNationDto": {
+        "type": "object",
+        "properties": {
+          "nationNm": {
+            "type": "string",
+            "example": "한국"
+          }
+        },
+        "required": [
+          "nationNm"
+        ]
+      },
+      "KobisGenreDto": {
+        "type": "object",
+        "properties": {
+          "genreNm": {
+            "type": "string",
+            "example": "드라마"
+          }
+        },
+        "required": [
+          "genreNm"
+        ]
+      },
+      "KobisDirectorDto": {
+        "type": "object",
+        "properties": {
+          "peopleNm": {
+            "type": "string",
+            "example": "봉준호"
+          },
+          "peopleNmEn": {
+            "type": "string",
+            "example": "Bong Joon-ho"
+          }
+        },
+        "required": [
+          "peopleNm"
+        ]
+      },
+      "KobisActorDto": {
+        "type": "object",
+        "properties": {
+          "peopleNm": {
+            "type": "string",
+            "example": "송강호"
+          },
+          "peopleNmEn": {
+            "type": "string",
+            "example": "Song Kang-ho"
+          },
+          "cast": {
+            "type": "string",
+            "example": "기택"
+          },
+          "castEn": {
+            "type": "string",
+            "example": "Ki-taek"
+          }
+        },
+        "required": [
+          "peopleNm"
+        ]
+      },
+      "KobisShowTypeDto": {
+        "type": "object",
+        "properties": {
+          "showTypeGroupNm": {
+            "type": "string",
+            "example": "상영형태"
+          },
+          "showTypeNm": {
+            "type": "string",
+            "example": "2D"
+          }
+        },
+        "required": [
+          "showTypeGroupNm",
+          "showTypeNm"
+        ]
+      },
+      "KobisAuditDto": {
+        "type": "object",
+        "properties": {
+          "auditNo": {
+            "type": "string",
+            "example": "2020-MF00001"
+          },
+          "watchGradeNm": {
+            "type": "string",
+            "example": "15세이상관람가"
+          }
+        },
+        "required": [
+          "auditNo",
+          "watchGradeNm"
+        ]
+      },
+      "KobisStaffDto": {
+        "type": "object",
+        "properties": {
+          "peopleNm": {
+            "type": "string",
+            "example": "홍길동"
+          },
+          "peopleNmEn": {
+            "type": "string",
+            "example": "Hong Gil-dong"
+          },
+          "staffRoleNm": {
+            "type": "string",
+            "example": "각본"
+          }
+        },
+        "required": [
+          "peopleNm",
+          "staffRoleNm"
+        ]
+      },
+      "KobisMovieInfoDto": {
+        "type": "object",
+        "properties": {
+          "movieCd": {
+            "type": "string",
+            "example": "20201234"
+          },
+          "movieNm": {
+            "type": "string",
+            "example": "기생충"
+          },
+          "movieNmEn": {
+            "type": "string",
+            "example": "PARASITE"
+          },
+          "movieNmOg": {
+            "type": "string",
+            "example": "기생충"
+          },
+          "showTm": {
+            "type": "string",
+            "example": "132"
+          },
+          "prdtYear": {
+            "type": "string",
+            "example": "2019"
+          },
+          "openDt": {
+            "type": "string",
+            "example": "2019-05-30"
+          },
+          "prdtStatNm": {
+            "type": "string",
+            "example": "개봉"
+          },
+          "typeNm": {
+            "type": "string",
+            "example": "장편"
+          },
+          "nations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisNationDto"
+            }
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisGenreDto"
+            }
+          },
+          "directors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisDirectorDto"
+            }
+          },
+          "actors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisActorDto"
+            }
+          },
+          "showTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisShowTypeDto"
+            }
+          },
+          "audits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisAuditDto"
+            }
+          },
+          "staffs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisStaffDto"
+            }
+          }
+        },
+        "required": [
+          "movieCd",
+          "movieNm",
+          "nations",
+          "genres",
+          "directors",
+          "actors",
+          "showTypes",
+          "audits",
+          "staffs"
+        ]
+      },
+      "KobisMovieInfoResultDto": {
+        "type": "object",
+        "properties": {
+          "movieInfo": {
+            "$ref": "#/components/schemas/KobisMovieInfoDto"
+          }
+        },
+        "required": [
+          "movieInfo"
+        ]
+      },
+      "KobisMovieInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "movieInfoResult": {
+            "$ref": "#/components/schemas/KobisMovieInfoResultDto"
+          }
+        },
+        "required": [
+          "movieInfoResult"
+        ]
+      },
+      "KobisMovieListDirectorDto": {
+        "type": "object",
+        "properties": {
+          "peopleNm": {
+            "type": "string",
+            "example": "봉준호"
+          },
+          "peopleNmEn": {
+            "type": "string",
+            "example": "Bong Joon-ho"
+          }
+        },
+        "required": [
+          "peopleNm"
+        ]
+      },
+      "KobisMovieListItemDto": {
+        "type": "object",
+        "properties": {
+          "movieCd": {
+            "type": "string",
+            "example": "20201234"
+          },
+          "movieNm": {
+            "type": "string",
+            "example": "기생충"
+          },
+          "movieNmEn": {
+            "type": "string",
+            "example": "PARASITE"
+          },
+          "prdtYear": {
+            "type": "string",
+            "example": "2019"
+          },
+          "openDt": {
+            "type": "string",
+            "example": "2019-05-30"
+          },
+          "prdtStatNm": {
+            "type": "string",
+            "example": "개봉"
+          },
+          "typeNm": {
+            "type": "string",
+            "example": "장편"
+          },
+          "nationAlt": {
+            "type": "string",
+            "example": "한국"
+          },
+          "genreAlt": {
+            "type": "string",
+            "example": "드라마"
+          },
+          "repNationCd": {
+            "type": "string",
+            "example": "KOR"
+          },
+          "repGenreNm": {
+            "type": "string",
+            "example": "드라마"
+          },
+          "directors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisMovieListDirectorDto"
+            }
+          }
+        },
+        "required": [
+          "movieCd",
+          "movieNm",
+          "directors"
+        ]
+      },
+      "KobisMovieListResultDto": {
+        "type": "object",
+        "properties": {
+          "totCnt": {
+            "type": "string",
+            "example": "1"
+          },
+          "source": {
+            "type": "string",
+            "example": "영화진흥위원회"
+          },
+          "movieList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KobisMovieListItemDto"
+            }
+          }
+        },
+        "required": [
+          "totCnt",
+          "source",
+          "movieList"
+        ]
+      },
+      "KobisMovieSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "movieListResult": {
+            "$ref": "#/components/schemas/KobisMovieListResultDto"
+          }
+        },
+        "required": [
+          "movieListResult"
         ]
       },
       "PublicProfileResponseDto": {
@@ -3711,6 +4780,204 @@
           "latitude"
         ]
       },
+      "PostcardReactionResponseDto": {
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string",
+            "example": "❤️"
+          },
+          "count": {
+            "type": "number",
+            "example": 3
+          },
+          "reacted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "emoji",
+          "count",
+          "reacted"
+        ]
+      },
+      "PostcardItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "nickname": {
+            "type": "string",
+            "example": "cinemo_user"
+          },
+          "movieTitle": {
+            "type": "string",
+            "nullable": true,
+            "example": "파이트 클럽"
+          },
+          "originalText": {
+            "type": "string",
+            "nullable": true,
+            "example": "What we do repeatedly is what we are."
+          },
+          "text": {
+            "type": "string",
+            "example": "우리가 반복해서 하는 일이 곧 우리다."
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster-path.jpg"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "example": true
+          },
+          "isOwner": {
+            "type": "boolean",
+            "example": false
+          },
+          "isBookmarked": {
+            "type": "boolean",
+            "example": false
+          },
+          "isPinned": {
+            "type": "boolean",
+            "example": false
+          },
+          "reactionCounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostcardReactionResponseDto"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "tmdbId",
+          "nickname",
+          "movieTitle",
+          "originalText",
+          "text",
+          "posterPath",
+          "isPublic",
+          "isOwner",
+          "isBookmarked",
+          "isPinned",
+          "reactionCounts",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PostcardSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "nickname": {
+            "type": "string",
+            "example": "cinemo_user"
+          },
+          "movieTitle": {
+            "type": "string",
+            "nullable": true,
+            "example": "파이트 클럽"
+          },
+          "originalText": {
+            "type": "string",
+            "nullable": true,
+            "example": "What we do repeatedly is what we are."
+          },
+          "text": {
+            "type": "string",
+            "example": "우리가 반복해서 하는 일이 곧 우리다."
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster-path.jpg"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "example": true
+          },
+          "isPinned": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "tmdbId",
+          "nickname",
+          "movieTitle",
+          "originalText",
+          "text",
+          "posterPath",
+          "isPublic",
+          "isPinned",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PostcardTogglePinnedResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isPinned": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "isPinned"
+        ]
+      },
+      "PostcardToggleBookmarkResponseDto": {
+        "type": "object",
+        "properties": {
+          "bookmarked": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "bookmarked"
+        ]
+      },
       "TogglePostcardReactionDto": {
         "type": "object",
         "properties": {
@@ -3791,6 +5058,87 @@
           }
         }
       },
+      "PostcardCommentAuthorResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "cinemo_user"
+          }
+        },
+        "required": [
+          "id",
+          "nickname"
+        ]
+      },
+      "PostcardCommentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "postcardId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "example": "이 장면의 분위기가 정말 좋았어요."
+          },
+          "user": {
+            "$ref": "#/components/schemas/PostcardCommentAuthorResponseDto"
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostcardCommentResponseDto"
+            }
+          },
+          "reactionCount": {
+            "type": "number",
+            "example": 2
+          },
+          "reacted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "postcardId",
+          "userId",
+          "parentId",
+          "text",
+          "user",
+          "replies",
+          "reactionCount",
+          "reacted",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "CreatePostcardCommentDto": {
         "type": "object",
         "properties": {
@@ -3829,6 +5177,40 @@
         },
         "required": [
           "emoji"
+        ]
+      },
+      "PostcardToggleReactionResponseDto": {
+        "type": "object",
+        "properties": {
+          "emoji": {
+            "type": "string",
+            "example": "❤️"
+          },
+          "reacted": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "emoji",
+          "reacted"
+        ]
+      },
+      "PostcardDeleteResponseDto": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "example": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "deleted",
+          "id"
         ]
       },
       "LegalDongSyncResponseDto": {

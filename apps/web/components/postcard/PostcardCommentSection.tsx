@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronUp, Heart } from 'lucide-react';
-import type { PostcardCommentItem } from '@cinemo/shared';
+import type { PostcardCommentItem } from '@cinemo/api-contract';
 import { useAuthStore } from '@/lib/auth-store';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import {
@@ -597,7 +597,6 @@ export function PostcardCommentSection({ postcardId }: Props) {
         title="댓글을 삭제하시겠습니까?"
         description="삭제한 댓글은 다시 복구할 수 없습니다."
         confirmLabel={submitting ? '삭제 중...' : '삭제'}
-        cancelLabel="취소"
         tone="danger"
         onConfirm={() => void handleDeleteComment()}
         onClose={() => {
@@ -611,7 +610,6 @@ export function PostcardCommentSection({ postcardId }: Props) {
         title="로그인이 필요해요"
         description="댓글을 작성하거나 반응을 남기려면 로그인해 주세요."
         confirmLabel="로그인하기"
-        cancelLabel="취소"
         onConfirm={() => {
           const query = searchParams.toString();
           const nextPath = query ? `${pathname}?${query}` : pathname;

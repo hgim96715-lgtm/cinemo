@@ -3,17 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { requestPasswordReset } from '@/lib/auth-api';
-
-const forgotPasswordSchema = z.object({
-  email: z.email({
-    error: '이메일 형식을 확인해 주세요.',
-  }),
-});
-
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordFormValues,
+} from '@/components/auth/auth-form';
 
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
@@ -23,6 +18,8 @@ export default function ForgotPasswordPage() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordFormValues>({
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
@@ -94,7 +91,11 @@ export default function ForgotPasswordPage() {
           ) : null}
         </label>
 
-        <button className="auth-submit" type="submit" disabled={isSubmitting}>
+        <button
+          className="cinemo-button cinemo-button--primary"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? '전송 중…' : '재설정 링크 받기'}
         </button>
       </form>
