@@ -180,7 +180,7 @@ async function runUserActivity(
       kind: 'watched',
       watchedAt: new Date(),
       viewingType: 'theater',
-      viewingLocation: 'CINEMO',
+      viewingPlace: 'CINEMO',
       review: template.body,
       rating: template.rating,
     },

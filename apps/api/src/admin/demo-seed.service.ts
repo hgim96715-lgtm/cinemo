@@ -288,7 +288,7 @@ export class DemoSeedService {
           kind: 'watched',
           watchedAt: eventAt,
           viewingType: 'theater',
-          viewingLocation: 'CINEMO',
+          viewingPlace: 'CINEMO',
           review: reviewTemplate.body,
           rating: reviewTemplate.rating,
         },
