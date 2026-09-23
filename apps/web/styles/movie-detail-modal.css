@@ -119,11 +119,11 @@
   border-top-color: rgb(243 239 230 / 0.1);
 }
 
-.watched-record-modal .movie-detail-screening label > span:first-child {
+.watched-record-modal .movie-detail-screening :is(label, .movie-detail-field) > span:first-child {
   color: var(--cinemo-gold);
 }
 
-.watched-record-modal .movie-detail-screening label > svg {
+.watched-record-modal .movie-detail-screening :is(label, .movie-detail-field) > svg {
   color: var(--cinemo-gold);
 }
 
@@ -137,8 +137,8 @@
   color: var(--cinemo-gold);
 }
 
-.watched-record-modal .movie-detail-screening label > input,
-.watched-record-modal .movie-detail-screening label > textarea,
+.watched-record-modal .movie-detail-screening :is(label, .movie-detail-field) > input,
+.watched-record-modal .movie-detail-screening :is(label, .movie-detail-field) > textarea,
 .watched-record-modal .movie-detail-select-trigger,
 .watched-record-modal .movie-detail-date-trigger {
   border-color: rgb(243 239 230 / 0.16);
@@ -556,6 +556,8 @@
   flex: 0 0 2.3rem;
   width: 2.3rem;
   height: 2.3rem;
+  min-width: 2.3rem;
+  min-height: 2.3rem;
   padding: 0;
   border: 1px solid var(--cinemo-border-gold, rgb(212 181 106 / 0.45));
   border-radius: 0.35rem;
@@ -567,6 +569,14 @@
   transition:
     border-color 180ms ease,
     color 180ms ease;
+}
+
+.movie-detail-calendar-button svg {
+  display: block;
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  overflow: visible;
 }
 
 .movie-detail-calendar-button:hover {
@@ -718,6 +728,11 @@
   transform: translate(0, 50%);
 }
 
+.movie-detail-notification-button.is-tooltip-visible .movie-detail-tooltip {
+  opacity: 1;
+  transform: translate(0, 50%);
+}
+
 @media (hover: hover) {
   .movie-detail-notification-button:hover .movie-detail-tooltip {
     opacity: 1;
@@ -828,6 +843,15 @@
 @media (max-width: 40rem) {
   .movie-detail-actions {
     gap: 0.6rem;
+  }
+}
+
+@media (min-width: 40.01rem) and (max-width: 70rem) {
+  .watched-record-modal-poster {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 }
 
@@ -956,7 +980,7 @@
   grid-column: 1 / -1;
 }
 
-.movie-detail-screening label {
+.movie-detail-screening :is(label, .movie-detail-field) {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -971,24 +995,24 @@
   grid-column: 1 / -1;
 }
 
-.movie-detail-screening label.movie-detail-platform-field > input,
-.movie-detail-screening label.movie-detail-viewing-type-field > input {
+.movie-detail-screening :is(label, .movie-detail-field).movie-detail-platform-field > input,
+.movie-detail-screening :is(label, .movie-detail-field).movie-detail-viewing-type-field > input {
   grid-row: 3;
   margin-top: 0.15rem;
 }
 
-.movie-detail-screening label.movie-detail-platform-field > small,
-.movie-detail-screening label.movie-detail-viewing-type-field > small {
+.movie-detail-screening :is(label, .movie-detail-field).movie-detail-platform-field > small,
+.movie-detail-screening :is(label, .movie-detail-field).movie-detail-viewing-type-field > small {
   grid-row: 4;
 }
 
-.movie-detail-screening label > span:first-child {
+.movie-detail-screening :is(label, .movie-detail-field) > span:first-child {
   grid-column: 1;
   grid-row: 1;
 }
 
-.movie-detail-screening label > input,
-.movie-detail-screening label > textarea {
+.movie-detail-screening :is(label, .movie-detail-field) > input,
+.movie-detail-screening :is(label, .movie-detail-field) > textarea {
   grid-column: 1;
   grid-row: 2;
   width: 100%;
@@ -1002,18 +1026,22 @@
   color-scheme: dark;
 }
 
-.movie-detail-screening label > .movie-detail-select {
+.movie-detail-screening :is(label, .movie-detail-field) > .movie-detail-select {
   grid-column: 1;
   grid-row: 2;
 }
 
-.movie-detail-screening label > input {
+.movie-detail-screening :is(label, .movie-detail-field) > input {
   min-height: 2.75rem;
   padding: 0.7rem 0.8rem;
 }
 
 .movie-detail-screening label.movie-detail-date-field {
   z-index: 8;
+}
+
+.movie-detail-screening .movie-detail-place-field {
+  grid-column: 1 / -1;
 }
 
 .movie-detail-date-trigger {
@@ -1235,13 +1263,13 @@
   opacity: 0.55;
 }
 
-.movie-detail-screening label > textarea {
+.movie-detail-screening :is(label, .movie-detail-field) > textarea {
   min-height: 7rem;
   padding: 0.75rem 0.8rem;
   resize: vertical;
 }
 
-.movie-detail-screening label > svg {
+.movie-detail-screening :is(label, .movie-detail-field) > svg {
   z-index: 1;
   grid-column: 1;
   grid-row: 2;
@@ -1252,11 +1280,11 @@
   pointer-events: none;
 }
 
-.movie-detail-screening label:has(> svg) > input {
+.movie-detail-screening :is(label, .movie-detail-field):has(> svg) > input {
   padding-left: 2.5rem;
 }
 
-.movie-detail-screening label > small {
+.movie-detail-screening :is(label, .movie-detail-field) > small {
   grid-column: 1;
   grid-row: 3;
 }
@@ -1534,8 +1562,8 @@
     padding-top: 0.9rem;
   }
 
-  .movie-detail-screening label > input,
-  .movie-detail-screening label > select {
+  .movie-detail-screening :is(label, .movie-detail-field) > input,
+  .movie-detail-screening :is(label, .movie-detail-field) > select {
     min-height: 3rem;
   }
 

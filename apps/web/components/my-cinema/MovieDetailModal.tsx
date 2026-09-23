@@ -1,7 +1,7 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Bell,
   CalendarPlus,
@@ -120,6 +120,9 @@ export function MovieDetailModal({
   const [isPlaceFocused, setIsPlaceFocused] = useState(false);
 
   const [showNotificationGuide, setShowNotificationGuide] = useState(false);
+  const [showNotificationTooltip, setShowNotificationTooltip] =
+    useState(false);
+  const notificationTooltipTimer = useRef<number | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   const [searchingPlacesQuery, setSearchingPlacesQuery] = useState('');
@@ -143,6 +146,14 @@ export function MovieDetailModal({
       // localStorage를 사용할 수 없는 환경에서도 관람 정보 저장은 계속함
     }
   }, [recentLocations]);
+
+  useEffect(() => {
+    return () => {
+      if (notificationTooltipTimer.current !== null) {
+        window.clearTimeout(notificationTooltipTimer.current);
+      }
+    };
+  }, []);
 
   function rememberLocation(location: PlaceSearchResult | string) {
     setRecentLocations((currentLocations) =>
@@ -324,6 +335,15 @@ export function MovieDetailModal({
   );
 
   function handleNotificationClick() {
+    setShowNotificationTooltip(true);
+    if (notificationTooltipTimer.current !== null) {
+      window.clearTimeout(notificationTooltipTimer.current);
+    }
+    notificationTooltipTimer.current = window.setTimeout(() => {
+      setShowNotificationTooltip(false);
+      notificationTooltipTimer.current = null;
+    }, 1600);
+
     if (!marks?.wish) {
       setShowNotificationGuide(true);
       return;
@@ -521,7 +541,9 @@ export function MovieDetailModal({
                       type="button"
                       className={`movie-detail-notification-button${
                         marks?.wish ? ' is-wish' : ''
-                      }${releaseNotificationEnabled ? ' is-on' : ''}`}
+                      }${releaseNotificationEnabled ? ' is-on' : ''}${
+                        showNotificationTooltip ? ' is-tooltip-visible' : ''
+                      }`}
                       aria-pressed={releaseNotificationEnabled}
                       aria-label={
                         releaseNotificationEnabled

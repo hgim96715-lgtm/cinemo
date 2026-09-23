@@ -132,8 +132,8 @@ export function WatchedRecordForm({
         ) : null}
       </label>
 
-      <label className="movie-detail-viewing-type-field">
-        <span>관람 방식</span>
+      <div className="movie-detail-field movie-detail-viewing-type-field">
+        <span id="watched-record-viewing-type-label">관람 방식</span>
         <CinemoSelect
           value={selectedViewingType}
           options={VIEWING_TYPE_OPTIONS}
@@ -162,15 +162,16 @@ export function WatchedRecordForm({
             placeholder="관람 방식을 직접 입력"
             maxLength={100}
             disabled={isSubmitting}
+            aria-labelledby="watched-record-viewing-type-label"
           />
         ) : null}
         {errors.viewingTypeCustom?.message ? (
           <small role="alert">{errors.viewingTypeCustom.message}</small>
         ) : null}
-      </label>
+      </div>
 
-      <label className="movie-detail-platform-field">
-        <span>플랫폼</span>
+      <div className="movie-detail-field movie-detail-platform-field">
+        <span id="watched-record-platform-label">플랫폼</span>
         <CinemoSelect
           value={
             viewingPlatformMode === 'custom' ? 'other' : selectedViewingPlatform
@@ -210,25 +211,30 @@ export function WatchedRecordForm({
             placeholder="플랫폼을 직접 입력"
             maxLength={40}
             disabled={isSubmitting}
+            aria-labelledby="watched-record-platform-label"
           />
         ) : null}
         {errors.customViewingPlatform?.message ? (
           <small role="alert">{errors.customViewingPlatform.message}</small>
         ) : null}
-      </label>
+      </div>
 
-      <label>
-        <span>관람 장소</span>
+      <div className="movie-detail-field movie-detail-place-field">
+        <span id="watched-record-place-label">관람 장소</span>
         <MapPin size={16} strokeWidth={1.5} aria-hidden />
         <input
           {...register('viewingPlace')}
           placeholder="CGV,롯데시네마,메가박스 등"
           maxLength={100}
           disabled={isSubmitting}
+          aria-labelledby="watched-record-place-label"
           onFocus={onPlaceFocus}
           onBlur={() => {
-            if (isPlaceSuggestionsPointerDown.current) return;
-            onPlaceBlur();
+            window.setTimeout(() => {
+              if (!isPlaceSuggestionsPointerDown.current) {
+                onPlaceBlur();
+              }
+            }, 0);
           }}
         />
         {errors.viewingPlace?.message ? (
@@ -243,20 +249,26 @@ export function WatchedRecordForm({
             className="movie-detail-place-suggestions"
             role="listbox"
             aria-label="관람 장소 추천"
-            onPointerDownCapture={() => {
+            onPointerDownCapture={(event) => {
+              event.stopPropagation();
               isPlaceSuggestionsPointerDown.current = true;
             }}
             onPointerUpCapture={() => {
-              isPlaceSuggestionsPointerDown.current = false;
+              window.setTimeout(() => {
+                isPlaceSuggestionsPointerDown.current = false;
+              }, 250);
             }}
             onPointerCancel={() => {
               isPlaceSuggestionsPointerDown.current = false;
             }}
-            onTouchStartCapture={() => {
+            onTouchStartCapture={(event) => {
+              event.stopPropagation();
               isPlaceSuggestionsPointerDown.current = true;
             }}
             onTouchEndCapture={() => {
-              isPlaceSuggestionsPointerDown.current = false;
+              window.setTimeout(() => {
+                isPlaceSuggestionsPointerDown.current = false;
+              }, 250);
             }}
           >
             {visiblePlaceSuggestions.map((place) => (
@@ -266,8 +278,7 @@ export function WatchedRecordForm({
                 role="option"
                 aria-selected={false}
                 className="movie-detail-place-option"
-                onPointerDown={(event) => {
-                  event.preventDefault();
+                onClick={() => {
                   onPlaceSelect(place);
                 }}
                 onKeyDown={(event) => {
@@ -283,7 +294,7 @@ export function WatchedRecordForm({
             ))}
           </div>
         ) : null}
-      </label>
+      </div>
 
       <label>
         <span>후기</span>

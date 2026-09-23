@@ -49,15 +49,24 @@
 
 .my-cinema--shelf
   .my-cinema-movie-grid--wish
-  .my-cinema-movie-card-wrap:hover,
-.my-cinema--shelf
-  .my-cinema-movie-grid--wish
   .my-cinema-movie-card-wrap:focus-visible {
   border-color: var(--lobby-red, #ad4f59);
   box-shadow:
     inset 0 0 0 1px rgb(173 79 89 / 0.24),
     0 0.8rem 1.8rem rgb(0 0 0 / 0.2);
   transform: none !important;
+}
+
+@media (hover: hover) {
+  .my-cinema--shelf
+    .my-cinema-movie-grid--wish
+    .my-cinema-movie-card-wrap:hover {
+    border-color: var(--lobby-red, #ad4f59);
+    box-shadow:
+      inset 0 0 0 1px rgb(173 79 89 / 0.24),
+      0 0.8rem 1.8rem rgb(0 0 0 / 0.2);
+    transform: none !important;
+  }
 }
 
 .my-cinema--shelf
@@ -99,13 +108,18 @@
 
 .my-cinema--shelf
   .my-cinema-movie-grid--wish
-  .my-cinema-movie-card-wrap:hover
-  .my-cinema-movie-info,
-.my-cinema--shelf
-  .my-cinema-movie-grid--wish
   .my-cinema-movie-card-wrap:focus-visible
   .my-cinema-movie-info {
   transform: none;
+}
+
+@media (hover: hover) {
+  .my-cinema--shelf
+    .my-cinema-movie-grid--wish
+    .my-cinema-movie-card-wrap:hover
+    .my-cinema-movie-info {
+    transform: none;
+  }
 }
 
 .my-cinema-wish-info {

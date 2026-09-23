@@ -96,11 +96,18 @@ html {
     background-color 180ms ease;
 }
 
-.my-cinema-shelf-more:hover:not(:disabled),
 .my-cinema-shelf-more:focus-visible {
   border-color: var(--lobby-red, #ad4f59);
   color: var(--lobby-gold, #e6ca65);
   background: rgb(173 79 89 / 0.08);
+}
+
+@media (hover: hover) {
+  .my-cinema-shelf-more:hover:not(:disabled) {
+    border-color: var(--lobby-red, #ad4f59);
+    color: var(--lobby-gold, #e6ca65);
+    background: rgb(173 79 89 / 0.08);
+  }
 }
 
 .my-cinema-shelf-more:focus-visible {
@@ -406,11 +413,13 @@ html {
     filter 180ms ease;
 }
 
-.my-cinema-object:hover:not(:disabled) {
-  z-index: 7;
-  border-color: #e4c77d;
-  filter: brightness(1.16);
-  transform: translateY(-0.25rem);
+@media (hover: hover) {
+  .my-cinema-object:hover:not(:disabled) {
+    z-index: 7;
+    border-color: #e4c77d;
+    filter: brightness(1.16);
+    transform: translateY(-0.25rem);
+  }
 }
 
 .my-cinema-object:disabled {
@@ -487,9 +496,11 @@ html {
   overflow: hidden;
 }
 
-.my-cinema-me-speech:hover {
-  border-color: rgb(184 145 76 / 0.75);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .my-cinema-me-speech:hover {
+    border-color: rgb(184 145 76 / 0.75);
+    transform: translateY(-1px);
+  }
 }
 
 .my-cinema-me-speech::after {
@@ -588,10 +599,12 @@ html {
     background 200ms ease;
 }
 
-.my-cinema-door:hover {
-  border-color: rgb(212 181 106 / 0.45);
-  color: var(--lobby-gold);
-  background: rgb(212 181 106 / 0.08);
+@media (hover: hover) {
+  .my-cinema-door:hover {
+    border-color: rgb(212 181 106 / 0.45);
+    color: var(--lobby-gold);
+    background: rgb(212 181 106 / 0.08);
+  }
 }
 
 .my-cinema-door-label {
@@ -862,11 +875,13 @@ html {
     background 200ms ease;
 }
 
-.my-cinema-zone:not(:disabled):hover {
-  border-color: rgb(212 181 106 / 0.5);
-  color: var(--lobby-gold);
-  background: rgb(212 181 106 / 0.08);
-  opacity: 1;
+@media (hover: hover) {
+  .my-cinema-zone:not(:disabled):hover {
+    border-color: rgb(212 181 106 / 0.5);
+    color: var(--lobby-gold);
+    background: rgb(212 181 106 / 0.08);
+    opacity: 1;
+  }
 }
 
 .my-cinema-phone-icon {
@@ -983,10 +998,16 @@ html {
     box-shadow 180ms ease;
 }
 
-.movie-stats-year-trigger:hover,
 .movie-stats-year-select.is-open .movie-stats-year-trigger {
   border-color: rgb(212 181 106 / 0.62);
   background: rgb(212 181 106 / 0.08);
+}
+
+@media (hover: hover) {
+  .movie-stats-year-trigger:hover {
+    border-color: rgb(212 181 106 / 0.62);
+    background: rgb(212 181 106 / 0.08);
+  }
 }
 
 .movie-stats-year-trigger:focus-visible {
@@ -1032,10 +1053,16 @@ html {
   cursor: pointer;
 }
 
-.movie-stats-year-option:hover,
 .movie-stats-year-option[aria-selected='true'] {
   background: rgb(212 181 106 / 0.16);
   color: #f5d98e;
+}
+
+@media (hover: hover) {
+  .movie-stats-year-option:hover {
+    background: rgb(212 181 106 / 0.16);
+    color: #f5d98e;
+  }
 }
 
 .movie-stats-total {
@@ -1244,12 +1271,20 @@ html {
   box-shadow: none;
 }
 
-.my-cinema-movie-card-wrap:hover,
 .my-cinema-movie-card-wrap:focus-visible {
   border-color: rgb(212 181 106 / 0.68);
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.08),
     0 0 1.2rem rgb(212 181 106 / 0.12);
+}
+
+@media (hover: hover) {
+  .my-cinema-movie-card-wrap:hover {
+    border-color: rgb(212 181 106 / 0.68);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.08),
+      0 0 1.2rem rgb(212 181 106 / 0.12);
+  }
 }
 
 .my-cinema-movie-info {
@@ -1635,10 +1670,16 @@ html {
     box-shadow 180ms ease;
 }
 
-.movie-calendar-period-trigger:hover,
 .movie-calendar-period-select.is-open .movie-calendar-period-trigger {
   border-color: var(--lobby-gold, #d4b56a);
   background-color: rgb(212 181 106 / 0.08);
+}
+
+@media (hover: hover) {
+  .movie-calendar-period-trigger:hover {
+    border-color: var(--lobby-gold, #d4b56a);
+    background-color: rgb(212 181 106 / 0.08);
+  }
 }
 
 .movie-calendar-period-trigger:focus-visible {
@@ -1684,10 +1725,16 @@ html {
   cursor: pointer;
 }
 
-.movie-calendar-period-option:hover,
 .movie-calendar-period-option[aria-selected='true'] {
   background: rgb(212 181 106 / 0.16);
   color: #f5d98e;
+}
+
+@media (hover: hover) {
+  .movie-calendar-period-option:hover {
+    background: rgb(212 181 106 / 0.16);
+    color: #f5d98e;
+  }
 }
 
 .movie-calendar-kicker {
@@ -1757,14 +1804,16 @@ html {
   font-size: 0.68rem;
 }
 
-.movie-calendar-close:hover,
-.movie-calendar-month-button:hover,
-.movie-calendar-today:hover,
-.movie-calendar-edit:hover,
-.movie-calendar-delete:hover {
-  border-color: var(--lobby-gold, #d4b56a);
-  background-color: rgb(212 181 106 / 0.12);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .movie-calendar-close:hover,
+  .movie-calendar-month-button:hover,
+  .movie-calendar-today:hover,
+  .movie-calendar-edit:hover,
+  .movie-calendar-delete:hover {
+    border-color: var(--lobby-gold, #d4b56a);
+    background-color: rgb(212 181 106 / 0.12);
+    transform: translateY(-1px);
+  }
 }
 
 .movie-calendar-close:focus-visible,
@@ -1818,11 +1867,18 @@ html {
     filter 160ms ease;
 }
 
-.movie-calendar-day:hover,
 .movie-calendar-day.is-selected {
   border-color: var(--lobby-gold, #d4b56a);
   transform: translateY(-1px);
   filter: brightness(1.1);
+}
+
+@media (hover: hover) {
+  .movie-calendar-day:hover {
+    border-color: var(--lobby-gold, #d4b56a);
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
 }
 
 .movie-calendar-day.has-movie::after {
@@ -2235,12 +2291,20 @@ html {
     background 160ms ease;
 }
 
-.my-cinema-profile-heading-actions .my-cinema-profile-logout:hover,
 .my-cinema-profile-heading-actions .my-cinema-profile-logout:focus-visible {
   border-color: rgb(211 142 130 / 0.72);
   background: rgb(211 142 130 / 0.12);
   color: #edb8ad;
   outline: none;
+}
+
+@media (hover: hover) {
+  .my-cinema-profile-heading-actions .my-cinema-profile-logout:hover {
+    border-color: rgb(211 142 130 / 0.72);
+    background: rgb(211 142 130 / 0.12);
+    color: #edb8ad;
+    outline: none;
+  }
 }
 
 .my-cinema-profile-edit {
@@ -2261,12 +2325,20 @@ html {
     background 160ms ease;
 }
 
-button.my-cinema-profile-edit:hover,
 button.my-cinema-profile-edit:focus-visible {
   border-color: rgb(211 142 130 / 0.72);
   background: rgb(211 142 130 / 0.12);
   color: rgb(230 202 101 / 0.72);
   outline: none;
+}
+
+@media (hover: hover) {
+  button.my-cinema-profile-edit:hover {
+    border-color: rgb(211 142 130 / 0.72);
+    background: rgb(211 142 130 / 0.12);
+    color: rgb(230 202 101 / 0.72);
+    outline: none;
+  }
 }
 
 .my-cinema-profile-copy > p:last-child {
@@ -2391,9 +2463,11 @@ button.my-cinema-profile-edit:focus-visible {
   cursor: pointer;
 }
 
-.my-cinema-profile-actions button:hover {
-  border-color: var(--lobby-gold);
-  background: rgb(212 181 106 / 0.15);
+@media (hover: hover) {
+  .my-cinema-profile-actions button:hover {
+    border-color: var(--lobby-gold);
+    background: rgb(212 181 106 / 0.15);
+  }
 }
 
 .my-cinema-profile-actions .my-cinema-profile-logout {
@@ -2401,10 +2475,12 @@ button.my-cinema-profile-edit:focus-visible {
   color: #d8a095;
 }
 
-.my-cinema-profile-actions .my-cinema-profile-logout:hover {
-  border-color: rgb(211 142 130 / 0.72);
-  background: rgb(211 142 130 / 0.12);
-  color: #edb8ad;
+@media (hover: hover) {
+  .my-cinema-profile-actions .my-cinema-profile-logout:hover {
+    border-color: rgb(211 142 130 / 0.72);
+    background: rgb(211 142 130 / 0.12);
+    color: #edb8ad;
+  }
 }
 
 .my-cinema-summary-grid {
@@ -2472,10 +2548,12 @@ button.my-cinema-profile-edit:focus-visible {
   right: 0.8rem;
 }
 
-.my-cinema-summary-card--calendar:hover {
-  border-color: var(--lobby-gold);
-  background: rgb(212 181 106 / 0.12);
-  transform: translateY(-0.15rem);
+@media (hover: hover) {
+  .my-cinema-summary-card--calendar:hover {
+    border-color: var(--lobby-gold);
+    background: rgb(212 181 106 / 0.12);
+    transform: translateY(-0.15rem);
+  }
 }
 
 .my-cinema-dashboard-grid {
@@ -2606,10 +2684,12 @@ button.my-cinema-profile-edit:focus-visible {
   white-space: nowrap;
 }
 
-.my-cinema-tool-card:hover:not(:disabled) {
-  border-color: var(--lobby-gold);
-  background: rgb(212 181 106 / 0.12);
-  transform: translateY(-0.15rem);
+@media (hover: hover) {
+  .my-cinema-tool-card:hover:not(:disabled) {
+    border-color: var(--lobby-gold);
+    background: rgb(212 181 106 / 0.12);
+    transform: translateY(-0.15rem);
+  }
 }
 
 .my-cinema-tool-card.is-disabled,
@@ -2748,11 +2828,13 @@ button.my-cinema-profile-edit:focus-visible {
   background: rgb(20 19 18 / 0.56);
 }
 
-.my-cinema--dashboard .my-cinema-tool-card:hover:not(:disabled) {
-  border-color: rgb(173 79 89 / 0.64);
-  background:
-    linear-gradient(135deg, rgb(173 79 89 / 0.1), rgb(20 19 18 / 0.82)),
-    rgb(20 19 18 / 0.84);
+@media (hover: hover) {
+  .my-cinema--dashboard .my-cinema-tool-card:hover:not(:disabled) {
+    border-color: rgb(173 79 89 / 0.64);
+    background:
+      linear-gradient(135deg, rgb(173 79 89 / 0.1), rgb(20 19 18 / 0.82)),
+      rgb(20 19 18 / 0.84);
+  }
 }
 
 .my-cinema--dashboard .my-cinema-tool-card svg {

@@ -86,19 +86,23 @@
   box-shadow: none;
 }
 
-.my-cinema-movie-grid--watched .my-cinema-movie-poster img,
-.my-cinema-movie-grid--watched
-  .my-cinema-movie-card-wrap:hover
-  .my-cinema-movie-poster
-  img {
+.my-cinema-movie-grid--watched .my-cinema-movie-poster img {
   object-fit: contain;
   object-position: center;
   transform: none
 }
 
-.my-cinema--shelf
-  .my-cinema-movie-grid.my-cinema-movie-grid--watched
-  .my-cinema-movie-card-wrap:hover,
+@media (hover: hover) {
+  .my-cinema-movie-grid--watched
+    .my-cinema-movie-card-wrap:hover
+    .my-cinema-movie-poster
+    img {
+    object-fit: contain;
+    object-position: center;
+    transform: none;
+  }
+}
+
 .my-cinema--shelf
   .my-cinema-movie-grid.my-cinema-movie-grid--watched
   .my-cinema-movie-card-wrap:focus-visible {
@@ -107,6 +111,18 @@
     inset 0 0 0 1px rgb(173 79 89 / 0.24),
     0 0.8rem 1.8rem rgb(0 0 0 / 0.2);
   transform: none !important;
+}
+
+@media (hover: hover) {
+  .my-cinema--shelf
+    .my-cinema-movie-grid.my-cinema-movie-grid--watched
+    .my-cinema-movie-card-wrap:hover {
+    border-color: var(--lobby-red, #ad4f59);
+    box-shadow:
+      inset 0 0 0 1px rgb(173 79 89 / 0.24),
+      0 0.8rem 1.8rem rgb(0 0 0 / 0.2);
+    transform: none !important;
+  }
 }
 
 .my-cinema-movie-grid--watched .my-cinema-movie-info {
@@ -147,13 +163,18 @@
 
 .my-cinema--shelf
   .my-cinema-movie-grid.my-cinema-movie-grid--watched
-  .my-cinema-movie-card-wrap:hover
-  .my-cinema-movie-info,
-.my-cinema--shelf
-  .my-cinema-movie-grid.my-cinema-movie-grid--watched
   .my-cinema-movie-card-wrap:focus-visible
   .my-cinema-movie-info {
   transform: none !important;
+}
+
+@media (hover: hover) {
+  .my-cinema--shelf
+    .my-cinema-movie-grid.my-cinema-movie-grid--watched
+    .my-cinema-movie-card-wrap:hover
+    .my-cinema-movie-info {
+    transform: none !important;
+  }
 }
 
 .my-cinema--shelf
@@ -284,19 +305,29 @@
     color 180ms ease;
 }
 
-.my-cinema-shelf-add:hover,
 .my-cinema-shelf-add:focus-visible {
   border-color: var(--lobby-red, #ad4f59);
+}
+
+@media (hover: hover) {
+  .my-cinema-shelf-add:hover {
+    border-color: var(--lobby-red, #ad4f59);
+  }
 }
 
 .my-cinema-shelf-add svg {
   color: var(--cinemo-gold);
 }
 
-.my-cinema-shelf-add:hover:not(:disabled) svg,
 .my-cinema-shelf-add:focus-visible svg,
 .my-cinema-shelf-add:active:not(:disabled) svg {
   color: var(--cinemo-red);
+}
+
+@media (hover: hover) {
+  .my-cinema-shelf-add:hover:not(:disabled) svg {
+    color: var(--cinemo-red);
+  }
 }
 
 .my-cinema-shelf-add:disabled {
@@ -341,10 +372,16 @@
   color: rgb(243 239 230 / 0.42);
 }
 
-.my-cinema-shelf-search input:hover,
 .my-cinema-shelf-search input:focus-visible {
   border-color: var(--lobby-red, #ad4f59);
   background: rgb(173 79 89 / 0.06);
+}
+
+@media (hover: hover) {
+  .my-cinema-shelf-search input:hover {
+    border-color: var(--lobby-red, #ad4f59);
+    background: rgb(173 79 89 / 0.06);
+  }
 }
 
 .my-cinema-shelf-search input:focus-visible {
@@ -383,11 +420,13 @@
   transform: translateY(-50%);
 }
 
-.my-cinema-shelf-search-clear:hover {
-  border-color: transparent;
-  color: var(--cinemo-red);
-  background: transparent;
-  transform: translateY(-50%) !important;
+@media (hover: hover) {
+  .my-cinema-shelf-search-clear:hover {
+    border-color: transparent;
+    color: var(--cinemo-red);
+    background: transparent;
+    transform: translateY(-50%) !important;
+  }
 }
 
 .my-cinema-shelf-search-clear:active,

@@ -41,6 +41,11 @@
   background: transparent;
 }
 
+.home-ticket-toggle.home-ticket-toggle--active,
+.home-ticket-toggle.cinemo-icon-action[aria-pressed='true'] {
+  color: var(--cinemo-red);
+}
+
   .home-ticket-toggle:disabled {
     cursor: not-allowed;
     opacity: 0.5;

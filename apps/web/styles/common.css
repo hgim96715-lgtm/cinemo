@@ -90,10 +90,12 @@ button[class*="-close"]:disabled {
   text-transform: uppercase;
 }
 
-.cinemo-button--primary:hover:not(:disabled) {
-  border-color: var(--cinemo-red);
-  background: transparent;
-  color: var(--cinemo-gold);
+@media (hover: hover) {
+  .cinemo-button--primary:hover:not(:disabled) {
+    border-color: var(--cinemo-red);
+    background: transparent;
+    color: var(--cinemo-gold);
+  }
 }
 
 .cinemo-button--primary:active:not(:disabled) {
@@ -132,13 +134,21 @@ button[class*="-close"]:disabled {
     transform 160ms ease;
 }
 
-.cinemo-icon-action:hover:not(:disabled),
 .cinemo-icon-action:active:not(:disabled),
 .cinemo-icon-action[aria-pressed='true'] {
   border-color: transparent;
   background: transparent;
   color: var(--cinemo-red);
   transform: none;
+}
+
+@media (hover: hover) {
+  .cinemo-icon-action:hover:not(:disabled) {
+    border-color: transparent;
+    background: transparent;
+    color: var(--cinemo-red);
+    transform: none;
+  }
 }
 
 .cinemo-icon-action:focus-visible {
