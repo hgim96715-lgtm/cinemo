@@ -186,7 +186,7 @@ function UpcomingPageContent() {
       }
 
       try {
-        const result = await listUserMoviesRequest(token, 'wish', 1, 100);
+        const result = await listUserMoviesRequest(token, 'wish');
         if (!cancelled) {
           setInterestedIds(result.items.map((movie) => movie.tmdbId));
         }
