@@ -5,7 +5,7 @@ Cinema in Motion — 영화가 움직이고, 사람들이 움직이고, 이야�
 
 Cinema는 그리스어 *kínēma*(κίνημα, 움직임)에서 온 말.  
 Movie가 “한 편의 영상”에 가깝다면, Cinema는 영화라는 매체·공간·문화 쪽 뉘앙스.  
-로비에서 영화를 발견하고, 보고 싶은 영화와 관람 기록을 쌓고, 포스트카드로 이야기를 남기는 흐름이라서 이 이름을 채택함.
+로비에서 영화를 발견하고, 보고 싶은 영화와 관람 기록을 쌓고, 포스트카드로 이야기를 남기는 흐름이라서 이 이름을 채택했습니다.
 
 NestJS + Next.js 모노레포.
 
@@ -23,9 +23,9 @@ NestJS + Next.js 모노레포.
   → MY CINEMA에서 관람 기록 관리
   → MY POSTCARD에서 영화 문장 기록·공개·댓글
 
-영화관 탐색은 `CINEMA MAP`에서 별도 제공하며, 영화 달력·영화 통계는 MY CINEMA의 확장 영역으로 준비 중임.
+영화관 탐색은 `CINEMA MAP`에서 별도 제공하며, 영화 달력·영화 통계는 MY CINEMA의 확장 영역으로 준비 중입니다.
 
-관리자는 `/admin`에서 대시보드·시간대 분석·사용자 관리를 수행함. Demo seed는 관리자 화면이 아니라 보호된 API를 GitHub Actions에서 호출해 실행함.
+관리자는 `/admin`에서 대시보드·시간대 분석·사용자 관리를 수행함. Demo seed는 관리자 화면이 아니라 보호된 API를 GitHub Actions에서 호출해 실행합니다.
 
 ## 구조
 
@@ -101,6 +101,6 @@ docker compose up -d   # Postgres
 - `react` · `react-dom` — React Email 렌더링 런타임
 - GitHub Actions — 개봉일 알림·MOVIE CHART 수집·demo seed를 정해진 시간에 실행
 
-개봉일 알림은 API 내부 Cron이 아니라 GitHub Actions가 `x-cron-secret`으로 보호된 API endpoint를 호출하는 방식임.
+개봉일 알림은 API 내부 Cron이 아니라 GitHub Actions가 `x-cron-secret`으로 보호된 API endpoint를 호출하는 방식
 
 자세한 구조와 구현 기준: [docs/README.md](docs/README.md)
