@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserMovieCalendarItemDto } from './ user-movie-calendar-item.dto';
+import { UserMovieCalendarItemDto } from './user-movie-calendar-item.dto';
 
 export class UserMovieCalendarResponseDto {
   @ApiProperty({ example: '2026-09-01', format: 'date' })

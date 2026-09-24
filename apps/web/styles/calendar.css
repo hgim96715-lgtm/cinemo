@@ -212,7 +212,6 @@
 .my-cinema-calendar .rdp-nav button:hover:not(:disabled),
 .my-cinema-calendar .rdp-nav button:focus-visible {
   color: var(--cinemo-fg);
-  background: rgb(243 239 230 / 0.08);
 }
 
 .my-cinema-calendar .rdp-nav .rdp-chevron {
