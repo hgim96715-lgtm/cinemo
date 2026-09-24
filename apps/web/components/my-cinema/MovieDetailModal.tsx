@@ -123,8 +123,8 @@ export function MovieDetailModal({
   const [isPlaceFocused, setIsPlaceFocused] = useState(false);
 
   const [showNotificationGuide, setShowNotificationGuide] = useState(false);
-  const [showNotificationTooltip, setShowNotificationTooltip] =
-    useState(false);
+  const [showNotificationTooltip, setShowNotificationTooltip] = useState(false);
+  const [notificationFeedback, setNotificationFeedback] = useState('');
   const notificationTooltipTimer = useRef<number | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
@@ -338,6 +338,18 @@ export function MovieDetailModal({
   );
 
   function handleNotificationClick() {
+    if (!marks?.wish) {
+      setNotificationFeedback('');
+      setShowNotificationTooltip(false);
+      setShowNotificationGuide(true);
+      return;
+    }
+
+    setNotificationFeedback(
+      isNotificationEnabled
+        ? '개봉일 알림이 해제되었습니다.'
+        : '개봉일 알림이 설정되었습니다.',
+    );
     setShowNotificationTooltip(true);
     if (notificationTooltipTimer.current !== null) {
       window.clearTimeout(notificationTooltipTimer.current);
@@ -346,11 +358,6 @@ export function MovieDetailModal({
       setShowNotificationTooltip(false);
       notificationTooltipTimer.current = null;
     }, 1600);
-
-    if (!marks?.wish) {
-      setShowNotificationGuide(true);
-      return;
-    }
 
     onToggleReleaseNotification?.();
   }
@@ -550,8 +557,8 @@ export function MovieDetailModal({
                       aria-pressed={isNotificationEnabled}
                       aria-label={
                         isNotificationEnabled
-                          ? '개봉일 알림 해제'
-                          : '개봉일 알림 설정'
+                          ? '개봉일 알림 설정 되었습니다.'
+                          : '개봉일 알림 해제 되었습니다.'
                       }
                       aria-describedby={`movie-notification-tooltip-${movie.id}`}
                       onClick={(event) => {
@@ -567,9 +574,7 @@ export function MovieDetailModal({
                         className="movie-detail-tooltip"
                         role="tooltip"
                       >
-                        {isNotificationEnabled
-                          ? '알림 해제'
-                          : '알림 설정'}
+                        {notificationFeedback}
                       </span>
                     </button>
                   ) : null}
@@ -650,7 +655,7 @@ export function MovieDetailModal({
 
       <ConfirmModal
         open={showNotificationGuide}
-        eyebrow="개봉일 알림"
+        eyebrow="알림"
         icon={<Bell size={30} strokeWidth={1.7} />}
         title="보고 싶은 영화로 저장해 주세요"
         description="개봉일 알림은 보고 싶은 영화로 저장한 작품에서만 설정할 수 있어요."

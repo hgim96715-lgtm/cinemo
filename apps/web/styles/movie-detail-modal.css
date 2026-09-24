@@ -745,21 +745,9 @@
   }
 }
 
-.movie-detail-notification-button:focus-visible .movie-detail-tooltip {
-  opacity: 1;
-  transform: translate(0, 50%);
-}
-
 .movie-detail-notification-button.is-tooltip-visible .movie-detail-tooltip {
   opacity: 1;
   transform: translate(0, 50%);
-}
-
-@media (hover: hover) {
-  .movie-detail-notification-button:hover .movie-detail-tooltip {
-    opacity: 1;
-    transform: translate(0, 50%);
-  }
 }
 
 .movie-detail-sr-only {
