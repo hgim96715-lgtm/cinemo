@@ -3,7 +3,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { useDialogFocusRestore } from '@/hooks/common/useDialogFocusRestore';
 import { kstDateKey } from '@/lib/date-kst';
 
 type Props = {

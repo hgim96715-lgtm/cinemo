@@ -8,7 +8,7 @@ import { searchMoviesRequest } from '@/lib/tmdb-api';
 import { normalizeSearchQuery } from '@/lib/search-query';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { LoaderCircle, X } from 'lucide-react';
-import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { useDialogFocusRestore } from '@/hooks/common/useDialogFocusRestore';
 
 type PosterPickerModalProps = {
   token: string;

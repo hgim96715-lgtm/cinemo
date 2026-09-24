@@ -16,7 +16,8 @@ import {
   VIEWING_TYPE_OPTIONS,
 } from './watched-record-form';
 import { useRef, useState } from 'react';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker } from '@daypicker/react';
+import { ko } from '@daypicker/react/locale';
 
 type WatchedPlaceOption = PlaceSearchResult & {
   cinemaId?: string;
@@ -111,6 +112,7 @@ export function WatchedRecordForm({
               mode="single"
               selected={selectedDate}
               defaultMonth={selectedDate ?? maxDate}
+              locale={ko}
               disabled={maxDate ? { after: maxDate } : undefined}
               onSelect={(date) => {
                 if (!date) return;

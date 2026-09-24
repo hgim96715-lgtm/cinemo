@@ -723,6 +723,26 @@ export interface paths {
         patch: operations["UserMovieController_updateReleaseNotification_v1"];
         trace?: never;
     };
+    "/v1/user-movies/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 영화 캘린더 조회
+         * @description 관람 기록과 개봉일 알림 일정을 기간별로 조회
+         */
+        get: operations["UserMovieController_getCalendar_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/release-notifications/cron": {
         parameters: {
             query?: never;
@@ -1780,6 +1800,38 @@ export interface components {
              * @example 2026-09-16
              */
             releaseDate: string;
+        };
+        UserMovieCalendarItemDto: {
+            /** @example 550 */
+            tmdbId: number;
+            /**
+             * Format: date
+             * @example 2026-09-03
+             */
+            date: string;
+            /** @example 이웃집 토토로 */
+            title: string;
+            /** @example /poster.jpg */
+            posterPath: string | null;
+            /** Format: date-time */
+            watchedAt: string | null;
+            viewingPlace: string | null;
+            rating: number | null;
+            review: string | null;
+        };
+        UserMovieCalendarResponseDto: {
+            /**
+             * Format: date
+             * @example 2026-09-01
+             */
+            from: string;
+            /**
+             * Format: date
+             * @example 2026-09-30
+             */
+            to: string;
+            watched: components["schemas"]["UserMovieCalendarItemDto"][];
+            releaseNotifications: components["schemas"]["UserMovieCalendarItemDto"][];
         };
         ReleaseNotificationFailureDto: {
             /** Format: uuid */
@@ -3413,6 +3465,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReleaseNotificationResponseDto"];
+                };
+            };
+        };
+    };
+    UserMovieController_getCalendar_v1: {
+        parameters: {
+            query: {
+                /** @description 조회 시작일 */
+                from: string;
+                /** @description 조회 종료일 */
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserMovieCalendarResponseDto"];
                 };
             };
         };

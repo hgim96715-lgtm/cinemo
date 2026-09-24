@@ -3,7 +3,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { useDialogFocusRestore } from '@/hooks/common/useDialogFocusRestore';
 
 type ConfirmModalProps = {
   open: boolean;

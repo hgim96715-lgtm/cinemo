@@ -75,7 +75,7 @@ export default function MyCinemaPage() {
         descriptionClassName="my-cinema-dashboard-lede"
         leading={
           <div className="my-cinema-dashboard-brand">
-            <LibraryBig size={16} strokeWidth={1.8} aria-hidden="true" />
+            <LibraryBig size={18} strokeWidth={1.8} aria-hidden="true" />
           </div>
         }
       />
@@ -171,14 +171,11 @@ export default function MyCinemaPage() {
               <span>MY POSTCARD</span>
               <small>영화 문장 기록</small>
             </Link>
-            <div
-              className="my-cinema-tool-card is-disabled"
-              aria-disabled="true"
-            >
+            <Link className="my-cinema-tool-card" href="/my-cinema/calendar">
               <CalendarDays size={18} aria-hidden="true" />
               <span>영화 캘린더</span>
-              <small>관람 일정 연결 예정</small>
-            </div>
+              <small>관람 일정</small>
+            </Link>
           </div>
         </section>
 

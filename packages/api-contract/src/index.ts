@@ -32,11 +32,9 @@ export type UpcomingMovie = components["schemas"]["UpcomingMovieDto"];
 export type UpcomingMoviesResponse =
   components["schemas"]["UpcomingMoviesResponseDto"];
 
-export type LobbyBoardResponse =
-  components["schemas"]["LobbyBoardResponseDto"];
+export type LobbyBoardResponse = components["schemas"]["LobbyBoardResponseDto"];
 
-export type LobbyVisitResponse =
-  components["schemas"]["LobbyVisitResponseDto"];
+export type LobbyVisitResponse = components["schemas"]["LobbyVisitResponseDto"];
 
 export type CinemaResponse = components["schemas"]["CinemaResponseDto"];
 
@@ -87,7 +85,8 @@ export type UserMovieListPage =
 export type ToggleUserMovieResult =
   components["schemas"]["ToggleUserMovieResponseDto"];
 
-export type UserMovieStatus = components["schemas"]["UserMovieStatusResponseDto"];
+export type UserMovieStatus =
+  components["schemas"]["UserMovieStatusResponseDto"];
 
 export type UserMovieCounts =
   components["schemas"]["UserMovieCountsResponseDto"];
@@ -144,3 +143,9 @@ export type PostcardCommentItem =
 
 export type PostcardDeleteResponse =
   components["schemas"]["PostcardDeleteResponseDto"];
+
+export type UserMovieCalendarItem =
+  components["schemas"]["UserMovieCalendarItemDto"];
+
+export type UserMovieCalendarResponse =
+  components["schemas"]["UserMovieCalendarResponseDto"];

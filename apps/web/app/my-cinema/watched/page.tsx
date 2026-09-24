@@ -5,7 +5,7 @@ import '@/styles/my-cinema.css';
 import '@/styles/poster-picker-modal.css';
 import '@/styles/watched.css';
 import '@/styles/movie-detail-modal.css';
-import 'react-day-picker/style.css';
+import '@daypicker/react/style.css';
 import '@/styles/confirm-modal.css';
 import '@/styles/moviechart-modal.css';
 import '@/styles/lobby.css';

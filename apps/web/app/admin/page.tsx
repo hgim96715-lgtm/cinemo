@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { AdminOverview } from '@cinemo/shared';
 import { AdminWeekPeople } from '@/components/admin/AdminCharts';
-import { useAdminAnalytics } from '@/hooks/useAdminAnalytics';
+import { useAdminAnalytics } from '@/hooks/admin/useAdminAnalytics';
 import { getAdminOverviewRequest } from '@/lib/admin-api';
 import { useAuthStore } from '@/lib/auth-store';
 import { formatKstDateKey, kstDateKey } from '@/lib/date-kst';

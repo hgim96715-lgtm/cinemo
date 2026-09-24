@@ -1,6 +1,6 @@
 'use client';
 
-import { useAdminAnalytics } from '@/hooks/useAdminAnalytics';
+import { useAdminAnalytics } from '@/hooks/admin/useAdminAnalytics';
 
 type Props = {
   title: string;

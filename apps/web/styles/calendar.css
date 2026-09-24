@@ -1,0 +1,497 @@
+.my-cinema-calendar .my-cinema-calendar-panel,
+.my-cinema-calendar .calendar-selected-movies {
+  width: min(100%, 52rem);
+  margin-inline: auto;
+}
+
+.my-cinema-calendar .my-cinema-calendar-panel {
+  padding: 1rem;
+  border: 1px solid rgb(243 239 230 / 0.14);
+  border-radius: 0.9rem;
+  background: rgb(243 239 230 / 0.025);
+}
+
+.my-cinema-calendar .my-cinema-calendar-picker {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.my-cinema-calendar .rdp-month_grid {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.my-cinema-calendar .rdp-weekday {
+  height: 2.5rem;
+  color: var(--cinemo-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.my-cinema-calendar .rdp-month_caption {
+  display: flex;
+  align-items: center;
+  min-height: 2.25rem;
+  gap: 0.75rem;
+  padding-right: 7rem;
+}
+
+.my-cinema-calendar .rdp-month {
+  position: relative;
+}
+
+.my-cinema-calendar .rdp-dropdowns {
+  flex: 0 0 auto;
+}
+
+.my-cinema-calendar .calendar-month-nav {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.my-cinema-calendar .rdp-day {
+  width: calc(100% / 7);
+  height: auto;
+  padding: 0.2rem;
+  vertical-align: middle;
+}
+
+.my-cinema-calendar .calendar-day-button {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 2.2 / 3;
+  place-items: center;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgb(243 239 230 / 0.16);
+  border-radius: 0.35rem;
+  background: var(--cinemo-bg);
+  color: var(--cinemo-fg);
+}
+
+.my-cinema-calendar .calendar-day-button:hover:not(:disabled) {
+  border-color: var(--lobby-gold, #d7b45a);
+}
+
+.my-cinema-calendar .rdp-day.calendar-day--watched .calendar-day-button {
+  border-color: var(--lobby-red, #ad4f59);
+}
+
+.my-cinema-calendar .rdp-day.rdp-selected .calendar-day-button,
+.my-cinema-calendar .calendar-day-button[aria-selected='true'] {
+  border-color: var(--lobby-red, #ad4f59);
+}
+
+.my-cinema-calendar .rdp-day.rdp-today .calendar-day-button {
+  color: var(--lobby-gold, #d7b45a);
+}
+
+.my-cinema-calendar .rdp-day.rdp-today .calendar-day-number {
+  color: var(--lobby-gold, #d7b45a);
+}
+
+.my-cinema-calendar .rdp-day.rdp-outside .calendar-day-button {
+  opacity: 0.42;
+}
+
+.my-cinema-calendar .calendar-day-poster {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--cinemo-bg);
+}
+
+.my-cinema-calendar .calendar-day-poster::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.78) 0%,
+    rgb(0 0 0 / 0.32) 32%,
+    transparent 58%,
+    rgb(0 0 0 / 0.2) 100%
+  );
+  content: '';
+}
+
+.my-cinema-calendar .calendar-day-poster img {
+  width: 100%;
+  height: 100%;
+}
+
+.my-cinema-calendar .calendar-day-poster-backdrop {
+  z-index: 0;
+  object-fit: cover;
+  filter: blur(0.45rem);
+  opacity: 0.5;
+  transform: scale(1.08);
+}
+
+.my-cinema-calendar .calendar-day-poster-image {
+  z-index: 1;
+  object-fit: cover;
+  padding: 0;
+}
+
+.my-cinema-calendar .calendar-day-number {
+  position: relative;
+  z-index: 2;
+  align-self: start;
+  justify-self: start;
+  padding: 0.25rem 0.35rem;
+  color: var(--cinemo-fg);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 0.3rem rgb(0 0 0 / 0.8);
+}
+
+.my-cinema-calendar .rdp-day:nth-child(1) .calendar-day-number {
+  color: rgb(218 126 126 / 0.9);
+}
+
+.my-cinema-calendar .rdp-day:nth-child(7) .calendar-day-number {
+  color: rgb(126 166 218 / 0.9);
+}
+
+.my-cinema-calendar .rdp-day.rdp-selected .calendar-day-number,
+.my-cinema-calendar .calendar-day-button[aria-selected='true']
+  .calendar-day-number {
+  color: var(--cinemo-gold);
+}
+
+.my-cinema-calendar .rdp-day.rdp-today .calendar-day-number {
+  color: var(--cinemo-gold);
+}
+
+.my-cinema-calendar .calendar-day-no-poster {
+  display: grid;
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  place-items: center;
+  color: var(--cinemo-muted);
+  font-size: 0.65rem;
+}
+
+.my-cinema-calendar .calendar-day-notification {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 3;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--lobby-gold, #d7b45a);
+  box-shadow: 0 0 0.35rem rgb(215 180 90 / 0.8);
+  pointer-events: none;
+}
+
+.my-cinema-calendar .calendar-loading {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  color: var(--cinemo-muted);
+  font-size: 0.9rem;
+}
+
+.my-cinema-calendar .rdp-nav button {
+  color: var(--cinemo-gold);
+  border: 0;
+  background: transparent;
+}
+
+.my-cinema-calendar .rdp-nav button:hover:not(:disabled),
+.my-cinema-calendar .rdp-nav button:focus-visible {
+  color: var(--cinemo-fg);
+  background: rgb(243 239 230 / 0.08);
+}
+
+.my-cinema-calendar .rdp-nav .rdp-chevron {
+  fill: currentcolor;
+}
+
+.my-cinema-calendar .calendar-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.my-cinema-calendar .calendar-today-button {
+  min-width: 2.6rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(215 180 90 / 0.55);
+  border-radius: 999px;
+  color: var(--cinemo-gold);
+  background: transparent;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.my-cinema-calendar .calendar-today-button:hover,
+.my-cinema-calendar .calendar-today-button:focus-visible {
+  border-color: var(--cinemo-gold);
+  color: var(--cinemo-fg);
+  background: rgb(215 180 90 / 0.1);
+}
+
+.my-cinema-calendar .rdp-dropdowns {
+  gap: 0.4rem;
+}
+
+.my-cinema-calendar .rdp-dropdown_root {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(215 180 90 / 0.5);
+  border-radius: 0.4rem;
+  color: var(--cinemo-gold);
+  background: rgb(243 239 230 / 0.035);
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.my-cinema-calendar .rdp-dropdown_root:hover,
+.my-cinema-calendar .rdp-dropdown_root:focus-within {
+  border-color: var(--cinemo-gold);
+  background: rgb(215 180 90 / 0.1);
+}
+
+.my-cinema-calendar .rdp-dropdown:focus-visible ~ .rdp-caption_label {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(215 180 90 / 0.28);
+}
+
+.my-cinema-calendar .rdp-dropdown_root .rdp-caption_label {
+  color: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.my-cinema-calendar .rdp-dropdown_root .rdp-chevron {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: currentcolor;
+}
+
+@media (min-width: 64.01rem) {
+  .my-cinema-calendar .my-cinema-calendar-panel {
+    padding: 1.35rem 1.5rem 1.5rem;
+  }
+
+  .my-cinema-calendar .my-cinema-calendar-picker {
+    overflow: hidden;
+  }
+
+  .my-cinema-calendar .rdp-month_caption {
+    padding: 0 7rem 0 0.35rem;
+  }
+
+  .my-cinema-calendar .rdp-caption_label {
+    color: var(--cinemo-fg);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .my-cinema-calendar .rdp-weekdays {
+    border-bottom: 1px solid rgb(243 239 230 / 0.12);
+  }
+
+  .my-cinema-calendar .rdp-weekday {
+    padding-bottom: 0.55rem;
+  }
+
+  .my-cinema-calendar .calendar-day-button {
+    background: rgb(243 239 230 / 0.025);
+  }
+}
+
+.my-cinema-calendar .calendar-selected-movies {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1px solid rgb(243 239 230 / 0.16);
+  border-radius: 0.65rem;
+  background: rgb(243 239 230 / 0.035);
+}
+
+.my-cinema-calendar .calendar-selected-movies h3 {
+  margin: 0 0 1rem;
+  color: var(--cinemo-gold);
+  font-size: 1rem;
+}
+
+
+.my-cinema-calendar .calendar-legend-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--cinemo-gold);
+  }
+
+
+.calendar-legend .calendar-selected-notification {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: 100%;
+  margin: 0;
+
+  color: var(--cinemo-muted);
+  font-size: 0.75rem;
+}
+
+
+.calendar-selected-notification:not(.notification-description) strong{
+    color:var(--cinemo-gold)
+}
+
+
+
+
+
+
+
+.my-cinema-calendar .calendar-selected-movies ul {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.my-cinema-calendar .calendar-selected-movies li {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--cinemo-muted);
+  text-align: center;
+}
+
+.my-cinema-calendar .calendar-selected-movies li img {
+  width: min(100%, 10rem);
+  justify-self: center;
+  aspect-ratio: 2.2 / 3;
+  border-radius: 0.35rem;
+  object-fit: cover;
+}
+
+.my-cinema-calendar .calendar-legend {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+  color: var(--cinemo-muted);
+  font-size: 0.8rem;
+}
+
+
+
+.my-cinema-calendar .calendar-movie-button {
+    display: grid;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .my-cinema-calendar .calendar-movie-button:hover img,
+  .my-cinema-calendar .calendar-movie-button:focus-visible img {
+    filter: brightness(1.08);
+    transform: translateY(-0.15rem);
+  }
+
+  .my-cinema-calendar .calendar-movie-button img {
+    transition:
+      filter 180ms ease,
+      transform 180ms ease;
+  }
+@media (max-width: 40rem) {
+  .my-cinema-calendar .calendar-selected-movies {
+    width: min(100%, 20rem);
+    padding: 1rem;
+  }
+
+  .my-cinema-calendar .my-cinema-calendar-picker {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .my-cinema-calendar .rdp-weekday {
+    height: 2rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+  }
+
+  .my-cinema-calendar .rdp-day {
+    height: auto;
+    padding: 0.1rem;
+  }
+
+  .my-cinema-calendar .calendar-day-button {
+    aspect-ratio: 2.2 / 3;
+    height: auto;
+    min-height: 0;
+    border-radius: 0.45rem;
+    background: rgb(243 239 230 / 0.025);
+  }
+
+  .my-cinema-calendar .calendar-day-poster {
+    display: block;
+    inset: 0;
+    border-radius: 0.25rem;
+    opacity: 0.78;
+  }
+
+  .my-cinema-calendar .calendar-day-number {
+    align-self: start;
+    justify-self: start;
+    padding: 0.2rem 0.25rem;
+    font-size: 0.75rem;
+    text-shadow: 0 1px 0.25rem rgb(0 0 0 / 0.9);
+  }
+
+  .my-cinema-calendar .calendar-day-notification {
+    top: 0.3rem;
+    right: 0.3rem;
+    width: 0.32rem;
+    height: 0.32rem;
+  }
+
+  .my-cinema-calendar .calendar-selected-movies ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-cinema-calendar .calendar-selected-movies li img {
+    width: min(100%, 5rem);
+  }
+}
+
+@media (min-width: 40.01rem) and (max-width: 64rem) {
+  .my-cinema-calendar .rdp-day {
+    height: auto;
+  }
+
+  .my-cinema-calendar .calendar-day-button {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 2.2 / 3;
+  }
+
+  .my-cinema-calendar .calendar-selected-movies ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .my-cinema-calendar .calendar-selected-movies li img {
+    width: min(100%, 9rem);
+  }
+}

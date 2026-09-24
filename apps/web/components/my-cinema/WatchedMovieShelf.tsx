@@ -15,8 +15,8 @@ import { WatchedRecordSkeleton } from './WatchedRecordSkeleton';
 import { MovieShelfState } from './MovieShelfState';
 import { UserMovieShelfLayout } from './UserMovieShelfLayout';
 import { UserMovieShelfLoginModal } from './UserMovieShelfLoginModal';
-import { useUserMovieList } from './hooks/useUserMovieList';
-import { useUserMovieDisplay } from './hooks/useUserMovieDisplay';
+import { useUserMovieList } from '@/hooks/my-cinema/useUserMovieList';
+import { useUserMovieDisplay } from '@/hooks/my-cinema/useUserMovieDisplay';
 
 type Props = {
   title: string;

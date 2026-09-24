@@ -12,6 +12,7 @@ import type {
   UpdateViewingDetails,
   UpdateDisplayDto,
   WishMovieDetailResponse,
+  UserMovieCalendarResponse,
 } from '@cinemo/api-contract';
 import { apiFetch } from './api-fetch';
 
@@ -160,5 +161,21 @@ export function updateMovieReleaseNotificationRequest(
         releaseDate,
       }),
     },
+  );
+}
+
+export function getUserMovieCalendarRequest(
+  token: string,
+  from: string,
+  to: string,
+) {
+  const params = new URLSearchParams({
+    from,
+    to,
+  });
+
+  return apiFetch<UserMovieCalendarResponse>(
+    `/user-movies/calendar?${params.toString()}`,
+    { token },
   );
 }

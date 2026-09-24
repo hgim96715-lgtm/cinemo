@@ -24,8 +24,8 @@ import { UserMovieShelfLoginModal } from './UserMovieShelfLoginModal';
 import { WatchedRecordModal } from './WatchedRecordModal';
 import type { WatchedRecordMovie } from './movie-record.types';
 import { WishMovieSkeleton } from './WishMovieSkeleton';
-import { useUserMovieList } from './hooks/useUserMovieList';
-import { useUserMovieDisplay } from './hooks/useUserMovieDisplay';
+import { useUserMovieList } from '@/hooks/my-cinema/useUserMovieList';
+import { useUserMovieDisplay } from '@/hooks/my-cinema/useUserMovieDisplay';
 
 type Props = {
   title: string;

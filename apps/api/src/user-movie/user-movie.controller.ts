@@ -38,6 +38,9 @@ import { UserMovieDisplayedResponseDto } from './dto/user-movie-displayed-respon
 import { WishMovieDetailResponseDto } from './dto/wish-movie-detail-response.dto';
 import { UserMovieRecordResponseDto } from './dto/user-movie-record-response.dto';
 import { ReleaseNotificationResponseDto } from './dto/release-notification-response.dto';
+import { UserMovieCalendarService } from './user-movie-calendar.service';
+import { UserMovieCalendarQueryDto } from './dto/user-movie-calendar-query.dto';
+import { UserMovieCalendarResponseDto } from './dto/user-movie-calendar-response.dto';
 
 @ApiTags('user-movies')
 @ApiBearerAuth()
@@ -48,6 +51,7 @@ export class UserMovieController {
     private readonly userMovieStatsService: UserMovieStatsService,
     private readonly userMovieDisplayService: UserMovieDisplayService,
     private readonly userMovieReleaseNotificationService: UserMovieReleaseNotificationService,
+    private readonly userMovieCalendarService: UserMovieCalendarService,
   ) {}
 
   @Post('toggle')
@@ -227,6 +231,22 @@ export class UserMovieController {
     return this.userMovieReleaseNotificationService.updateReleaseNotification(
       userId,
       dto,
+    );
+  }
+  @Get('calendar')
+  @ApiOperation({
+    summary: '영화 캘린더 조회',
+    description: '관람 기록과 개봉일 알림 일정을 기간별로 조회',
+  })
+  @ApiOkResponse({ type: UserMovieCalendarResponseDto })
+  getCalendar(
+    @UserId() userId: string,
+    @Query() query: UserMovieCalendarQueryDto,
+  ) {
+    return this.userMovieCalendarService.getCalendar(
+      userId,
+      query.from,
+      query.to,
     );
   }
 }

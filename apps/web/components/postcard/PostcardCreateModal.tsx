@@ -14,7 +14,7 @@ import {
 import { searchMoviesRequest } from '@/lib/tmdb-api';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { useAuthStore } from '@/lib/auth-store';
-import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { useDialogFocusRestore } from '@/hooks/common/useDialogFocusRestore';
 import {
   postcardSchema,
   type PostcardFormValues,

@@ -12,6 +12,7 @@ import { AuthBootstrap } from '@/components/auth/AuthBootstrap';
 
 import { Nanum_Pen_Script } from 'next/font/google';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const nanumPen = Nanum_Pen_Script({
   variable: '--font-nanum-pen',

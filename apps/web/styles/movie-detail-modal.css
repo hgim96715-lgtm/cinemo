@@ -203,6 +203,102 @@
   background: rgb(243 239 230 / 0.04);
 }
 
+.watched-record-detail-modal {
+  box-sizing: border-box;
+  width: min(calc(100% - 2rem), 36rem);
+  max-height: min(92svh, 52rem);
+  overflow-y: auto;
+  padding: 3.25rem 2rem 2rem;
+  scrollbar-width: none;
+}
+
+.watched-record-detail-modal::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.watched-record-detail-modal .my-cinema-watched-kicker {
+  margin: 0 0 0.7rem;
+  color: rgb(230 202 101 / 0.72);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-align: left;
+}
+
+.watched-record-detail-poster {
+  position: relative;
+  width: min(100%, 19rem);
+  aspect-ratio: 2.2 / 3;
+  margin: 0 auto 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgb(243 239 230 / 0.16);
+  border-radius: 0.45rem;
+  background: rgb(243 239 230 / 0.035);
+}
+
+.watched-record-detail-poster img {
+  object-fit: cover;
+}
+
+.watched-record-detail-poster > span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--cinemo-muted);
+}
+
+.watched-record-detail-modal > h2 {
+  margin: 0 0 1.25rem;
+  color: var(--lobby-fg);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.watched-record-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0;
+}
+
+.watched-record-detail-meta div {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(230 202 101 / 0.16);
+}
+
+.watched-record-detail-meta small {
+  color: var(--cinemo-gold);
+  letter-spacing: 0.12em;
+}
+
+.watched-record-detail-meta strong {
+  overflow-wrap: anywhere;
+  color: var(--cinemo-fg);
+}
+
+.watched-record-detail-rating {
+  display: block;
+  margin-top: 1.1rem;
+  color: var(--cinemo-gold);
+  font-size: 1.35rem;
+}
+
+.watched-record-detail-review {
+  margin: 1rem 0 0;
+  color: rgb(243 239 230 / 0.68);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
 .movie-detail-modal--loading {
   min-height: 34rem;
 }
@@ -1543,6 +1639,25 @@
 
   .watched-record-modal .movie-detail-screening {
     margin-top: 1rem;
+  }
+
+  .watched-record-detail-modal {
+    width: calc(100% - 2rem);
+    max-height: calc(100svh - 2rem);
+    padding: 3rem 1rem 1rem;
+  }
+
+  .watched-record-detail-modal .my-cinema-watched-kicker {
+    margin-bottom: 0.65rem;
+  }
+
+  .watched-record-detail-poster {
+    width: min(100%, 13rem);
+    margin-bottom: 1.15rem;
+  }
+
+  .watched-record-detail-meta {
+    gap: 0.75rem;
   }
 
   .movie-detail-modal--loading {

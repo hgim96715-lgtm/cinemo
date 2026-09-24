@@ -1315,6 +1315,57 @@
         ]
       }
     },
+    "/v1/user-movies/calendar": {
+      "get": {
+        "description": "관람 기록과 개봉일 알림 일정을 기간별로 조회",
+        "operationId": "UserMovieController_getCalendar_v1",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "조회 시작일",
+            "schema": {
+              "format": "date",
+              "example": "2026-09-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "조회 종료일",
+            "schema": {
+              "format": "date",
+              "example": "2026-09-30",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMovieCalendarResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "영화 캘린더 조회",
+        "tags": [
+          "user-movies"
+        ]
+      }
+    },
     "/v1/release-notifications/cron": {
       "post": {
         "description": "GitHub Actions 호출을 통한 발송 대상 개봉일 알림 처리",
@@ -3870,6 +3921,89 @@
           "tmdbId",
           "enabled",
           "releaseDate"
+        ]
+      },
+      "UserMovieCalendarItemDto": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
+            "type": "number",
+            "example": 550
+          },
+          "date": {
+            "type": "string",
+            "example": "2026-09-03",
+            "format": "date"
+          },
+          "title": {
+            "type": "string",
+            "example": "이웃집 토토로"
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true,
+            "example": "/poster.jpg"
+          },
+          "watchedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "viewingPlace": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true
+          },
+          "review": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "tmdbId",
+          "date",
+          "title",
+          "posterPath",
+          "watchedAt",
+          "viewingPlace",
+          "rating",
+          "review"
+        ]
+      },
+      "UserMovieCalendarResponseDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "2026-09-01",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "example": "2026-09-30",
+            "format": "date"
+          },
+          "watched": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserMovieCalendarItemDto"
+            }
+          },
+          "releaseNotifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserMovieCalendarItemDto"
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "watched",
+          "releaseNotifications"
         ]
       },
       "ReleaseNotificationFailureDto": {

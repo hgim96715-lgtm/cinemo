@@ -11,8 +11,8 @@ import { registerRequest } from '@/lib/auth-api';
 import {
   useEmailAvailability,
   useNicknameAvailability,
-} from './useAvailabilityQuery';
-import type { AvailabilityStatus } from './useAvailabilityQuery';
+} from '@/hooks/auth/useAvailabilityQuery';
+import type { AvailabilityStatus } from '@/hooks/auth/useAvailabilityQuery';
 import {
   registerSchema,
   type RegisterFormValues,

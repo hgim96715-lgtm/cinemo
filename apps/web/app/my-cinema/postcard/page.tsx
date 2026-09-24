@@ -31,7 +31,7 @@ import { PostcardCreateModal } from '@/components/postcard/PostcardCreateModal';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { ErrorModal } from '@/components/common/ErrorModal';
 import { PostcardListSkeleton } from '@/components/postcard/PostcardListSkeleton';
-import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { useDialogFocusRestore } from '@/hooks/common/useDialogFocusRestore';
 import { formatKstDate } from '@/lib/date-kst';
 import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
 

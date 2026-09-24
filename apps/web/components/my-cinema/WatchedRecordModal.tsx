@@ -9,8 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import type {
   CinemaResponse,
-  MovieSearchItem,
-  MovieSummary,
   PlaceSearchResult,
   UserMovieListItem,
 } from '@cinemo/api-contract';

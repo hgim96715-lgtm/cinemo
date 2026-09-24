@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MovieChartTrailerSkeleton } from '@/components/moviechart/MovieChartTrailerSkeleton';
-import { useDialogFocusRestore } from '@/hooks/useDialogFocusRestore';
+import { useDialogFocusRestore } from '@/hooks/common/useDialogFocusRestore';
 
 type MovieVideoModalProps = {
   title: string;
