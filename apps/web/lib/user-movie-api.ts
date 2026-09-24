@@ -5,7 +5,7 @@ import type {
   UserMovieDisplayResult,
   UserMovieDisplayedResponse,
   UserMovieListPage,
-  UserMovieMarks,
+  UserMovieStatus,
   UserMovieStats,
   UserMovieRecord,
   ReleaseNotificationResponse,
@@ -27,8 +27,8 @@ export function toggleUserMovieRequest(
   });
 }
 
-export function getUserMovieMarksRequest(token: string, tmdbId: number) {
-  return apiFetch<UserMovieMarks>(`/user-movies/marks?tmdbId=${tmdbId}`, {
+export function getMovieStatusRequest(token: string, tmdbId: number) {
+  return apiFetch<UserMovieStatus>(`/user-movies/status?tmdbId=${tmdbId}`, {
     token,
   });
 }

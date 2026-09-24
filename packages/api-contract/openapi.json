@@ -970,10 +970,10 @@
         ]
       }
     },
-    "/v1/user-movies/marks": {
+    "/v1/user-movies/status": {
       "get": {
         "description": "특정 영화의 보고 싶은 영화·관람 기록 여부 조회",
-        "operationId": "UserMovieController_getMarks_v1",
+        "operationId": "UserMovieController_getMovieStatus_v1",
         "parameters": [
           {
             "name": "tmdbId",
@@ -990,7 +990,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserMovieMarksResponseDto"
+                  "$ref": "#/components/schemas/UserMovieStatusResponseDto"
                 }
               }
             }
@@ -3442,7 +3442,7 @@
           "tmdbId"
         ]
       },
-      "UserMovieMarksResponseDto": {
+      "UserMovieStatusResponseDto": {
         "type": "object",
         "properties": {
           "tmdbId": {

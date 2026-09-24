@@ -559,7 +559,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/user-movies/marks": {
+    "/v1/user-movies/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -570,7 +570,7 @@ export interface paths {
          * 영화 보관 상태 조회
          * @description 특정 영화의 보고 싶은 영화·관람 기록 여부 조회
          */
-        get: operations["UserMovieController_getMarks_v1"];
+        get: operations["UserMovieController_getMovieStatus_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1623,7 +1623,7 @@ export interface components {
             /** @example 8 */
             rating?: number | null;
         };
-        UserMovieMarksResponseDto: {
+        UserMovieStatusResponseDto: {
             /** @example 550 */
             tmdbId: number;
             /** @example true */
@@ -3225,7 +3225,7 @@ export interface operations {
             };
         };
     };
-    UserMovieController_getMarks_v1: {
+    UserMovieController_getMovieStatus_v1: {
         parameters: {
             query: {
                 tmdbId: number;
@@ -3241,7 +3241,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserMovieMarksResponseDto"];
+                    "application/json": components["schemas"]["UserMovieStatusResponseDto"];
                 };
             };
         };

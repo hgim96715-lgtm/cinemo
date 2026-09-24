@@ -87,7 +87,7 @@ export type UserMovieListPage =
 export type ToggleUserMovieResult =
   components["schemas"]["ToggleUserMovieResponseDto"];
 
-export type UserMovieMarks = components["schemas"]["UserMovieMarksResponseDto"];
+export type UserMovieStatus = components["schemas"]["UserMovieStatusResponseDto"];
 
 export type UserMovieCounts =
   components["schemas"]["UserMovieCountsResponseDto"];

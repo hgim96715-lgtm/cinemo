@@ -216,7 +216,7 @@ export class UserMovieService {
     return this.toRecordResponse(row);
   }
 
-  async getMarks(userId: string, tmdbId: number) {
+  async getMovieStatus(userId: string, tmdbId: number) {
     const rows = await this.prisma.userMovie.findMany({
       where: { userId, tmdbId },
       select: { kind: true },

@@ -18,7 +18,7 @@ import type {
   MovieSummary,
   PlaceSearchResult,
   UserMovieListItem,
-  UserMovieMarks,
+  UserMovieStatus,
 } from '@cinemo/api-contract';
 import { tmdbPosterUrl } from '@/lib/tmdb-image';
 import { useAuthStore } from '@/lib/auth-store';
@@ -78,7 +78,7 @@ type MovieDetailModalProps = {
   movie: MovieModalMovie;
   isDetailLoading?: boolean;
   screening?: UserMovieListItem;
-  marks?: Pick<UserMovieMarks, 'wish' | 'watched'>;
+  movieStatus?: Pick<UserMovieStatus, 'wish' | 'watched'>;
   showWatchedMark?: boolean;
   showCalendar?: boolean;
   onClose: () => void;
@@ -92,7 +92,7 @@ export function MovieDetailModal({
   movie,
   isDetailLoading = false,
   screening,
-  marks,
+  movieStatus,
   showWatchedMark = true,
   showCalendar = true,
   onClose,
@@ -111,7 +111,7 @@ export function MovieDetailModal({
   const isReleased =
     Boolean(movie.release_date) && movie.release_date <= todayKst;
   const isNotificationEnabled = Boolean(
-    marks?.wish && releaseNotificationEnabled,
+    movieStatus?.wish && releaseNotificationEnabled,
   );
   const poster = tmdbPosterUrl(movie.poster_path, 'w342');
   const [placeSuggestions, setPlaceSuggestions] = useState<PlaceSearchResult[]>(
@@ -338,7 +338,7 @@ export function MovieDetailModal({
   );
 
   function handleNotificationClick() {
-    if (!marks?.wish) {
+    if (!movieStatus?.wish) {
       setNotificationFeedback('');
       setShowNotificationTooltip(false);
       setShowNotificationGuide(true);
@@ -466,31 +466,31 @@ export function MovieDetailModal({
                   <button
                     type="button"
                     className={`my-cinema-mark movie-detail-interest-icon${
-                      marks?.wish ? ' is-on' : ''
+                      movieStatus?.wish ? ' is-on' : ''
                     }`}
-                    aria-pressed={marks?.wish ?? false}
+                    aria-pressed={movieStatus?.wish ?? false}
                     aria-label={
-                      marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'
+                      movieStatus?.wish ? '보고 싶어요 취소' : '보고 싶어요'
                     }
                     onClick={() => onToggleMark('wish')}
                   >
                     <Heart
                       size={22}
                       strokeWidth={1.8}
-                      fill={marks?.wish ? 'currentColor' : 'none'}
+                      fill={movieStatus?.wish ? 'currentColor' : 'none'}
                       aria-hidden
                     />
                   </button>
                   {showWatchedMark ? (
                     <button
                       type="button"
-                      className={`my-cinema-mark${marks?.watched ? ' is-on' : ''}`}
-                      aria-pressed={marks?.watched ?? false}
-                      aria-label={marks?.watched ? '봤어요 해제' : '봤어요'}
+                      className={`my-cinema-mark${movieStatus?.watched ? ' is-on' : ''}`}
+                      aria-pressed={movieStatus?.watched ?? false}
+                      aria-label={movieStatus?.watched ? '봤어요 해제' : '봤어요'}
                       onClick={() => onToggleMark('watched')}
                     >
                       <Check size={17} strokeWidth={2} aria-hidden />
-                      <span>{marks?.watched ? '관람 기록' : '봤어요'}</span>
+                      <span>{movieStatus?.watched ? '관람 기록' : '봤어요'}</span>
                     </button>
                   ) : null}
                 </div>
@@ -550,7 +550,7 @@ export function MovieDetailModal({
                     <button
                       type="button"
                       className={`movie-detail-notification-button${
-                        marks?.wish ? ' is-wish' : ''
+                        movieStatus?.wish ? ' is-wish' : ''
                       }${isNotificationEnabled ? ' is-on' : ''}${
                         showNotificationTooltip ? ' is-tooltip-visible' : ''
                       }`}
@@ -606,20 +606,20 @@ export function MovieDetailModal({
                   <button
                     type="button"
                     className={
-                      marks?.wish
+                      movieStatus?.wish
                         ? 'movie-detail-interest-inline is-on'
                         : 'movie-detail-interest-inline'
                     }
-                    aria-pressed={marks?.wish ?? false}
+                    aria-pressed={movieStatus?.wish ?? false}
                     aria-label={
-                      marks?.wish ? '보고 싶어요 취소' : '보고 싶어요'
+                      movieStatus?.wish ? '보고 싶어요 취소' : '보고 싶어요'
                     }
                     onClick={() => onToggleMark('wish')}
                   >
                     <Heart
                       size={19}
                       strokeWidth={1.8}
-                      fill={marks?.wish ? 'currentColor' : 'none'}
+                      fill={movieStatus?.wish ? 'currentColor' : 'none'}
                       aria-hidden
                     />
                   </button>

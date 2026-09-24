@@ -30,7 +30,7 @@ import { UserMovieStatsService } from './user-movie-stats.service';
 import { UserMovieDisplayService } from './user-movie-display.service';
 import { UserMovieReleaseNotificationService } from './user-movie-release-notification.service';
 import { ToggleUserMovieResponseDto } from './dto/toggle-user-movie-response.dto';
-import { UserMovieMarksResponseDto } from './dto/user-movie-marks-response.dto';
+import { UserMovieStatusResponseDto } from './dto/user-movie-status-response.dto';
 import { UserMovieCountsResponseDto } from './dto/user-movie-counts-response.dto';
 import { UserMovieStatsResponseDto } from './dto/user-movie-stats-response.dto';
 import { UserMovieDisplayResponseDto } from './dto/user-movie-display-response.dto';
@@ -114,17 +114,17 @@ export class UserMovieController {
     return this.userMovieService.removeWatchedMovie(userId, tmdbId);
   }
 
-  @Get('marks')
+  @Get('status')
   @ApiOperation({
     summary: '영화 보관 상태 조회',
     description: '특정 영화의 보고 싶은 영화·관람 기록 여부 조회',
   })
-  @ApiOkResponse({ type: UserMovieMarksResponseDto })
-  getMarks(
+  @ApiOkResponse({ type: UserMovieStatusResponseDto })
+  getMovieStatus(
     @UserId() userId: string,
     @Query('tmdbId', ParseIntPipe) tmdbId: number,
   ) {
-    return this.userMovieService.getMarks(userId, tmdbId);
+    return this.userMovieService.getMovieStatus(userId, tmdbId);
   }
 
   @Get('counts')

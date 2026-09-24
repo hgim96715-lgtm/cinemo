@@ -256,7 +256,7 @@ export function WishMovieShelf({ title }: Props) {
           <MovieDetailModal
             movie={wishDetailMovie}
             isDetailLoading={isWishDetailLoading}
-            marks={{ wish: true, watched: false }}
+            movieStatus={{ wish: true, watched: false }}
             showWatchedMark
             showCalendar={false}
             releaseNotificationEnabled={wishReleaseNotificationEnabled}

@@ -544,7 +544,7 @@ function UpcomingPageContent() {
                   {selectedDetailMovie ? (
                     <MovieDetailModal
                       movie={selectedDetailMovie}
-                      marks={{
+                      movieStatus={{
                         wish: interestedIds.includes(selectedDetailMovie.id),
                         watched: false,
                       }}

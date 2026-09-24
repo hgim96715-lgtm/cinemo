@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserMovieMarksResponseDto {
+export class UserMovieStatusResponseDto {
   @ApiProperty({ example: 550 })
   tmdbId!: number;
 

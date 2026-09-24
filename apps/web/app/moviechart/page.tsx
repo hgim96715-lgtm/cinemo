@@ -317,7 +317,7 @@ export default function MovieChartPage() {
             movie={detailMovie}
             showWatchedMark={false}
             showCalendar={false}
-            marks={{
+            movieStatus={{
               wish: wishMovieIds.has(detailMovie.id),
               watched: false,
             }}
