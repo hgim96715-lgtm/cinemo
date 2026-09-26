@@ -47,13 +47,6 @@ export class MovieChartItemDto {
   })
   releaseDate!: string | null;
 
-  @ApiProperty({
-    type: [String],
-    example: ['2026-09-16'],
-    description: 'TMDB에서 확인된 재개봉일 목록',
-  })
-  reReleaseDates!: string[];
-
   @ApiProperty({ type: Number, nullable: true, example: 550 })
   tmdbId!: number | null;
 }

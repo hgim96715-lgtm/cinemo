@@ -56,19 +56,11 @@ function RankChange({ value }: { value: number | null }) {
 
 function getReleaseDayLabel(
   releaseDate: string | null,
-  reReleaseDates: string[],
   todayKst: string,
 ) {
-  const releaseDates = [releaseDate, ...reReleaseDates]
-    .filter((date): date is string => Boolean(date))
-    .sort();
+  if (!releaseDate) return '개봉일 확인 중';
 
-  if (releaseDates.length === 0) return '개봉일 확인 중';
-
-  const currentReleaseDate =
-    releaseDates.filter((date) => date <= todayKst).at(-1) ?? releaseDates[0];
-
-  const release = new Date(`${currentReleaseDate}T00:00:00+09:00`);
+  const release = new Date(`${releaseDate}T00:00:00+09:00`);
   const target = new Date(`${todayKst}T00:00:00+09:00`);
   const days = Math.floor((target.getTime() - release.getTime()) / 86_400_000);
 
@@ -144,7 +136,6 @@ export function MovieChartContentTabs({
 
               const releaseDayLabel = getReleaseDayLabel(
                 movie.releaseDate,
-                movie.reReleaseDates,
                 todayKst,
               );
 

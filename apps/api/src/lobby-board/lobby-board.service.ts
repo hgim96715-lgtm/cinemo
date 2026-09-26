@@ -19,7 +19,6 @@ type MovieChartMovie = BoardBoxOfficeMovieDto & {
   kobisMovieCd: string;
   tmdbId: number | null;
   releaseDate: string | null;
-  reReleaseDates: string[];
   dailyAudienceCount: number;
   trailerUrl: string | null;
   videoType: 'trailer' | null;
@@ -166,8 +165,7 @@ export class LobbyBoardService {
             tmdbId: media.tmdbId,
             rank: Number(movie.rank),
             title: movie.movieNm,
-            releaseDate: pooledMovie?.releaseDate || null,
-            reReleaseDates: media.reReleaseDates,
+            releaseDate: movie.openDt || pooledMovie?.releaseDate || null,
             dailyAudienceCount: Number(movie.audiCnt),
             audienceCount: Number(movie.audiAcc),
             rankChange:

@@ -13,6 +13,7 @@ export type KobisDailyBoxOfficeMovie = {
   movieCd: string;
   rank: string;
   movieNm: string;
+  openDt: string;
   audiCnt: string;
   audiAcc: string;
   rankInten: string;
