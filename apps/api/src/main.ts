@@ -19,7 +19,13 @@ async function bootstrap() {
 
   app.enableCors({
     origin: frontendOrigin
-      ? ['http://localhost:3051', 'http://127.0.0.1:3051', frontendOrigin]
+      ? [
+          'http://localhost:3051',
+          'http://127.0.0.1:3051',
+          'http://localhost:8081',
+          'http://127.0.0.1:8081',
+          frontendOrigin,
+        ]
       : undefined,
     credentials: true,
   });
