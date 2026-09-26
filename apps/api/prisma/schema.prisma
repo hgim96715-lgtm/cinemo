@@ -235,7 +235,7 @@ model UserMovie {
     viewingType       UserMovieViewingType? @map("viewing_type")
     viewingTypeCustom String?               @map("viewing_type_custom") @db.VarChar(100)
     viewingPlatform   String?               @map("viewing_platform") @db.VarChar(40)
-  viewingPlace      String?               @map("viewing_location") @db.VarChar(100)
+    viewingPlace      String?               @map("viewing_location") @db.VarChar(100)
     review            String?               @db.Text
     rating            Int?                  @db.SmallInt
     isDisplayed       Boolean               @default(false) @map("is_displayed")
