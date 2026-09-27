@@ -1,27 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { toKstDate } from '../lib/date-kst';
-
-type MovieChartSnapshotInput = {
-  kobisMovieCd: string;
-  tmdbId?: number | null;
-  rank: number;
-  title: string;
-  dailyAudienceCount: number;
-  audienceCount: number;
-};
-
-type MovieChartStatAccumulator = {
-  kobisMovieCd: string;
-  title: string;
-  firstRank: number;
-  lastRank: number;
-  bestRank: number;
-  firstAudienceCount: number;
-  lastAudienceCount: number;
-  dailyAudienceTotal: number;
-  rankSampleCount: number;
-};
+import type {
+  MovieChartSnapshotInput,
+  MovieChartStatAccumulator,
+} from './types/movie-chart-snapshot.type';
 
 @Injectable()
 export class MovieChartSnapshotService {

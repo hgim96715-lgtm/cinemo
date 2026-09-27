@@ -1,21 +1,10 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PlaceSearchResultDto } from './dto/place-search-result.dto';
-
-type KakaoPlaceDocument = {
-  id: string;
-  place_name: string;
-  category_name: string;
-  address_name: string;
-  road_address_name: string;
-  place_url: string;
-  x: string;
-  y: string;
-};
-
-type KakaoKeywordResponse = {
-  documents: KakaoPlaceDocument[];
-};
+import type {
+  KakaoKeywordResponse,
+  KakaoPlaceDocument,
+} from './types/kakao-api-response.type';
 
 @Injectable()
 export class PlacesService {

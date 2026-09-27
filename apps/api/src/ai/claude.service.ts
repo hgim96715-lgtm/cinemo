@@ -6,10 +6,7 @@ import type {
   MovieQuoteSuggestion,
   RecommendMovieQuotesInput,
 } from './ai.interface';
-
-type MovieQuoteResponse = {
-  quotes?: unknown;
-};
+import type { MovieQuoteResponse } from './types/claude-api-response.type';
 
 function parseMovieQuoteResponse(text: string): MovieQuoteSuggestion[] {
   const normalized = text

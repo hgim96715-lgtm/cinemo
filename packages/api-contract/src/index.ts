@@ -4,7 +4,7 @@ export type MovieDetail = components["schemas"]["MovieDetailDto"];
 
 export type MovieSummary = Omit<
   MovieDetail,
-  "genre_ids" | "origin_countries" | "firstReleaseDate" | "reReleaseDates"
+  "genre_ids" | "origin_countries"
 >;
 
 export type MovieSearchItem = components["schemas"]["MovieSearchItemDto"];

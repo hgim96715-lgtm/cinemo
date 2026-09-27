@@ -17,8 +17,7 @@ import {
   todayKstDate,
   toKstDate,
 } from '../lib/date-kst';
-
-type CountField = 'visits' | 'logins';
+import type { CountField } from './types/admin.type';
 
 @Injectable()
 export class AdminService {

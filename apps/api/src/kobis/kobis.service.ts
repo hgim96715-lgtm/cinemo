@@ -3,27 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { EnvKeys } from '../config/env.keys';
 import type { KobisMovieInfoResponseDto } from './dto/kobis-movie-info-response.dto';
 import type { KobisMovieSearchResponseDto } from './dto/kobis-movie-search-response.dto';
-
-export type KobisUpcomingMovie = {
-  titles: string[];
-  openDate: string;
-};
-
-export type KobisDailyBoxOfficeMovie = {
-  movieCd: string;
-  rank: string;
-  movieNm: string;
-  openDt: string;
-  audiCnt: string;
-  audiAcc: string;
-  rankInten: string;
-  rankOldAndNew: string;
-};
-
-export type KobisDailyBoxOfficeResponse = {
-  targetDt: string;
-  movies: KobisDailyBoxOfficeMovie[];
-};
+import type {
+  KobisDailyBoxOfficeApiResponse,
+  KobisDailyBoxOfficeMovie,
+  KobisDailyBoxOfficeResponse,
+  KobisMovieListApiResponse,
+  KobisUpcomingMovie,
+} from './types/kobis-api-response.type';
 
 @Injectable()
 export class KobisService {
@@ -97,16 +83,8 @@ export class KobisService {
       const response = await fetch(url);
       if (!response.ok) return null;
 
-      const data = (await response.json()) as {
-        movieListResult?: {
-          movieList?: Array<{
-            movieNm: string;
-            movieNmEn?: string;
-            typeNm?: string;
-            openDt?: string;
-          }>;
-        };
-      };
+      const data =
+        (await response.json()) as KobisMovieListApiResponse;
 
       const fromKey = fromDate.replaceAll('-', '');
       const untilKey = untilDate.replaceAll('-', '');
@@ -156,11 +134,8 @@ export class KobisService {
       throw new Error(`KOBIS 요청 실패 (${response.status})`);
     }
 
-    const data = (await response.json()) as {
-      boxOfficeResult?: {
-        dailyBoxOfficeList?: KobisDailyBoxOfficeMovie[];
-      };
-    };
+    const data =
+      (await response.json()) as KobisDailyBoxOfficeApiResponse;
 
     return {
       targetDt,

@@ -31,20 +31,9 @@ import type { AuthResponseDto } from './dto/auth-response.dto';
 import type { AuthUserResponseDto } from './dto/auth-user-response.dto';
 import type { AvailabilityResponseDto } from './dto/availability-response.dto';
 import type { MessageResponseDto } from './dto/message-response.dto';
+import type { AuthUserRow, PublicProfile } from './types/auth-service.type';
 
 const BCRYPT_ROUNDS = 10;
-
-type PublicProfile =
-  | {
-      nickname: string;
-      profilePublic: true;
-      bio: string | null;
-      tags: string[];
-    }
-  | {
-      nickname: string;
-      profilePublic: false;
-    };
 
 const AUTH_USER_SELECT = {
   id: true,
@@ -57,18 +46,6 @@ const AUTH_USER_SELECT = {
   profilePublic: true,
   tags: true,
 } as const;
-
-type AuthUserRow = {
-  id: string;
-  email: string;
-  nickname: string;
-  role: 'user' | 'admin';
-  lastLoginProvider: 'email' | 'google' | 'naver' | 'kakao' | 'apple' | null;
-  isTestAccount: boolean;
-  bio?: string | null;
-  profilePublic: boolean;
-  tags?: string[];
-};
 
 function toAuthUser(user: AuthUserRow) {
   return {

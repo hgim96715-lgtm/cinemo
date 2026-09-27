@@ -672,8 +672,13 @@
             "required": false,
             "in": "query",
             "schema": {
+              "default": "ko",
               "example": "ko",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
             }
           }
         ],
@@ -709,8 +714,14 @@
             "required": false,
             "in": "query",
             "schema": {
+              "minimum": 1,
+              "default": 1,
               "example": 1,
-              "type": "number"
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
             }
           }
         ],
@@ -755,8 +766,14 @@
             "required": false,
             "in": "query",
             "schema": {
+              "minimum": 1,
+              "default": 1,
               "example": 1,
-              "type": "number"
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
             }
           }
         ],
@@ -3065,9 +3082,10 @@
           },
           "genre_ids": {
             "example": [
-              18,
-              53
+              28,
+              878
             ],
+            "description": "TMDB 장르 ID",
             "type": "array",
             "items": {
               "type": "number"
@@ -3076,20 +3094,6 @@
           "origin_countries": {
             "example": [
               "US"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "firstReleaseDate": {
-            "type": "string",
-            "nullable": true,
-            "example": "1999-10-15"
-          },
-          "reReleaseDates": {
-            "example": [
-              "2026-09-16"
             ],
             "type": "array",
             "items": {
@@ -3107,6 +3111,10 @@
           "genre_ids",
           "origin_countries"
         ]
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
       },
       "MovieGenreDto": {
         "type": "object",
@@ -3573,10 +3581,6 @@
           "monthly"
         ]
       },
-      "Object": {
-        "type": "object",
-        "properties": {}
-      },
       "MovieSummaryDto": {
         "type": "object",
         "properties": {
@@ -3634,6 +3638,17 @@
               "trailer"
             ],
             "nullable": true
+          },
+          "genre_ids": {
+            "example": [
+              28,
+              878
+            ],
+            "description": "TMDB 장르 ID",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           }
         },
         "required": [
@@ -3642,7 +3657,8 @@
           "overview",
           "poster_path",
           "release_date",
-          "director"
+          "director",
+          "genre_ids"
         ]
       },
       "UserMovieListItemDto": {
@@ -3745,26 +3761,13 @@
         "properties": {
           "genre_ids": {
             "example": [
-              18,
-              53
+              28,
+              878
             ],
+            "description": "TMDB 장르 ID",
             "type": "array",
             "items": {
               "type": "number"
-            }
-          },
-          "firstReleaseDate": {
-            "type": "string",
-            "nullable": true,
-            "example": "1999-10-15"
-          },
-          "reReleaseDates": {
-            "example": [
-              "2026-09-16"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
             }
           }
         },
@@ -4202,16 +4205,6 @@
             "nullable": true,
             "example": "2026-09-16"
           },
-          "reReleaseDates": {
-            "example": [
-              "2026-09-16"
-            ],
-            "description": "TMDB에서 확인된 재개봉일 목록",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "tmdbId": {
             "type": "number",
             "nullable": true,
@@ -4229,7 +4222,6 @@
           "trailerUrl",
           "videoType",
           "releaseDate",
-          "reReleaseDates",
           "tmdbId"
         ]
       },
@@ -4407,6 +4399,17 @@
             "type": "boolean",
             "example": true,
             "description": "KOBIS에서 국내 개봉일이 확인된 영화인지 여부"
+          },
+          "genres": {
+            "example": [
+              "액션",
+              "SF"
+            ],
+            "description": "영화 장르",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -4415,7 +4418,8 @@
           "releaseDate",
           "posterPath",
           "interestCount",
-          "isReleaseDateConfirmed"
+          "isReleaseDateConfirmed",
+          "genres"
         ]
       },
       "UpcomingMoviesResponseDto": {

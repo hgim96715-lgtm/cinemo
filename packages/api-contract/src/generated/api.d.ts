@@ -1480,9 +1480,10 @@ export interface components {
             /** @enum {string|null} */
             videoType?: "trailer" | null;
             /**
+             * @description TMDB 장르 ID
              * @example [
-             *       18,
-             *       53
+             *       28,
+             *       878
              *     ]
              */
             genre_ids: number[];
@@ -1492,15 +1493,8 @@ export interface components {
              *     ]
              */
             origin_countries: string[];
-            /** @example 1999-10-15 */
-            firstReleaseDate?: string | null;
-            /**
-             * @example [
-             *       "2026-09-16"
-             *     ]
-             */
-            reReleaseDates?: string[];
         };
+        Object: Record<string, never>;
         MovieGenreDto: {
             /** @example 18 */
             id: number;
@@ -1670,7 +1664,6 @@ export interface components {
             total: number;
             monthly: components["schemas"]["UserMovieMonthlyStatDto"][];
         };
-        Object: Record<string, never>;
         MovieSummaryDto: {
             /** @example 550 */
             id: number;
@@ -1698,6 +1691,14 @@ export interface components {
             trailerUrl?: string | null;
             /** @enum {string|null} */
             videoType?: "trailer" | null;
+            /**
+             * @description TMDB 장르 ID
+             * @example [
+             *       28,
+             *       878
+             *     ]
+             */
+            genre_ids: number[];
         };
         UserMovieListItemDto: {
             /** @example 550 */
@@ -1726,20 +1727,13 @@ export interface components {
         };
         WishMovieDetailResponseDto: {
             /**
+             * @description TMDB 장르 ID
              * @example [
-             *       18,
-             *       53
+             *       28,
+             *       878
              *     ]
              */
             genre_ids: number[];
-            /** @example 1999-10-15 */
-            firstReleaseDate?: string | null;
-            /**
-             * @example [
-             *       "2026-09-16"
-             *     ]
-             */
-            reReleaseDates?: string[];
         };
         UpdateDisplayDto: {
             /** @example 550 */
@@ -1907,13 +1901,6 @@ export interface components {
             videoType: "trailer" | null;
             /** @example 2026-09-16 */
             releaseDate: string | null;
-            /**
-             * @description TMDB에서 확인된 재개봉일 목록
-             * @example [
-             *       "2026-09-16"
-             *     ]
-             */
-            reReleaseDates: string[];
             /** @example 550 */
             tmdbId: number | null;
         };
@@ -1992,6 +1979,14 @@ export interface components {
              * @example true
              */
             isReleaseDateConfirmed: boolean;
+            /**
+             * @description 영화 장르
+             * @example [
+             *       "액션",
+             *       "SF"
+             *     ]
+             */
+            genres: string[];
         };
         UpcomingMoviesResponseDto: {
             items: components["schemas"]["UpcomingMovieDto"][];
@@ -3103,7 +3098,7 @@ export interface operations {
     TmdbController_getMovieGenres_v1: {
         parameters: {
             query?: {
-                language?: string;
+                language?: components["schemas"]["Object"];
             };
             header?: never;
             path?: never;
@@ -3124,7 +3119,7 @@ export interface operations {
     TmdbController_discover_v1: {
         parameters: {
             query?: {
-                page?: number;
+                page?: components["schemas"]["Object"];
             };
             header?: never;
             path?: never;
@@ -3146,7 +3141,7 @@ export interface operations {
         parameters: {
             query: {
                 q: string;
-                page?: number;
+                page?: components["schemas"]["Object"];
             };
             header?: never;
             path?: never;

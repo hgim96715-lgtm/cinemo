@@ -70,7 +70,7 @@ type MovieModalMovie = MovieSummary &
   Partial<
     Pick<
       MovieDetail,
-      'genre_ids' | 'origin_countries' | 'firstReleaseDate' | 'reReleaseDates'
+      'genre_ids' | 'origin_countries'
     >
   >;
 
@@ -424,24 +424,10 @@ export function MovieDetailModal({
               </div>
 
               <dl className="movie-detail-facts">
-                {movie.firstReleaseDate || movie.release_date ? (
+                {movie.release_date ? (
                   <div>
                     <dt>개봉일</dt>
-                    <dd>
-                      {(
-                        movie.firstReleaseDate ?? movie.release_date
-                      ).replaceAll('-', '.')}
-                    </dd>
-                  </div>
-                ) : null}
-                {movie.reReleaseDates?.length ? (
-                  <div>
-                    <dt>재개봉일</dt>
-                    <dd>
-                      {movie.reReleaseDates
-                        .map((date) => date.replaceAll('-', '.'))
-                        .join(', ')}
-                    </dd>
+                    <dd>{movie.release_date.replaceAll('-', '.')}</dd>
                   </div>
                 ) : null}
                 {movie.director ? (

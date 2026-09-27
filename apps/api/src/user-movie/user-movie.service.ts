@@ -311,8 +311,6 @@ export class UserMovieService {
     const movie = await this.tmdbService.getMovie(tmdbId);
     return {
       genre_ids: movie.genre_ids,
-      firstReleaseDate: movie.firstReleaseDate ?? null,
-      reReleaseDates: movie.reReleaseDates ?? [],
     };
   }
 }

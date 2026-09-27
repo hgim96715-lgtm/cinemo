@@ -25,6 +25,13 @@ export class UpcomingMovieDto {
     description: 'KOBIS에서 국내 개봉일이 확인된 영화인지 여부',
   })
   isReleaseDateConfirmed!: boolean;
+
+  @ApiProperty({
+    type: [String],
+    example: ['액션', 'SF'],
+    description: '영화 장르',
+  })
+  genres!: string[];
 }
 
 export class UpcomingMoviesResponseDto {

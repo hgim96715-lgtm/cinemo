@@ -7,26 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AdminService } from './admin.service';
 import { kstDateKey, kstDayRange, toKstDate } from '../lib/date-kst';
 import { clamp } from '../lib/clamp';
-
-type DemoPersonas = {
-  nicknames: string[];
-  reviews: { body: string; rating: number }[];
-  profiles: { bio: string | null; tags: string[]; profilePublic: boolean }[];
-};
-
-type DemoUser = {
-  id: string;
-  nickname: string;
-  email: string;
-  isNew: boolean;
-};
-
-type DemoSeedSummary = {
-  date: string;
-  activities: number;
-  createdUsers: number;
-  createdPostcards: number;
-};
+import type {
+  DemoPersonas,
+  DemoSeedSummary,
+  DemoUser,
+} from './types/demo-seed.type';
 
 const DAY_MS = 86_400_000;
 const DEMO_EMAIL_DOMAIN = 'demo.cinemo.invalid';

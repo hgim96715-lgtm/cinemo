@@ -9,20 +9,12 @@ import { KobisService } from '../kobis/kobis.service';
 import type {
   KobisDailyBoxOfficeMovie,
   KobisUpcomingMovie,
-} from '../kobis/kobis.service';
+} from '../kobis/types/kobis-api-response.type';
+import type { MovieChartMovie } from './types/movie-chart.type';
 import {
   BoardBoxOfficeMovieDto,
   LobbyBoardResponseDto,
 } from './dto/lobby-board.dto';
-
-type MovieChartMovie = BoardBoxOfficeMovieDto & {
-  kobisMovieCd: string;
-  tmdbId: number | null;
-  releaseDate: string | null;
-  dailyAudienceCount: number;
-  trailerUrl: string | null;
-  videoType: 'trailer' | null;
-};
 
 @Injectable()
 export class LobbyBoardService {
@@ -331,7 +323,7 @@ export class LobbyBoardService {
   }
 
   async getUpcomingMovies(month?: string, page = 1, limit = 10) {
-    // DB 연결 실패를 빈 결과로 오인하지 않도록 조회 시작 시 연결 상태를 확인한다.
+    // DB 연결 실패를 빈 결과로 오인하지 않도록 조회 시작 시 연결 상태를 확인
     await this.prisma.$queryRaw`SELECT 1`;
 
     const today = kstDateKey();
@@ -417,6 +409,10 @@ export class LobbyBoardService {
       ]),
     );
 
+    const genreResponse = await this.tmdbService.getMovieGenres();
+    const genreNameById = new Map(
+      genreResponse.genres.map((genre) => [genre.id, genre.name]),
+    );
     const verifiedMovies = await Promise.all(
       [...movieMap.values()].map(async (movie) => {
         try {
@@ -428,6 +424,9 @@ export class LobbyBoardService {
 
           return {
             ...movie,
+            genres: (detail.genre_ids ?? [])
+              .map((genreId) => genreNameById.get(genreId))
+              .filter((genre): genre is string => Boolean(genre)),
           };
         } catch {
           return null;
@@ -473,6 +472,7 @@ export class LobbyBoardService {
         title: movie.title,
         releaseDate: movie.releaseDate,
         posterPath: movie.posterPath,
+        genres: movie.genres,
         interestCount: countMap.get(movie.tmdbId) ?? 0,
         isReleaseDateConfirmed: movie.isKobisBacked,
       }));

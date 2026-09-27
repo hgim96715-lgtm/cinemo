@@ -37,4 +37,11 @@ export class MovieSummaryDto {
 
   @ApiPropertyOptional({ enum: ['trailer'], nullable: true })
   videoType?: 'trailer' | null;
+
+  @ApiProperty({
+    type: [Number],
+    example: [28, 878],
+    description: 'TMDB 장르 ID',
+  })
+  genre_ids!: number[];
 }
