@@ -32,6 +32,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { AuthUserResponseDto } from './dto/auth-user-response.dto';
 import { AvailabilityResponseDto } from './dto/availability-response.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -198,5 +199,21 @@ export class AuthController {
   @ApiOkResponse({ type: AuthUserResponseDto })
   updateProfile(@UserId() userId: string, @Body() dto: UpdateProfileDto) {
     return this.authService.updateProfile(userId, dto);
+  }
+
+  @Public()
+  @Post('refresh')
+  @ApiOperation({ summary: '액세스 토큰 갱신' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  refresh(@Body() dto: RefreshTokenDto) {
+    return this.authService.refresh(dto);
+  }
+
+  @Public()
+  @Post('logout')
+  @ApiOperation({ summary: '로그아웃' })
+  @ApiOkResponse({ type: MessageResponseDto })
+  logout(@Body() dto: RefreshTokenDto) {
+    return this.authService.logout(dto);
   }
 }

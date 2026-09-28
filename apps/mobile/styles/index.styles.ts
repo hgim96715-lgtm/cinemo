@@ -6,9 +6,9 @@ export const styles = StyleSheet.create({
     backgroundColor: "#101116",
   },
   content: {
-    flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 32,
+    paddingTop: 24,
+    paddingBottom: 40,
   },
   logo: {
     color: "#d8b45a",
@@ -22,14 +22,14 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 2,
   },
-  featuredSection: {
-    marginTop: 16,
+  heroSection: {
+    marginTop: 8,
     height: 360,
     overflow: "hidden",
-    borderRadius: 18,
+    borderRadius: 20,
     backgroundColor: "#1a1a1f",
   },
-  featuredPoster: {
+  heroPoster: {
     position: "absolute",
     top: 0,
     right: 0,
@@ -38,35 +38,37 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  featuredOverlay: {
+  heroOverlay: {
     position: "absolute",
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
     justifyContent: "flex-end",
-    padding: 22,
+    padding: 24,
     backgroundColor: "rgba(8, 9, 13, 0.58)",
   },
-  featuredTitle: {
+  heroTitle: {
+    marginTop: 6,
     color: "#f5f1e8",
     fontSize: 28,
+    lineHeight: 34,
     fontWeight: "700",
   },
-  featuredMeta: {
+  heroMeta: {
     marginTop: 10,
     color: "#d8b45a",
     fontSize: 13,
     letterSpacing: 1,
   },
-  featuredDescription: {
+  heroDescription: {
     marginTop: 10,
     color: "#d2d0ca",
     fontSize: 14,
     lineHeight: 21,
   },
   board: {
-    marginTop: 32,
+    marginTop: 36,
   },
   boardTitle: {
     color: "#d8b45a",

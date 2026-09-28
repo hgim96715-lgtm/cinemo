@@ -8,3 +8,4 @@ export type LobbyRoomId = (typeof LOBBY_ROOMS)[keyof typeof LOBBY_ROOMS];
 export * from "./user-movie";
 export * from "./admin";
 export * from "./profile";
+export * from "./design-tokens";

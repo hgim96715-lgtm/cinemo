@@ -16,6 +16,6 @@ export default registerAs('auth', () => {
   return {
     secret,
     frontendUrl,
-    expiresIn: '7d' as const,
+    expiresIn: '15m' as const,
   };
 });

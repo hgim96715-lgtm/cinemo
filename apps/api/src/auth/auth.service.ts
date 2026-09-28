@@ -7,10 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import {
-  DEFAULT_PROFILE,
-  normalizeProfileTags,
-} from '@cinemo/shared';
+import { DEFAULT_PROFILE, normalizeProfileTags } from '@cinemo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -32,6 +29,7 @@ import type { AuthUserResponseDto } from './dto/auth-user-response.dto';
 import type { AvailabilityResponseDto } from './dto/availability-response.dto';
 import type { MessageResponseDto } from './dto/message-response.dto';
 import type { AuthUserRow, PublicProfile } from './types/auth-service.type';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -70,17 +68,73 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
+  private hashRefreshToken(token: string) {
+    return createHash('sha256').update(token).digest('hex');
+  }
+  private createRefreshToken() {
+    const token = randomBytes(32).toString('hex');
+    const tokenHash = this.hashRefreshToken(token);
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
+    return {
+      token,
+      tokenHash,
+      expiresAt,
+    };
+  }
+
   private async buildAuthResponse(
     user: AuthUserRow,
     message: string,
   ): Promise<AuthResponseDto> {
     const payload: JwtPayload = { sub: user.id, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
+    const refreshTokenData = this.createRefreshToken();
+    await this.prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: refreshTokenData.tokenHash,
+        expiresAt: refreshTokenData.expiresAt,
+      },
+    });
     return {
       accessToken,
+      refreshToken: refreshTokenData.token,
       user: toAuthUser(user),
       message,
     };
+  }
+  async refresh(dto: RefreshTokenDto): Promise<AuthResponseDto> {
+    const tokenHash = this.hashRefreshToken(dto.refreshToken);
+    const now = new Date();
+    const storedToken = await this.prisma.refreshToken.findUnique({
+      where: { tokenHash },
+    });
+    if (!storedToken || storedToken.revokedAt || storedToken.expiresAt <= now) {
+      throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
+    }
+
+    const revoked = await this.prisma.refreshToken.updateMany({
+      where: {
+        id: storedToken.id,
+        revokedAt: null,
+        expiresAt: { gt: now },
+      },
+      data: { revokedAt: now },
+    });
+    if (revoked.count !== 1) {
+      throw new UnauthorizedException('리프레시 토큰이 이미 사용되었습니다.');
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id: storedToken.userId },
+      select: AUTH_USER_SELECT,
+    });
+    if (!user) {
+      throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+    }
+    return this.buildAuthResponse(user, '토큰 갱신 성공');
   }
 
   async createOAuthLoginCode(userId: string) {
@@ -184,6 +238,24 @@ export class AuthService {
     if (user.role !== 'admin')
       await this.adminService.recordGuestLogin(updatedUser.id);
     return this.buildAuthResponse(updatedUser, '로그인 성공');
+  }
+
+  async logout(dto: RefreshTokenDto): Promise<MessageResponseDto> {
+    const tokenHash = this.hashRefreshToken(dto.refreshToken);
+
+    await this.prisma.refreshToken.updateMany({
+      where: {
+        tokenHash,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+
+    return {
+      message: '로그아웃 성공',
+    };
   }
 
   async findOrCreateSocialUser(profile: SocialProfile) {
