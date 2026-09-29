@@ -52,7 +52,19 @@ export const envValidationSchema = Joi.object({
   [EnvKeys.RESEND_API_KEY]: Joi.string().trim().min(1).required(),
   [EnvKeys.RESEND_FROM]: Joi.string()
     .trim()
-    .email({ tlds: { allow: false } })
+    .custom((value, helpers) => {
+      const email = value.match(/<([^<>]+)>$/)?.[1] ?? value;
+
+      const { error } = Joi.string()
+        .email({ tlds: { allow: false } })
+        .validate(email);
+
+      if (error) {
+        return helpers.error('string.email');
+      }
+
+      return value;
+    })
     .required(),
 
   [EnvKeys.DATA_GO_KR_SERVICE_KEY]: Joi.string().trim().min(1).optional(),
