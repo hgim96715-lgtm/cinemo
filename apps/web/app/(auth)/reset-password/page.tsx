@@ -26,7 +26,7 @@ function ResetPasswordForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormValues>({
-    mode: 'onBlur',
+    mode: 'onChange',
     reValidateMode: 'onChange',
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {

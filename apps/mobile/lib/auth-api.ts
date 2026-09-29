@@ -38,6 +38,9 @@ export async function registerRequest(
     accessToken: response.data.accessToken,
     refreshToken: response.data.refreshToken,
   });
+  await saveAuthUser({
+    nickname: response.data.user.nickname,
+  });
 
   return response.data;
 }
@@ -53,6 +56,54 @@ export async function loginRequest(input: LoginInput): Promise<AuthResponse> {
   await saveAuthUser({
     nickname: response.data.user.nickname,
   });
+
+  return response.data;
+}
+
+export type PasswordResetRequestResponse = {
+  message: string;
+};
+
+export type ResetPasswordRequest = {
+  email: string;
+  code: string;
+  newPassword: string;
+};
+
+export type VerifyPasswordResetCodeRequest = {
+  email: string;
+  code: string;
+};
+
+export async function requestPasswordReset(
+  email: string,
+): Promise<PasswordResetRequestResponse> {
+  const response = await apiClient.post<PasswordResetRequestResponse>(
+    "/v1/auth/password-reset/request",
+    { email },
+  );
+
+  return response.data;
+}
+
+export async function verifyPasswordResetCode(
+  input: VerifyPasswordResetCodeRequest,
+): Promise<PasswordResetRequestResponse> {
+  const response = await apiClient.post<PasswordResetRequestResponse>(
+    "/v1/auth/password-reset/verify",
+    input,
+  );
+
+  return response.data;
+}
+
+export async function resetPasswordRequest(
+  input: ResetPasswordRequest,
+): Promise<PasswordResetRequestResponse> {
+  const response = await apiClient.post<PasswordResetRequestResponse>(
+    "/v1/auth/password-reset/confirm",
+    input,
+  );
 
   return response.data;
 }

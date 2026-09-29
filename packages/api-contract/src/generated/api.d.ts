@@ -293,6 +293,40 @@ export interface paths {
         patch: operations["AuthController_updateProfile_v1"];
         trace?: never;
     };
+    "/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 액세스 토큰 갱신 */
+        post: operations["AuthController_refresh_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 로그아웃 */
+        post: operations["AuthController_logout_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/overview": {
         parameters: {
             query?: never;
@@ -1393,6 +1427,11 @@ export interface components {
         AuthResponseDto: {
             /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... */
             accessToken: string;
+            /**
+             * @description 액세스 토큰 재발급에 사용하는 리프레시 토큰
+             * @example refresh-token-value
+             */
+            refreshToken: string;
             user: components["schemas"]["AuthUserResponseDto"];
             /** @example 로그인 성공 */
             message: string;
@@ -1447,6 +1486,10 @@ export interface components {
              *     ]
              */
             tags?: string[];
+        };
+        RefreshTokenDto: {
+            /** @description 액세스 토큰 재발급에 사용하는 리프레시 토큰 */
+            refreshToken: string;
         };
         HealthResponseDto: {
             /** @example true */
@@ -2923,6 +2966,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthUserResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_refresh_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_logout_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponseDto"];
                 };
             };
         };

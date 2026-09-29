@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { registerRequest, type AuthResponse } from "../lib/auth-api";
 
 type RegisterInput = {
@@ -8,7 +8,12 @@ type RegisterInput = {
 };
 
 export function useRegister() {
+  const queryClient = useQueryClient();
+
   return useMutation<AuthResponse, Error, RegisterInput>({
     mutationFn: registerRequest,
+    onSuccess: ({ user }) => {
+      queryClient.setQueryData(["auth-user"], user);
+    },
   });
 }

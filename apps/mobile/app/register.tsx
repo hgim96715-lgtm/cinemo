@@ -19,15 +19,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRegister } from "../hooks/use-register";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  registerSchema,
-  type RegisterForm,
-} from "../schemas/auth.schema";
+import { registerSchema, type RegisterForm } from "../schemas/auth.schema";
 
 const EMAIL_DOMAINS = [
   { label: "gmail.com", value: "gmail.com" },
   { label: "naver.com", value: "naver.com" },
   { label: "daum.net", value: "daum.net" },
+  { label: "icloud.com", value: "icloud.com" },
   { label: "직접 입력", value: "custom" },
 ] as const;
 
@@ -35,6 +33,18 @@ const inputTextStyle = {
   height: 48,
   paddingVertical: 0,
   lineHeight: Platform.OS === "web" ? 48 : 20,
+  textAlignVertical: "center" as const,
+  fontFamily: "Pretendard-Regular",
+};
+
+const passwordInputStyle = {
+  height: 48,
+  flex: 1,
+  minWidth: 0,
+  paddingVertical: 0,
+  paddingHorizontal: 0,
+  fontSize: 16,
+  lineHeight: 20,
   textAlignVertical: "center" as const,
   fontFamily: "Pretendard-Regular",
 };
@@ -66,6 +76,8 @@ export default function RegisterScreen() {
 
   const { control, handleSubmit, setValue, watch } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       emailLocal: "",
       emailDomain: "gmail.com",
@@ -280,11 +292,12 @@ export default function RegisterScreen() {
                     placeholder="비밀번호"
                     placeholderTextColor="#958d82"
                     secureTextEntry={!showPassword}
-                    textContentType="newPassword"
+                    textContentType="none"
+                    autoComplete="off"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    style={[inputTextStyle, { flex: 1, minWidth: 0 }]}
-                    className="px-0 text-base text-[#f3efe6] focus:outline-none"
+                    style={passwordInputStyle}
+                    className="px-0 text-[#f3efe6] focus:outline-none"
                   />
                   <Pressable
                     onPress={() => setShowPassword((visible) => !visible)}
@@ -324,14 +337,13 @@ export default function RegisterScreen() {
                     value={field.value}
                     onChangeText={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="비밀번호를 다시 입력해주세요"
-                    placeholderTextColor="#958d82"
                     secureTextEntry={!showPasswordConfirm}
-                    textContentType="newPassword"
+                    autoComplete="off"
+                    textContentType="none"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    style={[inputTextStyle, { flex: 1, minWidth: 0 }]}
-                    className="px-0 text-base text-[#f3efe6] focus:outline-none"
+                    style={passwordInputStyle}
+                    className="px-0 text-[#f3efe6] focus:outline-none"
                   />
                   <Pressable
                     onPress={() =>

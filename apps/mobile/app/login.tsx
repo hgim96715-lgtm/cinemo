@@ -170,6 +170,13 @@ export default function LoginScreen() {
               </Text>
             )}
           </Pressable>
+          <Link href="/forgot-password" asChild>
+            <Pressable className="mt-5 items-center">
+              <Text className="text-sm text-[#958d82]">
+                비밀번호를 잊으셨나요?
+              </Text>
+            </Pressable>
+          </Link>
           <Link href="/register" asChild>
             <Pressable className="mt-5 items-center">
               <Text className="text-sm text-[#958d82]">회원가입</Text>

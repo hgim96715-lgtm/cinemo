@@ -439,6 +439,70 @@
         ]
       }
     },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "액세스 토큰 갱신",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "로그아웃",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/v1/admin/overview": {
       "get": {
         "operationId": "AdminController_getOverview_v1",
@@ -2894,6 +2958,11 @@
             "type": "string",
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           },
+          "refreshToken": {
+            "type": "string",
+            "description": "액세스 토큰 재발급에 사용하는 리프레시 토큰",
+            "example": "refresh-token-value"
+          },
           "user": {
             "$ref": "#/components/schemas/AuthUserResponseDto"
           },
@@ -2904,6 +2973,7 @@
         },
         "required": [
           "accessToken",
+          "refreshToken",
           "user",
           "message"
         ]
@@ -3009,6 +3079,18 @@
             }
           }
         }
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "액세스 토큰 재발급에 사용하는 리프레시 토큰"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
       },
       "HealthResponseDto": {
         "type": "object",

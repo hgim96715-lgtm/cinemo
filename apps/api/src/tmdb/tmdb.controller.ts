@@ -1,12 +1,18 @@
 import {
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
   Param,
   NotFoundException,
   ParseIntPipe,
   Query,
+  Body,
+  Post,
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
@@ -24,13 +30,42 @@ import {
   TmdbSearchQueryDto,
 } from './dto/tmdb-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { MoviePoolBackfillDto } from './dto/movie-pool-backfill.dto';
+import { MoviePoolBackfillResponseDto } from './dto/movie-pool-backfill-response.dto';
 
 @ApiTags('tmdb')
 @Roles('admin')
 @ApiBearerAuth()
 @Controller('tmdb')
 export class TmdbController {
+  private readonly logger = new Logger(TmdbController.name);
+
   constructor(private readonly tmdbService: TmdbService) {}
+
+  @Post('movie-pool/backfill')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({
+    summary: 'movie_pool 백필',
+    description: 'TMDB discover 목록을 기반으로 movie_pool을 채웁니다.',
+  })
+  @ApiAcceptedResponse({ type: MoviePoolBackfillResponseDto })
+  backfillMoviePool(
+    @Body() dto: MoviePoolBackfillDto,
+  ): MoviePoolBackfillResponseDto {
+    void this.tmdbService
+      .backfillMoviePool(dto.pages, dto.force)
+      .catch((error: unknown) => {
+        this.logger.error(
+          'movie_pool 백필 실패',
+          error instanceof Error ? error.stack : String(error),
+        );
+      });
+
+    return {
+      message: 'movie_pool 백필을 시작했습니다.',
+      pages: dto.pages,
+    };
+  }
 
   @Get('movie/:movieId')
   @ApiOperation({ summary: '영화 상세 조회' })

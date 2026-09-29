@@ -280,6 +280,52 @@ export class TmdbService {
     });
   }
 
+  async backfillMoviePool(pages = 5, force = false) {
+    let discovered = 0;
+    let saved = 0;
+    let skipped = 0;
+    let failed = 0;
+
+    for (let page = 1; page <= pages; page += 1) {
+      const discover = await this.discoverMovies({}, page);
+
+      for (const movie of discover.results) {
+        discovered += 1;
+
+        if (!force) {
+          const cached = await this.prismaService.moviePool.findUnique({
+            where: { tmdbId: movie.id },
+            select: { id: true },
+          });
+
+          if (cached) {
+            skipped += 1;
+            continue;
+          }
+        }
+
+        try {
+          await this.getMovieCached(movie.id, { force: true });
+          saved += 1;
+        } catch (error: unknown) {
+          failed += 1;
+          this.logger.warn(
+            `movie_pool 저장 실패: tmdbId=${movie.id}`,
+            error instanceof Error ? error.message : String(error),
+          );
+        }
+      }
+
+      if (page >= discover.total_pages) break;
+    }
+
+    this.logger.log(
+      `movie_pool 백필 완료: discovered=${discovered}, saved=${saved}, skipped=${skipped}, failed=${failed}`,
+    );
+
+    return { pages, discovered, saved, skipped, failed };
+  }
+
   async searchMovies(query: string, page = 1): Promise<MovieSearchResponseDto> {
     const normalizedQuery = normalizeSearchQuery(query);
 

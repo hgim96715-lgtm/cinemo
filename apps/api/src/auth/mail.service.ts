@@ -4,6 +4,7 @@ import { render } from '@react-email/render';
 import { Resend } from 'resend';
 import { PasswordResetEmail } from './emails/password-reset-email';
 import { ReleaseNotificationEmail } from './emails/release-notification-email';
+import { PasswordResetCodeEmail } from './emails/password-reset-code-email';
 
 @Injectable()
 export class MailService {
@@ -15,6 +16,29 @@ export class MailService {
       this.configService.getOrThrow<string>('mail.resendApiKey'),
     );
     this.from = configService.getOrThrow<string>('mail.resendFrom');
+  }
+
+  async sendPasswordResetCodeEmail(input: {
+    to: string;
+    nickname: string;
+    code: string;
+  }) {
+    const html = await render(
+      PasswordResetCodeEmail({
+        nickname: input.nickname,
+        code: input.code,
+        expiresInMinutes: 10,
+      }),
+    );
+    const { error } = await this.resend.emails.send({
+      from: this.from,
+      to: input.to,
+      subject: 'CINEMO 비밀번호 재설정 인증코드',
+      html,
+    });
+    if (error) {
+      throw new Error(`비밀번호 재설정 코드 발송 실패: ${error.message}`);
+    }
   }
   async sendPasswordResetEmail(input: {
     to: string;

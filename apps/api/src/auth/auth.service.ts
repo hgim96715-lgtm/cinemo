@@ -20,7 +20,7 @@ import {
 } from '../generated/prisma/client';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { SocialProfile } from './types/social-profile.type';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes, randomInt } from 'crypto';
 import { MailService } from './mail.service';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -30,6 +30,7 @@ import type { AvailabilityResponseDto } from './dto/availability-response.dto';
 import type { MessageResponseDto } from './dto/message-response.dto';
 import type { AuthUserRow, PublicProfile } from './types/auth-service.type';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { VerifyPasswordResetCodeDto } from './dto/verify-password-reset-code.dto';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -401,52 +402,99 @@ export class AuthService {
   }
 
   // 비밀번호 찾기
+
   async requestPasswordReset(
     dto: RequestPasswordResetDto,
-    frontendUrl: string,
   ): Promise<MessageResponseDto> {
     const email = dto.email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email } });
+    const message = '입력한 이메일로 인증 코드를 확인해 주세요.';
 
-    const message = '입력한 이메일로 비밀번호 재설정 안내를 확인해 주세요.';
     if (!user) {
       return { message };
     }
-    const rawToken = randomBytes(30).toString('base64url');
-    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    const code = randomInt(100_000, 1_000_000).toString();
+    const tokenHash = createHash('sha256').update(code).digest('hex');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.prisma.$transaction([
       this.prisma.passwordResetToken.deleteMany({
-        where: { userId: user.id, usedAt: null },
+        where: {
+          userId: user.id,
+          usedAt: null,
+        },
       }),
       this.prisma.passwordResetToken.create({
         data: {
           userId: user.id,
           tokenHash,
           expiresAt,
+          verifiedAt: null,
+          usedAt: null,
         },
       }),
     ]);
-    const resetUrl = new URL('/reset-password', frontendUrl);
-    resetUrl.searchParams.set('token', rawToken);
-    await this.mailService.sendPasswordResetEmail({
+    await this.mailService.sendPasswordResetCodeEmail({
       to: user.email,
       nickname: user.nickname,
-      resetUrl: resetUrl.toString(),
+      code,
     });
-
     return { message };
   }
 
+  async verifyPasswordResetCode(
+    dto: VerifyPasswordResetCodeDto,
+  ): Promise<MessageResponseDto> {
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('인증 코드가 올바르지 않습니다.');
+    }
+
+    const tokenHash = createHash('sha256').update(dto.code).digest('hex');
+
+    const resetToken = await this.prisma.passwordResetToken.findFirst({
+      where: {
+        userId: user.id,
+        tokenHash,
+        usedAt: null,
+        verifiedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!resetToken) {
+      throw new UnauthorizedException(
+        '인증 코드가 올바르지 않거나 만료되었습니다.',
+      );
+    }
+
+    await this.prisma.passwordResetToken.update({
+      where: { id: resetToken.id },
+      data: { verifiedAt: new Date() },
+    });
+
+    return {
+      message: '인증 코드가 확인되었습니다.',
+    };
+  }
+
   async resetPassword(dto: ResetPasswordDto): Promise<MessageResponseDto> {
-    const tokenHash = createHash('sha256').update(dto.token).digest('hex');
+    const email = dto.email.trim().toLowerCase();
+    const tokenHash = createHash('sha256').update(dto.code).digest('hex');
 
     const resetToken = await this.prisma.passwordResetToken.findFirst({
       where: {
         tokenHash,
         usedAt: null,
+        verifiedAt: { not: null },
         expiresAt: { gt: new Date() },
+        user: {
+          email,
+        },
       },
       include: {
         user: {

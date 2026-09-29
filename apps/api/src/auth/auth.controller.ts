@@ -33,6 +33,7 @@ import { AuthUserResponseDto } from './dto/auth-user-response.dto';
 import { AvailabilityResponseDto } from './dto/availability-response.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { VerifyPasswordResetCodeDto } from './dto/verify-password-reset-code.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -171,10 +172,15 @@ export class AuthController {
   @ApiOperation({ summary: '비밀번호 재설정 요청' })
   @ApiOkResponse({ type: MessageResponseDto })
   requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
-    const frontendUrl =
-      this.configService.getOrThrow<string>('auth.frontendUrl');
+    return this.authService.requestPasswordReset(dto);
+  }
 
-    return this.authService.requestPasswordReset(dto, frontendUrl);
+  @Public()
+  @Post('password-reset/verify')
+  @ApiOperation({ summary: '비밀번호 재설정 코드 검증' })
+  @ApiOkResponse({ type: MessageResponseDto })
+  verifyPasswordResetCode(@Body() dto: VerifyPasswordResetCodeDto) {
+    return this.authService.verifyPasswordResetCode(dto);
   }
 
   @Public()
