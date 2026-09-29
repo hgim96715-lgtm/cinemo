@@ -229,6 +229,30 @@
   object-fit: cover;
 }
 
+.upcoming-poster-placeholder {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.25rem;
+  width: 4.5rem;
+  height: 6.75rem;
+  border: 1px solid rgb(212 181 106 / 0.22);
+  border-radius: 0.35rem;
+  color: rgb(212 181 106 / 0.68);
+  background:
+    linear-gradient(145deg, rgb(212 181 106 / 0.08), transparent 60%),
+    #0d0f13;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.upcoming-poster-placeholder small {
+  color: rgb(143 135 122 / 0.72);
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+}
+
 .upcoming-movie-card > div:not(.upcoming-card-actions) {
   min-width: 0;
 }

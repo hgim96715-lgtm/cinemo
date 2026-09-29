@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
         hostname: 'image.tmdb.org',
         pathname: '/t/p/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'file.koreafilm.or.kr',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'file.koreafilm.or.kr',
+        pathname: '/**',
+      },
     ],
   },
 };

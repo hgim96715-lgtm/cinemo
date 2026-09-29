@@ -11,7 +11,7 @@ NestJS + Next.js 모노레포.
 
 ## 배포
 
-- [CINEMO 포트폴리오](https://cinemo-six.vercel.app)
+- [CINEMO 포트폴리오](https://www.cinemo.site)
 - Web: Vercel · API: Railway · DB: Neon
 - MoviePool demo seed·MOVIE CHART 수집·개봉일 알림: GitHub Actions
 

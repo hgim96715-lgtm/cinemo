@@ -1,19 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpcomingMovieDto {
-  @ApiProperty({ example: 123456 })
-  tmdbId!: number;
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 123456,
+  })
+  tmdbId!: number | null;
 
-  @ApiProperty({ example: '오디세이' })
+  @ApiProperty({ example: '어벤져스: 엔드게임 앙코르' })
   title!: string;
 
-  @ApiProperty({ example: '2026-09-25', format: 'date' })
+  @ApiProperty({
+    example: '2026-09-23',
+    format: 'date',
+  })
   releaseDate!: string;
 
   @ApiProperty({
     type: String,
     nullable: true,
-    example: '/poster-path.jpg',
+    example: 'http://file.koreafilm.or.kr/poster.jpg',
   })
   posterPath!: string | null;
 
@@ -29,7 +36,6 @@ export class UpcomingMovieDto {
   @ApiProperty({
     type: [String],
     example: ['액션', 'SF'],
-    description: '영화 장르',
   })
   genres!: string[];
 }

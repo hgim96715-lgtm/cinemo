@@ -35,6 +35,45 @@ import { getMovieDetailRequest } from '@/lib/tmdb-api';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MovieDetailModal } from '@/components/my-cinema/MovieDetailModal';
 import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
+import {
+  searchKmdbMoviesRequest,
+  type KmdbMovieResult,
+} from '@/lib/kmdb-api';
+
+function formatKmdbReleaseDate(date: string | null | undefined) {
+  if (!date || !/^\d{8}$/.test(date)) return date ?? '';
+
+  return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+}
+
+function createChartMovieDetail(
+  movie: MovieChartItem,
+  kmdbMovie?: KmdbMovieResult,
+): MovieDetail & {
+  genreNames?: string[];
+  productionYear?: string | null;
+  isReRelease?: boolean;
+} {
+  return {
+    id: 0,
+    title: kmdbMovie?.title || movie.title,
+    overview: kmdbMovie?.overview ?? '',
+    poster_path: kmdbMovie?.posterUrl ?? movie.posterPath,
+    release_date:
+      formatKmdbReleaseDate(kmdbMovie?.releaseDate) ||
+      movie.releaseDate ||
+      '',
+    director: kmdbMovie?.director ?? null,
+    cast: kmdbMovie?.cast ?? [],
+    trailerUrl: kmdbMovie?.vodUrl ?? movie.trailerUrl,
+    videoType: movie.videoType,
+    genre_ids: [],
+    origin_countries: [],
+    genreNames: kmdbMovie?.genres ?? [],
+    productionYear: kmdbMovie?.productionYear ?? null,
+    isReRelease: kmdbMovie?.isReRelease ?? false,
+  };
+}
 
 export default function MovieChartPage() {
   const router = useRouter();
@@ -176,7 +215,26 @@ export default function MovieChartPage() {
     };
   }, [targetDate]);
 
-  async function handleMovieDetailClick(tmdbId: number) {
+  async function handleMovieDetailClick(movie: MovieChartItem) {
+    if (movie.tmdbId === null) {
+      setLoadingDetailId(-1);
+      setModalError(null);
+
+      try {
+        const response = await searchKmdbMoviesRequest(movie.title, 1, 1);
+        setDetailMovie(
+          createChartMovieDetail(movie, response.results[0]),
+        );
+      } catch {
+        setDetailMovie(createChartMovieDetail(movie));
+      } finally {
+        setLoadingDetailId(null);
+      }
+
+      return;
+    }
+
+    const tmdbId = movie.tmdbId;
     setLoadingDetailId(tmdbId);
     setModalError(null);
 
@@ -318,14 +376,18 @@ export default function MovieChartPage() {
             showWatchedMark={false}
             showCalendar={false}
             movieStatus={{
-              wish: wishMovieIds.has(detailMovie.id),
+              wish: detailMovie.id > 0 && wishMovieIds.has(detailMovie.id),
               watched: false,
             }}
-            onToggleMark={(kind) => {
-              if (kind === 'wish') {
-                void handleWishToggle(detailMovie.id);
-              }
-            }}
+            onToggleMark={
+              detailMovie.id > 0
+                ? (kind) => {
+                    if (kind === 'wish') {
+                      void handleWishToggle(detailMovie.id);
+                    }
+                  }
+                : undefined
+            }
             onClose={() => setDetailMovie(null)}
           />
         </Dialog.Root>

@@ -242,6 +242,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/password-reset/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 비밀번호 재설정 코드 검증 */
+        post: operations["AuthController_verifyPasswordResetCode_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/password-reset/confirm": {
         parameters: {
             query?: never;
@@ -418,6 +435,26 @@ export interface paths {
         get: operations["HealthController_healthCheck_v1"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tmdb/movie-pool/backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * movie_pool 백필
+         * @description TMDB discover 목록을 기반으로 movie_pool을 채웁니다.
+         */
+        post: operations["TmdbController_backfillMoviePool_v1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -970,6 +1007,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/kmdb/movies/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** KMDb 영화 검색 */
+        get: operations["KmdbController_searchMovies_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/profiles/{nickname}": {
         parameters: {
             query?: never;
@@ -1463,13 +1517,24 @@ export interface components {
             /** @example 처리가 완료되었습니다. */
             message: string;
         };
-        ResetPasswordDto: {
-            /** @description 비밀번호 재설정 토큰 */
-            token: string;
+        VerifyPasswordResetCodeDto: {
             /**
-             * @description 새 비밀번호
-             * @example newPassword123
+             * @description 비밀번호 재설정 요청 이메일
+             * @example user@example.com
              */
+            email: string;
+            /**
+             * @description 이메일로 받은 6자리 인증 코드
+             * @example 123456
+             */
+            code: string;
+        };
+        ResetPasswordDto: {
+            /** @example user@example.com */
+            email: string;
+            /** @example 123456 */
+            code: string;
+            /** @example newPassword123 */
             newPassword: string;
         };
         UpdateProfileDto: {
@@ -1494,6 +1559,26 @@ export interface components {
         HealthResponseDto: {
             /** @example true */
             ok: boolean;
+        };
+        MoviePoolBackfillDto: {
+            /**
+             * @description TMDB discover 페이지 수
+             * @default 5
+             * @example 5
+             */
+            pages: Record<string, never>;
+            /**
+             * @description 기존 movie_pool 데이터도 다시 조회할지 여부
+             * @default false
+             * @example false
+             */
+            force: Record<string, never>;
+        };
+        MoviePoolBackfillResponseDto: {
+            /** @example movie_pool 백필을 시작했습니다. */
+            message: string;
+            /** @example 5 */
+            pages: number;
         };
         MovieDetailDto: {
             /** @example 550 */
@@ -2005,15 +2090,15 @@ export interface components {
         };
         UpcomingMovieDto: {
             /** @example 123456 */
-            tmdbId: number;
-            /** @example 오디세이 */
+            tmdbId: number | null;
+            /** @example 어벤져스: 엔드게임 앙코르 */
             title: string;
             /**
              * Format: date
-             * @example 2026-09-25
+             * @example 2026-09-23
              */
             releaseDate: string;
-            /** @example /poster-path.jpg */
+            /** @example http://file.koreafilm.or.kr/poster.jpg */
             posterPath: string | null;
             /** @example 12 */
             interestCount: number;
@@ -2023,7 +2108,6 @@ export interface components {
              */
             isReleaseDateConfirmed: boolean;
             /**
-             * @description 영화 장르
              * @example [
              *       "액션",
              *       "SF"
@@ -2175,6 +2259,42 @@ export interface components {
         };
         KobisMovieSearchResponseDto: {
             movieListResult: components["schemas"]["KobisMovieListResultDto"];
+        };
+        KmdbMovieResultDto: {
+            /** @example 어벤져스: 엔드게임 앙코르 */
+            title: string;
+            /** @example 20260923 */
+            releaseDate: Record<string, never> | null;
+            /** @example http://file.koreafilm.or.kr/thm/02/99/19/55/tn_DPF033876.jpg */
+            posterUrl: Record<string, never> | null;
+            /** @example https://www.kmdb.or.kr/trailer/trailerPlayPop?pFileNm=MK065583_P01.mp4 */
+            vodUrl: Record<string, never> | null;
+            /** @example 인피니티 워 이후 절반만 살아남은 지구 마지막 희망이 된 어벤져스... */
+            overview: Record<string, never> | null;
+            /** @example 안소니 루소, 조 루소 */
+            director: Record<string, never> | null;
+            /**
+             * @example [
+             *       "로버트 다우니 주니어"
+             *     ]
+             */
+            cast: string[];
+            /**
+             * @example [
+             *       "액션",
+             *       "SF"
+             *     ]
+             */
+            genres: string[];
+            /** @example 2019 */
+            productionYear: Record<string, never> | null;
+            /** @example true */
+            isReRelease: boolean;
+        };
+        KmdbSearchResponseDto: {
+            /** @example 24 */
+            totalCount: number;
+            results: components["schemas"]["KmdbMovieResultDto"][];
         };
         PublicProfileResponseDto: {
             /**
@@ -2905,6 +3025,29 @@ export interface operations {
             };
         };
     };
+    AuthController_verifyPasswordResetCode_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyPasswordResetCodeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponseDto"];
+                };
+            };
+        };
+    };
     AuthController_resetPassword_v1: {
         parameters: {
             query?: never;
@@ -3140,6 +3283,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponseDto"];
+                };
+            };
+        };
+    };
+    TmdbController_backfillMoviePool_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoviePoolBackfillDto"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MoviePoolBackfillResponseDto"];
                 };
             };
         };
@@ -3847,6 +4013,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["KobisMovieSearchResponseDto"];
+                };
+            };
+        };
+    };
+    KmdbController_searchMovies_v1: {
+        parameters: {
+            query?: {
+                query?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KmdbSearchResponseDto"];
                 };
             };
         };

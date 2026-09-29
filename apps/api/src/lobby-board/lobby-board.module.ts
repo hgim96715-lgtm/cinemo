@@ -5,9 +5,10 @@ import { TmdbModule } from '../tmdb/tmdb.module';
 import { AdminModule } from '../admin/admin.module';
 import { MovieChartSnapshotService } from './movie-chart-snapshot.service';
 import { KobisModule } from '../kobis/kobis.module';
+import { KmdbModule } from '../kmdb/kmdb.module';
 
 @Module({
-  imports: [TmdbModule, KobisModule, AdminModule],
+  imports: [TmdbModule, KobisModule, AdminModule, KmdbModule],
   controllers: [LobbyBoardController],
   providers: [LobbyBoardService, MovieChartSnapshotService],
 })

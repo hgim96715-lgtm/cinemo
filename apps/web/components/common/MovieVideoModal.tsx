@@ -15,12 +15,34 @@ type MovieVideoModalProps = {
 function getYoutubeEmbedUrl(url: string) {
   try {
     const parsedUrl = new URL(url);
+    const isYoutubeUrl =
+      parsedUrl.hostname === 'youtu.be' ||
+      parsedUrl.hostname === 'youtube.com' ||
+      parsedUrl.hostname.endsWith('.youtube.com');
+
+    if (!isYoutubeUrl) {
+      return null;
+    }
+
     const videoId =
       parsedUrl.searchParams.get('v') ??
       parsedUrl.pathname.split('/').filter(Boolean).pop();
 
     return videoId
       ? `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function getKmdbPlayerUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+
+    return parsedUrl.hostname === 'www.kmdb.or.kr' &&
+      parsedUrl.pathname === '/trailer/trailerPlayPop'
+      ? parsedUrl.toString()
       : null;
   } catch {
     return null;
@@ -35,6 +57,8 @@ export function MovieVideoModal({
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [isVideoBlocked, setIsVideoBlocked] = useState(false);
   const videoEmbedUrl = getYoutubeEmbedUrl(videoUrl);
+  const kmdbPlayerUrl = getKmdbPlayerUrl(videoUrl);
+  const playerUrl = videoEmbedUrl ?? kmdbPlayerUrl;
   const videoId = videoEmbedUrl?.match(/embed\/([^?]+)/)?.[1] ?? null;
   const [thumbnailUrl, setThumbnailUrl] = useState(
     videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null,
@@ -82,7 +106,7 @@ export function MovieVideoModal({
           </h2>
         </Dialog.Title>
 
-        {videoEmbedUrl ? (
+        {playerUrl ? (
           <div className="movie-chart-trailer-video">
             {isVideoBlocked && thumbnailUrl ? (
               <a
@@ -111,11 +135,20 @@ export function MovieVideoModal({
                 />
                 <span>YouTube에서 보기</span>
               </a>
+            ) : isVideoBlocked ? (
+              <a
+                href={videoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="movie-chart-trailer-fallback"
+              >
+                <span>KMDb에서 {videoLabel} 보기</span>
+              </a>
             ) : (
               <>
                 {isVideoLoading ? <MovieChartTrailerSkeleton /> : null}
                 <iframe
-                  src={videoEmbedUrl}
+                  src={playerUrl}
                   title={`${title} ${videoLabel}`}
                   loading="eager"
                   allow="autoplay; encrypted-media; picture-in-picture"
@@ -129,7 +162,14 @@ export function MovieVideoModal({
             )}
           </div>
         ) : (
-          <p>{videoLabel}을(를) 불러오지 못했습니다.</p>
+          <a
+            href={videoUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="movie-chart-trailer-fallback"
+          >
+            <span>KMDb에서 {videoLabel} 보기</span>
+          </a>
         )}
       </Dialog.Content>
     </Dialog.Portal>

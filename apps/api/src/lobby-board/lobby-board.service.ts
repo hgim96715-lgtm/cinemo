@@ -15,6 +15,15 @@ import {
   BoardBoxOfficeMovieDto,
   LobbyBoardResponseDto,
 } from './dto/lobby-board.dto';
+import { KmdbService } from '../kmdb/kmdb.service';
+
+type KmdbFallbackMovie = {
+  DOCID?: string;
+  title?: string;
+  releaseDate?: string | null;
+  posterUrl?: string | null;
+  vodUrl?: string | null;
+};
 
 @Injectable()
 export class LobbyBoardService {
@@ -24,6 +33,7 @@ export class LobbyBoardService {
     private readonly tmdbService: TmdbService,
     private readonly kobisService: KobisService,
     private readonly adminService: AdminService,
+    private readonly kmdbService: KmdbService,
     private readonly movieChartSnapshotService: MovieChartSnapshotService,
   ) {}
 
@@ -99,6 +109,63 @@ export class LobbyBoardService {
     );
   }
 
+  private async findKmdbFallback(
+    title: string,
+  ): Promise<KmdbFallbackMovie | null> {
+    const cachedMovie = await this.prisma.moviePool.findFirst({
+      where: {
+        title,
+        kmdbDocId: {
+          not: null,
+        },
+      },
+      select: {
+        kmdbDocId: true,
+        kmdbReleaseDate: true,
+        kmdbPosterUrl: true,
+        kmdbVodUrl: true,
+      },
+    });
+
+    if (cachedMovie?.kmdbDocId) {
+      return {
+        DOCID: cachedMovie.kmdbDocId,
+        releaseDate: cachedMovie.kmdbReleaseDate,
+        posterUrl: cachedMovie.kmdbPosterUrl,
+        vodUrl: cachedMovie.kmdbVodUrl,
+      };
+    }
+
+    try {
+      const response = await this.kmdbService.searchMovies(title, 1, 10);
+      const normalizedTitle = this.normalizeMovieTitle(title);
+      const matchingResults = response.results.filter((result) => {
+        const normalizedResultTitle = this.normalizeMovieTitle(result.title);
+
+        return (
+          normalizedResultTitle === normalizedTitle ||
+          normalizedResultTitle.includes(normalizedTitle) ||
+          normalizedTitle.includes(normalizedResultTitle)
+        );
+      });
+      const movie =
+        matchingResults.find((result) => result.posterUrl) ??
+        matchingResults[0];
+
+      if (!movie) return null;
+
+      return {
+        DOCID: movie.DOCID,
+        title: movie.title,
+        releaseDate: movie.releaseDate,
+        posterUrl: movie.posterUrl,
+        vodUrl: movie.vodUrl,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   private async getDailyBoxOfficeMovies(
     targetDate?: string,
   ): Promise<MovieChartMovie[]> {
@@ -136,6 +203,10 @@ export class LobbyBoardService {
           tmdbId: true,
           posterPath: true,
           releaseDate: true,
+          kmdbDocId: true,
+          kmdbReleaseDate: true,
+          kmdbPosterUrl: true,
+          kmdbVodUrl: true,
         },
       });
 
@@ -152,21 +223,55 @@ export class LobbyBoardService {
             },
           );
 
+          const kmdbMovie =
+            !media.posterPath || !media.trailerUrl
+              ? await this.findKmdbFallback(movie.movieNm)
+              : null;
+
+          if (media.tmdbId && kmdbMovie?.DOCID) {
+            await this.prisma.moviePool.updateMany({
+              where: {
+                tmdbId: media.tmdbId,
+              },
+              data: {
+                kmdbDocId: kmdbMovie.DOCID,
+                kmdbReleaseDate: kmdbMovie.releaseDate,
+                kmdbPosterUrl: kmdbMovie.posterUrl,
+                kmdbVodUrl: kmdbMovie.vodUrl,
+              },
+            });
+          }
+
           return {
             kobisMovieCd: movie.movieCd,
             tmdbId: media.tmdbId,
             rank: Number(movie.rank),
             title: movie.movieNm,
-            releaseDate: movie.openDt || pooledMovie?.releaseDate || null,
+            releaseDate:
+              movie.openDt ||
+              pooledMovie?.releaseDate ||
+              pooledMovie?.kmdbReleaseDate ||
+              kmdbMovie?.releaseDate ||
+              null,
             dailyAudienceCount: Number(movie.audiCnt),
             audienceCount: Number(movie.audiAcc),
             rankChange:
               movie.rankOldAndNew === 'NEW'
                 ? null
                 : Number(movie.rankInten) || 0,
-            posterPath: media.posterPath,
-            trailerUrl: media.trailerUrl,
-            videoType: media.videoType,
+            posterPath:
+              media.posterPath ||
+              pooledMovie?.kmdbPosterUrl ||
+              kmdbMovie?.posterUrl ||
+              null,
+            trailerUrl:
+              media.trailerUrl ||
+              pooledMovie?.kmdbVodUrl ||
+              kmdbMovie?.vodUrl ||
+              null,
+            videoType:
+              media.videoType ||
+              (pooledMovie?.kmdbVodUrl || kmdbMovie?.vodUrl ? 'trailer' : null),
           };
         }),
       );
@@ -210,6 +315,7 @@ export class LobbyBoardService {
     ]);
 
     const upcomingInterestMovies = upcomingResult.items
+      .filter((movie) => movie.tmdbId !== null)
       .sort(
         (a, b) =>
           b.interestCount - a.interestCount ||
@@ -218,7 +324,7 @@ export class LobbyBoardService {
       .slice(0, 5)
       .map((movie, index) => ({
         rank: index + 1,
-        tmdbId: movie.tmdbId,
+        tmdbId: movie.tmdbId!,
         title: movie.title,
         releaseDate: movie.releaseDate,
         interestCount: movie.interestCount,
@@ -361,8 +467,8 @@ export class LobbyBoardService {
 
     const filters = {
       region: 'KR',
-      'release_date.gte': fromDate,
-      'release_date.lte': untilDate,
+      'primary_release_date.gte': fromDate,
+      'primary_release_date.lte': untilDate,
       with_release_type: '2|3',
     };
 
@@ -389,7 +495,6 @@ export class LobbyBoardService {
           movie.release_date >= fromDate &&
           movie.release_date <= untilDate &&
           hasKoreanTitle(movie.title) &&
-          Boolean(movie.poster_path) &&
           movie.release_date !== '' &&
           !this.isExcludedUpcomingTitle(movie.title),
       )
@@ -413,23 +518,106 @@ export class LobbyBoardService {
     const genreNameById = new Map(
       genreResponse.genres.map((genre) => [genre.id, genre.name]),
     );
+    const formatKmdbDate = (date?: string | null) => {
+      if (!date || !/^\d{8}$/.test(date)) return null;
+
+      return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+    };
+
+    const kmdbOnlyMovies = await Promise.all(
+      (kobisMovies ?? []).map(async (kobisMovie) => {
+        const title = kobisMovie.titles[0]?.trim();
+
+        if (!title) return null;
+
+        const existsInTmdb = [...movieMap.values()].some(
+          (movie) =>
+            this.normalizeMovieTitle(movie.title) ===
+            this.normalizeMovieTitle(title),
+        );
+
+        if (existsInTmdb) return null;
+
+        const movie = await this.findKmdbFallback(title);
+
+        if (!movie) return null;
+
+        return {
+          tmdbId: null,
+          title,
+          // upcoming의 일정 기준은 KMDb의 과거 개봉일이 아니라 KOBIS 개봉 예정일임
+          releaseDate: kobisMovie.openDate,
+          posterPath: movie.posterUrl || null,
+          isKobisBacked: true,
+        };
+      }),
+    );
+
+    const allMovies = [
+      ...movieMap.values(),
+      ...kmdbOnlyMovies.filter(
+        (movie): movie is NonNullable<typeof movie> => movie !== null,
+      ),
+    ];
+
     const verifiedMovies = await Promise.all(
-      [...movieMap.values()].map(async (movie) => {
+      allMovies.map(async (movie) => {
+        if (movie.tmdbId === null) {
+          return {
+            ...movie,
+            genres: [],
+          };
+        }
+
         try {
           const detail = await this.tmdbService.getMovieCached(movie.tmdbId);
 
-          if (!detail.title?.trim() || !detail.release_date?.trim()) {
+          const needsKmdbFallback = !detail.poster_path || !detail.release_date;
+
+          const kmdbMovie = needsKmdbFallback
+            ? await this.findKmdbFallback(movie.title)
+            : null;
+
+          if (kmdbMovie?.DOCID) {
+            await this.prisma.moviePool.updateMany({
+              where: {
+                tmdbId: movie.tmdbId,
+              },
+              data: {
+                kmdbDocId: kmdbMovie.DOCID,
+                kmdbReleaseDate: kmdbMovie.releaseDate,
+                kmdbPosterUrl: kmdbMovie.posterUrl,
+                kmdbVodUrl: kmdbMovie.vodUrl,
+              },
+            });
+          }
+
+          if (!detail.title?.trim() && !kmdbMovie?.title?.trim()) {
             return null;
           }
 
           return {
             ...movie,
+            // 상세 캐시의 원개봉일이 재개봉 예정일을 덮어쓰지 않게 함
+            title: movie.title,
+            releaseDate: movie.releaseDate,
+            posterPath: detail.poster_path || kmdbMovie?.posterUrl || null,
             genres: (detail.genre_ids ?? [])
               .map((genreId) => genreNameById.get(genreId))
               .filter((genre): genre is string => Boolean(genre)),
           };
         } catch {
-          return null;
+          const kmdbMovie = await this.findKmdbFallback(movie.title);
+
+          if (!kmdbMovie) return null;
+
+          return {
+            ...movie,
+            title: movie.title,
+            releaseDate: movie.releaseDate,
+            posterPath: kmdbMovie.posterUrl || null,
+            genres: [],
+          };
         }
       }),
     );
@@ -441,7 +629,9 @@ export class LobbyBoardService {
           a.releaseDate.localeCompare(b.releaseDate) ||
           Number(b.isKobisBacked) - Number(a.isKobisBacked),
       );
-    const tmdbIds = upcomingMovies.map((movie) => movie.tmdbId);
+    const tmdbIds = upcomingMovies
+      .map((movie) => movie.tmdbId)
+      .filter((tmdbId): tmdbId is number => tmdbId !== null);
 
     const wishCounts = tmdbIds.length
       ? await this.prisma.userMovie.groupBy({
@@ -473,7 +663,8 @@ export class LobbyBoardService {
         releaseDate: movie.releaseDate,
         posterPath: movie.posterPath,
         genres: movie.genres,
-        interestCount: countMap.get(movie.tmdbId) ?? 0,
+        interestCount:
+          movie.tmdbId === null ? 0 : (countMap.get(movie.tmdbId) ?? 0),
         isReleaseDateConfirmed: movie.isKobisBacked,
       }));
 

@@ -39,6 +39,7 @@ import { ErrorModal } from '@/components/common/ErrorModal';
 import { UpcomingMovieListSkeleton } from '@/components/upcoming/UpcomingMovieListSkeleton';
 import { kstDateKey, kstYearMonth } from '@/lib/date-kst';
 import { getUserFacingErrorMessage } from '@/lib/get-user-facing-error-message';
+import { searchKmdbMoviesRequest, type KmdbMovieResult } from '@/lib/kmdb-api';
 
 type UpcomingPeriod = {
   key: string;
@@ -46,7 +47,55 @@ type UpcomingPeriod = {
 };
 
 type MovieDetailMovie = MovieDetail &
-  Pick<UpcomingMovie, 'isReleaseDateConfirmed'>;
+  Pick<UpcomingMovie, 'isReleaseDateConfirmed'> & {
+    genreNames?: string[];
+    productionYear?: string | null;
+    isReRelease?: boolean;
+  };
+
+function formatKmdbReleaseDate(date: string | null | undefined) {
+  if (!date || !/^\d{8}$/.test(date)) return date ?? '';
+
+  return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+}
+
+function normalizeMovieTitle(title: string) {
+  return title
+    .trim()
+    .toLocaleLowerCase('ko-KR')
+    .replace(/[\s\p{P}\p{S}]+/gu, '');
+}
+
+function filterUpcomingMovies(movies: UpcomingMovie[]) {
+  const today = kstDateKey();
+
+  return movies.filter((movie) => movie.releaseDate >= today);
+}
+
+function createUpcomingMovieDetail(
+  movie: UpcomingMovie,
+  kmdbMovie?: KmdbMovieResult,
+): MovieDetailMovie {
+  return {
+    id: 0,
+    // 목록에서 확정한 KOBIS 제목을 유지하고, KMDb 검색 결과의 별칭으로 덮어쓰지 않음
+    title: movie.title,
+    overview: kmdbMovie?.overview ?? '',
+    poster_path: kmdbMovie?.posterUrl ?? movie.posterPath,
+    release_date:
+      formatKmdbReleaseDate(kmdbMovie?.releaseDate) || movie.releaseDate,
+    director: kmdbMovie?.director ?? null,
+    cast: kmdbMovie?.cast ?? [],
+    trailerUrl: kmdbMovie?.vodUrl ?? null,
+    videoType: null,
+    genre_ids: [],
+    origin_countries: [],
+    genreNames: kmdbMovie?.genres ?? movie.genres,
+    productionYear: kmdbMovie?.productionYear ?? null,
+    isReRelease: kmdbMovie?.isReRelease ?? false,
+    isReleaseDateConfirmed: movie.isReleaseDateConfirmed,
+  };
+}
 
 function getUpcomingPeriods(): UpcomingPeriod[] {
   const { year, month } = kstYearMonth();
@@ -94,8 +143,8 @@ function UpcomingPageContent() {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const [detailMovie, setDetailMovie] = useState<MovieDetailMovie | null>(null);
-  const [detailMovieId, setDetailMovieId] = useState<number | null>(null);
-  const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
+  const [detailMovieKey, setDetailMovieKey] = useState<string | null>(null);
+  const [loadingDetailKey, setLoadingDetailKey] = useState<string | null>(null);
 
   const [releaseNotificationById, setReleaseNotificationById] = useState<
     Record<number, boolean>
@@ -132,7 +181,7 @@ function UpcomingPageContent() {
         );
 
         if (!cancelled) {
-          setMovies(sortUpcomingMovies(result.items));
+          setMovies(sortUpcomingMovies(filterUpcomingMovies(result.items)));
           setHasNext(result.hasNext);
           setHasLoadError(false);
           setEmptyModalOpen(result.items.length === 0);
@@ -177,7 +226,9 @@ function UpcomingPageContent() {
         10,
       );
 
-      setMovies((current) => sortUpcomingMovies([...current, ...result.items]));
+      setMovies((current) =>
+        sortUpcomingMovies(filterUpcomingMovies([...current, ...result.items])),
+      );
       setPage(nextPage);
       setHasNext(result.hasNext);
     } catch (error: unknown) {
@@ -303,12 +354,41 @@ function UpcomingPageContent() {
     router.replace(query ? `/upcoming?${query}` : '/upcoming');
   }
 
-  async function handleDetailClick(tmdbId: number) {
-    setDetailMovieId(tmdbId);
+  async function handleDetailClick(movie: UpcomingMovie, movieKey: string) {
+    setDetailMovieKey(movieKey);
     setDetailMovie(null);
-    setLoadingDetailId(tmdbId);
+    setLoadingDetailKey(movieKey);
 
-    const upcomingMovie = movies.find((item) => item.tmdbId === tmdbId);
+    if (movie.tmdbId === null) {
+      try {
+        const response = await searchKmdbMoviesRequest(movie.title, 1, 10);
+        const normalizedTitle = normalizeMovieTitle(movie.title);
+        const matchingResults = response.results.filter((result) => {
+          const normalizedResultTitle = normalizeMovieTitle(result.title);
+
+          return (
+            normalizedResultTitle === normalizedTitle ||
+            normalizedResultTitle.includes(normalizedTitle) ||
+            normalizedTitle.includes(normalizedResultTitle)
+          );
+        });
+        const kmdbMovie =
+          matchingResults.find((result) => result.posterUrl) ??
+          matchingResults[0];
+
+        setDetailMovie(createUpcomingMovieDetail(movie, kmdbMovie));
+      } catch {
+        setDetailMovie(createUpcomingMovieDetail(movie));
+      } finally {
+        setLoadingDetailKey(null);
+      }
+
+      return;
+    }
+
+    const tmdbId = movie.tmdbId;
+
+    const upcomingMovie = movie;
 
     const notificationPromise = accessToken
       ? (async () => {
@@ -340,9 +420,14 @@ function UpcomingPageContent() {
         release_date: upcomingMovie?.releaseDate ?? movie.release_date,
         isReleaseDateConfirmed: upcomingMovie?.isReleaseDateConfirmed ?? false,
       });
-
+    } catch (error: unknown) {
+      setDetailMovieKey(null);
+      setDetailMovie(null);
+      setError(
+        getUserFacingErrorMessage(error, '영화 상세 정보를 불러오지 못했어요.'),
+      );
     } finally {
-      setLoadingDetailId(null);
+      setLoadingDetailKey(null);
     }
   }
 
@@ -453,9 +538,12 @@ function UpcomingPageContent() {
           ) : error || hasLoadError || movies.length === 0 ? null : (
             sortUpcomingMovies(movies).map((movie, index) => {
               const poster = tmdbPosterUrl(movie.posterPath, 'w185');
-              const interested = interestedIds.includes(movie.tmdbId);
-              const toggling = togglingInterestId === movie.tmdbId;
-              const isDetailOpen = detailMovieId === movie.tmdbId;
+              const tmdbId = movie.tmdbId;
+              const movieKey = `${movie.title}-${movie.releaseDate}-${index}`;
+              const interested =
+                tmdbId !== null && interestedIds.includes(tmdbId);
+              const toggling = tmdbId !== null && togglingInterestId === tmdbId;
+              const isDetailOpen = detailMovieKey === movieKey;
               const selectedDetailMovie = isDetailOpen ? detailMovie : null;
               const releaseInfo = getReleaseDateDisplay(
                 movie.releaseDate,
@@ -464,11 +552,11 @@ function UpcomingPageContent() {
 
               return (
                 <Dialog.Root
-                  key={movie.tmdbId}
+                  key={movieKey}
                   open={isDetailOpen}
                   onOpenChange={(open) => {
                     if (!open && isDetailOpen) {
-                      setDetailMovieId(null);
+                      setDetailMovieKey(null);
                       setDetailMovie(null);
                     }
                   }}
@@ -482,7 +570,15 @@ function UpcomingPageContent() {
                         height={108}
                         priority={index === 0}
                       />
-                    ) : null}
+                    ) : (
+                      <div
+                        className="upcoming-poster-placeholder"
+                        aria-label={`${movie.title} 포스터 없음`}
+                      >
+                        <span aria-hidden="true">POSTER</span>
+                        <small aria-hidden="true">NO IMAGE</small>
+                      </div>
+                    )}
 
                     <div>
                       <h2>{movie.title}</h2>
@@ -513,8 +609,12 @@ function UpcomingPageContent() {
                           interested ? ' is-on' : ''
                         }`}
                         aria-pressed={interested}
-                        disabled={toggling}
-                        onClick={() => void handleInterestClick(movie.tmdbId)}
+                        disabled={tmdbId === null || toggling}
+                        onClick={() => {
+                          if (tmdbId !== null) {
+                            void handleInterestClick(tmdbId);
+                          }
+                        }}
                       >
                         <Heart
                           width={18}
@@ -530,10 +630,12 @@ function UpcomingPageContent() {
                         <button
                           type="button"
                           className="upcoming-detail-button"
-                          onClick={() => void handleDetailClick(movie.tmdbId)}
-                          disabled={loadingDetailId === movie.tmdbId}
+                          onClick={() =>
+                            void handleDetailClick(movie, movieKey)
+                          }
+                          disabled={loadingDetailKey === movieKey}
                         >
-                          {loadingDetailId === movie.tmdbId
+                          {loadingDetailKey === movieKey
                             ? '불러오는 중...'
                             : '상세 보기'}
                         </button>
@@ -544,24 +646,31 @@ function UpcomingPageContent() {
                   {selectedDetailMovie ? (
                     <MovieDetailModal
                       movie={selectedDetailMovie}
+                      showCalendar={selectedDetailMovie.id > 0}
                       movieStatus={{
-                        wish: interestedIds.includes(selectedDetailMovie.id),
+                        wish:
+                          selectedDetailMovie.id > 0 &&
+                          interestedIds.includes(selectedDetailMovie.id),
                         watched: false,
                       }}
                       showWatchedMark={false}
                       releaseNotificationEnabled={
                         releaseNotificationById[selectedDetailMovie.id] ?? false
                       }
-                      onToggleReleaseNotification={() => {
-                        void handleReleaseNotificationToggle();
-                      }}
+                      onToggleReleaseNotification={
+                        selectedDetailMovie.id > 0
+                          ? () => {
+                              void handleReleaseNotificationToggle();
+                            }
+                          : undefined
+                      }
                       onToggleMark={(kind) => {
-                        if (kind === 'wish') {
+                        if (kind === 'wish' && selectedDetailMovie.id > 0) {
                           void handleInterestClick(selectedDetailMovie.id);
                         }
                       }}
                       onClose={() => {
-                        setDetailMovieId(null);
+                        setDetailMovieKey(null);
                         setDetailMovie(null);
                       }}
                     />

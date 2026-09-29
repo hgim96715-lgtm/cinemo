@@ -72,7 +72,11 @@ type MovieModalMovie = MovieSummary &
       MovieDetail,
       'genre_ids' | 'origin_countries'
     >
-  >;
+  > & {
+    genreNames?: string[];
+    productionYear?: string | null;
+    isReRelease?: boolean;
+  };
 
 type MovieDetailModalProps = {
   movie: MovieModalMovie;
@@ -391,7 +395,10 @@ export function MovieDetailModal({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={poster} alt={`${movie.title} 포스터`} />
               ) : (
-                <span>포스터 없음</span>
+                <span className="movie-detail-poster-placeholder">
+                  <strong>POSTER</strong>
+                  <small>NO IMAGE</small>
+                </span>
               )}
             </div>
 
@@ -420,14 +427,24 @@ export function MovieDetailModal({
                     .map((genreId) => TMDB_GENRE_LABELS[genreId])
                     .filter(Boolean)
                     .map((genre) => <span key={genre}>{genre}</span>)
-                ) : null}
+                ) : (
+                  movie.genreNames?.map((genre) => (
+                    <span key={genre}>{genre}</span>
+                  )) ?? null
+                )}
               </div>
 
               <dl className="movie-detail-facts">
                 {movie.release_date ? (
                   <div>
-                    <dt>개봉일</dt>
+                    <dt>{movie.isReRelease ? '재개봉일' : '개봉일'}</dt>
                     <dd>{movie.release_date.replaceAll('-', '.')}</dd>
+                  </div>
+                ) : null}
+                {movie.productionYear ? (
+                  <div>
+                    <dt>제작연도</dt>
+                    <dd>{movie.productionYear}년</dd>
                   </div>
                 ) : null}
                 {movie.director ? (

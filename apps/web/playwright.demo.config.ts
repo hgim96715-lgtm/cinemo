@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.DEMO_BASE_URL ?? 'https://cinemo-six.vercel.app';
+const baseURL = process.env.DEMO_BASE_URL ?? 'https://www.cinemo.site';
 
 export default defineConfig({
   testDir: './e2e',

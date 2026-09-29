@@ -364,6 +364,23 @@
   font-size: 0.8rem;
 }
 
+.movie-detail-poster-placeholder {
+  align-content: center;
+  gap: 0.45rem;
+  color: rgb(212 181 106 / 0.72) !important;
+  background:
+    linear-gradient(145deg, rgb(212 181 106 / 0.08), transparent 60%),
+    #0d0f13;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.14em;
+}
+
+.movie-detail-poster-placeholder small {
+  color: var(--lobby-muted);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+}
+
 .movie-detail-info {
   grid-column: 2;
   grid-row: 2;

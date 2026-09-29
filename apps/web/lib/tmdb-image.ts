@@ -8,5 +8,10 @@ export function tmdbPosterUrl(
 ) {
   if (!posterPath) return null;
 
+  // KMDb posterPath는 이미 완성된 절대 URL이므로 TMDB 경로를 붙이면 안 됨.
+  if (/^https?:\/\//i.test(posterPath)) {
+    return posterPath;
+  }
+
   return `${TMDB_IMAGE_BASE}/${size}${posterPath}`;
 }

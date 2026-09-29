@@ -152,6 +152,10 @@ model MoviePool {
     releaseDate     String   @default("") @map("release_date")
     director        String?
     genreIds        Int[]    @default([]) @map("genre_ids")
+    kmdbDocId       String?  @unique @map("kmdb_doc_id")
+    kmdbReleaseDate String?  @map("kmdb_release_date")
+    kmdbPosterUrl   String?  @map("kmdb_poster_url")
+    kmdbVodUrl      String?  @map("kmdb_vod_url")
     originCountries String[] @default([]) @map("origin_countries")
     syncedAt        DateTime @default(now()) @map("synced_at") @db.Timestamptz(3)
 

@@ -29,6 +29,7 @@ import { KobisModule } from './kobis/kobis.module';
 import { RegionModule } from './region/region.module';
 import { KakaoModule } from './kakao/kakao.module';
 import { CinemaModule } from './cinema/cinema.module';
+import { KmdbModule } from './kmdb/kmdb.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { CinemaModule } from './cinema/cinema.module';
     RegionModule,
     KakaoModule,
     CinemaModule,
+    KmdbModule,
   ],
   controllers: [AppController, AiController],
   providers: [AppService],

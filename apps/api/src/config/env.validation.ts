@@ -35,6 +35,12 @@ export const envValidationSchema = Joi.object({
 
   [EnvKeys.KOBIS_API_KEY]: Joi.string().trim().optional(),
 
+  [EnvKeys.KMDB_API_KEY]: Joi.string().trim().required(),
+
+  [EnvKeys.KMDB_BASE_URL]: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .required(),
+
   [EnvKeys.GOOGLE_CLIENT_ID]: Joi.string().optional(),
   [EnvKeys.GOOGLE_CLIENT_SECRET]: Joi.string().optional(),
   [EnvKeys.GOOGLE_CALLBACK_URL]: Joi.string().uri().optional(),

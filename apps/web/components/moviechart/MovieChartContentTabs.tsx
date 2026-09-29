@@ -21,7 +21,7 @@ type MovieChartContentTabsProps = {
   historyError: string | null;
   loadingDetailId: number | null;
   onSelectTrailer: (movie: MovieChartItem) => void;
-  onSelectDetail: (tmdbId: number) => void;
+  onSelectDetail: (movie: MovieChartItem) => void;
 };
 
 function RankChange({ value }: { value: number | null }) {
@@ -130,7 +130,6 @@ export function MovieChartContentTabs({
         <Tabs.Content className="movie-chart-tab-panel" value="rankings">
           <ol className="movie-chart-list">
             {movies.map((movie) => {
-              console.log(movie);
               const poster = tmdbPosterUrl(movie.posterPath, 'w342');
               const tmdbId = movie.tmdbId;
 
@@ -208,18 +207,21 @@ export function MovieChartContentTabs({
                       </button>
                     ) : null}
 
-                    {tmdbId !== null ? (
-                      <button
-                        type="button"
-                        className="movie-chart-detail-button"
-                        onClick={() => onSelectDetail(tmdbId)}
-                        disabled={loadingDetailId === tmdbId}
-                      >
-                        {loadingDetailId === tmdbId
-                          ? '불러오는 중...'
-                          : '상세 보기'}
-                      </button>
-                    ) : null}
+                    <button
+                      type="button"
+                      className="movie-chart-detail-button"
+                      onClick={() => onSelectDetail(movie)}
+                      disabled={
+                        tmdbId !== null
+                          ? loadingDetailId === tmdbId
+                          : loadingDetailId === -1
+                      }
+                    >
+                      {(tmdbId !== null && loadingDetailId === tmdbId) ||
+                      (tmdbId === null && loadingDetailId === -1)
+                        ? '불러오는 중...'
+                        : '상세 보기'}
+                    </button>
                   </div>
                 </li>
               );

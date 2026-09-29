@@ -32,10 +32,9 @@ import {
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MoviePoolBackfillDto } from './dto/movie-pool-backfill.dto';
 import { MoviePoolBackfillResponseDto } from './dto/movie-pool-backfill-response.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('tmdb')
-@Roles('admin')
-@ApiBearerAuth()
 @Controller('tmdb')
 export class TmdbController {
   private readonly logger = new Logger(TmdbController.name);
@@ -43,6 +42,8 @@ export class TmdbController {
   constructor(private readonly tmdbService: TmdbService) {}
 
   @Post('movie-pool/backfill')
+  @Roles('admin')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({
     summary: 'movie_pool 백필',
@@ -68,6 +69,7 @@ export class TmdbController {
   }
 
   @Get('movie/:movieId')
+  @Public()
   @ApiOperation({ summary: '영화 상세 조회' })
   @ApiOkResponse({ type: MovieDetailDto })
   getMovie(@Param('movieId', ParseIntPipe) movieId: number) {
